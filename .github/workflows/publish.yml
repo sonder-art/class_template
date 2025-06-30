@@ -1,0 +1,61 @@
+# This is a GitHub Action that will automatically build and deploy your
+# Quarto website to GitHub Pages when you push to the 'main' branch.
+
+name: Publish Quarto Website
+
+# Run this workflow when a push is made to the main branch
+on:
+  push:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets the permissions for the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        # You can specify a Quarto version here if needed, e.g.,
+        # with:
+        #   version: 1.4.550
+
+      # Since your project uses Python, we need to set it up.
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' # Or whatever version you prefer
+          cache: 'pip'
+      
+      # If you have Python dependencies, you would add a step here:
+      # - name: Install Python dependencies
+      #   run: pip install -r requirements.txt
+
+      - name: Render Quarto Website
+        uses: quarto-dev/quarto-actions/render@v1
+        # If your project had no Python/R dependencies, you could just use:
+        # run: quarto render
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
+
