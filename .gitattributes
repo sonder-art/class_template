@@ -1,2 +1,3 @@
-# Tell GitHub to treat .qmd files as Markdown for rendering purposes.
-*.qmd linguist-language=Markdown 
+# Tell GitHub to treat .qmd files as R Markdown for better rendering,
+# as the Rmd renderer understands how to handle YAML frontmatter.
+*.qmd linguist-language=Rmd 
