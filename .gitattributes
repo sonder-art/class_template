@@ -1,0 +1,2 @@
+# Tell GitHub to treat .qmd files as Markdown for rendering purposes.
+*.qmd linguist-language=Markdown 
