@@ -1,0 +1,73 @@
+# _quarto.yml (in the root of your template repository)
+# This file configures the overall Quarto project for your class repository template.
+
+project:
+  type: website      # This project generates a website
+  output-dir: _site  # All rendered HTML output for the main website will go into this folder
+
+# Add variables here
+metadata:
+  # --- Class Information ---
+  class_name: "Template Course Title"     # Placeholder: e.g., "Artificial Intelligence Fundamentals"
+  course_code: "TMPL101"                  # Placeholder: e.g., "AI101"
+  period: "Template Semester Year"        # Placeholder: e.g., "Fall 2025"
+
+  # --- Repository and Drive URLs ---
+  repository_url: "https://github.com/your-organization/your-repo-template" # Placeholder: This template repo's URL
+  class_drive_url: "https://drive.google.com/drive/folders/your_google_drive_id" # Placeholder: URL to the class's shared drive
+  github_org_url: "https://github.com/your-organization" # Placeholder: Link to your GitHub organization
+
+  # --- Instructor Information ---
+  instructor_name: "[Your Name]"          # Placeholder: e.g., "Dr. Jane Doe"
+  instructor_email: "your.email@example.edu" # Placeholder: e.g., "jane.doe@example.edu"
+  office_hours: "By appointment"          # Placeholder: e.g., "Mondays 10:00 AM - 12:00 PM (Zoom link in LMS)"
+
+  # --- Course Specific Links (can be relative paths if within the Quarto project) ---
+  syllabus_url: "syllabus.qmd"            # Placeholder: Points to a Quarto document in the same project
+  announcements_url: "https://your-lms.com/courses/TMPL101/announcements" # Placeholder: Example LMS announcements link
+
+website:
+  # Use variables from _metadata.yml for dynamic title. This title will appear in the browser tab.
+  title: "{{< meta class_name >}} ({{< meta course_code >}}) - {{< meta period >}}"
+
+  # Navbar configuration for the main class website
+  navbar:
+    left:
+      # Link to your main class notes section. This will be the home for your core content.
+      - href: class_notes/index.qmd
+        text: Class Notes
+      # Add other fixed navigation items relevant to the overall class
+      - href: syllabus.qmd
+        text: Syllabus
+      - href: schedule.qmd
+        text: Schedule
+    right:
+      # Use variables from _metadata.yml for dynamic external links
+      - icon: github
+        href: "{{< meta repository_url >}}"
+        aria-label: GitHub Repository
+      - icon: google # Icon hint for Google Drive, will render as text if icon not supported by theme
+        href: "{{< meta class_drive_url >}}"
+        text: Drive
+        aria-label: Google Drive for Class Files
+
+  # Footer configuration for the main class website
+  page-footer:
+    left: "Copyright &copy; {{< meta class_name >}}, {{< meta period >}}"
+    right: "Built with [Quarto](https://quarto.org/)"
+
+format:
+  html:
+    theme: cosmo        # A clean, modern theme for the main website
+    css: styles/main.css     # Link to your custom CSS file
+    toc: true           # Enable Table of Contents for individual pages
+    code-fold: true     # Allow code blocks to be folded/unfolded
+    code-summary: "Show/Hide Code" # Text for the code fold button
+
+# Crucial for templates: Define what Quarto renders when you run `quarto render` from the root.
+# This explicitly EXCLUDES the 'students/' directory from the main website build.
+# Students will render their own work from within their sandboxes.
+render:
+  - "**/*.qmd"             # Render all .qmd files in the project
+  - "!students/"            # BUT explicitly exclude the entire 'students' directory itself
+  - "!students/**/*.qmd"    # AND all .qmd files within 'students' subdirectories

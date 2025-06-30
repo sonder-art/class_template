@@ -182,9 +182,9 @@ cython_debug/
 .abstra/
 
 # Visual Studio Code
-#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#  Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore
 #  that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
-#  and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#  and can be added to the global gitignore or merged into this file. However, if you prefer,
 #  you could uncomment the following to ignore the entire vscode folder
 # .vscode/
 
@@ -205,3 +205,40 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# --- Quarto Generated Files ---
+_site/                  # Main website output directory
+_book/                  # Quarto book output
+_freeze/                # Quarto caching directory
+.quarto/                # Quarto project cache/temp files
+*.html                  # Generated HTML documents (if not in _site)
+*.pdf                   # Generated PDF documents
+*.docx                  # Generated MS Word documents
+*.tex                   # LaTeX intermediate files
+*.log
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+# --- Jupyter Notebook Specific (often already in Python .gitignore, but good to ensure) ---
+.ipynb_checkpoints/
+# *.pyc                 # (Usually in Python .gitignore)
+# __pycache__/          # (Usually in Python .gitignore)
+
+# --- Student Sandboxes - Ignore Generated Output Only ---
+# This ensures that when a new class repo is spawned,
+# the 'students/' directory contains only the template source,
+# not any rendered outputs. Students will manage their own outputs locally.
+students/**/_site/          # Ignore all _site folders within student directories
+students/**/*.html          # Ignore all generated HTML files in student directories
+students/**/*.pdf           # Ignore all generated PDF files in student directories
+students/**/*.docx          # Ignore all generated DOCX files in student directories
+students/**/.venv/          # Ignore virtual environments within student directories
+students/**/__pycache__/    # Ignore Python bytecode within student directories
+students/**/*.ipynb         # Optionally ignore Jupyter notebooks if you only want .qmd
+/.quarto/
+_site/
