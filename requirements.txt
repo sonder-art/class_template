@@ -3,4 +3,8 @@
 # For example:
 # pandas
 # numpy
-# matplotlib 
+# matplotlib
+
+# Required for Quarto to execute Python code cells
+jupyter
+pyyaml 
