@@ -66,8 +66,8 @@ format:
 
 # Crucial for templates: Define what Quarto renders when you run `quarto render` from the root.
 # This explicitly EXCLUDES the 'students/' directory from the main website build.
-# Students will render their own work from within their sandboxes.
+# This ensures student work does not interfere with the main site and saves computation time.
 render:
-  - "**/*.qmd"             # Render all .qmd files in the project
-  - "!students/"            # BUT explicitly exclude the entire 'students' directory itself
-  - "!students/**/*.qmd"    # AND all .qmd files within 'students' subdirectories
+  - "*.qmd"                 # Render all top-level .qmd files (like index.qmd, syllabus.qmd)
+  - "class_notes/"          # Render the official class notes
+  - "!students/"            # IMPORTANT: Exclude the entire students directory from the main build

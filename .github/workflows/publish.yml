@@ -23,8 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Build job
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -40,24 +39,34 @@ jobs:
           python-version: '3.11' # Or whatever version you prefer
           cache: 'pip'
       
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
+      # - name: Install Python dependencies
+      #   run: pip install -r requirements.txt
+
+      - name: Identify Render Target
+        id: check_dir
+        run: |
+          if [[ -d "students/${{ github.actor }}" ]]; then
+            echo "RENDER_DIR=students/${{ github.actor }}" >> $GITHUB_ENV
+            echo "Student directory 'students/${{ github.actor }}' found. Setting it as render target."
+          else
+            echo "RENDER_DIR=." >> $GITHUB_ENV
+            echo "No student directory found for user '${{ github.actor }}'. Rendering root project."
+          fi
 
       - name: Render Quarto Website
-        uses: quarto-dev/quarto-actions/render@v2
-        # This action renders the project and places the output in _site
-        # It automatically handles caching of packages if you have a 
-        # requirements.txt or equivalent.
+        uses: quarto-dev/quarto-actions/render@v1
+        with:
+          path: ${{ env.RENDER_DIR }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: ${{ env.RENDER_DIR }}/_site
 
   # Deployment job
   deploy:
     # This job requires the build job to have completed successfully
-    needs: build
+    needs: publish
     runs-on: ubuntu-latest
     environment:
       name: github-pages

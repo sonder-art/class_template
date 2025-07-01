@@ -1,0 +1,28 @@
+# This is the configuration for a single student's personal website.
+# It lives in the student's personal directory (e.g., students/alice/)
+
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Student Portfolio" # Students can change this
+  
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      # Students can add links to their homework files here
+      # - href: homework/hw1.qmd
+      #   text: Homework 1
+
+format:
+  html:
+    theme: cosmo # Students can choose their own theme
+    css: ../../styles/main.css # Uses the main structural CSS
+    # Students can also add their own theme packs, e.g.:
+    # css:
+    #   - ../../styles/main.css
+    #   - ../../styles/themes/studio-ghibli.css
+    toc: true
+    code-fold: true 
