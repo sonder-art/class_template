@@ -7,6 +7,9 @@
 ============================================
 */
 
+/* OpenDyslexic Font Import for Accessibility via Fontsource */
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.2.5/index.css');
+
 /* 
 --------------------------------------------
    1. MASTER CONTROL PANEL (CSS Custom Properties)
@@ -102,6 +105,10 @@
   --callout-title-font-size: 1.3rem;     /* Much larger titles */
   --callout-line-height: 1.65;           /* Better readability */
   --callout-padding: 1.5rem;             /* More breathing room */
+
+  /* 1.7: Accessibility Font System */
+  --font-family-dyslexic: 'OpenDyslexic', 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+  --font-family-normal: var(--font-family-body);
 }
 
 /* 
@@ -179,6 +186,32 @@ small {
     color: var(--text-color-light);
     font-size: 0.85em;
 }
+
+/* 
+--------------------------------------------
+   3.1: ACCESSIBILITY - DYSLEXIC FONT MODE
+   When body has .dyslexic-mode class, override all fonts
+--------------------------------------------
+*/
+body.dyslexic-mode,
+body.dyslexic-mode *,
+body.dyslexic-mode h1,
+body.dyslexic-mode h2,
+body.dyslexic-mode h3,
+body.dyslexic-mode h4,
+body.dyslexic-mode h5,
+body.dyslexic-mode h6,
+body.dyslexic-mode p,
+body.dyslexic-mode li,
+body.dyslexic-mode code,
+body.dyslexic-mode pre,
+body.dyslexic-mode .callout,
+body.dyslexic-mode .nav-button,
+body.dyslexic-mode .breadcrumb-list {
+  font-family: var(--font-family-dyslexic) !important;
+}
+
+/* Legacy accessibility bar removed - now integrated into navbar */
 
 /* 
 --------------------------------------------
@@ -988,4 +1021,86 @@ hr.nav-divider {
     width: 100% !important;                 /* Full width on mobile */
     padding: 1rem 2rem !important;         /* Less padding on mobile */
   }
+}
+
+/* 
+============================================
+   11. ACCESSIBILITY NAVBAR INTEGRATION
+   Integrates with Quarto navbar next to GitHub icon
+============================================
+*/
+
+/* Navbar accessibility toggle styling */
+.accessibility-nav-item {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.accessibility-toggle-nav {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.3rem !important;
+  padding: 0.375rem 0.75rem !important;
+  color: var(--bs-navbar-color, var(--text-color)) !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease-in-out !important;
+  cursor: pointer !important;
+  font-size: 0.875rem !important;
+}
+
+.accessibility-toggle-nav:hover {
+  color: var(--bs-navbar-hover-color, var(--accent-color)) !important;
+}
+
+.accessibility-checkbox {
+  margin: 0 !important;
+  margin-right: 0.25rem !important;
+  transform: scale(0.9) !important;
+  cursor: pointer !important;
+}
+
+.accessibility-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  font-weight: normal !important;
+}
+
+.accessibility-icon {
+  font-size: 1rem !important;
+}
+
+.accessibility-text {
+  font-size: 0.875rem !important;
+  white-space: nowrap !important;
+}
+
+/* Responsive behavior */
+@media (max-width: 767px) {
+  .accessibility-text {
+    display: none !important; /* Hide text on mobile, keep only icon */
+  }
+  
+  .accessibility-toggle-nav {
+    padding: 0.375rem 0.5rem !important;
+  }
+}
+
+/* Fallback styling for when navbar isn't found */
+#accessibility-fallback {
+  font-family: var(--font-family-body) !important;
+}
+
+.accessibility-fallback-toggle {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-size: 0.875rem !important;
+}
+
+.accessibility-fallback-toggle label {
+  cursor: pointer !important;
+  margin: 0 !important;
 } 

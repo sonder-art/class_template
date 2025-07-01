@@ -60,4 +60,5 @@ format:
       - styles/themes/evangelion.css
     toc: true
     code-fold: true 
-    code-summary: "Show/Hide Code" 
+    code-summary: "Show/Hide Code"
+    include-after-body: components/accessibility-auto.html 
