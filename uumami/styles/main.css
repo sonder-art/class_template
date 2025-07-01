@@ -214,6 +214,53 @@ body.dyslexic-mode .breadcrumb-list {
 /* Legacy accessibility bar removed - now integrated into navbar */
 
 /* 
+============================================
+   12. NAVBAR ICON CUSTOMIZATION
+   Custom styling for navbar icons
+============================================
+*/
+
+/* Google Drive icon - replace with actual Google Drive Material Icon */
+.navbar-nav .nav-link[aria-label*="Google Drive"] {
+  position: relative !important;
+}
+
+/* Hide the Bootstrap icon */
+.navbar-nav .nav-link[aria-label*="Google Drive"] i,
+.navbar-nav .nav-link[aria-label*="Google Drive"] .bi {
+  display: none !important;
+}
+
+/* Show the actual Google Drive SVG icon instead */
+.navbar-nav .nav-link[aria-label*="Google Drive"]::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 14px !important;
+  height: 14px !important;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 87.3 78' fill='%234285f4'%3E%3Cpath d='m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z'/%3E%3Cpath d='m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0-1.2 4.5h27.5z' fill='%23ea4335'/%3E%3Cpath d='m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z' fill='%2334a853'/%3E%3Cpath d='m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z' fill='%23fbbc04'/%3E%3Cpath d='m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z' fill='%2334a853'/%3E%3Cpath d='m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z' fill='%23ea4335'/%3E%3C/svg%3E") !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.navbar-nav .nav-link[aria-label*="Google Drive"]:hover::before {
+  transform: scale(1.1) !important; /* Slight zoom on hover */
+  opacity: 0.8 !important; /* Subtle opacity change on hover */
+}
+
+/* Keep GitHub icon normal size but add hover effect */
+.navbar-nav .nav-link[aria-label*="GitHub"] i,
+.navbar-nav .nav-link[aria-label*="GitHub"] .bi {
+  transition: color 0.2s ease-in-out !important;
+}
+
+.navbar-nav .nav-link[aria-label*="GitHub"]:hover i,
+.navbar-nav .nav-link[aria-label*="GitHub"]:hover .bi {
+  color: var(--accent-color, #6366f1) !important;
+}
+
+/* 
 --------------------------------------------
    4. CORE COMPONENT STRUCTURES
 --------------------------------------------

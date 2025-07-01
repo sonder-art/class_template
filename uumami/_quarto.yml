@@ -43,9 +43,8 @@ website:
       - icon: github
         href: "{{< meta repository_url >}}"
         aria-label: GitHub Repository
-      - icon: google
+      - icon: folder-fill
         href: "{{< meta class_drive_url >}}"
-        text: Drive
         aria-label: Google Drive for Class Files
 
   page-footer:
