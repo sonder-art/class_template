@@ -1,11 +1,1 @@
-# This file specifies the Python dependencies for the project.
-# The GitHub Actions workflow will automatically install these packages.
-# Add any packages your code needs, for example:
-# numpy
-# pandas
-# matplotlib
-# scikit-learn
-
-# Required for Quarto to execute Python code cells
-jupyter
-pyyaml 
+ 

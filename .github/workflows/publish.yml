@@ -40,7 +40,7 @@ jobs:
           cache: 'pip'
       
       - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r ${{ env.TARGET_DIR }}/requirements.txt
 
       - name: Identify Render Target
         id: identify_target
@@ -49,8 +49,8 @@ jobs:
             echo "TARGET_DIR=students/${{ github.actor }}" >> $GITHUB_ENV
             echo "Student directory 'students/${{ github.actor }}' found. Rendering it."
           else
-            echo "TARGET_DIR=." >> $GITHUB_ENV
-            echo "No student directory found for '${{ github.actor }}'. Rendering root project."
+            echo "TARGET_DIR=uumami" >> $GITHUB_ENV
+            echo "No student directory found. Rendering default 'uumami' project."
           fi
 
       - name: Render Quarto Website
