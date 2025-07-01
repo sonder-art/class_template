@@ -84,6 +84,7 @@ Before installing extensions, let's get familiar with the interface.
 In software development, you don't open individual files; you open the entire project **folder**. This lets the editor see all the files at once, which is critical for its features to work correctly.
 
 After you clone your project in a later step, you will open it like this:
+
 1.  Launch the Cursor application.
 2.  Go to the "File" menu in the top-left corner of the screen.
 3.  Click "Open Folder..."
