@@ -26,7 +26,7 @@ These elements **NEVER change** across themes to ensure educational content rema
 ### **Callout System Standards**
 - **Contrast ratio**: 6:1 minimum (WCAG AA+ compliance)
 - **Font sizes**: `1.3rem` body text, `1.3rem` titles (optimized for classroom presentations)
-- **Icons**: Universal symbols (⚠️ warning, 💡 tip, 📖 note, ✏️ exercise, 🎯 objective, ⭐ important)
+- **Icons**: Universal symbols (📖 note, 📚 definition, ⭐ tip, ⚠️ warning, ✏️ exercise, 🎯 objective, 📝 homework, 🤖 prompt)
 - **Structure**: Padding, borders, spacing, layout locked for consistency
 - **Visual weight**: All callouts have same prominence across themes
 
@@ -483,6 +483,21 @@ body::before {
   --callout-objective-bg: #value;
   --callout-objective-text: #value;
   --callout-objective-border: #value; /* Override universal blue */
+  
+  /* Definition callouts */
+  --callout-definition-bg: #value;
+  --callout-definition-text: #value;
+  --callout-definition-border: #value; /* Override universal purple */
+  
+  /* Homework callouts */
+  --callout-homework-bg: #value;
+  --callout-homework-text: #value;
+  --callout-homework-border: #value; /* Override universal coral */
+  
+  /* Prompt callouts */
+  --callout-prompt-bg: #value;
+  --callout-prompt-text: #value;
+  --callout-prompt-border: #value; /* Override universal teal */
 }
 ```
 

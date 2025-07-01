@@ -91,6 +91,18 @@
   --callout-objective-bg: #0A0A0A;       /* Almost black background */
   --callout-objective-text: #FFFFFF;     /* Pure white text */
   /* objective-border uses universal blue - no override needed */
+
+  --callout-definition-bg: #0A0A0A;      /* Almost black background */
+  --callout-definition-text: #FFFFFF;    /* Pure white text */
+  --callout-definition-border: #8A4D9E;  /* Evangelion purple for definitions */
+
+  --callout-homework-bg: #0A0A0A;        /* Almost black background */
+  --callout-homework-text: #FFFFFF;      /* Pure white text */
+  /* homework-border uses universal coral - no override needed */
+
+  --callout-prompt-bg: #0A0A0A;          /* Almost black background */
+  --callout-prompt-text: #FFFFFF;        /* Pure white text */
+  --callout-prompt-border: #55C62F;      /* Evangelion green for AI prompts */
 }
 
 /* 
