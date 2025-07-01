@@ -1,18 +1,20 @@
 /*
 ============================================
-   THEME TEMPLATE: _template.css
+   DEFAULT DARK THEME TEMPLATE: _template.css
    
-   Instructions:
-   1. Copy this file and rename it (e.g., 'my-new-theme.css').
+   This is now the master dark theme (evangelion-inspired) that other themes inherit from.
+   
+   Instructions for creating new themes:
+   1. Copy this file and rename it (e.g., 'cyberpunk.css', 'forest.css').
    2. Find new fonts from Google Fonts (https://fonts.google.com/).
       - Click 'Get Font' and then 'Get embed code'.
       - Copy the @import line into the 'Font Imports' section below.
-   3. Find a color palette you like (e.g., from https://coolors.co/).
-   4. Replace the placeholder values in the ':root' section with your new font names and color codes.
-   5. (Optional) Add any theme-specific flair in Section 2.
+   3. Find a color palette that fits your theme personality.
+   4. Replace the personality colors (primary, accent, bg) with your new colors.
+   5. NEVER override callout contrast variables - they're locked for readability.
+   6. Add theme-specific personality elements in Section 3.
 ============================================
 */
-
 
 /* 
 --------------------------------------------
@@ -21,8 +23,7 @@
 --------------------------------------------
 */
 
-/* @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap'); */
-
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Source+Sans+Pro:wght@400;700&family=Share+Tech+Mono&display=swap');
 
 /* 
 --------------------------------------------
@@ -32,71 +33,111 @@
 */
 
 :root {
-  /* -- GLOBAL COLORS -- */
-  --primary-color: #000000;
-  --accent-color: #000000;
-  --text-color: #333333;
-  --text-color-light: #7a7a7a;
-  --bg-color: #ffffff;
-  --bg-color-offset: #f8f9fa;
-  --link-color: #000000;
-  --link-color-hover: #000000;
-  --border-color: #dee2e6;
+  /* ========================================
+     UNIVERSAL READABILITY CONSTANTS
+     🔒 DO NOT OVERRIDE THESE IN OTHER THEMES
+     ======================================== */
+  
+  /* Callout Universal Standards (6:1 contrast ratio minimum) */
+  --callout-padding: 1.25em;
+  --callout-border-width: 4px;
+  --callout-border-radius: 6px;
+  --callout-margin: 1.5em 0;
+  
+  /* Universal Icons (never change for consistency) */
+  --callout-definition-icon: '"📖"';     /* Book for definitions */
+  --callout-objective-icon: '"🎯"';      /* Target for objectives */
+  --callout-takeaway-icon: '"💡"';       /* Lightbulb for insights */
+  --callout-tip-icon: '"⭐"';           /* Star for tips */
+  --callout-warning-icon: '"⚠️"';        /* Warning triangle */
+  --callout-exercise-icon: '"✏️"';       /* Pencil for exercises */
 
-  /* -- TYPOGRAPHY -- */
-  /* Don't forget to import the fonts above! */
-  --font-family-body: 'Georgia', serif;
-  --font-family-heading: 'Helvetica', sans-serif;
-  --font-family-monospace: 'Courier New', monospace;
+  /* ========================================
+     THEME PERSONALITY VARIABLES
+     ✅ Override these freely in other themes
+     ======================================== */
+
+  /* -- GLOBAL COLORS (Evangelion Purple/Green Default) -- */
+  --primary-color: #8A4D9E;          /* EVA-01 Purple for headings */
+  --accent-color: #55C62F;           /* EVA-01 Green for accents and links */
+  --text-color: #E0E0E0;             /* Off-white for body text, like a terminal */
+  --text-color-light: #999999;       /* Muted gray for less important text */
+  --bg-color: #121212;               /* Deep dark gray, not quite pure black */
+  --bg-color-offset: #1E1E1E;       /* Slightly lighter gray for bordered components */
+  --link-color: #55C62F;             /* EVA-01 Green */
+  --link-color-hover: #98E85B;       /* Brighter green on hover */
+  --border-color: #444444;           /* Mid-gray for borders */
+
+  /* -- TYPOGRAPHY (Futuristic Theme) -- */
+  --font-family-body: 'Source Sans Pro', sans-serif;
+  --font-family-heading: 'Orbitron', sans-serif;
+  --font-family-monospace: 'Share Tech Mono', monospace;
 
   /* -- COMPONENTS -- */
-  --code-bg-color: #f1f1f1;
-  --code-text-color: #333;
-  --table-header-bg: #f1f1f1;
-  --table-row-even-bg: #f8f9fa;
-  --blockquote-border-color: var(--border-color);
+  --code-bg-color: #000000;
+  --code-text-color: var(--accent-color);
+  --table-header-bg: #2a2a2a;
+  --table-row-even-bg: #1E1E1E;
+  --blockquote-border-color: var(--primary-color);
 
-  /* -- EDUCATIONAL CALLOUTS -- */
-  /* You can change background, border, and the icon content. */
-  /* To use an image icon: --callout-definition-icon: url('/path/to/icon.svg'); */
+  /* ========================================
+     CALLOUT COLORS (High Contrast, Locked Design)
+     🔒 These ensure 6:1+ contrast ratio
+     ======================================== */
 
-  --callout-definition-bg: #e9ecef;
-  --callout-definition-border: #adb5bd;
-  --callout-definition-icon: '"\\1F4D6"';
+  /* Definition: Tech Manual Style */
+  --callout-definition-bg: #2D1B3D;      /* Dark purple background */
+  --callout-definition-text: #F0F0F0;    /* Light text for contrast */
+  --callout-definition-border: #8A4D9E;  /* Purple border */
 
-  --callout-objective-bg: #e6f7ff;
-  --callout-objective-border: #91d5ff;
-  --callout-objective-icon: '"\\2714"';
+  /* Learning Objective: Mission Briefing */
+  --callout-objective-bg: #1A2332;       /* Dark blue background */
+  --callout-objective-text: #F0F0F0;     /* Light text */
+  --callout-objective-border: #4A90E2;   /* Blue border */
 
-  --callout-takeaway-bg: #fffbe6;
-  --callout-takeaway-border: #ffe58f;
-  --callout-takeaway-icon: '"\\1F4A1"';
+  /* Key Takeaway: Success State */
+  --callout-takeaway-bg: #1B2F1F;        /* Dark green background */
+  --callout-takeaway-text: #F0F0F0;      /* Light text */
+  --callout-takeaway-border: #55C62F;    /* Green border */
 
-  --callout-tip-bg: #e6fffb;
-  --callout-tip-border: #87e8de;
-  --callout-tip-icon: '"\\2B50"';
+  /* Pro-Tip: Information Highlight */
+  --callout-tip-bg: #1F2937;             /* Dark cyan background */
+  --callout-tip-text: #F0F0F0;           /* Light text */
+  --callout-tip-border: #17a2b8;         /* Cyan border */
 
-  --callout-warning-bg: #fff1f0;
-  --callout-warning-border: #ffa39e;
-  --callout-warning-icon: '"\\26A0"';
+  /* Warning: Alert State */
+  --callout-warning-bg: #2F1B1B;         /* Dark red background */
+  --callout-warning-text: #F0F0F0;       /* Light text */
+  --callout-warning-border: #E74C3C;     /* Red border */
 
-  --callout-exercise-bg: #f6f2ff;
-  --callout-exercise-border: #d3adf7;
-  --callout-exercise-icon: '"\\270F"';
+  /* Exercise: Interactive Element */
+  --callout-exercise-bg: #2F2419;        /* Dark amber background */
+  --callout-exercise-text: #F0F0F0;      /* Light text */
+  --callout-exercise-border: #F39C12;    /* Amber border */
 }
-
 
 /* 
 --------------------------------------------
-   SECTION 3: (OPTIONAL) THEME-SPECIFIC FLAIR
+   SECTION 3: THEME-SPECIFIC PERSONALITY ELEMENTS
    - Add any custom CSS rules here that go beyond variable changes.
-   - For example, a custom body background image.
+   - These create the "evangelion" personality.
 --------------------------------------------
 */
 
-/* 
-body {
-  background-image: url('/path/to/your/background.png');
-  background-size: cover;
+/* Add a subtle glow to headings to mimic a CRT screen */
+h1, h2, h3 {
+  text-shadow: 0 0 5px rgba(138, 77, 158, 0.3);
 }
-*/ 
+
+/* Subtle hexagonal background pattern to evoke an AT Field */
+body {
+    background-image:
+        linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%232a2a2a' fill-opacity='0.4' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.99-7.5L26 15v18.5l-13 7.5L0 33.5V15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Terminal-style glow for code blocks */
+pre {
+  box-shadow: 0 0 10px rgba(85, 198, 47, 0.1);
+  border: 1px solid rgba(85, 198, 47, 0.3);
+} 

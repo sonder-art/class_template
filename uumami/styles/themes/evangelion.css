@@ -1,39 +1,37 @@
 /*
 ============================================
-   THEME TEMPLATE: _template.css
+   EVANGELION THEME: evangelion.css
    
-   Instructions:
-   1. Copy this file and rename it (e.g., 'my-new-theme.css').
-   2. Find new fonts from Google Fonts (https://fonts.google.com/).
-      - Click 'Get Font' and then 'Get embed code'.
-      - Copy the @import line into the 'Font Imports' section below.
-   3. Find a color palette you like (e.g., from https://coolors.co/).
-   4. Replace the placeholder values in the ':root' section with your new font names and color codes.
-   5. (Optional) Add any theme-specific flair in Section 2.
+   This theme extends the default dark template (_template.css) with 
+   additional evangelion-specific personality elements.
+   
+   Since the evangelion style is now the default template, this file
+   only contains optional enhancements and variations.
 ============================================
 */
-
 
 /* 
 --------------------------------------------
    SECTION 1: FONT IMPORTS
-   - Add @import rules from Google Fonts here.
+   - Inherit from template, but could add theme-specific fonts
 --------------------------------------------
 */
 
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Source+Sans+Pro:wght@400;700&family=Share+Tech+Mono&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600&family=Source+Sans+Pro:wght@400;700&family=Share+Tech+Mono&display=swap');
 
 /* 
 --------------------------------------------
-   SECTION 2: THEME VARIABLE OVERRIDES
-   - This block overrides the default variables from main.css.
+   SECTION 2: EVANGELION PERSONALITY OVERRIDES
+   - Optional variations on the base evangelion theme
 --------------------------------------------
 */
 
 :root {
-  /* -- GLOBAL COLORS -- */
-  /* Inspired by EVA-01, NERV UI, and Angelic warnings */
+  /* ========================================
+     EVANGELION DARK THEME COLORS
+     ======================================== */
+
+  /* -- GLOBAL COLORS (Evangelion Purple/Green) -- */
   --primary-color: #8A4D9E;          /* EVA-01 Purple for headings */
   --accent-color: #55C62F;           /* EVA-01 Green for accents and links */
   --text-color: #E0E0E0;             /* Off-white for body text, like a terminal */
@@ -44,11 +42,10 @@
   --link-color-hover: #98E85B;       /* Brighter green on hover */
   --border-color: #444444;           /* Mid-gray for borders */
 
-  /* -- TYPOGRAPHY -- */
-  /* Futuristic, technical fonts */
-  --font-family-body: 'Source Sans Pro', sans-serif;
-  --font-family-heading: 'Orbitron', sans-serif;
-  --font-family-monospace: 'Share Tech Mono', monospace;
+  /* -- TYPOGRAPHY (Optimized for Presentations) -- */
+  --font-family-body: 'Inter', 'Source Sans Pro', sans-serif;
+  --font-family-heading: 'Inter', 'Source Sans Pro', sans-serif;
+  --font-family-monospace: 'Fira Code', 'Share Tech Mono', monospace;
 
   /* -- COMPONENTS -- */
   --code-bg-color: #000000;
@@ -57,64 +54,139 @@
   --table-row-even-bg: #1E1E1E;
   --blockquote-border-color: var(--primary-color);
 
-  /* -- EDUCATIONAL CALLOUTS (NERV ALERT SYSTEM) -- */
-  /* Re-themed to look like computer alerts */
+  /* ========================================
+     EVANGELION COLOR OVERRIDES (High Contrast Dark Theme)
+     Uses new universal color override system
+     ======================================== */
 
-  /* Definition: Classified Information */
-  --callout-definition-bg: rgba(138, 77, 158, 0.1);
-  --callout-definition-border: var(--primary-color);
-  --callout-definition-icon: '"\\2699"'; /* Gear Icon */
+  /* TOC Theme Colors */
+  --toc-tab-bg: #55C62F;                 /* Evangelion green tab */
+  --toc-tab-text: #000000;               /* Black text on green */
+  --toc-panel-bg: #1E1E1E;               /* Dark panel background */
+  --toc-panel-border: #8A4D9E;           /* Purple border */
+  --toc-text: #E0E0E0;                   /* Light text */
+  --toc-link-hover: #55C62F;             /* Green hover */
 
-  /* Learning Objective: Mission Briefing */
-  --callout-objective-bg: rgba(0, 123, 255, 0.1);
-  --callout-objective-border: #007bff;
-  --callout-objective-icon: '"\\1F4C1"'; /* File Folder */
+  /* Callout Color Overrides - Maximum Contrast for Readability */
+  --callout-note-bg: #0A0A0A;            /* Almost black background */
+  --callout-note-text: #FFFFFF;          /* Pure white text */
+  --callout-note-border: #8A4D9E;        /* Evangelion purple */
 
-  /* Key Takeaway: Synch Rate High */
-  --callout-takeaway-bg: rgba(85, 198, 47, 0.1);
-  --callout-takeaway-border: var(--accent-color);
-  --callout-takeaway-icon: '"\\2191"'; /* Up Arrow */
+  --callout-tip-bg: #0A0A0A;             /* Almost black background */
+  --callout-tip-text: #FFFFFF;           /* Pure white text */
+  --callout-tip-border: #17a2b8;         /* Cyan for tips */
 
-  /* Pro-Tip: Magi System Insight */
-  --callout-tip-bg: rgba(23, 162, 184, 0.1);
-  --callout-tip-border: #17a2b8;
-  --callout-tip-icon: '"\\1F50E"'; /* Magnifying Glass */
+  --callout-warning-bg: #0A0A0A;         /* Almost black background */
+  --callout-warning-text: #FFFFFF;       /* Pure white text */
+  /* warning-border uses universal red - no override needed */
 
-  /* Warning: Pattern Blue! */
-  --callout-warning-bg: rgba(255, 70, 0, 0.1);
-  --callout-warning-border: #FF4600;
-  --callout-warning-icon: '"\\26A0"'; /* Warning Triangle */
+  --callout-important-bg: #0A0A0A;       /* Almost black background */
+  --callout-important-text: #FFFFFF;     /* Pure white text */
+  --callout-important-border: #55C62F;   /* Evangelion green */
 
-  /* Exercise: Simulation Start */
-  --callout-exercise-bg: rgba(255, 193, 7, 0.1);
-  --callout-exercise-border: #ffc107;
-  --callout-exercise-icon: '"\\1F5B3"'; /* Terminal Icon */
+  --callout-exercise-bg: #0A0A0A;        /* Almost black background */
+  --callout-exercise-text: #FFFFFF;      /* Pure white text */
+  /* exercise-border uses universal amber - no override needed */
+
+  --callout-objective-bg: #0A0A0A;       /* Almost black background */
+  --callout-objective-text: #FFFFFF;     /* Pure white text */
+  /* objective-border uses universal blue - no override needed */
 }
-
 
 /* 
 --------------------------------------------
-   SECTION 3: (OPTIONAL) THEME-SPECIFIC FLAIR
-   - Add any custom CSS rules here that go beyond variable changes.
-   - For example, a custom body background image.
+   SECTION 3: ENHANCED EVANGELION PERSONALITY
+   - Additional visual elements beyond the base template
 --------------------------------------------
 */
 
-/* Add a subtle glow to headings to mimic a CRT screen */
-h1, h2, h3 {
-  text-shadow: 0 0 5px rgba(138, 77, 158, 0.3);
+/* Enhanced CRT glow effects */
+h1 {
+  text-shadow: 
+    0 0 5px rgba(138, 77, 158, 0.5),
+    0 0 10px rgba(138, 77, 158, 0.3),
+    0 0 15px rgba(138, 77, 158, 0.1);
 }
 
-/* Subtle hexagonal background pattern to evoke an AT Field */
+/* Animated AT Field effect on hover for headings */
+h1:hover, h2:hover, h3:hover {
+  text-shadow: 
+    0 0 8px rgba(138, 77, 158, 0.8),
+    0 0 16px rgba(138, 77, 158, 0.6),
+    0 0 24px rgba(138, 77, 158, 0.3);
+  transition: text-shadow 0.3s ease-in-out;
+}
+
+/* NERV-style data stream animation for code blocks */
+pre:hover {
+  box-shadow: 
+    0 0 10px rgba(85, 198, 47, 0.3),
+    0 0 20px rgba(85, 198, 47, 0.2),
+    0 0 30px rgba(85, 198, 47, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Terminal cursor blink effect */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Add blinking cursor to code elements */
+code::after {
+  content: '▊';
+  color: var(--accent-color);
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+/* Remove cursor from code blocks (only on inline code) */
+pre code::after {
+  display: none;
+}
+
+/* Terminal-style glow for code blocks */
+pre {
+  box-shadow: 0 0 10px rgba(85, 198, 47, 0.1);
+  border: 1px solid rgba(85, 198, 47, 0.3);
+}
+
+/* Dark background with hexagonal AT Field pattern */
 body {
     background-image:
         linear-gradient(rgba(18, 18, 18, 0.95), rgba(18, 18, 18, 0.95)),
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%232a2a2a' fill-opacity='0.4' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.99-7.5L26 15v18.5l-13 7.5L0 33.5V15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
-/* 
-body {
-  background-image: url('/path/to/your/background.png');
-  background-size: cover;
+/* Enhanced hexagonal pattern with subtle animation overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='hexagons' fill='%238A4D9E' fill-opacity='0.05' fill-rule='nonzero'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.99-7.5L26 15v18.5l-13 7.5L0 33.5V15z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: -1;
+  animation: drift 20s infinite linear;
 }
-*/ 
+
+@keyframes drift {
+  0% { transform: translateY(0px); }
+  100% { transform: translateY(49px); }
+}
+
+/* MAGI system inspired loading indicator */
+.loading::before {
+  content: '◉ ◉ ◉';
+  color: var(--accent-color);
+  animation: magi-pulse 1.5s infinite;
+}
+
+@keyframes magi-pulse {
+  0%, 100% { opacity: 0.3; }
+  33% { opacity: 1; }
+  66% { opacity: 0.6; }
+}
+

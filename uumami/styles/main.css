@@ -30,8 +30,8 @@
   --font-family-body: 'Georgia', 'Times New Roman', serif;
   --font-family-heading: 'Helvetica Neue', 'Arial', sans-serif;
   --font-family-monospace: 'Courier New', 'monospace';
-  --font-size-base: 1.1rem;           /* A slightly larger base font size for readability */
-  --line-height-base: 1.6;
+  --font-size-base: 1.4rem;           /* Larger base font for presentation readability */
+  --line-height-base: 1.65;           /* Increased line spacing for better readability */
 
   /* 1.3: Component Variables */
   --code-bg-color: #f1f1f1;
@@ -40,38 +40,53 @@
   --table-row-even-bg: #f8f9fa;
   --blockquote-border-color: var(--border-color);
 
-  /* 1.4: Educational Callout Variables */
-  /* Using placeholder icons (unicode). Themes can override these with url() for images. */
+  /* 1.4: TOC Color Override System */
+  /* Smart defaults that inherit from theme colors - themes can override these */
+  --toc-tab-bg: var(--accent-color);           /* Tab background */
+  --toc-tab-text: var(--bg-color);            /* Tab text color */
+  --toc-panel-bg: var(--bg-color-offset);     /* Panel background */
+  --toc-panel-border: var(--accent-color);    /* Panel border */
+  --toc-text: var(--text-color);              /* TOC text color */
+  --toc-link-hover: var(--accent-color);      /* Link hover color */
+
+  /* 1.5: Callout Color Override System */
+  /* Smart defaults with theme override capability - maintains 6:1 contrast */
   
-  /* Definition */
-  --callout-definition-bg: #e9ecef;
-  --callout-definition-border: #adb5bd;
-  --callout-definition-icon: '"\\1F4D6"'; /* Book icon */
+  /* Note/Definition callouts */
+  --callout-note-bg: var(--bg-color-offset);
+  --callout-note-text: var(--text-color);
+  --callout-note-border: var(--primary-color);
+  
+  /* Tip callouts */
+  --callout-tip-bg: var(--bg-color-offset);
+  --callout-tip-text: var(--text-color);
+  --callout-tip-border: var(--accent-color);
+  
+  /* Warning callouts */
+  --callout-warning-bg: var(--bg-color-offset);
+  --callout-warning-text: var(--text-color);
+  --callout-warning-border: #E74C3C;    /* Universal warning red */
+  
+  /* Important/Takeaway callouts */
+  --callout-important-bg: var(--bg-color-offset);
+  --callout-important-text: var(--text-color);
+  --callout-important-border: var(--accent-color);
+  
+  /* Exercise callouts */
+  --callout-exercise-bg: var(--bg-color-offset);
+  --callout-exercise-text: var(--text-color);
+  --callout-exercise-border: #F39C12;   /* Universal amber for exercises */
+  
+  /* Objective callouts */
+  --callout-objective-bg: var(--bg-color-offset);
+  --callout-objective-text: var(--text-color);
+  --callout-objective-border: #4A90E2;  /* Universal blue for objectives */
 
-  /* Learning Objective */
-  --callout-objective-bg: #e6f7ff;
-  --callout-objective-border: #91d5ff;
-  --callout-objective-icon: '"\\2714"'; /* Checkmark icon */
-
-  /* Key Takeaway */
-  --callout-takeaway-bg: #fffbe6;
-  --callout-takeaway-border: #ffe58f;
-  --callout-takeaway-icon: '"\\1F4A1"'; /* Lightbulb icon */
-
-  /* Pro-Tip */
-  --callout-tip-bg: #e6fffb;
-  --callout-tip-border: #87e8de;
-  --callout-tip-icon: '"\\2B50"'; /* Star icon */
-
-  /* Warning */
-  --callout-warning-bg: #fff1f0;
-  --callout-warning-border: #ffa39e;
-  --callout-warning-icon: '"\\26A0"'; /* Warning Triangle icon */
-
-  /* Exercise */
-  --callout-exercise-bg: #f6f2ff;
-  --callout-exercise-border: #d3adf7;
-  --callout-exercise-icon: '"\\270F"'; /* Pencil icon */
+  /* 1.6: Callout Typography (Presentation Optimized) */
+  --callout-font-size: 1.3rem;           /* Much larger text for presentations */
+  --callout-title-font-size: 1.3rem;     /* Much larger titles */
+  --callout-line-height: 1.65;           /* Better readability */
+  --callout-padding: 1.5rem;             /* More breathing room */
 }
 
 /* 
@@ -110,12 +125,12 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.2;
 }
 
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; }
-h3 { font-size: 1.75rem; }
-h4 { font-size: 1.5rem; }
-h5 { font-size: 1.25rem; }
-h6 { font-size: 1rem; }
+h1 { font-size: 3rem; }      /* Larger for presentation visibility */
+h2 { font-size: 2.4rem; }    /* Proportionally scaled up */
+h3 { font-size: 2rem; }      /* Clear hierarchy */
+h4 { font-size: 1.7rem; }    /* Readable from distance */
+h5 { font-size: 1.5rem; }    /* Still prominent */
+h6 { font-size: 1.3rem; }    /* Above base size */
 
 p {
   margin-top: 0;
@@ -239,78 +254,318 @@ img {
 --------------------------------------------
 */
 
-/* Base structure for all callouts */
+/* 
+============================================
+   UNIVERSAL CALLOUT SYSTEM
+   🔒 Locked design for readability across all themes
+   Uses universal constants and theme-specific colors
+============================================
+*/
+
+/* Base structure for all callouts - UNIVERSAL CONSTANTS */
 .callout {
-  padding: 1.25em;
-  margin: 1.5em 0;
-  border-radius: 5px;
-  border-left-width: 5px;
+  padding: var(--callout-padding, 1.25em);
+  margin: var(--callout-margin, 1.5em 0);
+  border-radius: var(--callout-border-radius, 6px);
+  border-left-width: var(--callout-border-width, 4px);
   border-left-style: solid;
   display: flex;
   align-items: flex-start;
+  font-weight: 500; /* Slightly bolder for prominence */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle elevation */
 }
 
-/* The icon container */
+/* The icon container - UNIVERSAL DESIGN */
 .callout::before {
   content: ''; /* Default content is empty */
   font-size: 1.5em;
   margin-right: 0.75em;
   line-height: 1;
+  flex-shrink: 0; /* Prevent icon from shrinking */
 }
 
-/* Applying variables to each callout type */
-.definition {
-  background-color: var(--callout-definition-bg);
-  border-color: var(--callout-definition-border);
-}
-.definition::before {
-  content: var(--callout-definition-icon);
-  color: var(--callout-definition-border);
+/* Universal callout text styling for optimal readability */
+.callout * {
+  color: inherit; /* Inherit the callout's text color */
 }
 
-.learning-objective {
-  background-color: var(--callout-objective-bg);
-  border-color: var(--callout-objective-border);
-}
-.learning-objective::before {
-  content: var(--callout-objective-icon);
-  color: var(--callout-objective-border);
+/* 
+============================================
+   QUARTO CALLOUT SYSTEM OVERRIDE
+   High specificity selectors to override Quarto's default styles
+   with our high-contrast, readable theme variables
+============================================
+*/
+
+/* Universal Callout Base Styling - Override Quarto defaults */
+.callout.callout-style-default {
+  padding: 0 !important;  /* Remove padding to control it per section */
+  margin: 1.5em 0 !important;
+  border-radius: 6px !important;
+  border: none !important;  /* Remove all borders, we'll add them to the content box */
+  font-weight: 500 !important;
+  box-shadow: none !important;  /* Remove shadow from container */
+  display: flex !important;
+  flex-direction: column !important;  /* CRITICAL: Stack vertically */
+  gap: 0 !important;  /* No gap between header and content */
+  font-size: var(--callout-font-size) !important;  /* Presentation-ready font size */
+  line-height: var(--callout-line-height) !important;
 }
 
-.key-takeaway {
-  background-color: var(--callout-takeaway-bg);
-  border-color: var(--callout-takeaway-border);
+/* Note: General Information (Quarto default) */
+.callout.callout-note .callout-body-container {
+  background-color: var(--callout-note-bg) !important;
+  border-left-color: var(--callout-note-border) !important;
 }
-.key-takeaway::before {
-  content: var(--callout-takeaway-icon);
-  color: var(--callout-takeaway-border);
-}
-
-.pro-tip {
-  background-color: var(--callout-tip-bg);
-  border-color: var(--callout-tip-border);
-}
-.pro-tip::before {
-  content: var(--callout-tip-icon);
-  color: var(--callout-tip-border);
+.callout.callout-note .callout-body-container,
+.callout.callout-note .callout-body,
+.callout.callout-note .callout-body * {
+  color: var(--callout-note-text) !important;
 }
 
-.warning {
-  background-color: var(--callout-warning-bg);
-  border-color: var(--callout-warning-border);
+/* Tip: Helpful Advice */
+.callout.callout-tip .callout-body-container {
+  background-color: var(--callout-tip-bg) !important;
+  border-left-color: var(--callout-tip-border) !important;
 }
-.warning::before {
-  content: var(--callout-warning-icon);
-  color: var(--callout-warning-border);
+.callout.callout-tip .callout-body-container,
+.callout.callout-tip .callout-body,
+.callout.callout-tip .callout-body * {
+  color: var(--callout-tip-text) !important;
 }
 
-.exercise {
-  background-color: var(--callout-exercise-bg);
-  border-color: var(--callout-exercise-border);
+/* Warning: Important Alerts */
+.callout.callout-warning .callout-body-container {
+  background-color: var(--callout-warning-bg) !important;
+  border-left-color: var(--callout-warning-border) !important;
 }
-.exercise::before {
-  content: var(--callout-exercise-icon);
-  color: var(--callout-exercise-border);
+.callout.callout-warning .callout-body-container,
+.callout.callout-warning .callout-body,
+.callout.callout-warning .callout-body * {
+  color: var(--callout-warning-text) !important;
+}
+
+/* Important: High Priority Information */
+.callout.callout-important .callout-body-container {
+  background-color: var(--callout-important-bg) !important;
+  border-left-color: var(--callout-important-border) !important;
+}
+.callout.callout-important .callout-body-container,
+.callout.callout-important .callout-body,
+.callout.callout-important .callout-body * {
+  color: var(--callout-important-text) !important;
+}
+
+/* Caution: Careful Attention Needed (uses warning colors) */
+.callout.callout-caution .callout-body-container {
+  background-color: var(--callout-warning-bg) !important;
+  border-left-color: var(--callout-warning-border) !important;
+}
+.callout.callout-caution .callout-body-container,
+.callout.callout-caution .callout-body,
+.callout.callout-caution .callout-body * {
+  color: var(--callout-warning-text) !important;
+}
+
+/* Custom Educational Callouts */
+.callout.callout-exercise .callout-body-container {
+  background-color: var(--callout-exercise-bg) !important;
+  border-left-color: var(--callout-exercise-border) !important;
+}
+.callout.callout-exercise .callout-body-container,
+.callout.callout-exercise .callout-body,
+.callout.callout-exercise .callout-body * {
+  color: var(--callout-exercise-text) !important;
+}
+
+.callout.callout-objective .callout-body-container {
+  background-color: var(--callout-objective-bg) !important;
+  border-left-color: var(--callout-objective-border) !important;
+}
+.callout.callout-objective .callout-body-container,
+.callout.callout-objective .callout-body,
+.callout.callout-objective .callout-body * {
+  color: var(--callout-objective-text) !important;
+}
+
+/* Force text color and font size inheritance for all nested elements */
+.callout.callout-style-default p,
+.callout.callout-style-default li,
+.callout.callout-style-default strong,
+.callout.callout-style-default em,
+.callout.callout-style-default a,
+.callout.callout-style-default ul,
+.callout.callout-style-default ol,
+.callout.callout-style-default div,
+.callout.callout-style-default span {
+  color: inherit !important;
+  font-size: var(--callout-font-size) !important;  /* Explicit large font size */
+  line-height: var(--callout-line-height) !important;  /* Proper line spacing */
+}
+
+/* Ensure any text content within callout body inherits the large font size */
+.callout.callout-style-default .callout-body-container * {
+  font-size: inherit !important;  /* Force inheritance of large font */
+  line-height: inherit !important;  /* Force inheritance of line spacing */
+}
+
+/* Inline code styling within callouts - make it readable and distinctive */
+.callout.callout-style-default code {
+  background-color: rgba(0, 0, 0, 0.6) !important;  /* Dark background */
+  color: var(--accent-color, #55C62F) !important;    /* Evangelion green text */
+  padding: 0.2em 0.4em !important;
+  border-radius: 3px !important;
+  font-family: var(--font-family-monospace, 'Share Tech Mono') !important;
+  font-size: 0.9em !important;
+  border: 1px solid rgba(85, 198, 47, 0.3) !important;  /* Subtle green border */
+  font-weight: 500 !important;
+}
+
+/* Ensure code blocks (pre) within callouts are also readable */
+.callout.callout-style-default pre {
+  background-color: #000000 !important;
+  border: 1px solid var(--accent-color, #55C62F) !important;
+  border-radius: 4px !important;
+  padding: 1em !important;
+  margin: 1em 0 !important;
+}
+
+.callout.callout-style-default pre code {
+  background-color: transparent !important;  /* Remove background from code inside pre */
+  border: none !important;
+  padding: 0 !important;
+  color: var(--accent-color, #55C62F) !important;
+}
+
+/* Ensure links remain readable in callouts */
+.callout.callout-style-default a:hover {
+  opacity: 0.8 !important;
+  text-decoration: underline !important;
+}
+
+/* ============================================
+   CALLOUT HEADER REDESIGN
+   Header positioned above the content box for cleaner design
+   ============================================ */
+
+/* Position header above the callout box */
+.callout.callout-style-default .callout-header {
+  background: none !important;
+  padding: 0 0 0.5em 0 !important;
+  margin: 0 0 0.5em 0 !important;  /* Smaller gap to content */
+  border: none !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75em !important;  /* More space between icon and title */
+  position: relative !important;
+  width: 100% !important;  /* Ensure full width */
+  min-height: 32px !important;  /* Minimum height to prevent squashing */
+  order: 1 !important;  /* Ensure header comes first */
+}
+
+/* Add a subtle line under the header to connect it to the content */
+.callout.callout-style-default .callout-header::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 80px !important;  /* Longer line */
+  height: 2px !important;
+  background: linear-gradient(90deg, var(--accent-color, #55C62F), transparent) !important;
+}
+
+/* Icon styling - make it prominent */
+.callout.callout-style-default .callout-icon-container {
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  background: var(--accent-color, #55C62F) !important;
+  color: #000 !important;
+  width: 28px !important;  /* Slightly larger */
+  height: 28px !important;
+  border-radius: 50% !important;
+  justify-content: center !important;
+}
+
+.callout.callout-style-default .callout-icon {
+  font-size: 1em !important;  /* Slightly larger */
+  color: #000 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Title text - prevent vertical wrapping */
+.callout.callout-style-default .callout-title-container {
+  color: var(--accent-color, #55C62F) !important;
+  font-weight: 700 !important;
+  font-size: var(--callout-title-font-size) !important;  /* Presentation-optimized size */
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  font-family: var(--font-family-heading, 'Orbitron') !important;
+  white-space: nowrap !important;  /* CRITICAL: Prevent any wrapping */
+  overflow: visible !important;  /* Allow text to extend if needed */
+  flex: 1 !important;  /* Take available space */
+  min-width: 0 !important;  /* Allow flex to work properly */
+  line-height: 1.2 !important;  /* Ensure proper line height */
+}
+
+/* Style the content box separately */
+.callout.callout-style-default .callout-body-container {
+  margin-top: 0 !important;
+  padding: var(--callout-padding) !important;  /* Use new presentation-optimized padding */
+  border-left-width: 6px !important;  /* Thick left border */
+  border-left-style: solid !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 6px 6px 6px !important;  /* Round corners except top-left */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important;  /* Shadow on content box */
+  order: 2 !important;  /* Ensure content comes after header */
+  font-size: var(--callout-font-size) !important;  /* Ensure large font size */
+  line-height: var(--callout-line-height) !important;  /* Ensure proper line spacing */
+}
+
+/* Specific colors for different callout types */
+.callout.callout-tip .callout-header::after {
+  background: linear-gradient(90deg, var(--callout-tip-border), transparent) !important;
+}
+.callout.callout-tip .callout-icon-container {
+  background: var(--callout-tip-border) !important;
+}
+.callout.callout-tip .callout-title-container {
+  color: var(--callout-tip-border) !important;
+}
+
+.callout.callout-warning .callout-header::after {
+  background: linear-gradient(90deg, var(--callout-warning-border), transparent) !important;
+}
+.callout.callout-warning .callout-icon-container {
+  background: var(--callout-warning-border) !important;
+}
+.callout.callout-warning .callout-title-container {
+  color: var(--callout-warning-border) !important;
+}
+
+.callout.callout-note .callout-header::after {
+  background: linear-gradient(90deg, var(--callout-note-border), transparent) !important;
+}
+.callout.callout-note .callout-icon-container {
+  background: var(--callout-note-border) !important;
+}
+.callout.callout-note .callout-title-container {
+  color: var(--callout-note-border) !important;
+}
+
+.callout.callout-important .callout-header::after {
+  background: linear-gradient(90deg, var(--callout-important-border), transparent) !important;
+}
+.callout.callout-important .callout-icon-container {
+  background: var(--callout-important-border) !important;
+}
+.callout.callout-important .callout-title-container {
+  color: var(--callout-important-border) !important;
 }
 
 /* 
@@ -543,5 +798,116 @@ hr.nav-divider {
     content: " (" attr(href) ")";
     font-size: 0.8em;
     color: #555;
+  }
+} 
+
+/* 
+============================================
+   10. RESPONSIVE LAYOUT SYSTEM
+   Presentation-optimized width controls
+   Conservative approach that works with Quarto's grid
+============================================
+*/
+
+/* ULTRA-WIDE PRESENTATION MODE - Override Quarto's restrictive grid */
+@media (min-width: 1024px) {
+  
+  /* STEP 1: Override Quarto's container system completely */
+  #quarto-content.quarto-container.page-columns {
+    display: block !important;    /* Kill the CSS grid */
+    max-width: none !important;   /* No width limits */
+    width: 100% !important;       /* Full browser width */
+    margin: 0 !important;         /* No centering margins */
+    padding: 0 !important;        /* No container padding */
+  }
+  
+  /* STEP 2: Collapsible hover sidebar - slides in from right */
+  #quarto-margin-sidebar {
+    position: fixed !important;
+    top: 50% !important;                    /* Center vertically */
+    right: -170px !important;              /* Hide most of it off-screen */
+    transform: translateY(-50%) !important; /* Perfect vertical centering */
+    width: 200px !important;
+    max-width: 200px !important;
+    max-height: 70vh !important;           /* Don't take full height */
+    overflow-y: auto !important;
+    z-index: 1000 !important;
+    background: var(--toc-panel-bg) !important;
+    border-radius: 8px 0 0 8px !important; /* Round left corners only */
+    padding: 1rem !important;
+    box-shadow: -4px 0 12px rgba(0,0,0,0.4) !important;
+    transition: right 0.3s ease-in-out !important; /* Smooth slide animation */
+    border: 2px solid var(--toc-panel-border) !important;
+    color: var(--toc-text) !important;
+  }
+  
+  /* Hover state - slides the sidebar into view */
+  #quarto-margin-sidebar:hover {
+    right: 0px !important;                 /* Slide fully into view */
+  }
+  
+  /* Add a visible tab/flap to indicate the TOC is there */
+  #quarto-margin-sidebar::before {
+    content: "📖 TOC" !important;
+    position: absolute !important;
+    left: -40px !important;               /* Tab sticks out to the left */
+    top: 50% !important;
+    transform: translateY(-50%) rotate(-90deg) !important; /* Vertical text */
+    background: var(--toc-tab-bg) !important;
+    color: var(--toc-tab-text) !important;
+    padding: 8px 12px !important;
+    border-radius: 4px 4px 0 0 !important;
+    font-weight: bold !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+    box-shadow: -2px 0 6px rgba(0,0,0,0.3) !important;
+    cursor: pointer !important;
+  }
+  
+  /* Style the TOC title and links */
+  #quarto-margin-sidebar #toc-title {
+    color: var(--toc-text) !important;
+    font-size: 0.9rem !important;
+    margin-bottom: 0.5rem !important;
+    text-align: center !important;
+    font-weight: bold !important;
+  }
+  
+  #quarto-margin-sidebar .nav-link {
+    color: var(--toc-text) !important;
+    transition: color 0.2s ease-in-out !important;
+  }
+  
+  #quarto-margin-sidebar .nav-link:hover {
+    color: var(--toc-link-hover) !important;
+  }
+  
+  /* STEP 3: Make main content use almost full width (sidebar is now hidden) */
+  main.content {
+    width: calc(100vw - 40px) !important;   /* Full width minus small margin for tab */
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 2rem 3rem !important;          /* Reasonable padding for readability */
+    box-sizing: border-box !important;
+  }
+}
+
+/* EVEN WIDER for large displays */
+@media (min-width: 1600px) {
+  main.content {
+    width: calc(100vw - 40px) !important;   /* Keep same width, sidebar is hidden */
+    padding: 2rem 4rem !important;          /* Slightly more padding on huge screens */
+  }
+}
+
+/* Hide hover TOC on mobile/tablet - not practical for touch */
+@media (max-width: 1023px) {
+  #quarto-margin-sidebar {
+    display: none !important;               /* Hide completely on smaller screens */
+  }
+  
+  main.content {
+    width: 100% !important;                 /* Full width on mobile */
+    padding: 1rem 2rem !important;         /* Less padding on mobile */
   }
 } 

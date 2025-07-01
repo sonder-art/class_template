@@ -55,7 +55,9 @@ website:
 format:
   html:
     theme: cosmo
-    css: styles/main.css
+    css: 
+      - styles/main.css
+      - styles/themes/evangelion.css
     toc: true
     code-fold: true 
     code-summary: "Show/Hide Code" 
