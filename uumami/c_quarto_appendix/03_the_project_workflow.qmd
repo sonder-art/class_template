@@ -1,0 +1,115 @@
+---
+title: "Chapter 3: The Professional Workflow"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
+---
+
+## Why Work in Projects?
+
+In the first two chapters, you learned about the components of a single `.qmd` file. Now, it's time to learn the professional way to manage a collection of files as a single, coherent **website**.
+
+A Quarto Project is simply a directory that contains a special file named `_quarto.yml`. This file acts as the **master control panel** for your entire website. It tells Quarto:
+-   What pages are in the site and how to build the navigation bar.
+-   The default look and feel (theme and CSS) for every page.
+-   Project-wide settings and metadata.
+
+Working this way is far superior to managing individual files because it gives you central control over your entire site's structure and appearance.
+
+## Anatomy of Our `_quarto.yml`
+
+Let's dissect the `uumami/_quarto.yml` file to see how it works.
+
+```yaml
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Course Title"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Class Notes
+      - href: syllabus.qmd
+        text: Syllabus
+
+format:
+  html:
+    theme: cosmo
+    css: styles/main.css
+```
+
+-   `project:`: This block tells Quarto basic information. `type: website` is key, and `output-dir: _site` tells Quarto where to save the rendered HTML files.
+-   `website:`: This controls the website's navigation. The `navbar` section defines the links you see at the top of every page.
+-   `format:`: This defines the default appearance for every page in the project. Here, we set a theme and a custom CSS file.
+
+## The Universal Workflow: `quarto preview`
+
+As you learned in the setup appendix, the best way to work is to preview the entire project. This is the **only** way to see your full, correctly-styled site with a working navigation bar.
+
+The workflow is always the same:
+1.  Open your terminal.
+2.  `cd` into the directory containing the `_quarto.yml` you want to preview.
+3.  Run `quarto preview`.
+
+### Example 1: Previewing the `students/_template` Project
+```bash
+# Navigate to the student project folder
+cd students/_template
+
+# Preview it
+quarto preview
+```
+
+### Example 2: Previewing the `uumami` Instructor Project
+```bash
+# Navigate to the instructor project folder
+# (You might need to go up first: cd ../../)
+cd uumami
+
+# Preview it
+quarto preview
+```
+
+## The Terminal Cheat Sheet
+
+While `quarto preview` is for local development, `quarto render` is for creating final files.
+
+-   `quarto render`: Renders the entire project without starting a server.
+-   `quarto render my_file.qmd`: Renders only a single file.
+-   `quarto render my_file.qmd --to pdf`: Renders that single file as a PDF.
+-   `quarto render my_file.qmd --to docx`: Renders that file as a Microsoft Word document.
+
+## Thinking with AI: Managing Projects
+
+Your AI can help you understand and manage project configurations.
+
+::: {.callout-tip}
+### AI Prompting for Quarto Projects
+
+**Scenario 1: You want to add a new page to your site.**
+> "You are a Quarto expert. I am working in a Quarto website project. I have just created a new file named `contact.qmd`. How do I modify my `_quarto.yml` file to add a link to this page in my website's top navigation bar, with the text 'Contact Me'?"
+
+**Scenario 2: You want to create a new type of output.**
+> "My `_quarto.yml` is set up to produce an HTML website. I also want to be able to render the entire project as a single PDF book. Can you show me how to modify my YAML file to support both HTML and PDF outputs?"
+:::
+
+---
+
+::: {.navigation}
+<div class="nav-buttons">
+  <div class="nav-left">
+    <a href="./02_executable_documents.qmd" class="nav-button prev">
+      ← Previous: Chapter 2
+    </a>
+  </div>
+  <div class="nav-right">
+    <a href="./04_style_and_layout.qmd" class="nav-button next">
+      Next: Chapter 4 →
+    </a>
+  </div>
+</div>
+::: 

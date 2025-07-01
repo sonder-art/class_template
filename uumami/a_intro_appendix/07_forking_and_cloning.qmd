@@ -1,5 +1,10 @@
 ---
 title: "Step 7: Fork & Clone, Your Personal Copy"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
 ---
 
 ## Understanding Forking and Cloning
@@ -49,4 +54,21 @@ Now we bring that repository down from the cloud to your local machine.
     `git clone git@github.com:[your-username]/{{< meta course_code >}}-notes.git`
 8.  Press **Enter**. You will see some text as Git downloads the repository to your computer.
 
-You're done! A new folder with your repository's name now exists in your `Documents` folder. In the next step, we will open it with Cursor and test it. 
+You're done! A new folder with your repository's name now exists in your `Documents` folder. In the next step, we will open it with Cursor and test it.
+
+---
+
+::: {.navigation}
+<div class="nav-buttons">
+  <div class="nav-left">
+    <a href="./06_setting_up_git_and_github.qmd" class="nav-button prev">
+      ← Previous: Chapter 6
+    </a>
+  </div>
+  <div class="nav-right">
+    <a href="./08_installing_and_testing_quarto.qmd" class="nav-button next">
+      Next: Chapter 8 →
+    </a>
+  </div>
+</div>
+::: 

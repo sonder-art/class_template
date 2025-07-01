@@ -86,31 +86,73 @@ This is the fastest way to see if Quarto and the Python code can run.
 -   In the top-right corner of the editor pane, find and click the **"Render"** button.
 -   A new "Preview" pane should open inside Cursor showing the rendered webpage. If it works, you're in great shape!
 
-### 4. Preview the Full Project (The Right Way)
-A Quarto "project" (any directory with a `_quarto.yml` file) is meant to be previewed as a whole website. This process starts a small, temporary web server on your computer so you can see your site exactly as it will appear online.
+### 4. The Universal Quarto Workflow: Project Preview
+The single-file render is a nice, quick check. However, the correct and most reliable way to work on a Quarto website is to **preview the entire project at once.**
+
+This is the universal workflow you will use for **any and all Quarto projects**. The process is always the same:
+1.  Navigate your terminal into the root directory of a Quarto project (the one containing a `_quarto.yml` file).
+2.  Run the `quarto preview` command.
+
+This method works because it uses the project's `_quarto.yml` file as the "control panel," ensuring that all pages get the correct navigation, styling, and cross-references. Let's try it on both of the projects in this repository.
+
+#### Example 1: Previewing the Student Template Project
 
 - **Open the terminal panel** inside Cursor.
-- **Navigate to the project's root directory.** This is the most important and most common point of confusion. The commands you run affect the folder you are currently "in". We need to move into the student template folder to preview the student website.
+- **Navigate into the student project's directory:**
     ```bash
-    # cd stands for "change directory". This command takes us into the folder
+    # cd stands for "change directory". This moves us into the folder
     # where the student website project lives.
     cd students/_template
     ```
-- **Run the preview command:**
+- **Run the universal preview command:**
     ```bash
     quarto preview
     ```
--   Quarto will now build all the pages and start the server. The terminal will show a message like `Listening on http://localhost:5145`.
--   **Hold `Ctrl` (on Windows/Linux) or `Cmd` (on macOS) and click that `http://localhost...` link** in your terminal.
--   Your default web browser will open, showing a live preview of the complete website. You can click the links in the navigation bar to move between pages.
+-   A local server will start. **Hold `Ctrl` (or `Cmd`) and click the `http://localhost...` link** to open the student site in your browser.
+-   When you're done, press `Ctrl+C` in the terminal to stop the server.
+
+#### Example 2: Previewing the Instructor's Main Project
+
+This demonstrates that the workflow is identical, just in a different directory.
+
+- **Open a new terminal panel** inside Cursor (or use the existing one).
+- Your terminal is likely still inside `students/_template`. We need to go up two levels to the main repository root, and then down into the `uumami` folder.
+    ```bash
+    # Go up one level to 'students/', then up again to the repository root.
+    cd ../../
+    # Now go into the instructor's project folder.
+    cd uumami
+    ```
+- **Run the exact same universal preview command:**
+    ```bash
+    quarto preview
+    ```
+-   A new server will start on a different port. Click the new `http://localhost...` link to see the main instructor website. All styles and links will be correct.
 
 ::: {.callout-tip}
 ### What is `localhost`?
 `localhost` is a special network name that always means "this computer." When your browser visits a `localhost` URL, it isn't fetching a website from the internet. It is talking directly to the temporary web server that Quarto is running on your machine. This allows you to see a perfect preview of your site without having to upload it anywhere first.
 :::
 
-To stop the preview server and be able to type new commands, go to the terminal where it's running and press `Ctrl+C`.
+To stop a preview server, go to the terminal where it's running and press `Ctrl+C`.
 
 ## Congratulations!
 
-If you can successfully preview the template project website in your browser, your environment is perfectly configured. You have a professional-grade setup for the entire course! 
+If you can successfully preview both projects, you have mastered the fundamental Quarto workflow and your environment is perfectly configured! You have a professional-grade setup for the entire course
+
+---
+
+::: {.navigation}
+<div class="nav-buttons">
+  <div class="nav-left">
+    <a href="./07_forking_and_cloning.qmd" class="nav-button prev">
+      ← Previous: Chapter 7
+    </a>
+  </div>
+  <div class="nav-right">
+    <a href="../c_quarto_appendix/00_index.qmd" class="nav-button next">
+      Next: Appendix C →
+    </a>
+  </div>
+</div>
+:::

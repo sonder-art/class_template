@@ -1,6 +1,15 @@
 ---
-title: "Step 1: Gather Your AI Assistants"
+title: "Setup Guide: AI Assistants (Step 1)"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
 ---
+
+## 📍 Where You Are
+
+This is Step 1 of the setup process. You're creating accounts for AI tools that will help you throughout the course.
 
 ## Your Team of AI Assistants
 
@@ -54,6 +63,67 @@ Your one Google account gives you access to these other powerful tools that we w
 -   **What it is:** A research tool that lets you "chat" with your own documents. You can upload lecture slides, papers, or your own notes, and then ask questions about them.
 -   **Action:** Go to [https://notebooklm.google.com](https://notebooklm.google.com) and sign in.
 
-## What Now?
+::: {.callout-tip}
+### Quick Reference - AI Tools for This Course
+- **Google Gemini**: Creative coding help and brainstorming
+- **ChatGPT**: All-purpose assistant for writing and coding
+- **Claude**: Document analysis and detailed explanations
+- **Perplexity**: Research with citations
+- **Google Colab**: Run Python code in browser
+- **NotebookLM**: Chat with your documents
+:::
 
-You now have access to the most powerful learning tools ever created. In the next section, we will teach you exactly **how** to use them when you get stuck. This is the most important skill you will learn in this setup guide. 
+```{=html}
+<div class="page-navigation-container">
+
+  <!-- Smart Breadcrumb Dropdown -->
+  <div class="breadcrumb-container">
+    <details class="breadcrumb-dropdown">
+      <summary>
+        <span class="breadcrumb-prefix">Setup Guide:</span>
+        <span class="breadcrumb-current">AI Assistants (Step 1)</span>
+        <span class="breadcrumb-caret">▼</span>
+      </summary>
+      <ul class="breadcrumb-list">
+        <li><a href="./00_index.qmd">Welcome</a></li>
+        <li><a href="./01_creating_llm_accounts.qmd" class="active">AI Assistants (Step 1)</a></li>
+        <li><a href="./02_how_to_get_help.qmd">How to Get Help (Step 2)</a></li>
+        <li><a href="./03_installing_python.qmd">Install Python (Step 3)</a></li>
+        <li><a href="./04_alternative_gitpod_setup.qmd">Gitpod Alternative (Step 4)</a></li>
+        <li><a href="./05_installing_your_editor.qmd">Install Editor (Step 5)</a></li>
+        <li><a href="./06_setting_up_git_and_github.qmd">Git & GitHub (Step 6)</a></li>
+        <li><a href="./07_forking_and_cloning.qmd">Fork & Clone (Step 7)</a></li>
+        <li><a href="./08_installing_and_testing_quarto.qmd">Install Quarto (Step 8)</a></li>
+      </ul>
+    </details>
+  </div>
+
+  <hr class="nav-divider">
+
+  <!-- Prev/Next Buttons -->
+  <div class="navigation">
+    <div class="nav-buttons">
+      <div class="nav-left">
+        <a href="./00_index.qmd" class="nav-button prev">← Setup Welcome</a>
+      </div>
+      <div class="nav-right">
+        <a href="./02_how_to_get_help.qmd" class="nav-button next">How to Get Help →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+```
+
+---
+
+::: {.navigation}
+::: {.nav-buttons}
+::: {.nav-left}
+[← Setup Welcome](./00_index.qmd){.nav-button .prev}
+:::
+::: {.nav-right}
+[How to Get Help →](./02_how_to_get_help.qmd){.nav-button .next}
+:::
+:::
+::: 

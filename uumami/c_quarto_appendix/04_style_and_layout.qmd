@@ -1,0 +1,132 @@
+---
+title: "Chapter 4: Making It Your Own"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
+---
+
+## Customizing Your Quarto Documents
+
+Now that you've mastered the content and workflow, it's time for the fun part: making your documents look exactly how you want them to. Quarto provides powerful tools for controlling styling and layout.
+
+## Level 1: Themes
+
+The easiest way to change the entire look of your website is to use a built-in theme. Themes control colors, fonts, spacing, and more. You can set a theme for your entire project in your `_quarto.yml` file.
+
+```yaml
+# In _quarto.yml
+format:
+  html:
+    theme: cosmo # This is the default
+```
+
+Quarto supports over 25 themes from the [Bootswatch](https://bootswatch.com/) project. To change your theme, simply replace `cosmo` with another name, like `darkly`, `minty`, or `superhero`.
+
+## Level 2: Custom CSS
+
+For more fine-grained control, you can use Cascading Style Sheets (CSS). CSS is the language of web design.
+
+### Project-Wide Styling
+Your project is already configured to use a custom stylesheet. In `_quarto.yml`, this line applies your own CSS rules *after* the main theme, allowing you to override it.
+```yaml
+# In _quarto.yml
+format:
+  html:
+    theme: cosmo
+    css: styles/main.css # This is your custom stylesheet
+```
+
+### Page-Specific Styling
+As you've learned, you can also apply a style to a single page. This is perfect for when you want a specific page to have a unique look.
+
+**To apply a different style to a page:**
+1.  Make sure your new CSS file is in a logical place (e.g., `styles/themes/`).
+2.  Add a `format` block to the YAML header of the `.qmd` file you want to change.
+3.  Use a relative path to point to the CSS file.
+
+```yaml
+# In a specific .qmd file, e.g., students/_template/my_special_page.qmd
+---
+title: "A Special Page"
+format:
+  html:
+    css:
+      - ../styles/main.css # Always good to include the base styles
+      - ../styles/themes/professional_dark.css # Your special theme
+---
+```
+
+## Level 3: Advanced Layout Components
+
+Quarto includes special components to help you organize your content in more engaging ways. You just need to add a small piece of syntax.
+
+### Callouts
+Callouts are perfect for drawing attention to important information, tips, or warnings.
+
+```markdown
+::: {.callout-note}
+This is a note. It's useful for providing additional context.
+:::
+
+::: {.callout-warning}
+This is a warning. Use it for critical information or potential pitfalls.
+:::
+```
+
+### Tabsets
+Tabsets let you put different pieces of content in the same space, which is great for showing different versions of the same thing.
+
+```markdown
+::: {.panel-tabset}
+#### Tab A
+Content for the first tab.
+
+#### Tab B
+Content for the second tab.
+:::
+```
+
+### Mermaid Diagrams
+You can create flowcharts and other diagrams directly in your document.
+
+````markdown
+```{mermaid}
+graph TD
+    A[Start] --> B{Is it working?};
+    B -- Yes --> C[Celebrate!];
+    B -- No --> D[Debug];
+```
+````
+
+## Thinking with AI: Your Personal Web Designer
+
+Don't know CSS? Your AI assistant does.
+
+::: {.callout-tip}
+### AI Prompting for Design & Layout
+
+**Scenario 1: You want a custom theme.**
+> "You are an expert web designer who knows CSS. I want to create a custom Quarto theme. Please provide the CSS code for a theme that has a dark blue background, white text, and orange headers and links. Please include comments in the code to explain what each part does."
+
+**Scenario 2: You want a specific layout.**
+> "I need to create a three-column layout in my Quarto document to display three images side-by-side with a caption under each. How can I achieve this using Quarto's features or custom CSS?"
+:::
+
+---
+
+::: {.navigation}
+<div class="nav-buttons">
+  <div class="nav-left">
+    <a href="./03_the_project_workflow.qmd" class="nav-button prev">
+      ← Previous: Chapter 3
+    </a>
+  </div>
+  <div class="nav-right">
+    <span class="nav-button" style="opacity: 0.5; cursor: not-allowed;">
+      End of Appendix C
+    </span>
+  </div>
+</div>
+::: 

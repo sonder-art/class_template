@@ -1,5 +1,10 @@
 ---
 title: "Step 6: Set Up Git & GitHub, Your Portfolio"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
 ---
 
 ## Your Professional Portfolio and Time Machine
@@ -133,4 +138,21 @@ You may see a warning about authenticity. Type `yes` and press Enter. If everyth
 
 ## You're All Set!
 
-You now have the complete toolchain for managing and publishing your work like a professional. The final step is to install the tool we'll use to create our beautiful documents: Quarto. 
+You now have the complete toolchain for managing and publishing your work like a professional. The final step is to install the tool we'll use to create our beautiful documents: Quarto.
+
+---
+
+::: {.navigation}
+<div class="nav-buttons">
+  <div class="nav-left">
+    <a href="./05_installing_your_editor.qmd" class="nav-button prev">
+      ← Previous: Chapter 5
+    </a>
+  </div>
+  <div class="nav-right">
+    <a href="./07_forking_and_cloning.qmd" class="nav-button next">
+      Next: Chapter 7 →
+    </a>
+  </div>
+</div>
+::: 

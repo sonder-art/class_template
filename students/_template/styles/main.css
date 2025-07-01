@@ -334,7 +334,84 @@ img {
 
 /* 
 --------------------------------------------
-   7. PRINT STYLESHEET
+   7. NAVIGATION BUTTONS (Book-like Navigation)
+--------------------------------------------
+*/
+.navigation {
+  margin: 2em 0;
+  padding: 1.5em 0;
+  border-top: 2px solid var(--border-color);
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+}
+
+.nav-left {
+  flex: 1;
+  text-align: left;
+}
+
+.nav-right {
+  flex: 1;
+  text-align: right;
+}
+
+.nav-button {
+  display: inline-block;
+  padding: 0.75em 1.5em;
+  background-color: var(--bg-color-offset);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  font-family: var(--font-family-heading);
+}
+
+.nav-button:hover {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button.prev::before {
+  content: "←";
+  margin-right: 0.5em;
+}
+
+.nav-button.next::after {
+  content: "→";
+  margin-left: 0.5em;
+}
+
+/* Responsive navigation for smaller screens */
+@media (max-width: 768px) {
+  .nav-buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
+  
+  .nav-left, .nav-right {
+    text-align: center;
+  }
+  
+  .nav-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* 
+--------------------------------------------
+   8. PRINT STYLESHEET
 --------------------------------------------
 */
 @media print {

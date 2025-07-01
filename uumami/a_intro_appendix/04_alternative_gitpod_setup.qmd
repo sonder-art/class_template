@@ -1,5 +1,10 @@
 ---
 title: "Alternative Path: The Cloud Escape Hatch (Gitpod)"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
 ---
 
 ## What is Gitpod?
@@ -53,4 +58,21 @@ That's it! Gitpod will now:
 
 ## Summary
 
-If you choose this path, you are all set! You have Python, an editor, and all the tools you need. You can now skip ahead to the tutorial on **[Setting Up Git & GitHub](./06_setting_up_git_and_github.qmd)** to learn how to save your work. 
+If you choose this path, you are all set! You have Python, an editor, and all the tools you need. You can now skip ahead to the tutorial on **[Setting Up Git & GitHub](./06_setting_up_git_and_github.qmd)** to learn how to save your work.
+
+---
+
+::: {.navigation}
+<div class="nav-buttons">
+  <div class="nav-left">
+    <a href="./03_installing_python.qmd" class="nav-button prev">
+      ← Previous: Chapter 3
+    </a>
+  </div>
+  <div class="nav-right">
+    <a href="./05_installing_your_editor.qmd" class="nav-button next">
+      Next: Chapter 5 →
+    </a>
+  </div>
+</div>
+::: 

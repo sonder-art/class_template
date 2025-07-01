@@ -31,6 +31,14 @@ website:
         text: Syllabus
       - href: schedule.qmd
         text: Schedule
+      - text: "Appendices"
+        menu:
+          - text: "A: Getting Started"
+            href: a_intro_appendix/00_index.qmd
+          - text: "B: Coming Soon..."
+            href: "#"
+          - text: "C: Quarto Crash Course"
+            href: c_quarto_appendix/00_index.qmd
     right:
       - icon: github
         href: "{{< meta repository_url >}}"
@@ -49,5 +57,5 @@ format:
     theme: cosmo
     css: styles/main.css
     toc: true
-    code-fold: true
+    code-fold: true 
     code-summary: "Show/Hide Code" 

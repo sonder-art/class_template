@@ -242,3 +242,4 @@ students/**/__pycache__/    # Ignore Python bytecode within student directories
 students/**/*.ipynb         # Optionally ignore Jupyter notebooks if you only want .qmd
 /.quarto/
 _site/
+/.luarc.json

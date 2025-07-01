@@ -334,7 +334,177 @@ img {
 
 /* 
 --------------------------------------------
-   7. PRINT STYLESHEET
+   7. SMART BREADCRUMB NAVIGATION
+--------------------------------------------
+*/
+.page-navigation-container {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px solid var(--border-color);
+}
+
+.breadcrumb-container {
+  margin-bottom: 1em;
+  text-align: center;
+}
+
+.breadcrumb-dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.breadcrumb-dropdown > summary {
+  padding: 0.5em 1em;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  list-style: none; /* Hide the default marker */
+  transition: background-color 0.2s;
+  font-family: var(--font-family-heading);
+}
+.breadcrumb-dropdown > summary::-webkit-details-marker {
+  display: none; /* Hide the default marker in Chrome/Safari */
+}
+
+.breadcrumb-dropdown > summary:hover {
+  background-color: var(--bg-color-offset);
+}
+
+.breadcrumb-prefix {
+  color: var(--text-color-light);
+  font-weight: normal;
+}
+
+.breadcrumb-current {
+  font-weight: bold;
+  color: var(--primary-color);
+  margin: 0 0.5em;
+}
+
+.breadcrumb-caret {
+  color: var(--text-color-light);
+}
+
+.breadcrumb-list {
+  position: absolute;
+  z-index: 100;
+  list-style: none;
+  padding: 0.5em 0;
+  margin-top: 0.5em;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.breadcrumb-list a {
+  display: block;
+  padding: 0.5em 1.25em;
+  text-decoration: none;
+  color: var(--text-color);
+}
+
+.breadcrumb-list a:hover {
+  background-color: var(--bg-color-offset);
+  text-decoration: none;
+}
+
+.breadcrumb-list a.active {
+  font-weight: bold;
+  color: var(--accent-color);
+  background-color: var(--bg-color-offset);
+}
+
+hr.nav-divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 2em 0;
+}
+
+/* 
+--------------------------------------------
+   8. BOOK-LIKE PREV/NEXT NAVIGATION
+--------------------------------------------
+*/
+.navigation {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+}
+
+.nav-left {
+  flex: 1;
+  text-align: left;
+}
+
+.nav-right {
+  flex: 1;
+  text-align: right;
+}
+
+.nav-button {
+  display: inline-block;
+  padding: 0.75em 1.5em;
+  background-color: var(--bg-color-offset);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  font-family: var(--font-family-heading);
+}
+
+.nav-button:hover {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-button.prev::before {
+  content: "←";
+  margin-right: 0.5em;
+}
+
+.nav-button.next::after {
+  content: "→";
+  margin-left: 0.5em;
+}
+
+/* Responsive navigation for smaller screens */
+@media (max-width: 768px) {
+  .nav-buttons {
+    flex-direction: column;
+    gap: 1em;
+  }
+  
+  .nav-left, .nav-right {
+    text-align: center;
+  }
+  
+  .nav-button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* 
+--------------------------------------------
+   9. PRINT STYLESHEET
 --------------------------------------------
 */
 @media print {

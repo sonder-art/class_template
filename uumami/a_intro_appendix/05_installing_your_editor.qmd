@@ -1,5 +1,10 @@
 ---
 title: "Step 5: Install Your Editor, The Workshop"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
 ---
 
 ## Your Digital Workshop: What is a Code Editor?
@@ -105,4 +110,21 @@ If you are using Windows with WSL, you need one more crucial extension to connec
 
 ## What's Next?
 
-You now have your professional workshop set up. The next step is to install the tools for saving and sharing your work: Git and GitHub. 
+You now have your professional workshop set up. The next step is to install the tools for saving and sharing your work: Git and GitHub.
+
+---
+
+::: {.navigation}
+<div class="nav-buttons">
+  <div class="nav-left">
+    <a href="./04_alternative_gitpod_setup.qmd" class="nav-button prev">
+      ← Previous: Chapter 4
+    </a>
+  </div>
+  <div class="nav-right">
+    <a href="./06_setting_up_git_and_github.qmd" class="nav-button next">
+      Next: Chapter 6 →
+    </a>
+  </div>
+</div>
+::: 
