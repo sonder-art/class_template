@@ -1,0 +1,102 @@
+/*
+============================================
+   THEME TEMPLATE: _template.css
+   
+   Instructions:
+   1. Copy this file and rename it (e.g., 'my-new-theme.css').
+   2. Find new fonts from Google Fonts (https://fonts.google.com/).
+      - Click 'Get Font' and then 'Get embed code'.
+      - Copy the @import line into the 'Font Imports' section below.
+   3. Find a color palette you like (e.g., from https://coolors.co/).
+   4. Replace the placeholder values in the ':root' section with your new font names and color codes.
+   5. (Optional) Add any theme-specific flair in Section 2.
+============================================
+*/
+
+
+/* 
+--------------------------------------------
+   SECTION 1: FONT IMPORTS
+   - Add @import rules from Google Fonts here.
+--------------------------------------------
+*/
+
+/* @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap'); */
+
+
+/* 
+--------------------------------------------
+   SECTION 2: THEME VARIABLE OVERRIDES
+   - This block overrides the default variables from main.css.
+--------------------------------------------
+*/
+
+:root {
+  /* -- GLOBAL COLORS -- */
+  --primary-color: #000000;
+  --accent-color: #000000;
+  --text-color: #333333;
+  --text-color-light: #7a7a7a;
+  --bg-color: #ffffff;
+  --bg-color-offset: #f8f9fa;
+  --link-color: #000000;
+  --link-color-hover: #000000;
+  --border-color: #dee2e6;
+
+  /* -- TYPOGRAPHY -- */
+  /* Don't forget to import the fonts above! */
+  --font-family-body: 'Georgia', serif;
+  --font-family-heading: 'Helvetica', sans-serif;
+  --font-family-monospace: 'Courier New', monospace;
+
+  /* -- COMPONENTS -- */
+  --code-bg-color: #f1f1f1;
+  --code-text-color: #333;
+  --table-header-bg: #f1f1f1;
+  --table-row-even-bg: #f8f9fa;
+  --blockquote-border-color: var(--border-color);
+
+  /* -- EDUCATIONAL CALLOUTS -- */
+  /* You can change background, border, and the icon content. */
+  /* To use an image icon: --callout-definition-icon: url('/path/to/icon.svg'); */
+
+  --callout-definition-bg: #e9ecef;
+  --callout-definition-border: #adb5bd;
+  --callout-definition-icon: '"\\1F4D6"';
+
+  --callout-objective-bg: #e6f7ff;
+  --callout-objective-border: #91d5ff;
+  --callout-objective-icon: '"\\2714"';
+
+  --callout-takeaway-bg: #fffbe6;
+  --callout-takeaway-border: #ffe58f;
+  --callout-takeaway-icon: '"\\1F4A1"';
+
+  --callout-tip-bg: #e6fffb;
+  --callout-tip-border: #87e8de;
+  --callout-tip-icon: '"\\2B50"';
+
+  --callout-warning-bg: #fff1f0;
+  --callout-warning-border: #ffa39e;
+  --callout-warning-icon: '"\\26A0"';
+
+  --callout-exercise-bg: #f6f2ff;
+  --callout-exercise-border: #d3adf7;
+  --callout-exercise-icon: '"\\270F"';
+}
+
+
+/* 
+--------------------------------------------
+   SECTION 3: (OPTIONAL) THEME-SPECIFIC FLAIR
+   - Add any custom CSS rules here that go beyond variable changes.
+   - For example, a custom body background image.
+--------------------------------------------
+*/
+
+/* 
+body {
+  background-image: url('/path/to/your/background.png');
+  background-size: cover;
+}
+*/ 

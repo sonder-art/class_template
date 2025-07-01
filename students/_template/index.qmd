@@ -1,12 +1,46 @@
 ---
-title: "My Portfolio"
+title: "{{< meta class_name >}} - Official Class Notes"
+format:
+  html:
+    css:
+      - styles/main.css
+      - styles/themes/evangelion.css
 ---
 
-## About Me
+# Welcome to the Official Notes for {{< meta class_name >}} ({{< meta course_code >}})
 
-Welcome to my personal page for this course. Here you will find links to my completed assignments.
+Hello students! This section provides all the structured learning materials for our course, taught by {{< meta instructor_name >}} for the {{< meta period >}} period.
 
-## My Assignments
+## Course Overview
 
-*   (Link to your first assignment here)
-*   (Link to your second assignment here) 
+Explore the lessons below to dive into the core concepts of {{< meta class_name >}}. All materials here are curated and provided by your instructor.
+
+## Lessons:
+
+* [Lesson 01: Introduction & Setup](lesson01_intro.qmd)
+* [Lesson 02: Core Concept 1](lesson02_concept1.qmd)
+* [Lesson 03: Core Concept 2](lesson03_concept2.qmd)
+
+---
+
+### Quick Links:
+* [Full Course Syllabus]({{< meta syllabus_url >}})
+* [Latest Announcements]({{< meta announcements_url >}})
+* [Class Files on Google Drive]({{< meta class_drive_url >}})
+* [Our GitHub Repository]({{< meta repository_url >}})
+
+```{python}
+x = 56
+```
+
+```{python}
+# Example code to demonstrate environment setup
+import sys
+import platform
+print(f"Python Version: {sys.version.split(' ')[0]}")
+print(f"Platform: {platform.system()} {platform.release()}")
+# You can add more environment checks here if desired
+print(f'Value of X is : {x}')
+```
+
+Rendering math $x_i = 4$ in latex

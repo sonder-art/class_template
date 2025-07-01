@@ -1,10 +1,10 @@
 ---
 title: "{{< meta class_name >}} - Official Class Notes"
-format: html
-css:
-  - ../styles/main.css
-  - ../styles/themes/evangelion.css
-# No 'format' or 'jupyter' here; they are inherited from root _quarto.yml
+format:
+  html:
+    css:
+      - styles/main.css
+      - styles/themes/evangelion.css
 ---
 
 # Welcome to the Official Notes for {{< meta class_name >}} ({{< meta course_code >}})
