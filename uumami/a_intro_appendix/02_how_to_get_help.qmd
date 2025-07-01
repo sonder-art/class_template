@@ -142,19 +142,4 @@ Debugging is just a specific application of the core workflow, as shown in the "
 ### The Final Step: Ask a Human
 If you have genuinely tried these steps and are still stuck, ask your peers or the instructor. When you do, provide the same context you would give an AI. This shows you've done your homework and helps them help you faster.
 
----
-
-::: {.navigation}
-<div class="nav-buttons">
-  <div class="nav-left">
-    <a href="./01_creating_llm_accounts.qmd" class="nav-button prev">
-      ← Previous: Chapter 1
-    </a>
-  </div>
-  <div class="nav-right">
-    <a href="./03_installing_python.qmd" class="nav-button next">
-      Next: Chapter 3 →
-    </a>
-  </div>
-</div>
-::: 
+{{< include _nav.qmd >}}

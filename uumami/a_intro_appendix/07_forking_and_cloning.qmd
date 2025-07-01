@@ -41,11 +41,14 @@ Now we bring that repository down from the cloud to your local machine.
 4.  Below the tabs, you will see a piece of text that starts with `git@github.com:...`. To the right of this text is a small icon of two overlapping squares. This is the **Copy button**. Click it to copy the entire SSH URL to your clipboard.
 5.  Now, open your terminal application (Terminal on Mac, PowerShell on Windows, or your Linux/WSL terminal).
 6.  You need to decide where you want to store your schoolwork. A good place is a `Documents` folder. Use the `cd` (change directory) command to navigate there.
+
     ```bash
     # This command moves you into your Documents folder.
     cd Documents
     ```
+
 7.  Now, use the `git clone` command and paste the URL you copied from GitHub.
+
     ```bash
     # The command is "git clone" followed by the pasted URL
     git clone [paste the URL you copied here]
@@ -56,19 +59,4 @@ Now we bring that repository down from the cloud to your local machine.
 
 You're done! A new folder with your repository's name now exists in your `Documents` folder. In the next step, we will open it with Cursor and test it.
 
----
-
-::: {.navigation}
-<div class="nav-buttons">
-  <div class="nav-left">
-    <a href="./06_setting_up_git_and_github.qmd" class="nav-button prev">
-      ← Previous: Chapter 6
-    </a>
-  </div>
-  <div class="nav-right">
-    <a href="./08_installing_and_testing_quarto.qmd" class="nav-button next">
-      Next: Chapter 8 →
-    </a>
-  </div>
-</div>
-::: 
+{{< include _nav.qmd >}}

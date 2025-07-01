@@ -28,14 +28,17 @@ When possible, sign up for these services using your university email address. M
 These are your main go-to assistants for a wide range of questions.
 
 ### Google Gemini
+
 -   **What it is:** A powerful and creative AI from Google that is excellent at explaining code, debugging errors, and brainstorming ideas.
 -   **Action:** Go to [https://gemini.google.com](https://gemini.google.com) and sign in with your Google account.
 
 ### OpenAI's ChatGPT
+
 -   **What it is:** The famous AI that started the revolution. It's a fantastic "all-rounder" for writing, summarizing, and coding.
 -   **Action:** Go to [https://chat.openai.com](https://chat.openai.com) to create an account.
 
 ### Anthropic's Claude
+
 -   **What it is:** A safety-focused AI that excels at handling large documents and providing thoughtful, detailed explanations.
 -   **Action:** Go to [https://claude.ai](https://claude.ai) to create an account.
 
@@ -44,10 +47,12 @@ These are your main go-to assistants for a wide range of questions.
 These tools are designed for specific tasks, especially research and fact-checking.
 
 ### Perplexity AI
+
 -   **What it is:** An "answer engine." It's like Google, but instead of just giving you links, it reads them and gives you a direct, summarized answer with citations. This is your primary tool for research.
 -   **Action:** Go to [https://www.perplexity.ai](https://www.perplexity.ai) to sign up.
 
 ### Other Powerful Models
+
 -   **DeepSeek:** A model known for its strong coding abilities. [https://chat.deepseek.com](https://chat.deepseek.com)
 -   **Mistral AI:** A leading European AI company with powerful open models. You can try their chat interface here: [https://chat.mistral.ai](https://chat.mistral.ai)
 
@@ -56,10 +61,12 @@ These tools are designed for specific tasks, especially research and fact-checki
 Your one Google account gives you access to these other powerful tools that we will use in the course.
 
 ### Google Colab
+
 -   **What it is:** A way to write and run Python code in your browser, using Google's computers. It requires no installation and is a fantastic tool for quick experiments.
 -   **Action:** Go to [https://colab.research.google.com](https://colab.research.google.com) and sign in.
 
 ### NotebookLM
+
 -   **What it is:** A research tool that lets you "chat" with your own documents. You can upload lecture slides, papers, or your own notes, and then ask questions about them.
 -   **Action:** Go to [https://notebooklm.google.com](https://notebooklm.google.com) and sign in.
 
@@ -73,57 +80,4 @@ Your one Google account gives you access to these other powerful tools that we w
 - **NotebookLM**: Chat with your documents
 :::
 
-```{=html}
-<div class="page-navigation-container">
-
-  <!-- Smart Breadcrumb Dropdown -->
-  <div class="breadcrumb-container">
-    <details class="breadcrumb-dropdown">
-      <summary>
-        <span class="breadcrumb-prefix">Setup Guide:</span>
-        <span class="breadcrumb-current">AI Assistants (Step 1)</span>
-        <span class="breadcrumb-caret">▼</span>
-      </summary>
-      <ul class="breadcrumb-list">
-        <li><a href="./00_index.qmd">Welcome</a></li>
-        <li><a href="./01_creating_llm_accounts.qmd" class="active">AI Assistants (Step 1)</a></li>
-        <li><a href="./02_how_to_get_help.qmd">How to Get Help (Step 2)</a></li>
-        <li><a href="./03_installing_python.qmd">Install Python (Step 3)</a></li>
-        <li><a href="./04_alternative_gitpod_setup.qmd">Gitpod Alternative (Step 4)</a></li>
-        <li><a href="./05_installing_your_editor.qmd">Install Editor (Step 5)</a></li>
-        <li><a href="./06_setting_up_git_and_github.qmd">Git & GitHub (Step 6)</a></li>
-        <li><a href="./07_forking_and_cloning.qmd">Fork & Clone (Step 7)</a></li>
-        <li><a href="./08_installing_and_testing_quarto.qmd">Install Quarto (Step 8)</a></li>
-      </ul>
-    </details>
-  </div>
-
-  <hr class="nav-divider">
-
-  <!-- Prev/Next Buttons -->
-  <div class="navigation">
-    <div class="nav-buttons">
-      <div class="nav-left">
-        <a href="./00_index.qmd" class="nav-button prev">← Setup Welcome</a>
-      </div>
-      <div class="nav-right">
-        <a href="./02_how_to_get_help.qmd" class="nav-button next">How to Get Help →</a>
-      </div>
-    </div>
-  </div>
-
-</div>
-```
-
----
-
-::: {.navigation}
-::: {.nav-buttons}
-::: {.nav-left}
-[← Setup Welcome](./00_index.qmd){.nav-button .prev}
-:::
-::: {.nav-right}
-[How to Get Help →](./02_how_to_get_help.qmd){.nav-button .next}
-:::
-:::
-::: 
+{{< include _nav.qmd >}}

@@ -54,15 +54,4 @@ To make things easier, we use consistent formatting:
     A box like this contains a warning or information about a common mistake. Pay close attention to these!
     :::
 
----
-
-::: {.navigation}
-::: {.nav-buttons}
-::: {.nav-left}
-[← Back to Class Notes](../index.qmd){.nav-button .prev}
-:::
-::: {.nav-right}
-[Next: Chapter 1 →](./01_creating_llm_accounts.qmd){.nav-button .next}
-:::
-:::
-::: 
+{{< include _nav.qmd >}}

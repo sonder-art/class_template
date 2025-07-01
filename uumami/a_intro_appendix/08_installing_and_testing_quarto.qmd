@@ -1,5 +1,10 @@
 ---
 title: "Step 8: Install Quarto & Test Your Setup"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
 ---
 
 ## The Final Piece: What is Quarto?
@@ -7,6 +12,7 @@ title: "Step 8: Install Quarto & Test Your Setup"
 **Quarto** is a scientific and technical publishing system. That's a fancy way of saying it's a tool that takes simple text files and turns them into beautiful, professional documents.
 
 With Quarto, you can write in a simple format called Markdown, embed runnable code from Python, and export it all to dozens of formats, including:
+
 -   A complete, interactive website (like the one you're reading!)
 -   A PDF for a formal report
 -   A PowerPoint presentation
@@ -24,6 +30,7 @@ Choose the tab for your operating system. Using a package manager is recommended
 
 1.  **Prerequisite:** [Homebrew](https://brew.sh).
 2.  **Install Quarto:**
+
     ```bash
     brew install quarto
     ```
@@ -32,6 +39,7 @@ Choose the tab for your operating system. Using a package manager is recommended
 
 1.  **Prerequisite:** `winget`.
 2.  **Install Quarto:** Open PowerShell and run:
+
     ```bash
     winget install Quarto.Quarto
     ```
@@ -42,6 +50,7 @@ We recommend the official installer for Linux, as it's the most reliable method.
 
 1.  Go to the [Official Quarto Downloads Page](https://quarto.org/docs/get-started/) and download the `.deb` file for Debian/Ubuntu.
 2.  Open your terminal, navigate to your `Downloads` folder, and run the installation command (your version number may be different):
+
     ```bash
     cd ~/Downloads
     sudo dpkg -i quarto-*-linux-amd64.deb
@@ -59,11 +68,14 @@ This final test will verify that your entire toolchain works together. The goal 
 First, you need to open the project folder you downloaded.
 
 -   In your terminal, you should still be in the `Documents` folder (or wherever you cloned). You need to move into the project folder itself. Use the `cd` (change directory) command:
+
     ```bash
     # Replace the folder name if you named your repository something different
     cd {{< meta course_code >}}-notes
     ```
+
 -   Now that you are inside the project folder, open it in Cursor using the special `cursor .` command. Remember, the `.` is a shortcut for "the current folder".
+
     ```bash
     cursor .
     ```
@@ -74,6 +86,7 @@ Your project needs certain Python libraries to run the code embedded in the docu
 
 -   Inside Cursor, open the built-in terminal panel if it's not already open. (Press ``Ctrl+` `` or go to the "Terminal" > "New Terminal" menu).
 -   Run the following command to have `pip` (Python's package installer) read the file and install everything listed inside.
+
     ```bash
     python3 -m pip install -r students/_template/requirements.txt
     ```
@@ -90,6 +103,7 @@ This is the fastest way to see if Quarto and the Python code can run.
 The single-file render is a nice, quick check. However, the correct and most reliable way to work on a Quarto website is to **preview the entire project at once.**
 
 This is the universal workflow you will use for **any and all Quarto projects**. The process is always the same:
+
 1.  Navigate your terminal into the root directory of a Quarto project (the one containing a `_quarto.yml` file).
 2.  Run the `quarto preview` command.
 
@@ -99,12 +113,15 @@ This method works because it uses the project's `_quarto.yml` file as the "contr
 
 - **Open the terminal panel** inside Cursor.
 - **Navigate into the student project's directory:**
+
     ```bash
     # cd stands for "change directory". This moves us into the folder
     # where the student website project lives.
     cd students/_template
     ```
+
 - **Run the universal preview command:**
+
     ```bash
     quarto preview
     ```
@@ -117,13 +134,16 @@ This demonstrates that the workflow is identical, just in a different directory.
 
 - **Open a new terminal panel** inside Cursor (or use the existing one).
 - Your terminal is likely still inside `students/_template`. We need to go up two levels to the main repository root, and then down into the `uumami` folder.
+
     ```bash
     # Go up one level to 'students/', then up again to the repository root.
     cd ../../
     # Now go into the instructor's project folder.
     cd uumami
     ```
+
 - **Run the exact same universal preview command:**
+
     ```bash
     quarto preview
     ```
@@ -140,19 +160,4 @@ To stop a preview server, go to the terminal where it's running and press `Ctrl+
 
 If you can successfully preview both projects, you have mastered the fundamental Quarto workflow and your environment is perfectly configured! You have a professional-grade setup for the entire course
 
----
-
-::: {.navigation}
-<div class="nav-buttons">
-  <div class="nav-left">
-    <a href="./07_forking_and_cloning.qmd" class="nav-button prev">
-      ← Previous: Chapter 7
-    </a>
-  </div>
-  <div class="nav-right">
-    <a href="../c_quarto_appendix/00_index.qmd" class="nav-button next">
-      Next: Appendix C →
-    </a>
-  </div>
-</div>
-:::
+{{< include _nav.qmd >}}

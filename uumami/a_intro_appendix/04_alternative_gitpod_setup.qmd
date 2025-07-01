@@ -15,6 +15,7 @@ Think of Gitpod as a powerful computer that lives on the internet. It comes with
 :::
 
 This is a fantastic option if:
+
 -   You have a Chromebook or tablet.
 -   You are having trouble with the local installation on your computer.
 -   You want to get started immediately without any setup.
@@ -37,42 +38,115 @@ Gitpod offers a generous free plan for students. Be sure to explore this on thei
 
 This is the magic part. To launch a ready-to-code environment for our class, you just need to visit a special URL.
 
-1.  The URL for our class's main GitHub repository is: **{{< meta repository_url >}}**
+1.  **First, you need to fork the repository.** Go to the main GitHub page for our class template: **{{< meta repository_url >}}**
+2.  Click the **"Fork"** button in the top-right corner to create your own copy.
+3.  Once you have your forked repository, copy its URL from your browser's address bar.
+4.  To open your fork in Gitpod, you have two options:
 
-2.  To open this project in Gitpod, simply prefix the URL with `gitpod.io/#`. The full link you need to open in your browser is:
+    **Option A:** Visit your forked repository on GitHub and click the green **"Gitpod"** button (if available).
+    
+    **Option B:** Manually construct the URL by prefixing your repository URL with `https://gitpod.io/#`. For example:
+    ```
+    https://gitpod.io/#https://github.com/[your-username]/[repository-name]
+    ```
+    
+    Replace `[your-username]` with your GitHub username and `[repository-name]` with your repository name.
 
-    <a href="https://gitpod.io/#{{< meta repository_url >}}" target="_blank">gitpod.io/#{{< meta repository_url >}}</a>
+### Step 3: Wait for Environment Setup
 
-    Clicking the link above will launch your environment.
+When you first open the gitpod link, you'll see:
 
-That's it! Gitpod will now:
--   Create a new, personal copy of the class project for you.
--   Install all the required software (Python, Quarto, etc.).
--   Launch a complete development environment, including the VS Code editor, right in your browser.
+1.  A loading screen as Gitpod sets up your environment (this takes 2-3 minutes the first time).
+2.  Gitpod will automatically:
+    -   Install all the required software (Python, Quarto, etc.).
+    -   Set up the VS Code editor in your browser.
+    -   Open your project files.
 
-## Using Gitpod
+### Step 4: Verify Everything Works
 
--   The editor you see is a full version of VS Code.
--   A terminal is available at the bottom of the screen. All the `python3`, `pip`, and `quarto` commands will work there.
--   When you preview a Quarto document, Gitpod will automatically handle the networking and show you the rendered page in a new browser tab.
+Once your environment loads:
+
+1.  **Test Python:** Open the terminal (bottom panel) and run:
+
+    ```bash
+    python3 --version
+    ```
+
+2.  **Test Quarto:** Run:
+
+    ```bash
+    quarto --version
+    ```
+
+3.  **Preview the site:** Navigate to the student template and start a preview:
+
+    ```bash
+    cd students/_template
+    quarto preview
+    ```
+
+If all commands work, you're ready to go!
+
+### Step 5: Install Essential Extensions
+
+While Python support is usually pre-installed, you'll want to add the Quarto extension for the best experience:
+
+1.  **Open the Extensions panel:** Click the Extensions icon in the left sidebar (it looks like four squares) or press `Ctrl+Shift+X`.
+
+2.  **Install the Quarto extension:** 
+    - Search for "Quarto" in the search box
+    - Look for the **Quarto** extension by **Quarto** (it should be the first result)
+    - Click the **Install** button
+
+3.  **Install the Python extension (if needed):**
+    - Search for "Python" 
+    - Install the **Python** extension by **Microsoft**
+
+4.  **Verify installation:** After installing, you should see:
+    - A **"Render"** button appears when you open `.qmd` files
+    - Syntax highlighting for Quarto documents
+    - Python support in `.py` files
+
+## Using Gitpod Day-to-Day
+
+### The Interface
+
+-   **Left Panel:** File explorer showing your project files
+-   **Center Panel:** Code editor (just like VS Code)
+-   **Bottom Panel:** Terminal where you run commands
+-   **Right Panel:** Preview pane (when rendering documents)
+
+### Key Features
+
+-   **Auto-save:** Your work is automatically saved to your GitHub repository
+-   **Extensions:** Install Python and Quarto extensions as needed (see setup steps above)
+-   **Terminal:** All course commands (`python3`, `pip`, `quarto`) work normally
+-   **Preview:** When you run `quarto preview`, Gitpod shows the result in a new browser tab
+-   **Render button:** With the Quarto extension installed, you can render individual `.qmd` files by clicking the "Render" button
+
+### Important Notes
+
+-   **Timeout:** Free gitpod workspaces stop after 30 minutes of inactivity, but your work is saved
+-   **Restart:** You can restart your workspace anytime by visiting the same gitpod URL
+-   **Sync:** Changes are automatically pushed to your GitHub repository
 
 ## Summary
 
-If you choose this path, you are all set! You have Python, an editor, and all the tools you need. You can now skip ahead to the tutorial on **[Setting Up Git & GitHub](./06_setting_up_git_and_github.qmd)** to learn how to save your work.
+If you choose the Gitpod path, you now have:
+✅ Python and pip installed  
+✅ Quarto installed  
+✅ VS Code editor ready  
+✅ Essential extensions (Python + Quarto)  
+✅ Your forked repository accessible  
+✅ Terminal access for all commands  
 
----
+**Your environment is complete!** You can now:
+- **Jump to [Step 8: Install Quarto & Test Your Setup](./08_installing_and_testing_quarto.qmd)** to learn the Quarto workflow
+- **Or continue reading the setup steps** to understand how local development works (useful knowledge for later)
 
-::: {.navigation}
-<div class="nav-buttons">
-  <div class="nav-left">
-    <a href="./03_installing_python.qmd" class="nav-button prev">
-      ← Previous: Chapter 3
-    </a>
-  </div>
-  <div class="nav-right">
-    <a href="./05_installing_your_editor.qmd" class="nav-button next">
-      Next: Chapter 5 →
-    </a>
-  </div>
-</div>
-::: 
+::: {.callout-tip}
+### Pro Tip: Gitpod Workspace Management
+Your gitpod workspace will stay active for 30 minutes after you stop using it, then automatically pause to save resources. To resume work, just visit your gitpod URL again and everything will be exactly as you left it!
+:::
+
+{{< include _nav.qmd >}}

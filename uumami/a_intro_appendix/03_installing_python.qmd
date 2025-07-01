@@ -39,10 +39,13 @@ This is the most robust and reliable way to run Python on Windows for data scien
 
 1.  **Prerequisite:** This method requires the Windows Subsystem for Linux (WSL2). If you have not installed it, please follow the [Official Microsoft WSL Installation Guide](https://learn.microsoft.com/en-us/windows/wsl/install) and choose **Ubuntu**.
 2.  **Update Package Lists:** In your Ubuntu terminal, run this command to make sure you have the latest list of available software.
+
     ```bash
     sudo apt update
     ```
+
 3.  **Install Python and Tools:** This command installs Python, its package manager (`pip`), and tools for creating virtual environments (`venv`).
+
     ```bash
     sudo apt install python3 python3-pip python3-venv -y
     ```
@@ -53,6 +56,7 @@ The best way to manage software like Python on a Mac is with a package manager c
 
 1.  **Install Homebrew:** If you don't have it, open your Terminal app and paste the single command from the official [Homebrew website](https://brew.sh/).
 2.  **Install Python:** Once Homebrew is installed, run this simple command:
+
     ```bash
     brew install python
     ```
@@ -63,10 +67,13 @@ The best way to manage software like Python on a Mac is with a package manager c
 Most Linux systems have Python, but this ensures you have all the necessary supporting packages.
 
 1.  **Update Package Lists:**
+
     ```bash
     sudo apt update
     ```
+
 2.  **Install Python and Tools:**
+
     ```bash
     sudo apt install python3 python3-pip python3-venv -y
     ```
@@ -104,19 +111,4 @@ You should see version numbers for both. If you do, congratulations! Your engine
 -   **Golden Prompt for your AI:** "I have just installed Python on `[My OS name]`. When I open a new terminal and type `python3 --version`, I get a 'command not found' error. How can I check if Python was correctly added to my system's PATH variable, and what are the steps to add it manually?"
 :::
 
----
-
-::: {.navigation}
-<div class="nav-buttons">
-  <div class="nav-left">
-    <a href="./02_how_to_get_help.qmd" class="nav-button prev">
-      ← Previous: Chapter 2
-    </a>
-  </div>
-  <div class="nav-right">
-    <a href="./04_alternative_gitpod_setup.qmd" class="nav-button next">
-      Next: Chapter 4 →
-    </a>
-  </div>
-</div>
-::: 
+{{< include _nav.qmd >}}
