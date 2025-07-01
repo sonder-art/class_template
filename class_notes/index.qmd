@@ -43,4 +43,4 @@ print(f"Platform: {platform.system()} {platform.release()}")
 print(f'Value of X is : {x}')
 ```
 
-Rendering math $x_i = 4$
+Rendering math $x_i = 4$ in latex
