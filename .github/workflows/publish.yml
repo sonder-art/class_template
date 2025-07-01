@@ -36,12 +36,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11' # Or whatever version you prefer
+          python-version: '3.11'
           cache: 'pip'
       
-      - name: Install Python dependencies
-        run: pip install -r ${{ env.TARGET_DIR }}/requirements.txt
-
       - name: Identify Render Target
         id: identify_target
         run: |
@@ -52,6 +49,9 @@ jobs:
             echo "TARGET_DIR=uumami" >> $GITHUB_ENV
             echo "No student directory found. Rendering default 'uumami' project."
           fi
+      
+      - name: Install Python dependencies
+        run: pip install -r ${{ env.TARGET_DIR }}/requirements.txt
 
       - name: Render Quarto Website
         uses: quarto-dev/quarto-actions/render@v2
