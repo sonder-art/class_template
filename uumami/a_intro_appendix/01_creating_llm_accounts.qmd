@@ -1,0 +1,59 @@
+---
+title: "Step 1: Gather Your AI Assistants"
+---
+
+## Your Team of AI Assistants
+
+Modern programming and data analysis are rarely done alone. In the past, you might have had to rely on a textbook or a single instructor. Today, you have access to a suite of powerful AI assistants that are like having a team of experts and a massive, interactive library available to you 24/7.
+
+We are having you sign up for several because, just like people, each AI has different strengths. You will learn which one to ask for different types of questions.
+
+::: {.callout-tip}
+**Use Your University Email**
+
+When possible, sign up for these services using your university email address. Many services offer free educational plans or additional credits for students.
+:::
+
+## The "Big Three" General Purpose Assistants
+
+These are your main go-to assistants for a wide range of questions.
+
+### Google Gemini
+-   **What it is:** A powerful and creative AI from Google that is excellent at explaining code, debugging errors, and brainstorming ideas.
+-   **Action:** Go to [https://gemini.google.com](https://gemini.google.com) and sign in with your Google account.
+
+### OpenAI's ChatGPT
+-   **What it is:** The famous AI that started the revolution. It's a fantastic "all-rounder" for writing, summarizing, and coding.
+-   **Action:** Go to [https://chat.openai.com](https://chat.openai.com) to create an account.
+
+### Anthropic's Claude
+-   **What it is:** A safety-focused AI that excels at handling large documents and providing thoughtful, detailed explanations.
+-   **Action:** Go to [https://claude.ai](https://claude.ai) to create an account.
+
+## Specialized Assistants & Search Engines
+
+These tools are designed for specific tasks, especially research and fact-checking.
+
+### Perplexity AI
+-   **What it is:** An "answer engine." It's like Google, but instead of just giving you links, it reads them and gives you a direct, summarized answer with citations. This is your primary tool for research.
+-   **Action:** Go to [https://www.perplexity.ai](https://www.perplexity.ai) to sign up.
+
+### Other Powerful Models
+-   **DeepSeek:** A model known for its strong coding abilities. [https://chat.deepseek.com](https://chat.deepseek.com)
+-   **Mistral AI:** A leading European AI company with powerful open models. You can try their chat interface here: [https://chat.mistral.ai](https://chat.mistral.ai)
+
+## Google's Integrated Tools
+
+Your one Google account gives you access to these other powerful tools that we will use in the course.
+
+### Google Colab
+-   **What it is:** A way to write and run Python code in your browser, using Google's computers. It requires no installation and is a fantastic tool for quick experiments.
+-   **Action:** Go to [https://colab.research.google.com](https://colab.research.google.com) and sign in.
+
+### NotebookLM
+-   **What it is:** A research tool that lets you "chat" with your own documents. You can upload lecture slides, papers, or your own notes, and then ask questions about them.
+-   **Action:** Go to [https://notebooklm.google.com](https://notebooklm.google.com) and sign in.
+
+## What Now?
+
+You now have access to the most powerful learning tools ever created. In the next section, we will teach you exactly **how** to use them when you get stuck. This is the most important skill you will learn in this setup guide. 

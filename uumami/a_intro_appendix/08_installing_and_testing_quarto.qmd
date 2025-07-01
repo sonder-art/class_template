@@ -1,0 +1,116 @@
+---
+title: "Step 8: Install Quarto & Test Your Setup"
+---
+
+## The Final Piece: What is Quarto?
+
+**Quarto** is a scientific and technical publishing system. That's a fancy way of saying it's a tool that takes simple text files and turns them into beautiful, professional documents.
+
+With Quarto, you can write in a simple format called Markdown, embed runnable code from Python, and export it all to dozens of formats, including:
+-   A complete, interactive website (like the one you're reading!)
+-   A PDF for a formal report
+-   A PowerPoint presentation
+-   An e-book
+
+It's the tool that brings all our work—text, code, and output—together into a final, polished product.
+
+## Step 1: Install Quarto
+
+Choose the tab for your operating system. Using a package manager is recommended.
+
+::: {.panel-tabset}
+
+### macOS
+
+1.  **Prerequisite:** [Homebrew](https://brew.sh).
+2.  **Install Quarto:**
+    ```bash
+    brew install quarto
+    ```
+
+### Windows
+
+1.  **Prerequisite:** `winget`.
+2.  **Install Quarto:** Open PowerShell and run:
+    ```bash
+    winget install Quarto.Quarto
+    ```
+
+### Linux (WSL & Desktop)
+
+We recommend the official installer for Linux, as it's the most reliable method.
+
+1.  Go to the [Official Quarto Downloads Page](https://quarto.org/docs/get-started/) and download the `.deb` file for Debian/Ubuntu.
+2.  Open your terminal, navigate to your `Downloads` folder, and run the installation command (your version number may be different):
+    ```bash
+    cd ~/Downloads
+    sudo dpkg -i quarto-*-linux-amd64.deb
+    ```
+
+:::
+
+To verify it's installed correctly, open a **new** terminal and run `quarto --version`. You should see a version number.
+
+## Step 2: The Smoke Test - Previewing the Template
+
+This final test will verify that your entire toolchain works together. The goal is to render the template project you cloned to make sure everything is configured correctly before you start your own work.
+
+### 1. Open the Project in Cursor
+First, you need to open the project folder you downloaded.
+
+-   In your terminal, you should still be in the `Documents` folder (or wherever you cloned). You need to move into the project folder itself. Use the `cd` (change directory) command:
+    ```bash
+    # Replace the folder name if you named your repository something different
+    cd {{< meta course_code >}}-notes
+    ```
+-   Now that you are inside the project folder, open it in Cursor using the special `cursor .` command. Remember, the `.` is a shortcut for "the current folder".
+    ```bash
+    cursor .
+    ```
+-   The Cursor application will launch (or a new window will open) with the project files loaded in the File Explorer on the left.
+
+### 2. Install Python Dependencies
+Your project needs certain Python libraries to run the code embedded in the documents. A `requirements.txt` file lists all of these.
+
+-   Inside Cursor, open the built-in terminal panel if it's not already open. (Press ``Ctrl+` `` or go to the "Terminal" > "New Terminal" menu).
+-   Run the following command to have `pip` (Python's package installer) read the file and install everything listed inside.
+    ```bash
+    python3 -m pip install -r students/_template/requirements.txt
+    ```
+
+### 3. Render a Single File (The Quick Check)
+This is the fastest way to see if Quarto and the Python code can run.
+
+-   In the Cursor **File Explorer** on the left, click the small arrow next to the `students` folder to expand it. Then click the arrow next to the `_template` folder.
+-   Click on the `index.qmd` file to open it in the editor pane.
+-   In the top-right corner of the editor pane, find and click the **"Render"** button.
+-   A new "Preview" pane should open inside Cursor showing the rendered webpage. If it works, you're in great shape!
+
+### 4. Preview the Full Project (The Right Way)
+A Quarto "project" (any directory with a `_quarto.yml` file) is meant to be previewed as a whole website. This process starts a small, temporary web server on your computer so you can see your site exactly as it will appear online.
+
+- **Open the terminal panel** inside Cursor.
+- **Navigate to the project's root directory.** This is the most important and most common point of confusion. The commands you run affect the folder you are currently "in". We need to move into the student template folder to preview the student website.
+    ```bash
+    # cd stands for "change directory". This command takes us into the folder
+    # where the student website project lives.
+    cd students/_template
+    ```
+- **Run the preview command:**
+    ```bash
+    quarto preview
+    ```
+-   Quarto will now build all the pages and start the server. The terminal will show a message like `Listening on http://localhost:5145`.
+-   **Hold `Ctrl` (on Windows/Linux) or `Cmd` (on macOS) and click that `http://localhost...` link** in your terminal.
+-   Your default web browser will open, showing a live preview of the complete website. You can click the links in the navigation bar to move between pages.
+
+::: {.callout-tip}
+### What is `localhost`?
+`localhost` is a special network name that always means "this computer." When your browser visits a `localhost` URL, it isn't fetching a website from the internet. It is talking directly to the temporary web server that Quarto is running on your machine. This allows you to see a perfect preview of your site without having to upload it anywhere first.
+:::
+
+To stop the preview server and be able to type new commands, go to the terminal where it's running and press `Ctrl+C`.
+
+## Congratulations!
+
+If you can successfully preview the template project website in your browser, your environment is perfectly configured. You have a professional-grade setup for the entire course! 

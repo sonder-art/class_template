@@ -1,0 +1,68 @@
+---
+title: "Step 2: The Most Important Skill - How to Get Help"
+---
+
+## The Modern Detective's Toolkit
+
+You are about to install a lot of software. Things might go wrong. This is not a sign of failure; it is a normal and expected part of the process.
+
+Being a good programmer or data scientist is less about knowing all the answers and more about being a good **detective** who knows how to use their tools to find clues and solve problems. This guide is your process for solving any technical problem you encounter.
+
+## Step 1: The Classic Search (Google, DuckDuckGo)
+
+Your first step should always be a classic search engine. They are fast and effective for common problems.
+
+**The Skill: Finding Keywords**
+
+Your goal is to pull the most important "keywords" from an error message.
+
+-   **Example Error:** `Error: command not found: quarto`
+-   **Keywords:** `command not found quarto`
+-   **Your Search Query:** `"command not found quarto" windows 11` (Always add your Operating System!)
+
+::: {.callout-tip}
+### Where to Look
+The best answers often come from official documentation (like a page on `quarto.org`) or from trusted community sites like Stack Overflow.
+:::
+
+## Step 2: The AI-Powered Search (Perplexity)
+
+If a classic search gives you pages of confusing links, try an AI search engine next. You can ask it a full question.
+
+-   **Example Question:** "When I try to run `quarto preview` in my terminal on macOS, it says 'command not found'. What are the common reasons for this?"
+
+Perplexity will read the search results for you and give you a summarized answer with links to its sources, which is incredibly efficient.
+
+## Step 3: Consulting Your AI Assistant (The Golden Prompt)
+
+If the problem is more complex, it's time to talk to a general-purpose AI like Gemini or Claude. To get a good answer, you need to provide good information. Use this template every time.
+
+::: {.callout-note}
+### The Golden Prompt Template
+
+1.  **My Goal:** Tell the AI what you are trying to accomplish.
+    > *Example: "I am trying to install Python on Windows 11 using WSL2 for my university course."*
+
+2.  **My System:** State your operating system.
+    > *Example: "I am using Windows 11 with Ubuntu 22.04 on WSL2."*
+
+3.  **What I Did:** State the exact command you ran or the action you took.
+    > *Example: "I typed the command `sudo apt install python3` into my Ubuntu terminal."*
+
+4.  **What Happened (The Full Error):** Copy and paste the **complete, exact error message**. This is the most important part!
+    > *Example: "I expected it to install, but instead I got this error: `E: Unable to locate package python3`"*
+:::
+
+::: {.callout-tip}
+### How to Copy From Your Terminal
+
+To copy text from a terminal, simply click and drag your mouse to highlight the error message and the few lines before it. Then, press `Ctrl+C` (or `Cmd+C` on Mac) to copy it to your clipboard.
+:::
+
+## Step 4: When All Else Fails, Ask a Human
+
+You are not alone in this course! If you have tried the steps above for at least 30 minutes and are still stuck, it's time to ask for help on the class discussion forum or from the instructor.
+
+**Use the same Golden Prompt template when you ask for help.**
+
+This gives us all the information we need to help you quickly and effectively. A good question gets a good answer! 

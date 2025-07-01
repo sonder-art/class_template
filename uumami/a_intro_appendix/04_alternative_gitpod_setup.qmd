@@ -1,0 +1,56 @@
+---
+title: "Alternative Path: The Cloud Escape Hatch (Gitpod)"
+---
+
+## What is Gitpod?
+
+::: {.callout-tip}
+### The Cloud Development Environment
+Think of Gitpod as a powerful computer that lives on the internet. It comes with all the software we need for this course pre-installed. You access it through your web browser, so you don't need to install anything on your own machine.
+:::
+
+This is a fantastic option if:
+-   You have a Chromebook or tablet.
+-   You are having trouble with the local installation on your computer.
+-   You want to get started immediately without any setup.
+
+Using Gitpod is **not** a lesser option; it is a professional tool used by developers at major companies like Google and Shopify.
+
+## How to Get Started with Gitpod
+
+### Step 1: Create a Gitpod Account
+
+1.  Go to [https://www.gitpod.io/](https://www.gitpod.io/).
+2.  Click "Login" and sign up using your **GitHub account**. This is important, as Gitpod works by connecting directly to GitHub repositories.
+
+::: {.callout-note}
+#### Student Plan
+Gitpod offers a generous free plan for students. Be sure to explore this on their website after you've signed up.
+:::
+
+### Step 2: Open Our Class Project in Gitpod
+
+This is the magic part. To launch a ready-to-code environment for our class, you just need to visit a special URL.
+
+1.  The URL for our class's main GitHub repository is: **{{< meta repository_url >}}**
+
+2.  To open this project in Gitpod, simply prefix the URL with `gitpod.io/#`. The full link you need to open in your browser is:
+
+    <a href="https://gitpod.io/#{{< meta repository_url >}}" target="_blank">gitpod.io/#{{< meta repository_url >}}</a>
+
+    Clicking the link above will launch your environment.
+
+That's it! Gitpod will now:
+-   Create a new, personal copy of the class project for you.
+-   Install all the required software (Python, Quarto, etc.).
+-   Launch a complete development environment, including the VS Code editor, right in your browser.
+
+## Using Gitpod
+
+-   The editor you see is a full version of VS Code.
+-   A terminal is available at the bottom of the screen. All the `python3`, `pip`, and `quarto` commands will work there.
+-   When you preview a Quarto document, Gitpod will automatically handle the networking and show you the rendered page in a new browser tab.
+
+## Summary
+
+If you choose this path, you are all set! You have Python, an editor, and all the tools you need. You can now skip ahead to the tutorial on **[Setting Up Git & GitHub](./06_setting_up_git_and_github.qmd)** to learn how to save your work. 

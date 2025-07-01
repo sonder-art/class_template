@@ -1,0 +1,136 @@
+---
+title: "Step 6: Set Up Git & GitHub, Your Portfolio"
+---
+
+## Your Professional Portfolio and Time Machine
+
+This step is critical for managing your work like a professional. We will set up two different but related tools: **Git** and **GitHub**.
+
+### What is Git? A Time Machine for Your Code
+
+Imagine you're writing an important essay. You save it, make some changes, and save again. But what if you delete a paragraph and realize an hour later you need it back? If you only have one file, you're out of luck.
+
+**Git** is a "version control system" that solves this problem. It's like a "save" button on steroids. Instead of overwriting your work, Git takes a "snapshot" of your entire project every time you tell it to. These snapshots are called **commits**. This allows you to:
+-   Keep a complete history of every change you've ever made.
+-   See exactly what changed between versions.
+-   Rewind your entire project back to any previous snapshot if you make a mistake.
+
+You will install Git directly on your computer. It runs silently in the background, managed from the terminal or through Cursor.
+
+### What is GitHub? A Cloud Drive and Portfolio for Your Code
+
+If Git is your local time machine, **GitHub** is the cloud service where you store your projects and their histories. It's a website that is:
+-   **A cloud backup:** It keeps a remote copy of your work, so if something happens to your computer, your code is safe.
+-   **A professional portfolio:** Your GitHub profile becomes a public showcase of your projects that you can show to potential employers.
+-   **A collaboration hub:** It's the primary platform where developers around the world share code, collaborate on projects, and fix bugs together.
+
+We will create a free account on the GitHub website and then configure Git on our computer to talk to it.
+
+## Step 1: Create a GitHub Account
+
+1.  Go to [https://github.com/](https://github.com/) and sign up for a free account.
+2.  Choose a professional-sounding username. A common convention is some combination of your first and last name, like `[first-initial][last-name]` (e.g., `jsmith`).
+3.  Remember your username! We will need it later.
+
+## Step 2: Install Git on Your Computer
+
+Click the tab for your operating system.
+
+::: {.panel-tabset}
+
+### Windows (WSL) & Linux
+
+Git is almost always pre-installed on modern Linux systems. If not, the command is simple.
+
+1.  Open your Ubuntu/Linux terminal.
+2.  Run this command:
+    ```bash
+    sudo apt install git -y
+    ```
+
+### macOS
+
+As with Python, we will use Homebrew to install Git.
+
+1.  Open your Terminal app.
+2.  Run this command:
+    ```bash
+    brew install git
+    ```
+
+### Windows (Direct)
+
+1.  Go to the official Git download page: [https://git-scm.com/download/win](https://git-scm.com/download/win)
+2.  Download and run the installer.
+3.  You will see many screens with configuration options. For all of them, the default settings are fine. Just click "Next" through the entire process.
+
+:::
+
+## Step 3: Configure Git
+
+Now we need to tell Git who you are. This name and email will be attached to every "save" (or "commit") you make.
+
+Open your terminal (or Git Bash for direct Windows users) and run these two commands, **replacing the placeholder text with your own information.**
+
+```bash
+git config --global user.name "[Your Full Name]"
+```
+
+```bash
+git config --global user.email "[your-email@example.com]"
+```
+
+::: {.callout-tip}
+Use the same email address that you used to sign up for your GitHub account.
+:::
+
+## Step 4: Connecting to GitHub with an SSH Key
+
+How does your computer prove to GitHub that you are who you say you are? You could use a password, but a more secure and common method is to use **SSH keys**.
+
+Think of it like a physical key to a house.
+-   You generate a **key pair**: a **private key** (which you keep secret on your computer) and a **public key** (which you give to GitHub).
+-   The public key is like giving a special, unique lock to GitHub.
+-   When you try to connect, your computer uses its private key. GitHub checks if it fits the public "lock" you gave it. If they match, the door is opened.
+
+This method is very secure because you never have to send your password over the internet.
+
+### 1. Generate Your SSH Key Pair
+1.  Open your terminal.
+2.  Copy and paste the following command, **replacing the placeholder with the email you used for GitHub.**
+    ```bash
+    ssh-keygen -t ed25519 -C "your_email@example.com"
+    ```
+3.  The command will ask you where to save the file. The default location is correct. **Just press Enter.**
+4.  It will then ask you to create a passphrase. This is an optional password for your key. For this course, it is safe to skip this. **Just press Enter twice** to leave it blank.
+
+You'll see some text and a little picture, confirming the key has been created.
+
+### 2. Add Your Public Key to GitHub
+Now you need to give the public key (the "lock") to GitHub.
+
+1.  First, you need to view the public key. Run this command to display it in your terminal:
+    ```bash
+    cat ~/.ssh/id_ed25519.pub
+    ```
+2.  The output will be a long string of text starting with `ssh-ed25519...`. This is your public key. **Highlight this entire block of text** with your mouse and copy it to your clipboard (`Ctrl+C`, `Cmd+C`, or right-click and copy).
+3.  Go to [GitHub.com](https://github.com) and log in.
+4.  In the top-right corner of the screen, click on your profile picture, then select **"Settings"** from the dropdown menu.
+5.  On the new page, look at the menu on the left and click **"SSH and GPG keys"**.
+6.  Click the green button in the top-right that says **"New SSH key"**.
+7.  In the **"Title"** box, give your key a descriptive name you'll recognize, like "My Laptop" or "Course Computer".
+8.  Click inside the large **"Key"** text box and paste the key you copied from your terminal.
+9.  Click the green **"Add SSH key"** button. You may be asked to re-enter your GitHub password to confirm.
+
+### 3. Test the Connection
+Let's make sure the key and lock work.
+
+Run this final command in your terminal:
+```bash
+ssh -T git@github.com
+```
+You may see a warning about authenticity. Type `yes` and press Enter. If everything worked, you will see a message like: `Hi [your-username]! You've successfully authenticated...`
+
+## You're All Set!
+
+You now have the complete toolchain for managing and publishing your work like a professional. The final step is to install the tool we'll use to create our beautiful documents: Quarto. 

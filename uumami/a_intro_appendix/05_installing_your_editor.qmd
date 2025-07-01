@@ -1,0 +1,108 @@
+---
+title: "Step 5: Install Your Editor, The Workshop"
+---
+
+## Your Digital Workshop: What is a Code Editor?
+
+A code editor is your most important tool. It's like a word processor (like Microsoft Word or Google Docs) but designed specifically for writing code. It understands the syntax of programming languages, helping you with color-coding, formatting, and finding errors.
+
+More advanced editors like **Cursor** are often called **Integrated Development Environments (IDEs)** because they integrate many tools into one application. Instead of just being a text editor, Cursor includes:
+-   A file browser for your project.
+-   A terminal to run commands.
+-   Built-in AI assistants to help you code.
+-   Integration with tools like Git and GitHub.
+
+This lets you do all your work in a single, organized window.
+
+::: {.callout-tip}
+### How Cursor Helps You
+Cursor is a special version of the world's most popular editor (VS Code) that comes with powerful AI features built-in. Think of it as an editor with a team of AI assistants ready to help you write, debug, and understand code much faster. Since this course encourages using AI as a partner, Cursor is the perfect tool for the job.
+:::
+
+## Step 1: Install Cursor
+
+We recommend using your system's package manager from the terminal, as it's faster and easier to manage. Choose the tab for your operating system.
+
+::: {.panel-tabset}
+
+### macOS
+
+1.  **Prerequisite:** You need [Homebrew](https://brew.sh), the package manager for macOS. If you don't have it, open your Terminal app and paste the single command from their website to install it.
+2.  **Install Cursor:** Run this simple command in your terminal:
+    ```bash
+    brew install --cask cursor
+    ```
+    Homebrew will handle the download and installation for you.
+
+### Windows
+
+1.  **Prerequisite:** This uses the built-in `winget` package manager. It should be available on all modern Windows systems.
+2.  **Install Cursor:** Open **PowerShell** (not Command Prompt) and run:
+    ```bash
+    winget install Anysphere.Cursor
+    ```
+
+### Linux (WSL & Desktop)
+
+Installing GUI applications on Linux can sometimes be complex. The most reliable method for beginners is to download the AppImage directly.
+
+1.  Go to the [official Cursor website](https://cursor.sh/) and download the AppImage file.
+2.  Open your terminal and go to your `Downloads` folder:
+    ```bash
+    cd ~/Downloads
+    ```
+3.  Make the file you downloaded executable (replace the filename if yours is different):
+    ```bash
+    chmod +x Cursor-*.AppImage
+    ```
+4.  Now, you can run it directly:
+    ```bash
+    ./Cursor-*.AppImage --no-sandbox
+    ```
+    You may also want to move this file to a more permanent location, like `/opt/`, and create a desktop entry, but for now, running it from `Downloads` is fine.
+
+:::
+
+## Step 2: How to Use Cursor - The Basics
+
+Before installing extensions, let's get familiar with the interface.
+
+### Opening a Project Folder
+In software development, you don't open individual files; you open the entire project **folder**. This lets the editor see all the files at once, which is critical for its features to work correctly.
+
+After you clone your project in a later step, you will open it like this:
+1.  Launch the Cursor application.
+2.  Go to the "File" menu in the top-left corner of the screen.
+3.  Click "Open Folder..."
+4.  Navigate to your project folder (e.g., `Documents/{{< meta course_code >}}-notes`) and click "Open".
+
+### The Main UI Components
+When you open a project, you'll see three main areas:
+
+1.  **File Explorer (Left):** This is a tree view of all the files and folders in your project. You can click on any file here to open it for editing.
+2.  **Editor Pane (Center):** This is where your files open. You can have multiple files open in different tabs. This is where you will write your code and notes.
+3.  **Terminal Panel (Bottom):** This is a command line, just like the "Terminal" or "PowerShell" app, but built directly into Cursor. You can open it by pressing ``Ctrl+` `` (the backtick key, usually next to the `1` key) or by going to the "Terminal" > "New Terminal" menu. We will use this constantly.
+
+## Step 3: Install Essential Extensions
+
+Extensions add new features to your editor. We need to install two to support our work.
+
+1.  Open the Cursor application.
+2.  On the left-hand side, there is a vertical bar of icons. Click the one that looks like a set of blocks (the Extensions view).
+3.  In the search bar, search for and install these two extensions:
+    -   **Python** (by Microsoft): Core support for the Python language.
+    -   **Quarto** (by Quarto): Syntax highlighting and a "Render" button for our documents.
+
+## Step 4: Special Instructions for WSL on Windows
+
+If you are using Windows with WSL, you need one more crucial extension to connect Cursor to your Linux environment.
+
+1.  In the Extensions view, search for `WSL` and install the extension from **Microsoft**.
+2.  **Crucially**, you must open your projects from the Ubuntu/Linux terminal, not from Windows PowerShell.
+    -   Open your Ubuntu terminal.
+    -   Navigate to your project directory (e.g., `cd path/to/your/project`).
+    -   Type `cursor .` and press Enter. The `.` is a shortcut that means "this current folder". This will open the project in Cursor, correctly connected to your Linux environment.
+
+## What's Next?
+
+You now have your professional workshop set up. The next step is to install the tools for saving and sharing your work: Git and GitHub. 

@@ -1,0 +1,100 @@
+---
+title: "Step 3: Install Python, The Engine for Your Code"
+---
+
+## Installing the Python Engine
+
+Python is the programming language we will use for almost everything in this course. It's the engine that powers our data analysis, visualization, and more. `pip` is the tool we use to install new parts for that engine.
+
+In this guide, you will be using the **terminal** (also called the **command line** or **shell**). This is a text-based way to interact with your computer.
+
+-   **Windows:** Open the Ubuntu, Debian, or other Linux app you installed with WSL.
+-   **macOS:** Open the "Terminal" app.
+-   **Linux:** Open the "Terminal" or "Console" app.
+
+## Step 1: Check if Python is Already Installed
+
+Many systems come with Python pre-installed. Let's check. Type this command into your terminal and press Enter:
+
+```bash
+python3 --version
+```
+
+If you see a version number like `Python 3.8.10` or higher, you are likely in good shape and can skip to **Step 3**. If you see an error or a version older than 3.8, proceed to the next step.
+
+## Step 2: Choose Your Operating System for Installation
+
+Click on the tab below that matches your computer's operating system.
+
+::: {.panel-tabset}
+
+### Windows (WSL2 - Recommended)
+
+This is the most robust and reliable way to run Python on Windows for data science.
+
+1.  **Prerequisite:** This method requires the Windows Subsystem for Linux (WSL2). If you have not installed it, please follow the [Official Microsoft WSL Installation Guide](https://learn.microsoft.com/en-us/windows/wsl/install) and choose **Ubuntu**.
+2.  **Update Package Lists:** In your Ubuntu terminal, run this command to make sure you have the latest list of available software.
+    ```bash
+    sudo apt update
+    ```
+3.  **Install Python and Tools:** This command installs Python, its package manager (`pip`), and tools for creating virtual environments (`venv`).
+    ```bash
+    sudo apt install python3 python3-pip python3-venv -y
+    ```
+
+### macOS (Recommended)
+
+The best way to manage software like Python on a Mac is with a package manager called Homebrew.
+
+1.  **Install Homebrew:** If you don't have it, open your Terminal app and paste the single command from the official [Homebrew website](https://brew.sh/).
+2.  **Install Python:** Once Homebrew is installed, run this simple command:
+    ```bash
+    brew install python
+    ```
+    Homebrew will handle all the details for you.
+
+### Linux (Ubuntu/Debian)
+
+Most Linux systems have Python, but this ensures you have all the necessary supporting packages.
+
+1.  **Update Package Lists:**
+    ```bash
+    sudo apt update
+    ```
+2.  **Install Python and Tools:**
+    ```bash
+    sudo apt install python3 python3-pip python3-venv -y
+    ```
+
+### Windows (Direct - Not Recommended)
+
+::: {.callout-warning}
+#### Proceed with Caution
+This method can be difficult because of a system setting called `PATH`. Small mistakes can make it hard for your computer to find the `python` command. We strongly recommend the WSL2 method.
+:::
+
+1.  Go to the official [Python website's download page for Windows](https://www.python.org/downloads/windows/).
+2.  Download the latest stable installer (e.g., "Windows installer (64-bit)").
+3.  Run the installer. **This is the most important step:** On the very first screen of the installer, you MUST check the box at the bottom that says **"Add python.exe to PATH"**. If you miss this step, it will be very difficult to fix.
+
+:::
+
+## Step 3: Verify Your Installation
+
+Let's do a final check. Close and reopen your terminal, then run these two commands separately:
+
+```bash
+python3 --version
+python3 -m pip --version
+```
+
+You should see version numbers for both. If you do, congratulations! Your engine is ready.
+
+## Troubleshooting & Self-Help
+
+::: {.callout-caution}
+### Common Problems
+
+-   **Problem:** After installing, the `python3` command gives a "command not found" error.
+-   **Golden Prompt for your AI:** "I have just installed Python on `[My OS name]`. When I open a new terminal and type `python3 --version`, I get a 'command not found' error. How can I check if Python was correctly added to my system's PATH variable, and what are the steps to add it manually?"
+::: 
