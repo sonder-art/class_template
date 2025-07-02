@@ -1,5 +1,5 @@
 ---
-title: "Step 5: Install Your Editor, The Workshop"
+title: "A.5 Install Your Editor, The Workshop"
 format:
   html:
     css:

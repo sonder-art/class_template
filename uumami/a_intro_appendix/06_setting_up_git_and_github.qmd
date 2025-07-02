@@ -1,5 +1,5 @@
 ---
-title: "Step 6: Set Up Git & GitHub, Your Portfolio"
+title: "A.6 Set Up Git & GitHub, Your Portfolio"
 format:
   html:
     css:

@@ -11,14 +11,14 @@
       </summary>
       <ul class="breadcrumb-list">
         <li><a href="./00_index.qmd">Welcome</a></li>
-        <li><a href="./01_creating_llm_accounts.qmd">AI Assistants (Step 1)</a></li>
-        <li><a href="./02_how_to_get_help.qmd">How to Get Help (Step 2)</a></li>
-        <li><a href="./03_installing_python.qmd">Install Python (Step 3)</a></li>
-        <li><a href="./04_alternative_gitpod_setup.qmd">Gitpod Alternative (Step 4)</a></li>
-        <li><a href="./05_installing_your_editor.qmd">Install Editor (Step 5)</a></li>
-        <li><a href="./06_setting_up_git_and_github.qmd">Git & GitHub (Step 6)</a></li>
-        <li><a href="./07_forking_and_cloning.qmd">Fork & Clone (Step 7)</a></li>
-        <li><a href="./08_installing_and_testing_quarto.qmd">Install Quarto (Step 8)</a></li>
+        <li><a href="./01_creating_llm_accounts.qmd">A.1 AI Assistants </a></li>
+        <li><a href="./02_how_to_get_help.qmd">A.2 How to Get Help</a></li>
+        <li><a href="./03_installing_python.qmd">A.3 Install Python</a></li>
+        <li><a href="./04_alternative_gitpod_setup.qmd">A.4 Gitpod Alternative</a></li>
+        <li><a href="./05_installing_your_editor.qmd">A.5 Install Editor</a></li>
+        <li><a href="./06_setting_up_git_and_github.qmd">A.6 Git & GitHub</a></li>
+        <li><a href="./07_forking_and_cloning.qmd">A.7 Fork & Clone</a></li>
+        <li><a href="./08_installing_and_testing_quarto.qmd">A.8 Install Quarto</a></li>
       </ul>
     </details>
   </div>
@@ -43,15 +43,15 @@
 document.addEventListener('DOMContentLoaded', function() {
   // Navigation mapping for this section
   const pages = [
-    { file: '00_index.qmd', title: 'Setup Welcome' },
-    { file: '01_creating_llm_accounts.qmd', title: 'AI Assistants (Step 1)' },
-    { file: '02_how_to_get_help.qmd', title: 'How to Get Help (Step 2)' },
-    { file: '03_installing_python.qmd', title: 'Install Python (Step 3)' },
-    { file: '04_alternative_gitpod_setup.qmd', title: 'Gitpod Alternative (Step 4)' },
-    { file: '05_installing_your_editor.qmd', title: 'Install Editor (Step 5)' },
-    { file: '06_setting_up_git_and_github.qmd', title: 'Git & GitHub (Step 6)' },
-    { file: '07_forking_and_cloning.qmd', title: 'Fork & Clone (Step 7)' },
-    { file: '08_installing_and_testing_quarto.qmd', title: 'Install Quarto (Step 8)' }
+    { file: '00_index.qmd', title: 'Welcome' },
+    { file: '01_creating_llm_accounts.qmd', title: 'A.1 AI Assistants' },
+    { file: '02_how_to_get_help.qmd', title: 'A.2 How to Get Help' },
+    { file: '03_installing_python.qmd', title: 'A.3 Install Python' },
+    { file: '04_alternative_gitpod_setup.qmd', title: 'A.4 Gitpod Alternative' },
+    { file: '05_installing_your_editor.qmd', title: 'A.5 Install Editor' },
+    { file: '06_setting_up_git_and_github.qmd', title: 'A.6 Git & GitHub' },
+    { file: '07_forking_and_cloning.qmd', title: 'A.7 Fork & Clone' },
+    { file: '08_installing_and_testing_quarto.qmd', title: 'A.8 Install Quarto' }
   ];
   
   // Get current page from URL

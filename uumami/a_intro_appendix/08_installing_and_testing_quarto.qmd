@@ -1,5 +1,5 @@
 ---
-title: "Step 8: Install Quarto & Test Your Setup"
+title: "A.8 Install Quarto & Test Your Setup"
 format:
   html:
     css:

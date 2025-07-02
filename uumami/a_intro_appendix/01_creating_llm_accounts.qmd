@@ -1,5 +1,5 @@
 ---
-title: "Setup Guide: AI Assistants (Step 1)"
+title: "A.1 Setup Guide: AI Assistants"
 format:
   html:
     css:
