@@ -1,3 +1,19 @@
+::: {.callout-note .fw-light}
+
+#### Setup Guides
+
+- [**A.1** AI Assistants](./01_creating_llm_accounts.qmd)
+- [**A.2** How to Get Help](./02_how_to_get_help.qmd)
+- [**A.3** Install Python](./03_installing_python.qmd)
+- [**A.4** First Python Steps](./04_first_python_interaction.qmd)
+- [**A.5** Install Your Editor](./05_installing_your_editor.qmd)
+- [**A.6** Setup Git & GitHub](./06_setting_up_git_and_github.qmd)
+- [**A.7** Fork & Clone Project](./07_forking_and_cloning.qmd)
+- [**A.8** Install & Test Quarto](./08_installing_and_testing_quarto.qmd)
+- [**A.9** Emergency: Gitpod](./09_alternative_gitpod_setup.qmd)
+
+:::
+
 ```{=html}
 <div class="page-navigation-container">
 
@@ -14,11 +30,12 @@
         <li><a href="./01_creating_llm_accounts.qmd">A.1 AI Assistants </a></li>
         <li><a href="./02_how_to_get_help.qmd">A.2 How to Get Help</a></li>
         <li><a href="./03_installing_python.qmd">A.3 Install Python</a></li>
-        <li><a href="./04_alternative_gitpod_setup.qmd">A.4 Gitpod Alternative</a></li>
+        <li><a href="./04_first_python_interaction.qmd">A.4 First Python Steps</a></li>
         <li><a href="./05_installing_your_editor.qmd">A.5 Install Editor</a></li>
         <li><a href="./06_setting_up_git_and_github.qmd">A.6 Git & GitHub</a></li>
-        <li><a href="./07_forking_and_cloning.qmd">A.7 Fork & Clone</a></li>
+        <li><a href="./07_forking_and_cloning.qmd">A.7 Fork & Clone Project</a></li>
         <li><a href="./08_installing_and_testing_quarto.qmd">A.8 Install Quarto</a></li>
+        <li><a href="./09_alternative_gitpod_setup.qmd">A.9 Emergency: Gitpod</a></li>
       </ul>
     </details>
   </div>
@@ -47,11 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
     { file: '01_creating_llm_accounts.qmd', title: 'A.1 AI Assistants' },
     { file: '02_how_to_get_help.qmd', title: 'A.2 How to Get Help' },
     { file: '03_installing_python.qmd', title: 'A.3 Install Python' },
-    { file: '04_alternative_gitpod_setup.qmd', title: 'A.4 Gitpod Alternative' },
+    { file: '04_first_python_interaction.qmd', title: 'A.4 First Python Steps' },
     { file: '05_installing_your_editor.qmd', title: 'A.5 Install Editor' },
     { file: '06_setting_up_git_and_github.qmd', title: 'A.6 Git & GitHub' },
-    { file: '07_forking_and_cloning.qmd', title: 'A.7 Fork & Clone' },
-    { file: '08_installing_and_testing_quarto.qmd', title: 'A.8 Install Quarto' }
+    { file: '07_forking_and_cloning.qmd', title: 'A.7 Fork & Clone Project' },
+    { file: '08_installing_and_testing_quarto.qmd', title: 'A.8 Install Quarto' },
+    { file: '09_alternative_gitpod_setup.qmd', title: 'A.9 Emergency: Gitpod' }
   ];
   
   // Get current page from URL

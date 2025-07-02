@@ -1,0 +1,90 @@
+---
+title: "A.4 Your First Python Interaction"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
+---
+
+::: {.objective}
+### Your Goal for This Section
+- **Confirm your Python installation is working** by interacting with it directly.
+- **Learn how to use Python's interactive mode** for simple tests and calculations.
+- **Write and run your first line of Python code**.
+:::
+
+## Did it Work? Let's Find Out.
+
+You've just installed Python, the engine for all our work. But how do you know if it's actually working? The best way is to talk to it directly. We can do this using Python's **interactive mode**.
+
+::: {.definition title="What is an Interactive Interpreter?"}
+The Python interactive interpreter (or "REPL") is a mode that lets you type Python commands one at a time and see the results immediately. It's a fantastic way to experiment and test small pieces of code without having to create a file.
+
+You'll know you're in interactive mode when you see the `>>>` prompt in your terminal.
+:::
+
+## Step 1: Start the Interpreter
+
+1.  Open your terminal (Terminal on macOS, Ubuntu/WSL on Windows).
+2.  Type the following command and press `Enter`:
+
+    ```bash
+    python3
+    ```
+
+3.  The prompt in your terminal should change from the usual `$` or `>` to `>>>`. This means Python is listening and waiting for your commands.
+
+## Step 2: Your First "Conversation" with Python
+
+Let's try a few things. Type each line below after the `>>>` prompt and press `Enter`.
+
+::: {.exercise title="Exercise 1: Python as a Calculator"}
+Let's start with some simple math.
+
+```python
+ 2 + 2
+```
+
+Python should immediately print the answer: `>>> 4`.
+```python
+100 / 5
+```
+Python will print `>>> 20.0`.
+:::
+
+::: {.exercise title="Exercise 2: Your First Line of Code"}
+The `print()` function is used to display text on the screen. Let's tell Python to say hello.
+
+```python
+print("Hello, Python!")
+```
+Python will obey and print `>>> Hello, Python!`. The quotes are important—they tell Python that this is a piece of text (a "string").
+:::
+
+::: {.exercise title="Exercise 3: Storing Information in a Variable"}
+Variables are like labeled boxes where you can store information. Let's create one.
+
+```python
+message = "My Python installation is working!"
+```
+Nothing seems to happen, but Python has stored your message in a variable named `message`. Now, let's see what's in the box:
+
+```python
+print(message)
+```
+Python will print the message you stored: `>>> My Python installation is working!`.
+:::
+
+## Step 3: Exit the Interpreter
+
+When you're done, you can return to your normal terminal prompt.
+
+1.  Type `exit()` and press `Enter`.
+2.  The `>>>` prompt will disappear, and you'll be back to your familiar `$` or `>` prompt.
+
+## Congratulations!
+
+If you were able to complete these exercises, your Python installation is successful! You have confirmed that the core engine of your development environment is ready to go. You can now confidently proceed to the next step: setting up your code editor.
+
+{{< include _nav.qmd >}} 

@@ -4,6 +4,11 @@
 
 This system enables **unlimited theme creation** while maintaining **universal callout readability** and **consistent educational structure**. Whether you want a forest theme, cyberpunk aesthetic, or academic styling, this guide will walk you through creating your own theme from scratch.
 
+**⚠️ PREREQUISITES**: 
+- The `quarto-custom-callout` extension must be installed for custom callouts to work
+- Run `quarto add coatless-quarto/custom-callout` in your project directory
+- See [CALLOUT_GUIDE.md](CALLOUT_GUIDE.md) for complete setup instructions
+
 ## Architecture
 
 ```
@@ -24,11 +29,13 @@ styles/
 These elements **NEVER change** across themes to ensure educational content remains readable:
 
 ### **Callout System Standards**
-- **Contrast ratio**: 6:1 minimum (WCAG AA+ compliance)
+- **Extension required**: Custom callouts use `quarto-custom-callout` extension
+- **Contrast ratio**: 6:1 minimum (WCAG AA+ compliance)  
 - **Font sizes**: `1.3rem` body text, `1.3rem` titles (optimized for classroom presentations)
-- **Icons**: Universal symbols (📖 note, 📚 definition, ⭐ tip, ⚠️ warning, ✏️ exercise, 🎯 objective, 📝 homework, 🤖 prompt)
-- **Structure**: Padding, borders, spacing, layout locked for consistency
+- **Icons**: Universal symbols handled by extension (📖 note, 📚 definition, ⭐ tip, ⚠️ warning, ✏️ exercise, 🎯 objective, 📝 homework, 🤖 prompt)
+- **Structure**: Padding, borders, spacing, layout automatically managed by extension
 - **Visual weight**: All callouts have same prominence across themes
+- **Color inheritance**: Custom callouts automatically inherit theme colors
 
 ### **Typography Standards**
 - **Heading scale**: h1-h6 sizes optimized for presentation visibility

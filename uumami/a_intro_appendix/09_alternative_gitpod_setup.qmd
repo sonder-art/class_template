@@ -1,0 +1,82 @@
+---
+title: "A.9 Emergency Plan: Using Gitpod as a Fallback"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
+---
+
+::: {.objective}
+### Your Goal for This Section
+- **Understand what Gitpod is** and when to use it as a last resort.
+- **Learn how to launch** the class project in a Gitpod cloud environment.
+- **Connect your local Cursor editor** to the Gitpod environment for a better experience.
+:::
+
+::: {.callout-warning title="This is a Fallback, Not the Main Path"}
+The primary goal of this course's setup phase is to build a professional development environment on your **local computer**. This is a core skill.
+
+This guide provides an **emergency escape hatch** if you run into persistent, unresolvable issues with the local installation of Python, Git, or Quarto. Think of it as a temporary workaround to keep you from falling behind, not a long-term solution.
+:::
+
+## What is Gitpod?
+
+Gitpod is a service that runs a complete, pre-configured development environment in the cloud. It gives you a "perfect" computer with Python, Git, and Quarto already installed and working, which you can access from anywhere.
+
+There are two ways to use it:
+
+1.  **In your browser:** Gitpod provides a VS Code-like editor in a browser tab. Good for quick access.
+2.  **Connected to your local editor (Recommended Fallback):** You can connect your local Cursor editor to the powerful Gitpod cloud machine. This gives you the comfort of your desktop app powered by a perfect cloud environment.
+
+## The Gitpod Workflow: Fork, Then Launch
+
+The process is the same as the local setup: first, you make a personal copy of the class project on GitHub (a "fork"), and then you open that copy in Gitpod.
+
+### Step 1: Fork the Class Repository (If You Haven't)
+
+You must have your own copy of the project on your GitHub account. If you haven't done this yet, please follow **Step 1** in the [Fork & Clone guide](./07_forking_and_cloning.qmd) to create your fork.
+
+### Step 2: Create a Gitpod Account
+
+1.  Go to [https://www.gitpod.io/](https://www.gitpod.io/).
+2.  Click "Login" and sign up using your **GitHub account**.
+
+### Step 3: Launch Your Gitpod Workspace
+
+1.  Go to the main page of **your forked repository** on GitHub.
+2.  Copy the URL from your browser's address bar.
+3.  Create the Gitpod launch URL by adding this prefix: `https://gitpod.io/#`
+
+    Your final URL will look like: `https://gitpod.io/#https://github.com/your-username/repo-name`
+
+4.  Paste this new URL into your browser and press Enter. Gitpod will build your workspace, which may take a few minutes.
+
+## How to Use Your Gitpod Environment
+
+Once your workspace is running, you have two options for interacting with it.
+
+### Option A: The Browser Editor (Quick & Easy)
+
+When your workspace loads, you'll see a code editor right in your browser. It has a file explorer, editor, and terminal, just like a desktop application. This is fine for making quick changes, but the experience can sometimes be slow.
+
+### Option B: Connect from Your Local Cursor (Recommended Fallback)
+
+This is the best way to use Gitpod as a fallback. You get the speed of your local editor with the power and perfection of the cloud environment.
+
+1.  **Install the Gitpod Extension in Cursor:**
+    -   Open your local Cursor application.
+    -   Go to the Extensions view (the four squares icon).
+    -   Search for `Gitpod` and install the official extension by "Gitpod".
+
+2.  **Connect to Your Running Workspace:**
+    -   In your browser, on the Gitpod workspace page, find the project name in the top menu bar.
+    -   Click the main menu (hamburger icon) or your profile icon and look for an option like "Open in VS Code (Desktop)".
+    -   This may prompt you to open a link with your local editor. Allow it.
+    -   Your local Cursor application will open a new window that is now remotely connected to the Gitpod cloud computer. All file saving and terminal commands are now running in the cloud, but you are using the comfort of your local editor.
+
+## Summary
+
+Using Gitpod ensures you have a working environment no matter what. Once you are connected, all the subsequent steps in the guides—using the terminal, running `git`, and previewing with `quarto`—will work exactly the same, whether you are in the browser or connected via your local Cursor.
+
+{{< include _nav.qmd >}}

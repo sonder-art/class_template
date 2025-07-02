@@ -1,5 +1,7 @@
 ---
-title: "A.2 The Most Important Skill - Thinking with AI"
+title: "A.2 How to Talk to AI: Your New Superpower"
+toc: true
+toc-depth: 2
 format:
   html:
     css:
@@ -7,139 +9,314 @@ format:
       - ../styles/themes/evangelion.css
 ---
 
-## Your New Superpower: AI as a Thinking Partner
+::: {.callout-objective title="Learning Goals"}
+By the end of this lesson you will be able to:
 
-The single most important skill you will develop in this course is not coding; it's learning how to **think and solve problems in collaboration with AI**. In the past, you might have been stuck on a problem for hours. Today, you have a team of expert assistants available 24/7.
+1. Describe the **Role–Context–Task (R-C-T)** framework.
+2. Craft clear AI prompts by filling in R-C-T.
+3. Follow a 4-step workflow when you get stuck while coding or installing software.
+4. Turn AI into a productive learning partner rather than a search engine.
+:::
 
-This guide will teach you how to use them for **everything**: from brainstorming and planning to writing, explaining, and debugging code. Your AI assistants (Gemini, Claude, Cursor's built-in AI, etc.) are your co-pilots. Learn to rely on them.
+## 1  Your New Superpower
 
-## Level 1: The Core Workflow
+::: {.callout-note}
+Think of an AI assistant as **Google Maps for problem solving**: you still decide the destination, but the AI shows possible routes and warns about traffic. Clear directions in → good routes out.
+:::
 
-All effective interactions with an AI follow a simple pattern: **Plan -> Execute -> Refine**.
+## 2  The R-C-T Recipe
 
-### Step 1: Plan and Design First (The "Zero-Code" Prompt)
-Before you write a single line of code, you must know what you want to build. A common mistake is to ask the AI to "just build a website that does X." This rarely works well. Instead, ask the AI to be your co-planner.
+## 2  Prompting Fundamentals 🔰
 
--   **Goal:** Have the AI help you think through the problem and create a detailed plan.
--   **Prompt Example:**
-    > You are an expert software architect. I need to build a simple command-line program that acts as a timer.
-    >
-    > Before we write any code, let's design it. Please help me by:
-    > 1.  Listing the key features the timer should have.
-    > 2.  Describing the main functions we will need to write.
-    > 3.  Suggesting the best Python library to use for handling time.
-    >
-    > Please present the output in a markdown table for clarity.
+::: {.definition title="What *is* a prompt?"}
+Think of a *prompt* as the opening line of a conversation with an expert helper.
+The clearer you speak, the clearer (and faster) the help you receive.
+:::
 
-### Step 2: Execute (Generate Code from the Plan)
-Once you have a plan you like, you can ask the AI to generate the code for it. You can do this piece by piece.
+**Beginner-friendly checklist (run through this before you press *Enter*):**
 
--   **Goal:** Turn your agreed-upon design into functional code.
--   **Prompt Example (a follow-up to the previous prompt):**
-    > That plan looks great. Now, please write the Python code for the `start_timer` function we designed. Please include detailed comments explaining how it works.
+1. Write in plain **English**—avoid slang or local abbreviations.
+2. State **one goal per sentence**; break complex tasks into bullet lists.
+3. Copy-paste **exact** error messages instead of paraphrasing them.
+4. Supply only the **relevant** code snippet—not your whole file.
+5. Use bold **[square-bracket placeholders]** for anything you still need to fill in.
+6. End with a **clear deliverable**: *"Explain in 3 steps…"* or *"Give me pseudocode."*
 
-### Step 3: Refine and Explain
-The first version of the code might not be perfect, or you might not understand it completely. Now you can iterate.
+---
 
--   **Goal:** Clarify your understanding and improve the code.
--   **Prompt Example:**
-    > This code works, but can you explain the line `import time`? What is that library and why do we need it? Also, can you refactor the code to add a sound that plays when the timer is done?
+## 3  The R-C-T Recipe
 
-## Level 2: Advanced Prompting Techniques
+### Prompt Anatomy at a Glance
 
-To get truly high-quality results, you can use more advanced strategies.
+| Prompt Block | Ask Yourself…                         | Tiny Example Snippet |
+|--------------|----------------------------------------|----------------------|
+| **Role**     | *Who should the AI be?*               | `You are a calm tutor.` |
+| **Context**  | *What does it need to know first?*    | `Here is my code …`     |
+| **Task**     | *What do I want back?*                | `Explain in 3 bullets.` |
 
-### Technique 1: Persona Crafting
-Telling the AI "You are a..." is the most powerful thing you can do. It forces the AI to adopt a specific knowledge base and communication style. Be specific!
+---
 
--   **Bad:** "Explain this code."
--   **Good:** "You are a **cybersecurity expert**. Review this Python code and explain any potential security vulnerabilities."
--   **Excellent:** "You are a **data visualization designer** with expertise in creating clear, compelling charts for a non-technical audience. I have a dataset of monthly sales figures. Suggest three different types of charts I could make with `matplotlib` and explain the pros and cons of each for showing this data."
+### Prompt Quality Spectrum
 
-### Technique 2: Chain-of-Thought
-Large language models work better when they think step-by-step. You can force this behavior by adding a simple phrase to your prompt.
+::: {.panel-tabset}
 
--   **Prompt Example:**
-    > I have a bug in my code. When I run it, I expect it to print "Hello, World!" but it prints "Hello, world!".
-    > ```python
-    > my_string = "hello, world!"
-    > print(my_string.capitalize())
-    > ```
-    > Why is this happening? **Think step-by-step before you give me the answer.**
+#### Bad
 
-This forces the AI to trace the logic (`.capitalize()` only affects the first character) and give you a much better explanation.
-
-### Technique 3: Self-Critique (The "Red Team" Prompt)
-AIs will confidently give you wrong answers. A powerful technique is to ask the AI to challenge its own output.
-
--   **Prompt Example (after the AI has given you some code):**
-    > Thank you. Now, please act as a skeptical senior developer. **Critique the code you just wrote.** Are there any hidden bugs, edge cases I haven't considered, or ways to make it more efficient?
-
-This often reveals limitations or errors that you wouldn't have caught otherwise.
-
-## The AI Collaboration Flow
-
-The entire process of planning, coding, and refining can be visualized in the following flowchart. Refer back to this diagram to orient yourself whenever you're unsure what the next step should be.
-
-```{mermaid}
-graph TD
-    %% Define Node Styles
-    style Start fill:#E3F2FD,stroke:#90CAF9,stroke-width:2px,color:#000
-    style PlanNode fill:#F3E5F5,stroke:#CE93D8,stroke-width:1px,color:#000
-    style CodeNode fill:#E8F5E9,stroke:#A5D6A7,stroke-width:1px,color:#000
-    style DebugNode fill:#FFFDE7,stroke:#FFD700,stroke-width:1px,color:#000
-    style Decision fill:#FFCDD2,stroke:#E57373,stroke-width:1px,color:#000
-    style Human fill:#FFAB91,stroke:#FF7043,stroke-width:2px,color:#000
-
-    subgraph Phase 1: Planning & Design
-        direction LR
-        A(Start with<br>Idea/Problem) --> B(Engage AI as<br>Architect/Planner);
-        B --> C(Prompt: 'Help me design a solution...<br>List features, functions, etc.');
-        C --> D(AI Provides<br>Detailed Plan);
-        D --> E{Is the plan<br>good & complete?};
-        E -- No, Refine --> C;
-    end
-
-    subgraph Phase 2: Implementation & Refinement
-        E -- Yes, Proceed --> G(Engage AI as<br>Programmer/Tutor);
-        G --> H(Prompt: 'Based on the plan,<br>write code for Function Y');
-        H --> I(AI Generates Code);
-        I --> J{Review & Test Code};
-        J -- "It works, but..." --> K{What's next?};
-        K -- "Explain this code" --> L(Prompt: 'Explain concept X<br>or this block of code.');
-        L --> G;
-        K -- "Improve this code" --> M(Prompt: 'Critique this code.<br>How can it be better?');
-        M --> G;
-    end
-
-    subgraph Phase 3: Debugging
-        J -- "It has a bug!" --> P(Engage AI as<br>Detective);
-        P --> Q(Prompt with Full Context:<br>Goal, Code, FULL Error Message);
-        Q --> R(AI Suggests Fix);
-        R --> S{Try Fix.<br>Does it work?};
-        S -- "Yes, Fixed!" --> J;
-        S -- "No, New Error" --> Q;
-        S -- "Still Stuck!" --> T(Ask a Human);
-    end
-
-    %% Apply styles
-    class A,G,P Start;
-    class B,C,D,L,M PlanNode;
-    class H,I CodeNode;
-    class E,J,K,S Decision;
-    class Q,R DebugNode;
-    class T Human;
+```text
+fix my list
 ```
 
-## When Things Go Wrong: The Debugging Workflow
+#### Meh
 
-Debugging is just a specific application of the core workflow, as shown in the "Debugging Sub-Loop" in the diagram above.
+```text
+my python list is not working. help.
+```
 
-1.  **Plan:** Your "plan" is to understand the error. Use Perplexity or Google first with the error message as your query.
-2.  **Execute:** If a search fails, ask your AI assistant. Provide the full context: your goal, the code, and the **full, exact error message**.
-3.  **Refine:** If the AI's first suggestion doesn't work, tell it! "I tried your suggestion, but now I'm getting a *new* error. Here is the new error and my updated code."
+#### Good
 
-### The Final Step: Ask a Human
-If you have genuinely tried these steps and are still stuck, ask your peers or the instructor. When you do, provide the same context you would give an AI. This shows you've done your homework and helps them help you faster.
+```text
+I have a Python list and `AttributeError: add` appears.
+How do I add a new value?
+```
+
+#### Chef's-Kiss
+
+```text
+You are a friendly Python tutor.
+
+Here is my code:
+
+[insert code]
+
+It raises `AttributeError: 'list' object has no attribute 'add'`.
+
+Please:
+1) Explain the error in simple terms.
+2) Show the corrected code.
+3) Give one tip to avoid this bug next time.
+```
+
+:::
+
+---
+
+### Prompt-Refinement Playbook
+
+::: {.columns}
+:::: {.column width="33%"}
+**Draft 0**
+
+```text
+debug this
+```
+::::
+:::: {.column width="33%"}
+**Draft 1**
+
+```text
+List bug in Python. Code below.
+```
+::::
+:::: {.column width="34%"}
+**Draft 2** *(R-C-T complete)*
+
+```text
+You are a Python tutor.
+
+Here is my code …
+Error: …
+Please: 1) explain 2) fix 3) prevent future errors.
+```
+::::
+:::
+
+## Prompting Flow at a Glance
+
+Below is a quick visual of the *thinking loop* you should run whenever you need help from an AI assistant.
+
+```{mermaid}
+graph LR
+  classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+  classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+  classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+
+  S["Stuck or curious?"]:::node --> RCT["Plan with R-C-T"]:::action --> Ask["Send Prompt"]:::action --> AI["AI answer"]:::node --> Try["Test / Read"]:::action --> Dec{{Solved?}}:::decision
+  Dec -->|Yes| Done["Move on 🚀"]:::node
+  Dec -->|No| Refine["Add context & refine"]:::action --> Ask
+
+  linkStyle default stroke:#007acc,stroke-width:3px;
+```
+
+**How to read this:**
+1. **Plan with R-C-T** – Decide the Role, give the Context, and state the Task.
+2. **Send Prompt → AI answer** – Let the model work; skim for an overview, then read in depth.
+3. **Test / Read** – Run the suggestion or apply the explanation.
+4. **Solved?** – If yes, celebrate. If not, *add missing info* or *clarify your goal* and loop back.
+
+---
+
+## 4  Scenario 1 – Debugging a Python Error {#debugging}
+
+::: {.callout-note title="The Situation"}
+You typed some code, pressed Run, and saw *`AttributeError: 'list' object has no attribute 'add'`*.
+:::
+
+```python
+# buggy code
+game_scores = [42, 78, 95]
+game_scores.add(150)  # ← AttributeError here
+```
+
+::: {.prompt title="Copy-Paste Prompt"}
+Replace the placeholders **[like this]** before sending.
+:::
+
+```text
+You are a friendly Python tutor for absolute beginners.
+
+I want to add the number 150 to my list `game_scores`.
+Here is my code:
+
+[insert your code]
+
+When I run it I get:
+`AttributeError: 'list' object has no attribute 'add'`.
+
+Please:
+1. Explain the error in simple terms.
+2. Show the corrected code.
+3. Explain why the correction works.
+```
+
+::: {.exercise}
+1. Copy the prompt above.
+2. Paste it into Gemini, Claude, or ChatGPT.
+3. Try the fixed code in your editor.
+:::
+
+---
+
+## 5  Scenario 2 – Understanding Mysterious Code {#understand-code}
+
+::: {.callout-note title="The Situation"}
+You found a snippet on the internet, but every line is a mystery.
+:::
+
+```python
+def mystery(nums):
+    return [n**2 for n in nums if n % 2 == 0]
+```
+
+::: {.prompt title="Copy-Paste Prompt"}
+Ask the AI to be your explainer.
+:::
+
+```text
+You are a patient coding instructor.
+
+Explain this Python code line-by-line **as if I were brand new to programming**:
+
+[insert the code]
+
+Focus on what each part does and why it's needed.
+```
+
+::: {.exercise}
+Run the prompt, then rewrite the code using full `for`-loops to confirm you understand it.
+:::
+
+---
+
+## 6  Scenario 3 – Planning a Mini Project {#planning}
+
+::: {.callout-note title="The Situation"}
+You want to build a simple tip-calculator app but don't know where to start.
+:::
+
+::: {.prompt title="Copy-Paste Prompt"}
+Use the R-C-T framework to generate a learning roadmap.
+:::
+
+```text
+You are a senior software coach.
+
+I am a beginner who wants to build a **tip calculator** in Python that asks for the bill and tip % and prints the total.
+
+Break this project into **5–7 beginner-friendly steps**. For each step, describe what I should learn and produce.
+```
+
+::: {.exercise}
+After receiving the roadmap, tackle *Step 1*, then return to the AI for *Step 2*.
+:::
+
+---
+
+## 7  Scenario 4 – Troubleshooting an Installation {#install-error}
+
+::: {.callout-note title="The Situation"}
+You installed Python but your terminal says *`command not found: python3`*.
+:::
+
+::: {.prompt title="Copy-Paste Prompt"}
+Be sure to fill in your operating system.
+:::
+
+```text
+You are an expert troubleshooter for macOS/Windows/Linux.
+
+On **[your OS]** I installed Python using the official installer.
+When I open a new terminal and type `python3` I get:
+
+`command not found: python3`
+
+Give me a **step-by-step plan** to fix this. Explain every command and the expected output.
+```
+
+::: {.exercise}
+Follow the AI's plan. If a step fails, copy the exact error back into the chat and ask, *"Why didn't Step X work?"*
+:::
+
+---
+
+## 8  The 4-Step "I'm Stuck" Workflow {#workflow}
+
+| Step | Emoji | What to Do | Mini Prompt |
+|------|:----:|------------|-------------|
+| 1    | 📝   | **Plan** – Ask the AI to break your goal into steps. | `Break my goal into 5 beginner steps.` |
+| 2    | 💻   | **Build** – Implement *one* step at a time. | — |
+| 3    | 🔧   | **Debug** – Provide goal, code, **exact** error. | `My goal is … Here is code … Error … What's wrong?` |
+| 4    | 🧑‍🤝‍🧑 | **Ask a Human** – Still stuck? Share the chat. | — |
+
+---
+
+## 9  Prompting Cheat Sheet 📎
+
+::: {.callout-tip title="Copy-and-Go Templates"}
+
+| Goal | Mini-Prompt Template |
+|------|---------------------|
+| Debug code | `Here is my code … Error … Please explain and fix.` |
+| Learn a concept | `Explain [concept] like I'm 12; give 1 analogy & example.` |
+| Refactor | `Rewrite this function for readability; keep results identical.` |
+| Add comments | `Add beginner-friendly comments to this code.` |
+| Generate tests | `Write 3 pytest cases for this function.` |
+| Translate lang | `Convert this JS snippet to Python.` |
+:::
+
+---
+
+## 10  Key Takeaways
+
+::: {.callout-tip title="Key Takeaways"}
+• R-C-T → Clear prompts → Helpful answers.
+
+• Always show **exact** error messages—never paraphrase them.
+
+• When the answer isn't right, **clarify the Task** or add more Context.
+:::
+
+[Back to Appendix](00_index.qmd)
+
+*Need this page offline?* [Download as PDF](02_how_to_get_help.qmd?format=pdf)
 
 {{< include _nav.qmd >}}

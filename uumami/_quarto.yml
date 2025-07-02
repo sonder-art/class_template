@@ -20,6 +20,34 @@ metadata:
   syllabus_url: "syllabus.qmd"
   announcements_url: "https://your-lms.com/courses/TMPL101/announcements"
 
+# Custom callout configuration
+custom-callout:
+  prompt:
+    title: "AI Prompt"
+    icon: true
+    icon-symbol: "🤖"
+    color: "#00B894"
+  exercise:
+    title: "Exercise"
+    icon: true
+    icon-symbol: "✏️"
+    color: "#F39C12"
+  homework:
+    title: "Homework"
+    icon: true
+    icon-symbol: "📝"
+    color: "#E17055"
+  objective:
+    title: "Learning Objective"
+    icon: true
+    icon-symbol: "🎯"
+    color: "#4A90E2"
+  definition:
+    title: "Definition"
+    icon: true
+    icon-symbol: "📚"
+    color: "#6C5CE7"
+
 website:
   title: "{{< meta class_name >}} ({{< meta course_code >}}) - {{< meta period >}}"
 
@@ -60,4 +88,6 @@ format:
     toc: true
     code-fold: true 
     code-summary: "Show/Hide Code"
-    include-after-body: components/accessibility-auto.html 
+    include-after-body: components/accessibility-auto.html
+    filters:
+      - custom-callout 

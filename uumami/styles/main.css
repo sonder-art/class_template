@@ -75,30 +75,7 @@
   --callout-important-text: var(--text-color);
   --callout-important-border: var(--accent-color);
   
-  /* Exercise callouts */
-  --callout-exercise-bg: var(--bg-color-offset);
-  --callout-exercise-text: var(--text-color);
-  --callout-exercise-border: #F39C12;   /* Universal amber for exercises */
-  
-  /* Objective callouts */
-  --callout-objective-bg: var(--bg-color-offset);
-  --callout-objective-text: var(--text-color);
-  --callout-objective-border: #4A90E2;  /* Universal blue for objectives */
-  
-  /* Definition callouts */
-  --callout-definition-bg: var(--bg-color-offset);
-  --callout-definition-text: var(--text-color);
-  --callout-definition-border: #6C5CE7;  /* Universal purple for definitions */
-  
-  /* Homework callouts */
-  --callout-homework-bg: var(--bg-color-offset);
-  --callout-homework-text: var(--text-color);
-  --callout-homework-border: #E17055;   /* Universal coral for homework */
-  
-  /* Prompt callouts */
-  --callout-prompt-bg: var(--bg-color-offset);
-  --callout-prompt-text: var(--text-color);
-  --callout-prompt-border: #00B894;    /* Universal teal for AI prompts */
+  /* Custom callout variables removed - now handled by quarto-custom-callout extension */
 
   /* 1.6: Callout Typography (Presentation Optimized) */
   --callout-font-size: 1.3rem;           /* Much larger text for presentations */
@@ -462,59 +439,7 @@ img {
   color: var(--callout-warning-text) !important;
 }
 
-/* Custom Educational Callouts */
-.callout.callout-exercise .callout-body-container {
-  background-color: var(--callout-exercise-bg) !important;
-  border-left-color: var(--callout-exercise-border) !important;
-}
-.callout.callout-exercise .callout-body-container,
-.callout.callout-exercise .callout-body,
-.callout.callout-exercise .callout-body * {
-  color: var(--callout-exercise-text) !important;
-}
-
-.callout.callout-objective .callout-body-container {
-  background-color: var(--callout-objective-bg) !important;
-  border-left-color: var(--callout-objective-border) !important;
-}
-.callout.callout-objective .callout-body-container,
-.callout.callout-objective .callout-body,
-.callout.callout-objective .callout-body * {
-  color: var(--callout-objective-text) !important;
-}
-
-/* Definition: Formal Definitions */
-.callout.callout-definition .callout-body-container {
-  background-color: var(--callout-definition-bg) !important;
-  border-left-color: var(--callout-definition-border) !important;
-}
-.callout.callout-definition .callout-body-container,
-.callout.callout-definition .callout-body,
-.callout.callout-definition .callout-body * {
-  color: var(--callout-definition-text) !important;
-}
-
-/* Homework: Take-home Assignments */
-.callout.callout-homework .callout-body-container {
-  background-color: var(--callout-homework-bg) !important;
-  border-left-color: var(--callout-homework-border) !important;
-}
-.callout.callout-homework .callout-body-container,
-.callout.callout-homework .callout-body,
-.callout.callout-homework .callout-body * {
-  color: var(--callout-homework-text) !important;
-}
-
-/* Prompt: AI/LLM Prompting Guidance */
-.callout.callout-prompt .callout-body-container {
-  background-color: var(--callout-prompt-bg) !important;
-  border-left-color: var(--callout-prompt-border) !important;
-}
-.callout.callout-prompt .callout-body-container,
-.callout.callout-prompt .callout-body,
-.callout.callout-prompt .callout-body * {
-  color: var(--callout-prompt-text) !important;
-}
+/* Custom callouts now handled by quarto-custom-callout extension */
 
 /* Force text color and font size inheritance for all nested elements */
 .callout.callout-style-default p,
@@ -696,35 +621,7 @@ img {
   color: var(--callout-important-border) !important;
 }
 
-.callout.callout-definition .callout-header::after {
-  background: linear-gradient(90deg, var(--callout-definition-border), transparent) !important;
-}
-.callout.callout-definition .callout-icon-container {
-  background: var(--callout-definition-border) !important;
-}
-.callout.callout-definition .callout-title-container {
-  color: var(--callout-definition-border) !important;
-}
-
-.callout.callout-homework .callout-header::after {
-  background: linear-gradient(90deg, var(--callout-homework-border), transparent) !important;
-}
-.callout.callout-homework .callout-icon-container {
-  background: var(--callout-homework-border) !important;
-}
-.callout.callout-homework .callout-title-container {
-  color: var(--callout-homework-border) !important;
-}
-
-.callout.callout-prompt .callout-header::after {
-  background: linear-gradient(90deg, var(--callout-prompt-border), transparent) !important;
-}
-.callout.callout-prompt .callout-icon-container {
-  background: var(--callout-prompt-border) !important;
-}
-.callout.callout-prompt .callout-title-container {
-  color: var(--callout-prompt-border) !important;
-}
+/* Custom callout styling now handled by quarto-custom-callout extension */
 
 /* 
 --------------------------------------------

@@ -1,5 +1,5 @@
 ---
-title: "A.6 Set Up Git & GitHub, Your Portfolio"
+title: "A.6 Set Up Git & GitHub: Your Time Machine & Portfolio"
 format:
   html:
     css:
@@ -7,37 +7,58 @@ format:
       - ../styles/themes/evangelion.css
 ---
 
+::: {.objective}
+### Your Goals for This Section
+- **Understand the difference** between Git and GitHub.
+- **Create a GitHub account** to act as your online portfolio.
+- **Install Git** on your computer to act as your local time machine.
+- **Securely connect** your computer to GitHub using an SSH key.
+:::
+
 ## Your Professional Portfolio and Time Machine
 
 This step is critical for managing your work like a professional. We will set up two different but related tools: **Git** and **GitHub**.
 
-### What is Git? A Time Machine for Your Code
+::: {.definition title="What is Git? (Your Local Time Machine)"}
+Imagine you're writing an important essay. You save it, delete a paragraph, and an hour later realize you need it back. If you only have one file, you're out of luck.
 
-Imagine you're writing an important essay. You save it, make some changes, and save again. But what if you delete a paragraph and realize an hour later you need it back? If you only have one file, you're out of luck.
+**Git** is a "version control system" that solves this. It's like a "save" button on steroids. Instead of overwriting your work, Git takes a "snapshot" of your entire project every time you tell it to. These snapshots are called **commits**.
 
-**Git** is a "version control system" that solves this problem. It's like a "save" button on steroids. Instead of overwriting your work, Git takes a "snapshot" of your entire project every time you tell it to. These snapshots are called **commits**. This allows you to:
+This lets you keep a complete history of every change and rewind your entire project back to any previous snapshot if you make a mistake. It's a time machine that runs on your computer.
+:::
 
--   Keep a complete history of every change you've ever made.
--   See exactly what changed between versions.
--   Rewind your entire project back to any previous snapshot if you make a mistake.
-
-You will install Git directly on your computer. It runs silently in the background, managed from the terminal or through Cursor.
-
-### What is GitHub? A Cloud Drive and Portfolio for Your Code
-
+::: {.definition title="What is GitHub? (Your Cloud Drive & Portfolio)"}
 If Git is your local time machine, **GitHub** is the cloud service where you store your projects and their histories. It's a website that is:
 
--   **A cloud backup:** It keeps a remote copy of your work, so if something happens to your computer, your code is safe.
+-   **A cloud backup:** It keeps a safe copy of your work off your computer.
 -   **A professional portfolio:** Your GitHub profile becomes a public showcase of your projects that you can show to potential employers.
--   **A collaboration hub:** It's the primary platform where developers around the world share code, collaborate on projects, and fix bugs together.
+-   **A collaboration hub:** It's where developers share code and work together.
+:::
 
-We will create a free account on the GitHub website and then configure Git on our computer to talk to it.
+We will create a free GitHub account, install Git, and then connect the two.
+
+## Git & GitHub Setup Flow at a Glance
+
+```{mermaid}
+graph LR
+  classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+  classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+  classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+
+  GH["Create GitHub account"]:::action --> GitInstall["Install Git on computer"]:::action --> Config["git config name & email"]:::action --> Key["Generate SSH key"]:::action --> AddKey["Add key to GitHub"]:::action --> Test["Test connection"]:::action --> Ok{{Success?}}:::decision
+  Ok -->|Yes| Ready["Git & GitHub ready 🎉"]:::node
+  Ok -->|No| Help["Run AI troubleshooting prompt"]:::action
+
+  linkStyle default stroke:#007acc,stroke-width:3px;
+```
+
+Refer back to this map any time you wonder *where* you are in the onboarding process.
 
 ## Step 1: Create a GitHub Account
 
 1.  Go to [https://github.com/](https://github.com/) and sign up for a free account.
-2.  Choose a professional-sounding username. A common convention is some combination of your first and last name, like `[first-initial][last-name]` (e.g., `jsmith`).
-3.  Remember your username! We will need it later.
+2.  Choose a name you like, is important that you like it and represents you.
+3.  **Use the same email address** you used for the other services in this course.
 
 ## Step 2: Install Git on Your Computer
 
@@ -47,104 +68,96 @@ Click the tab for your operating system.
 
 ### Windows (WSL) & Linux
 
-Git is almost always pre-installed on modern Linux systems. If not, the command is simple.
+Git is almost always pre-installed. If not, the command is simple. In your Ubuntu/Linux terminal, run:
 
-1.  Open your Ubuntu/Linux terminal.
-2.  Run this command:
+```bash
+sudo apt update && sudo apt install git -y
+```
 
-    ```bash
-    sudo apt install git -y
-    ```
+### macOS (Homebrew)
 
-### macOS
+As with other tools, we'll use Homebrew. In your Terminal, run:
 
-As with Python, we will use Homebrew to install Git.
-
-1.  Open your Terminal app.
-2.  Run this command:
-
-    ```bash
-    brew install git
-    ```
+```bash
+brew install git
+```
 
 ### Windows (Direct)
 
 1.  Go to the official Git download page: [https://git-scm.com/download/win](https://git-scm.com/download/win)
-2.  Download and run the installer.
-3.  You will see many screens with configuration options. For all of them, the default settings are fine. Just click "Next" through the entire process.
+2.  Download and run the installer. You will see many screens with options. For all of them, **the default settings are fine.** Just click "Next" through the entire process.
 
 :::
 
-## Step 3: Configure Git
+## Step 3: Tell Git Who You Are
 
-Now we need to tell Git who you are. This name and email will be attached to every "save" (or "commit") you make.
+Now we need to configure Git with your name and email. This info gets attached to every "snapshot" (commit) you make.
 
-Open your terminal (or Git Bash for direct Windows users) and run these two commands, **replacing the placeholder text with your own information.**
+Open your terminal and run these two commands, **replacing the placeholder text with your own information.**
 
 ```bash
-git config --global user.name "[Your Full Name]"
+git config --global user.name "[Github User Name]"
 ```
 
 ```bash
-git config --global user.email "[your-email@example.com]"
+git config --global user.email "[your-github-email@example.com]"
 ```
 
 ::: {.callout-tip}
 Use the same email address that you used to sign up for your GitHub account.
 :::
 
-## Step 4: Connecting to GitHub with an SSH Key
+## Step 4: Connect to GitHub with a Secure Key (SSH)
 
-How does your computer prove to GitHub that you are who you say you are? You could use a password, but a more secure and common method is to use **SSH keys**.
+How does your computer prove to GitHub that you are who you say you are? Instead of using a password every time, we'll set up a secure digital "key."
 
-Think of it like a physical key to a house.
+::: {.definition title="How SSH Keys Work (The Key & Lock Analogy)"}
+Using SSH is like having a high-security key for your house (your GitHub account).
 
--   You generate a **key pair**: a **private key** (which you keep secret on your computer) and a **public key** (which you give to GitHub).
--   The public key is like giving a special, unique lock to GitHub.
--   When you try to connect, your computer uses its private key. GitHub checks if it fits the public "lock" you gave it. If they match, the door is opened.
+1.  You generate a **key pair** on your computer: a **private key** (like your physical house key, which you keep secret) and a **public key** (like a special, unique lock that only your key can open).
+2.  You give the **public key (the lock)** to GitHub to install on your account's door.
+3.  When you want to connect, your computer uses its **private key**. GitHub checks if it fits the public lock you gave it. If they match, the door opens securely.
 
-This method is very secure because you never have to send your password over the internet.
+This is much safer than using a password because you never send your secret key over the internet.
+:::
 
-### 1. Generate Your SSH Key Pair
+### A. Generate Your Key Pair
 1.  Open your terminal.
-2.  Copy and paste the following command, **replacing the placeholder with the email you used for GitHub.**
+2.  Copy and paste the following command, **replacing the placeholder with your GitHub email.**
 
     ```bash
     ssh-keygen -t ed25519 -C "your_email@example.com"
     ```
-3.  The command will ask you where to save the file. The default location is correct. **Just press Enter.**
-4.  It will then ask you to create a passphrase. This is an optional password for your key. For this course, it is safe to skip this. **Just press Enter twice** to leave it blank.
+3.  The command will ask where to save the file. The default location is correct. **Just press Enter.**
+4.  It will then ask for a passphrase. This is an optional password for the key itself. For this course, it is safe to skip this. **Just press Enter twice** to leave it blank.
 
-You'll see some text and a little picture, confirming the key has been created.
+You'll see some text and a little picture, confirming your secure key has been created.
 
-### 2. Add Your Public Key to GitHub
-Now you need to give the public key (the "lock") to GitHub.
-
-1.  First, you need to view the public key. Run this command to display it in your terminal:
+### B. Add Your Public Key (the "Lock") to GitHub
+1.  First, view your public key by running this command:
 
     ```bash
     cat ~/.ssh/id_ed25519.pub
     ```
-2.  The output will be a long string of text starting with `ssh-ed25519...`. This is your public key. **Highlight this entire block of text** with your mouse and copy it to your clipboard (`Ctrl+C`, `Cmd+C`, or right-click and copy).
+2.  The output will be a long string of text starting with `ssh-ed25519...`. **Highlight this entire block of text** and copy it to your clipboard.
 3.  Go to [GitHub.com](https://github.com) and log in.
-4.  In the top-right corner of the screen, click on your profile picture, then select **"Settings"** from the dropdown menu.
-5.  On the new page, look at the menu on the left and click **"SSH and GPG keys"**.
-6.  Click the green button in the top-right that says **"New SSH key"**.
-7.  In the **"Title"** box, give your key a descriptive name you'll recognize, like "My Laptop" or "Course Computer".
-8.  Click inside the large **"Key"** text box and paste the key you copied from your terminal.
-9.  Click the green **"Add SSH key"** button. You may be asked to re-enter your GitHub password to confirm.
+4.  Click your profile picture in the top-right corner, then select **"Settings"**.
+5.  On the left-hand menu, click **"SSH and GPG keys"**.
+6.  Click the green **"New SSH key"** button.
+7.  In the **"Title"** box, give the key a name you'll recognize, like "My Laptop".
+8.  In the large **"Key"** text box, paste the key you copied from your terminal.
+9.  Click **"Add SSH key"**. You may have to enter your GitHub password to confirm.
 
-### 3. Test the Connection
-Let's make sure the key and lock work.
+### C. Test the Connection
+Let's make sure the key and lock work. In your terminal, run:
 
-Run this final command in your terminal:
 ```bash
 ssh -T git@github.com
 ```
-You may see a warning about authenticity. Type `yes` and press Enter. If everything worked, you will see a message like: `Hi [your-username]! You've successfully authenticated...`
+You might see a warning asking if you trust the connection. Type `yes` and press Enter. If it works, you will see a message like: `Hi [your-username]! You've successfully authenticated...`
 
 ## You're All Set!
 
-You now have the complete toolchain for managing and publishing your work like a professional. The final step is to install the tool we'll use to create our beautiful documents: Quarto.
+Your time machine and cloud portfolio are set up and connected. The next step is to get your own copy of the class project to work on.
 
 {{< include _nav.qmd >}}

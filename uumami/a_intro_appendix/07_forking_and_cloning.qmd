@@ -1,5 +1,5 @@
 ---
-title: "A.7 Fork & Clone, Your Personal Copy"
+title: "A.7 Fork & Clone: Get Your Personal Project Copy"
 format:
   html:
     css:
@@ -7,56 +7,105 @@ format:
       - ../styles/themes/evangelion.css
 ---
 
-## Understanding Forking and Cloning
+::: {.objective}
+### Your Goals for This Section
+- **Understand the Fork and Clone workflow**, the standard way to copy projects.
+- **Fork the class repository** to create a personal copy on your GitHub account.
+- **Clone your fork** to download a working copy to your computer.
+:::
 
-Before we act, let's understand these two key ideas.
+## The Standard Workflow: Fork, then Clone
 
--   **Forking:** This happens entirely on the GitHub website. You find a project that belongs to someone else (like the main class project) and click the "Fork" button. This creates an **exact copy** of that project under your own GitHub account. It's now *your* repository. You can do anything you want with it, and your changes will not affect the original.
+This is how almost all collaborative and open-source software development starts. You need to get a copy of a project from GitHub onto your computer. This is a two-step process:
 
--   **Cloning:** This is the process of downloading a repository from GitHub.com onto your own computer. You "clone" your fork, creating a local copy that you can edit with Cursor.
+1.  **Forking**: This happens on the GitHub website. You create a personal, cloud-based copy of a repository.
+2.  **Cloning**: This happens on your computer. You download your cloud-based copy from GitHub to your local machine so you can work on it.
 
-The full workflow is:
-**Fork** the instructor's repository on GitHub -> **Clone** your new repository from GitHub to your computer.
+::: {.callout-note title="What Is GitHub?"}
+GitHub is like an **online library** for code.  
+Every book on that shelf is a *repository* (often shortened to **repo**), a place where people can store, share, and discuss their projects.
+:::
 
-## Step 1: Forking the Class Repository
+::: {.callout-definition title="Repository ≙ Folder + History"}
+A **repository** is just a *folder* that also remembers **every version** of itself.  
+When you **clone** a repo you are downloading that folder *plus* its built-in time machine to your own computer.
+:::
 
-Let's create your personal copy on GitHub.
+::: {.definition title="The Library Book Analogy"}
+-   The instructor's main project on GitHub is like a **master reference book** in a library. You can't check it out or write in it.
+-   **Forking** is like going to the library's photocopier and making a **complete copy** of that book. The copy is now yours. It lives on your personal "bookshelf" (your GitHub account).
+-   **Cloning** is like taking that photocopy from your bookshelf and bringing it to your **desk** (your computer) so you can actually read it and write notes in it.
+:::
 
-1.  Navigate to the main GitHub page for our class template. The URL is in the syllabus and also here: **{{< meta repository_url >}}**
-2.  In the top-right corner of the page, find the button that shows a fork icon and the word **"Fork"**. Click it.
-3.  A new page titled "Create a new fork" will appear.
-    -   **Owner:** Make sure your GitHub username is selected.
-    -   **Repository name:** You can keep the default name or change it. `{{< meta course_code >}}-notes` is a good choice.
-    -   Leave all other options as they are.
-4.  Click the green **"Create fork"** button at the bottom.
-5.  After a few seconds, you will be taken to a new page. **Look at the top-left corner.** It should now say `[your-username] / [repository-name]`. This confirms you are now looking at *your* personal copy.
+## Fork & Clone at a Glance
 
-## Step 2: Cloning Your Fork to Your Computer
+Below is a simple flow diagram that shows **where** each step happens and **what** you end up with:
+
+```{mermaid}
+graph LR
+  classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:16px,font-weight:bold;
+  classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:14px,font-weight:bold;
+
+  A["Instructor's Repo on GitHub"]:::node --> F[Fork]:::action --> B["Your Fork on GitHub"]:::node --> Cn[Clone]:::action --> C["Folder on your computer"]:::node --> O[Open in Cursor]:::action --> D["Ready to code!"]:::node
+
+  linkStyle default stroke:#007acc,stroke-width:3px;
+```
+
+*(If this diagram doesn't render, make sure you have [Mermaid](https://mermaid.js.org/) support enabled in Quarto > Preferences > Preview.)*
+
+The flow reinforces three ideas:
+1. **Cloud → Cloud → Local** – You first copy in the cloud (Fork), *then* download to your machine (Clone).
+2. **Nothing breaks** – Forking never changes the instructor's repo; cloning never changes your fork until you push changes back.
+3. **Outcome** – You finish with a normal folder that you can open in any editor.
+
+The full workflow is always: **Fork first (on GitHub), then Clone second (in your terminal).**
+
+## Step 1: Forking the Class Repository (On GitHub)
+
+Let's create your personal cloud copy.
+
+1.  Navigate to the main class project repository: **{{< meta repository_url >}}**
+2.  In the top-right corner of the page, find and click the **"Fork"** button.
+3.  On the "Create a new fork" page, you can leave all the settings as they are. Just click the green **"Create fork"** button.
+
+After a moment, you will be taken to a new GitHub page. Look at the top-left corner. It should now say `[your-username] / [repository-name]`. This confirms you are now looking at *your* personal copy.
+
+## Step 2: Cloning Your Fork (On Your Computer)
 
 Now we bring that repository down from the cloud to your local machine.
 
-1.  Make sure you are on the main page of **your forked repository** on GitHub.
-2.  Look for a big, green button on the right side of the page that says **"< > Code"**. Click it.
-3.  A dropdown box will appear. You will see three tabs at the top: "HTTPS", "SSH", and "GitHub CLI". Make sure the **"SSH"** tab is selected. It should have a blue line under it.
-4.  Below the tabs, you will see a piece of text that starts with `git@github.com:...`. To the right of this text is a small icon of two overlapping squares. This is the **Copy button**. Click it to copy the entire SSH URL to your clipboard.
-5.  Now, open your terminal application (Terminal on Mac, PowerShell on Windows, or your Linux/WSL terminal).
-6.  You need to decide where you want to store your schoolwork. A good place is a `Documents` folder. Use the `cd` (change directory) command to navigate there.
+1.  On the GitHub page of **your forked repository**, click the big green **"< > Code"** button.
+2.  In the dropdown that appears, make sure the **"SSH"** tab is selected. It should have a blue line under it.
+3.  You will see an address that starts with `git@github.com:...`. Click the **Copy icon** next to it to copy the address to your clipboard.
+4.  Open your terminal app (Terminal on Mac, Ubuntu/WSL on Windows).
+
+::: {.callout-tip title="Where Should I Save My Project?"}
+Create a single folder to hold *all* of your course work, for example:
+
+```bash
+mkdir -p ~/Documents/my-class-code
+cd ~/Documents/my-class-code
+```
+
+Keeping everything in one place makes backups and navigation easier.  
+Make sure you are **inside this folder** before you run `git clone`.  
+
+❗ **Important:** Do *not* clone one repository *inside* another repository (never nest folders that contain a `.git` directory).
+:::
+
+5.  Once you are **inside your class folder** (e.g., `~/Documents/my-class-code`), use the `git clone` command followed by the address you copied.
 
     ```bash
-    # This command moves you into your Documents folder.
-    cd Documents
+    git clone [paste the SSH address you copied here]
     ```
 
-7.  Now, use the `git clone` command and paste the URL you copied from GitHub.
+    It will look like this:
+    `git clone git@github.com:[your-username]/the-repo-name.git`
 
-    ```bash
-    # The command is "git clone" followed by the pasted URL
-    git clone [paste the URL you copied here]
-    ```
-    Your full command will look something like this:
-    `git clone git@github.com:[your-username]/{{< meta course_code >}}-notes.git`
-8.  Press **Enter**. You will see some text as Git downloads the repository to your computer.
+6.  Press **Enter**. Git will download the project into a new folder.
 
-You're done! A new folder with your repository's name now exists in your `Documents` folder. In the next step, we will open it with Cursor and test it.
+7.  Finally, open the new folder in Cursor (or your preferred editor) so you can start exploring the project files.
+
+You're done! A new folder containing the entire class project now exists on your computer.
 
 {{< include _nav.qmd >}}
