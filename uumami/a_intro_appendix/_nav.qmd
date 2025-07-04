@@ -11,6 +11,7 @@
 - [**A.7** Fork & Clone Project](./07_forking_and_cloning.qmd)
 - [**A.8** Install & Test Quarto](./08_installing_and_testing_quarto.qmd)
 - [**A.9** Emergency: Gitpod](./09_alternative_gitpod_setup.qmd)
+- [**A.A** Setup WSL2](./a_wsl2.qmd)
 
 :::
 
@@ -36,6 +37,7 @@
         <li><a href="./07_forking_and_cloning.qmd">A.7 Fork & Clone Project</a></li>
         <li><a href="./08_installing_and_testing_quarto.qmd">A.8 Install Quarto</a></li>
         <li><a href="./09_alternative_gitpod_setup.qmd">A.9 Emergency: Gitpod</a></li>
+        <li><a href="./a_wsl2.qmd">A.A Setup WSL2</a></li>
       </ul>
     </details>
   </div>
@@ -69,7 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
     { file: '06_setting_up_git_and_github.qmd', title: 'A.6 Git & GitHub' },
     { file: '07_forking_and_cloning.qmd', title: 'A.7 Fork & Clone Project' },
     { file: '08_installing_and_testing_quarto.qmd', title: 'A.8 Install Quarto' },
-    { file: '09_alternative_gitpod_setup.qmd', title: 'A.9 Emergency: Gitpod' }
+    { file: '09_alternative_gitpod_setup.qmd', title: 'A.9 Emergency: Gitpod' },
+    { file: 'a_wsl2.qmd', title: 'A.A Setup WSL2' }
   ];
   
   // Get current page from URL

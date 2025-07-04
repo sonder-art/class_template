@@ -7,6 +7,14 @@ format:
       - ../styles/themes/evangelion.css
 ---
 
+::: {.callout-note title="Important Advice for Windows Users"}
+We **strongly recommend** using the Windows Subsystem for Linux (WSL2) for this course, as it avoids many common installation issues.
+
+If you are on Windows, please follow our detailed guide to get it set up.
+
+[**View the WSL2 Installation Guide &raquo;**](./a_wsl2.qmd)
+:::
+
 ::: {.objective}
 ### Your Goals for This Section
 - **Understand what Python is** and why we use it.
@@ -46,14 +54,43 @@ graph LR
 - **Pip** is Python's **Package Installer**. Think of it as the **mechanic** who installs new parts in our car's engine. When we need our car to do something new (like work with a specific type of data), we'll use `pip` to install a "package" that adds that new ability.
 :::
 
-In this guide, you will be using the **terminal**.
+## How to Open Your Terminal
 
-::: {.definition title="What is the Terminal?"}
-The **terminal** (also called the **command line** or **shell**) is a text-based way to talk directly to your computer. Instead of clicking on icons, you type commands. It's fast, powerful, and a standard tool for all developers.
+The **terminal** (also called the **command line** or **shell**) is a text-based way to talk directly to your computer. Instead of clicking on icons, you type commands. It's fast, powerful, and a standard tool for all developers. Click on the tab below that matches your operating system for instructions on how to open it.
 
--   **Windows:** Open the **Ubuntu** (or other Linux) app you installed with WSL. This is your terminal.
--   **macOS:** Open the app named **"Terminal"**.
--   **Linux:** Open the app named **"Terminal"** or "Console".
+::: {.panel-tabset}
+
+### Windows (WSL2)
+This is your primary environment for this course.
+
+1.  Press the `Windows` key.
+2.  Type `Ubuntu` (or the name of your installed Linux distribution).
+3.  Select the app to open your Linux terminal inside Windows.
+
+### Windows (Standard)
+Use this if you are not using WSL2. PowerShell is recommended over the classic Command Prompt.
+
+1.  Press the `Windows` key.
+2.  Type `PowerShell`.
+3.  Select **Windows PowerShell**.
+
+::: {.callout-note title="Compatibility"}
+While many commands are the same, some instructions in this course may need minor changes if you are using PowerShell instead of the Linux-based terminal in WSL2.
+:::
+
+### macOS
+The terminal app on macOS is simply called **Terminal**.
+
+1.  Press `Cmd + Space` to open Spotlight search.
+2.  Type `Terminal` and press `Enter`.
+3.  You can also find it in `Applications > Utilities > Terminal`.
+
+### Linux
+Most Linux distributions make the terminal easy to find.
+
+1.  Try the common keyboard shortcut: `Ctrl + Alt + T`.
+2.  If that doesn't work, open your applications menu and search for "Terminal", "Console", or "xterm".
+
 :::
 
 ## Step 1: Check if Python is Already Installed
@@ -89,7 +126,7 @@ This is the most reliable way to use Python on Windows for data science. It keep
     sudo apt install python3 python3-pip python3-venv -y
     ```
 
-### macOS (The Best Way)
+### macOS 
 
 The best way to manage software like Python on a Mac is with a tool called Homebrew.
 
@@ -101,7 +138,7 @@ The best way to manage software like Python on a Mac is with a tool called Homeb
     ```
     Homebrew handles all the tricky details for you.
 
-### Linux (Ubuntu/Debian)
+### Linux (Ubuntu/Debian/Bestway)
 
 Most Linux systems have Python, but this ensures you have all the necessary helper packages.
 
@@ -150,9 +187,8 @@ If you type `python3 --version` and get an error, it means the terminal can't fi
 
 I am a beginner trying to install Python on `[Your Operating System]`.
 
-I followed the installation steps, but when I open a new terminal and type `python3 --version`, I get a 'command not found' error.
+I followed the installation steps, but when I open a new terminal and type `
 
-Can you give me a step-by-step plan to figure out what's wrong? Please explain each step simply. I need to know how to check if Python is installed correctly and how to fix my computer's 'PATH' so the terminal can find it."
 :::
 
-{{< include _nav.qmd >}}
+{{< include _nav.qmd >}} 

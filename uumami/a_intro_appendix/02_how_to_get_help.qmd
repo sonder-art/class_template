@@ -305,7 +305,11 @@ Follow the AI's plan. If a step fails, copy the exact error back into the chat a
 
 ---
 
-## 10  Key Takeaways
+
+## 11. General Video for prompting (Must See)
+{{< video https://youtu.be/bIxbpIwYTXI width="560" height="315" >}}
+
+## 12  Key Takeaways
 
 ::: {.callout-tip title="Key Takeaways"}
 • R-C-T → Clear prompts → Helpful answers.
