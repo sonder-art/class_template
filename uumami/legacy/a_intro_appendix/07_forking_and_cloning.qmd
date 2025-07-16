@@ -1,0 +1,222 @@
+---
+title: "A.7 Fork & Clone: Get Your Personal Project Copy"
+format:
+  html:
+    css:
+      - ../styles/main.css
+      - ../styles/themes/evangelion.css
+---
+
+::: {.objective}
+### Your Goals for This Section
+- **Understand the Fork and Clone workflow**, the standard way to copy projects.
+- **Fork the class repository** to create a personal copy on your GitHub account.
+- **Clone your fork** to download a working copy to your computer.
+:::
+
+## The Standard Workflow: Fork, then Clone
+
+To work on a project from GitHub, you need to get a copy of it onto your computer. For a professional developer, this is almost always a two-step process that starts on the GitHub website and ends in your computer's terminal.
+
+::: {.callout-note title="Why Not Just Clone Directly?"}
+You might see some guides tell you to just `clone` a repository. This is like getting a **read-only** version of a project. It's great if you only want to look at the code or run it, but you cannot save any of your changes back to GitHub.
+
+For this course, you need to save your work. The **Fork then Clone** workflow gives you your own personal copy that you have full control over.
+:::
+
+#### The Library Book Analogy
+-   The instructor's main project on GitHub is like a **master reference book** in a library. You can't write in it.
+-   **Forking** is like using the library's photocopier to make a **complete personal copy**. This copy is now yours. It lives on your "personal bookshelf" (your GitHub account), and you can write anything you want in it.
+-   **Cloning** is like taking your new photocopy from your bookshelf and bringing it to your **desk** (your computer) so you can actually do your work.
+
+## Fork & Clone at a Glance
+
+Below is a simple flow diagram that shows **where** each step happens and **what** you end up with:
+
+```{mermaid}
+graph LR
+  classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:16px,font-weight:bold;
+  classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:14px,font-weight:bold;
+
+  A["Instructor's Repo on GitHub"]:::node --> F[Fork]:::action --> B["Your Fork on GitHub"]:::node --> Cn[Clone]:::action --> C["Folder on your computer"]:::node --> O[Open in Cursor]:::action --> D["Ready to code!"]:::node
+
+  linkStyle default stroke:#007acc,stroke-width:3px;
+```
+
+The full workflow is always: **Fork first (on GitHub), then Clone second (in your terminal).**
+
+## A Modern Approach: Using AI as Your Co-Pilot
+
+The Fork and Clone workflow is another perfect opportunity to practice using your AI assistant to guide you, with this document serving as your "safety net".
+
+```{mermaid}
+graph TD
+    classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+    classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+    classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+    classDef doc fill:#e8f5e9,stroke:#4caf50,stroke-width:2px,color:#000;
+
+    subgraph "Phase 1: Understand the Workflow"
+        P1A["Prompt AI:<br/>'How do I copy a GitHub project?'"]:::action --> P1B["Learn the key terms:<br/>'Fork' and 'Clone'"]:::node
+    end
+
+    subgraph "Phase 2: Generate Your Plan"
+        P2A["Prompt AI for a step-by-step<br/>Fork & Clone guide"]:::action --> P2B["Get AI's Answer"]:::node --> P2C{{Compare AI steps<br/>to this guide}}:::decision
+        P2C -->|They Match!| P2D["Proceed with confidence"]:::action
+        P2C -->|They Don't Match| P2E["Trust this guide's steps<br/>(your safety net)"]:::doc
+    end
+
+    subgraph "Phase 3: Execute and Debug"
+        P3A["Fork on GitHub, then<br/>Clone in your terminal"]:::action --> P3B{{`git clone` fails?}}:::decision
+        P3B -->|No| P3D["You're all set! 🎉"]:::node
+        P3B -->|Yes| P3C["Use debugging prompt:<br/>Provide goal, command, & EXACT error"]:::action --> P3A
+    end
+
+    P1B --> P2A
+    P2D --> P3A
+    P2E --> P3A
+
+    linkStyle default stroke:#007acc,stroke-width:3px;
+```
+
+### Phase 1: Understand the "Why"
+
+First, let's ask the AI for a high-level overview. A beginner wouldn't know to ask about "forking" or "cloning" specifically.
+
+::: {.prompt title="Initial Broad Prompt"}
+"I'm new to programming. I need to get a copy of a project that's on GitHub so I can work on it on my own computer. What is the standard process for doing this?"
+:::
+
+The AI's response will almost certainly introduce the two key concepts: **Forking** (making a copy on GitHub) and **Cloning** (downloading the copy to your computer). Now you have the vocabulary you need to ask for a detailed plan.
+
+### Phase 2: Get Your Step-by-Step Plan
+
+Now that you know the keywords, you can ask for a specific, actionable guide.
+
+::: {.prompt title="Detailed Follow-up Prompt"}
+You are a friendly technical coach for beginners.
+
+Please give me a clear, step-by-step guide for the standard **fork and clone** workflow. The project I need to copy is located at **[Paste the instructor's repository URL here]**.
+
+The guide must be extremely detailed for a beginner:
+1.  **Forking:** Describe exactly where to find the "Fork" button on the GitHub page and what to check for after to confirm it worked.
+2.  **Creating a Local Folder:** Show the terminal commands to create a dedicated project folder in my user's `Documents` directory.
+3.  **Cloning:** Explain where to find the SSH address on my forked repo's page. Then show the exact `git clone` command to run inside my new local folder.
+4.  **Verifying:** Show me how to use terminal commands like `ls` and `cd` to make sure the files were downloaded correctly.
+:::
+
+### Phase 3: Execute and Debug
+
+With a clear plan from the AI, you are ready to start.
+
+1.  **Verify First:** Quickly compare the AI's plan to the steps below in this guide. They should be very similar. If not, trust this guide.
+2.  **Execute:** Follow the steps—first fork on the website, then clone in your terminal.
+3.  **Debug If Needed:** If the `git clone` command fails, ask the AI for help with a specific debugging prompt.
+
+    ::: {.prompt title="Debugging a Clone Error"}
+    "I'm trying to `git clone` my repository, but I got an error.
+
+    **My Goal:** To download my forked repository to my computer.
+
+    **The command I ran was:**
+    `git clone git@github.com:[your-username]/the-repo-name.git`
+
+    **The error I got was:**
+    `Permission denied (publickey). fatal: Could not read from remote repository.`
+
+    Can you explain what this error usually means and what I should check to fix it?"
+    :::
+
+This process turns a confusing multi-step task into a manageable conversation where you are in control.
+
+## Step 1: Forking the Class Repository (On GitHub)
+
+Let's create your personal cloud copy.
+
+1.  Make sure you are logged into your GitHub account.
+2.  Navigate to the main class project repository: **{{< meta repository_url >}}**
+3.  In the top-right corner of the page, find and click the **"Fork"** button. It usually has a small icon of a branching path next to it.
+4.  A new page titled "Create a new fork" will open. GitHub is asking where you want to put your personal copy.
+    -   Your GitHub username should already be selected as the **Owner**.
+    -   The repository name will be filled in automatically.
+    -   You can leave the "Description" and other options as they are.
+5.  Click the green **"Create fork"** button.
+6.  Be patient. GitHub is now copying the entire project history to your account. When it's finished, your browser will redirect to a new page. Look at the top-left of this page. It **must** say `[your-username] / [repository-name]`. This confirms you are now looking at *your* personal copy on GitHub.
+
+## Step 2: Cloning Your Fork (On Your Computer)
+
+Now we bring that repository down from the cloud to your local machine.
+
+1.  On the GitHub page of **your forked repository** (the one that says `[your-username]/[repository-name]`), find and click the big green **"< > Code"** button.
+2.  A dropdown menu will appear. This menu gives you different ways to copy the project's address. We will use the most secure and professional method: **SSH**. Make sure the **"SSH"** tab is selected. It should have a blue line under it.
+3.  You will see an address that starts with `git@github.com:...`. This is the unique SSH address for your fork. Click the **Copy icon** next to it to copy the address to your clipboard.
+4.  Open your terminal app (Terminal on Mac, Ubuntu/WSL on Windows).
+
+::: {.callout-tip title="Where Should I Save My Project?"}
+Create a single folder to hold *all* of your course work, for example:
+
+```bash
+mkdir -p ~/Documents/my-class-code
+cd ~/Documents/my-class-code
+```
+
+Keeping everything in one place makes backups and navigation easier.  
+Make sure you are **inside this folder** before you run `git clone`.
+
+::: {.callout-definition title="Understanding the Commands"}
+- `mkdir -p ~/Documents/my-class-code`: This command has two parts. `mkdir` means "make directory." The `-p` flag tells it to create any necessary parent directories (like `Documents`) if they don't exist.
+- `cd ~/Documents/my-class-code`: `cd` means "change directory." This command moves your terminal's focus into the folder you just created.
+- `~`: This is a universal shortcut for your user's home directory.
+:::
+:::
+
+5.  Once you are inside your chosen folder (e.g., `~/Documents/my-class-code`), use the `git clone` command followed by the address you copied. You can usually paste in the terminal with `Ctrl+Shift+V` (on Windows/Linux) or `Cmd+V` (on macOS).
+
+    ```bash
+    git clone [paste the SSH address you copied here]
+    ```
+
+    It will look like this (but with your username and the correct repo name):
+    `git clone git@github.com:your-username/class-template.git`
+
+6.  Press **Enter**. Git will contact GitHub, use your SSH key to authenticate, and download the project into a new folder named after the repository.
+
+## Step 3: Verify Your Local Copy
+
+Let's confirm the project is on your computer and explore what you've downloaded.
+
+1.  **Check Your Current Location:** Your terminal is always "inside" a folder. To see where you are, use the `pwd` (print working directory) command.
+
+    ```bash
+    pwd
+    ```
+    This should show the path to the folder you created earlier, like `/home/your-username/Documents/my-class-code`.
+
+2.  **List the Contents:** Now, use the `ls` (list) command to see what's in this directory.
+
+    ```bash
+    ls
+    ```
+    You should see the name of the repository folder you just cloned (e.g., `class-template`). This is great! It means the clone was successful.
+
+3.  **Enter Your New Project Folder:** Navigate *inside* your new project folder using the `cd` (change directory) command. Remember to replace `class-template` with the actual folder name if it's different.
+    ```bash
+    cd class-template
+    ```
+
+4.  **Confirm You've Moved:** Run `pwd` again.
+    ```bash
+    pwd
+    ```
+    Notice how the path has changed? It should now end with `/class-template`. This is definitive proof that you are inside your new local project repository.
+
+5.  **Look Inside:** Now that you're in the project folder, run `ls` one last time to see all the files and folders that make up the class project.
+    ```bash
+    ls
+    ```
+    You should see a list of familiar files and directories, like `README.md` and `uumami`.
+
+## What's Next?
+You're done! A complete copy of the class project now exists on your computer, ready for you to work on. The final step is to learn how to open this project in your code editor and start making changes.
+
+{{< include _nav.qmd >}}

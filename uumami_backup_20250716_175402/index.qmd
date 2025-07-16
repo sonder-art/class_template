@@ -3,8 +3,8 @@ title: "{{< meta class_name >}} - Official Class Notes"
 format:
   html:
     css:
-      - quarto_code/styles/main.css
-      - quarto_code/styles/themes/evangelion.css
+      - styles/main.css
+      - styles/themes/evangelion.css
 ---
 
 # Welcome to the Official Notes for {{< meta class_name >}} ({{< meta course_code >}})

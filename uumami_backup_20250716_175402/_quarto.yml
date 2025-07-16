@@ -83,11 +83,11 @@ format:
   html:
     theme: cosmo
     css: 
-      - quarto_code/styles/main.css
-      - quarto_code/styles/themes/evangelion.css
+      - styles/main.css
+      - styles/themes/evangelion.css
     toc: true
     code-fold: true 
     code-summary: "Show/Hide Code"
-    include-after-body: quarto_code/components/accessibility-auto.html
+    include-after-body: components/accessibility-auto.html
     filters:
-      - quarto_code/_extensions/coatless-quarto/custom-callout/customcallout.lua 
+      - custom-callout 
