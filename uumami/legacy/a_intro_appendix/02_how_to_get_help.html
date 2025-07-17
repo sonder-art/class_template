@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.41">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>A.2 How to Talk to AI: Your New Superpower – Template Course Title (TMPL101) - Template Semester Year</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-48ffa3e5b9d089919c6712c39e5b00f2.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-cb3b7c359e805d2ad2cb864d1485d16c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<style>
+div.callout-prompt.callout {
+  border-left-color: #00B894;
+}
+div.callout-prompt.callout-style-default > .callout-header {
+  background-color: rgba(0, 184, 148, 0.13);
+}
+div.callout-prompt .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-prompt.callout-style-default .callout-icon::before, div.callout-prompt.callout-titled .callout-icon::before {
+  content: '🤖';
+  background-image: none;
+}
+div.callout-objective.callout {
+  border-left-color: #4A90E2;
+}
+div.callout-objective.callout-style-default > .callout-header {
+  background-color: rgba(74, 144, 226, 0.13);
+}
+div.callout-objective .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-objective.callout-style-default .callout-icon::before, div.callout-objective.callout-titled .callout-icon::before {
+  content: '🎯';
+  background-image: none;
+}
+div.callout-exercise.callout {
+  border-left-color: #F39C12;
+}
+div.callout-exercise.callout-style-default > .callout-header {
+  background-color: rgba(243, 156, 18, 0.13);
+}
+div.callout-exercise .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-exercise.callout-style-default .callout-icon::before, div.callout-exercise.callout-titled .callout-icon::before {
+  content: '✏️';
+  background-image: none;
+}
+div.callout-definition.callout {
+  border-left-color: #6C5CE7;
+}
+div.callout-definition.callout-style-default > .callout-header {
+  background-color: rgba(108, 92, 231, 0.13);
+}
+div.callout-definition .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-definition.callout-style-default .callout-icon::before, div.callout-definition.callout-titled .callout-icon::before {
+  content: '📚';
+  background-image: none;
+}
+div.callout-homework.callout {
+  border-left-color: #E17055;
+}
+div.callout-homework.callout-style-default > .callout-header {
+  background-color: rgba(225, 112, 85, 0.13);
+}
+div.callout-homework .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-homework.callout-style-default .callout-icon::before, div.callout-homework.callout-titled .callout-icon::before {
+  content: '📝';
+  background-image: none;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../quarto_code/styles/main.css">
+<link rel="stylesheet" href="../../quarto_code/styles/themes/evangelion.css">
+<link rel="stylesheet" href="../styles/main.css">
+<link rel="stylesheet" href="../styles/themes/evangelion.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Template Course Title (TMPL101) - Template Semester Year</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Class Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../syllabus.qmd"> 
+<span class="menu-text">Syllabus</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../schedule.qmd"> 
+<span class="menu-text">Schedule</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-course" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">📚 Course</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-course">    
+        <li>
+    <a class="dropdown-item" href="../../notas/01_intro/00_index.html">
+ <span class="dropdown-text">01. Welcome to the Course Setup</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-documentation" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">📖 Documentation</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-documentation">    
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/00_index.html">
+ <span class="dropdown-text">📋 Complete Overview</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/01_quickstart/00_index.html">
+ <span class="dropdown-text">🚀 Quick Start Guide</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/02_architecture/00_index.html">
+ <span class="dropdown-text">🏗️ System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/03_scripts_reference/00_index.html">
+ <span class="dropdown-text">🛠️ Scripts Reference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/04_troubleshooting/00_index.html">
+ <span class="dropdown-text">🔧 Troubleshooting</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/05_development/00_index.html">
+ <span class="dropdown-text">🚀 Development Guide</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/06_auto_generation/00_index.html">
+ <span class="dropdown-text">🤖 Auto Generation</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/your-organization/your-repo-template"> <i class="bi bi-github" role="img" aria-label="GitHub Repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://drive.google.com/drive/folders/your_google_drive_id"> <i class="bi bi-folder-fill" role="img" aria-label="Google Drive for Class Files">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#your-new-superpower" id="toc-your-new-superpower" class="nav-link active" data-scroll-target="#your-new-superpower">1 Your New Superpower</a></li>
+  <li><a href="#the-r-c-t-recipe" id="toc-the-r-c-t-recipe" class="nav-link" data-scroll-target="#the-r-c-t-recipe">2 The R-C-T Recipe</a></li>
+  <li><a href="#prompting-fundamentals" id="toc-prompting-fundamentals" class="nav-link" data-scroll-target="#prompting-fundamentals">2 Prompting Fundamentals 🔰</a></li>
+  <li><a href="#the-r-c-t-recipe-1" id="toc-the-r-c-t-recipe-1" class="nav-link" data-scroll-target="#the-r-c-t-recipe-1">3 The R-C-T Recipe</a></li>
+  <li><a href="#prompting-flow-at-a-glance" id="toc-prompting-flow-at-a-glance" class="nav-link" data-scroll-target="#prompting-flow-at-a-glance">Prompting Flow at a Glance</a></li>
+  <li><a href="#debugging" id="toc-debugging" class="nav-link" data-scroll-target="#debugging">4 Scenario 1 – Debugging a Python Error</a></li>
+  <li><a href="#understand-code" id="toc-understand-code" class="nav-link" data-scroll-target="#understand-code">5 Scenario 2 – Understanding Mysterious Code</a></li>
+  <li><a href="#planning" id="toc-planning" class="nav-link" data-scroll-target="#planning">6 Scenario 3 – Planning a Mini Project</a></li>
+  <li><a href="#install-error" id="toc-install-error" class="nav-link" data-scroll-target="#install-error">7 Scenario 4 – Troubleshooting an Installation</a></li>
+  <li><a href="#workflow" id="toc-workflow" class="nav-link" data-scroll-target="#workflow">8 The 4-Step “I’m Stuck” Workflow</a></li>
+  <li><a href="#prompting-cheat-sheet" id="toc-prompting-cheat-sheet" class="nav-link" data-scroll-target="#prompting-cheat-sheet">9 Prompting Cheat Sheet 📎</a></li>
+  <li><a href="#general-video-for-prompting-must-see" id="toc-general-video-for-prompting-must-see" class="nav-link" data-scroll-target="#general-video-for-prompting-must-see">11. General Video for prompting (Must See)</a></li>
+  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways">12 Key Takeaways</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">A.2 How to Talk to AI: Your New Superpower</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout-objective" title="Learning Goals">
+<p>By the end of this lesson you will be able to:</p>
+<ol type="1">
+<li>Describe the <strong>Role–Context–Task (R-C-T)</strong> framework.</li>
+<li>Craft clear AI prompts by filling in R-C-T.</li>
+<li>Follow a 4-step workflow when you get stuck while coding or installing software.</li>
+<li>Turn AI into a productive learning partner rather than a search engine.</li>
+</ol>
+</div>
+<section id="your-new-superpower" class="level2">
+<h2 class="anchored" data-anchor-id="your-new-superpower">1 Your New Superpower</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Think of an AI assistant as <strong>Google Maps for problem solving</strong>: you still decide the destination, but the AI shows possible routes and warns about traffic. Clear directions in → good routes out.</p>
+</div>
+</div>
+</section>
+<section id="the-r-c-t-recipe" class="level2">
+<h2 class="anchored" data-anchor-id="the-r-c-t-recipe">2 The R-C-T Recipe</h2>
+</section>
+<section id="prompting-fundamentals" class="level2">
+<h2 class="anchored" data-anchor-id="prompting-fundamentals">2 Prompting Fundamentals 🔰</h2>
+<div class="callout callout-style-default callout-definition callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What *is* a prompt?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Think of a <em>prompt</em> as the opening line of a conversation with an expert helper. The clearer you speak, the clearer (and faster) the help you receive.</p>
+</div>
+</div>
+<p><strong>Beginner-friendly checklist (run through this before you press <em>Enter</em>):</strong></p>
+<ol type="1">
+<li>Write in plain <strong>English</strong>—avoid slang or local abbreviations.</li>
+<li>State <strong>one goal per sentence</strong>; break complex tasks into bullet lists.</li>
+<li>Copy-paste <strong>exact</strong> error messages instead of paraphrasing them.</li>
+<li>Supply only the <strong>relevant</strong> code snippet—not your whole file.</li>
+<li>Use bold <strong>[square-bracket placeholders]</strong> for anything you still need to fill in.</li>
+<li>End with a <strong>clear deliverable</strong>: <em>“Explain in 3 steps…”</em> or <em>“Give me pseudocode.”</em></li>
+</ol>
+<hr>
+</section>
+<section id="the-r-c-t-recipe-1" class="level2">
+<h2 class="anchored" data-anchor-id="the-r-c-t-recipe-1">3 The R-C-T Recipe</h2>
+<section id="prompt-anatomy-at-a-glance" class="level3">
+<h3 class="anchored" data-anchor-id="prompt-anatomy-at-a-glance">Prompt Anatomy at a Glance</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 52%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Prompt Block</th>
+<th>Ask Yourself…</th>
+<th>Tiny Example Snippet</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Role</strong></td>
+<td><em>Who should the AI be?</em></td>
+<td><code>You are a calm tutor.</code></td>
+</tr>
+<tr class="even">
+<td><strong>Context</strong></td>
+<td><em>What does it need to know first?</em></td>
+<td><code>Here is my code …</code></td>
+</tr>
+<tr class="odd">
+<td><strong>Task</strong></td>
+<td><em>What do I want back?</em></td>
+<td><code>Explain in 3 bullets.</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="prompt-quality-spectrum" class="level3">
+<h3 class="anchored" data-anchor-id="prompt-quality-spectrum">Prompt Quality Spectrum</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Bad</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Meh</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Good</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Chef’s-Kiss</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<pre class="text"><code>fix my list</code></pre>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<pre class="text"><code>my python list is not working. help.</code></pre>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<pre class="text"><code>I have a Python list and `AttributeError: add` appears.
+How do I add a new value?</code></pre>
+</div>
+<div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
+<pre class="text"><code>You are a friendly Python tutor.
+
+Here is my code:
+
+[insert code]
+
+It raises `AttributeError: 'list' object has no attribute 'add'`.
+
+Please:
+1) Explain the error in simple terms.
+2) Show the corrected code.
+3) Give one tip to avoid this bug next time.</code></pre>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="prompt-refinement-playbook" class="level3">
+<h3 class="anchored" data-anchor-id="prompt-refinement-playbook">Prompt-Refinement Playbook</h3>
+<div class="columns">
+<div class="column" style="width:33%;">
+<p><strong>Draft 0</strong></p>
+<pre class="text"><code>debug this</code></pre>
+</div><div class="column" style="width:33%;">
+<p><strong>Draft 1</strong></p>
+<pre class="text"><code>List bug in Python. Code below.</code></pre>
+</div><div class="column" style="width:34%;">
+<p><strong>Draft 2</strong> <em>(R-C-T complete)</em></p>
+<pre class="text"><code>You are a Python tutor.
+
+Here is my code …
+Error: …
+Please: 1) explain 2) fix 3) prevent future errors.</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="prompting-flow-at-a-glance" class="level2">
+<h2 class="anchored" data-anchor-id="prompting-flow-at-a-glance">Prompting Flow at a Glance</h2>
+<p>Below is a quick visual of the <em>thinking loop</em> you should run whenever you need help from an AI assistant.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">graph LR
+  classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+  classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+  classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+
+  S["Stuck or curious?"]:::node --&gt; RCT["Plan with R-C-T"]:::action --&gt; Ask["Send Prompt"]:::action --&gt; AI["AI answer"]:::node --&gt; Try["Test / Read"]:::action --&gt; Dec{{Solved?}}:::decision
+  Dec --&gt;|Yes| Done["Move on 🚀"]:::node
+  Dec --&gt;|No| Refine["Add context &amp; refine"]:::action --&gt; Ask
+
+  linkStyle default stroke:#007acc,stroke-width:3px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p><strong>How to read this:</strong> 1. <strong>Plan with R-C-T</strong> – Decide the Role, give the Context, and state the Task. 2. <strong>Send Prompt → AI answer</strong> – Let the model work; skim for an overview, then read in depth. 3. <strong>Test / Read</strong> – Run the suggestion or apply the explanation. 4. <strong>Solved?</strong> – If yes, celebrate. If not, <em>add missing info</em> or <em>clarify your goal</em> and loop back.</p>
+<hr>
+</section>
+<section id="debugging" class="level2">
+<h2 class="anchored" data-anchor-id="debugging">4 Scenario 1 – Debugging a Python Error</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="The Situation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The Situation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You typed some code, pressed Run, and saw <em><code>AttributeError: 'list' object has no attribute 'add'</code></em>.</p>
+</div>
+</div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># buggy code</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>game_scores <span class="op">=</span> [<span class="dv">42</span>, <span class="dv">78</span>, <span class="dv">95</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>game_scores.add(<span class="dv">150</span>)  <span class="co"># ← AttributeError here</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-prompt callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Copy-Paste Prompt
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Replace the placeholders <strong>[like this]</strong> before sending.</p>
+</div>
+</div>
+<pre class="text"><code>You are a friendly Python tutor for absolute beginners.
+
+I want to add the number 150 to my list `game_scores`.
+Here is my code:
+
+[insert your code]
+
+When I run it I get:
+`AttributeError: 'list' object has no attribute 'add'`.
+
+Please:
+1. Explain the error in simple terms.
+2. Show the corrected code.
+3. Explain why the correction works.</code></pre>
+<div class="callout callout-style-default callout-exercise callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>Copy the prompt above.</li>
+<li>Paste it into Gemini, Claude, or ChatGPT.</li>
+<li>Try the fixed code in your editor.</li>
+</ol>
+</div>
+</div>
+<hr>
+</section>
+<section id="understand-code" class="level2">
+<h2 class="anchored" data-anchor-id="understand-code">5 Scenario 2 – Understanding Mysterious Code</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="The Situation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The Situation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You found a snippet on the internet, but every line is a mystery.</p>
+</div>
+</div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mystery(nums):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [n<span class="op">**</span><span class="dv">2</span> <span class="cf">for</span> n <span class="kw">in</span> nums <span class="cf">if</span> n <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-default callout-prompt callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Copy-Paste Prompt
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Ask the AI to be your explainer.</p>
+</div>
+</div>
+<pre class="text"><code>You are a patient coding instructor.
+
+Explain this Python code line-by-line **as if I were brand new to programming**:
+
+[insert the code]
+
+Focus on what each part does and why it's needed.</code></pre>
+<div class="callout callout-style-default callout-exercise callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Run the prompt, then rewrite the code using full <code>for</code>-loops to confirm you understand it.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="planning" class="level2">
+<h2 class="anchored" data-anchor-id="planning">6 Scenario 3 – Planning a Mini Project</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="The Situation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The Situation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You want to build a simple tip-calculator app but don’t know where to start.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-prompt callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Copy-Paste Prompt
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use the R-C-T framework to generate a learning roadmap.</p>
+</div>
+</div>
+<pre class="text"><code>You are a senior software coach.
+
+I am a beginner who wants to build a **tip calculator** in Python that asks for the bill and tip % and prints the total.
+
+Break this project into **5–7 beginner-friendly steps**. For each step, describe what I should learn and produce.</code></pre>
+<div class="callout callout-style-default callout-exercise callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>After receiving the roadmap, tackle <em>Step 1</em>, then return to the AI for <em>Step 2</em>.</p>
+</div>
+</div>
+<hr>
+</section>
+<section id="install-error" class="level2">
+<h2 class="anchored" data-anchor-id="install-error">7 Scenario 4 – Troubleshooting an Installation</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="The Situation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The Situation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You installed Python but your terminal says <em><code>command not found: python3</code></em>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-prompt callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Copy-Paste Prompt
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Be sure to fill in your operating system.</p>
+</div>
+</div>
+<pre class="text"><code>You are an expert troubleshooter for macOS/Windows/Linux.
+
+On **[your OS]** I installed Python using the official installer.
+When I open a new terminal and type `python3` I get:
+
+`command not found: python3`
+
+Give me a **step-by-step plan** to fix this. Explain every command and the expected output.</code></pre>
+<div class="callout callout-style-default callout-exercise callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Follow the AI’s plan. If a step fails, copy the exact error back into the chat and ask, <em>“Why didn’t Step X work?”</em></p>
+</div>
+</div>
+<hr>
+</section>
+<section id="workflow" class="level2">
+<h2 class="anchored" data-anchor-id="workflow">8 The 4-Step “I’m Stuck” Workflow</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 32%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th style="text-align: center;">Emoji</th>
+<th>What to Do</th>
+<th>Mini Prompt</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td style="text-align: center;">📝</td>
+<td><strong>Plan</strong> – Ask the AI to break your goal into steps.</td>
+<td><code>Break my goal into 5 beginner steps.</code></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td style="text-align: center;">💻</td>
+<td><strong>Build</strong> – Implement <em>one</em> step at a time.</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td style="text-align: center;">🔧</td>
+<td><strong>Debug</strong> – Provide goal, code, <strong>exact</strong> error.</td>
+<td><code>My goal is … Here is code … Error … What's wrong?</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td style="text-align: center;">🧑‍🤝‍🧑</td>
+<td><strong>Ask a Human</strong> – Still stuck? Share the chat.</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="prompting-cheat-sheet" class="level2">
+<h2 class="anchored" data-anchor-id="prompting-cheat-sheet">9 Prompting Cheat Sheet 📎</h2>
+<div class="callout callout-style-default callout-tip callout-titled" title="Copy-and-Go Templates">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Copy-and-Go Templates
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 22%">
+<col style="width: 77%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Goal</th>
+<th>Mini-Prompt Template</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Debug code</td>
+<td><code>Here is my code … Error … Please explain and fix.</code></td>
+</tr>
+<tr class="even">
+<td>Learn a concept</td>
+<td><code>Explain [concept] like I'm 12; give 1 analogy &amp; example.</code></td>
+</tr>
+<tr class="odd">
+<td>Refactor</td>
+<td><code>Rewrite this function for readability; keep results identical.</code></td>
+</tr>
+<tr class="even">
+<td>Add comments</td>
+<td><code>Add beginner-friendly comments to this code.</code></td>
+</tr>
+<tr class="odd">
+<td>Generate tests</td>
+<td><code>Write 3 pytest cases for this function.</code></td>
+</tr>
+<tr class="even">
+<td>Translate lang</td>
+<td><code>Convert this JS snippet to Python.</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+</section>
+<section id="general-video-for-prompting-must-see" class="level2">
+<h2 class="anchored" data-anchor-id="general-video-for-prompting-must-see">11. General Video for prompting (Must See)</h2>
+<div class="quarto-video"><iframe data-external="1" src="https://www.youtube.com/embed/bIxbpIwYTXI" width="560" height="315" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section>
+<section id="key-takeaways" class="level2">
+<h2 class="anchored" data-anchor-id="key-takeaways">12 Key Takeaways</h2>
+<div class="callout callout-style-default callout-tip callout-titled" title="Key Takeaways">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Key Takeaways
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>• R-C-T → Clear prompts → Helpful answers.</p>
+<p>• Always show <strong>exact</strong> error messages—never paraphrase them.</p>
+<p>• When the answer isn’t right, <strong>clarify the Task</strong> or add more Context.</p>
+</div>
+</div>
+<p><a href="00_index.qmd">Back to Appendix</a></p>
+<p><em>Need this page offline?</em> <a href="02_how_to_get_help.qmd?format=pdf">Download as PDF</a></p>
+<div class="fw-light callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Setup Guides
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><a href="../../legacy/a_intro_appendix/01_creating_llm_accounts.html"><strong>A.1</strong> AI Assistants</a></li>
+<li><a href="../../legacy/a_intro_appendix/02_how_to_get_help.html"><strong>A.2</strong> How to Get Help</a></li>
+<li><a href="../../legacy/a_intro_appendix/03_installing_python.html"><strong>A.3</strong> Install Python</a></li>
+<li><a href="../../legacy/a_intro_appendix/04_first_python_interaction.html"><strong>A.4</strong> First Python Steps</a></li>
+<li><a href="../../legacy/a_intro_appendix/05_installing_your_editor.html"><strong>A.5</strong> Install Your Editor</a></li>
+<li><a href="../../legacy/a_intro_appendix/06_setting_up_git_and_github.html"><strong>A.6</strong> Setup Git &amp; GitHub</a></li>
+<li><a href="../../legacy/a_intro_appendix/07_forking_and_cloning.html"><strong>A.7</strong> Fork &amp; Clone Project</a></li>
+<li><a href="../../legacy/a_intro_appendix/08_installing_and_testing_quarto.html"><strong>A.8</strong> Install &amp; Test Quarto</a></li>
+<li><a href="../../legacy/a_intro_appendix/09_alternative_gitpod_setup.html"><strong>A.9</strong> Emergency: Gitpod</a></li>
+<li><a href="../../legacy/a_intro_appendix/a_wsl2.html"><strong>A.A</strong> Setup WSL2</a></li>
+</ul>
+</div>
+</div>
+<div class="page-navigation-container">
+
+  <!-- Smart Breadcrumb Dropdown -->
+  <div class="breadcrumb-container">
+    <details class="breadcrumb-dropdown">
+      <summary>
+        <span class="breadcrumb-prefix">Setup Guide:</span>
+        <span class="breadcrumb-current">Current Page</span>
+        <span class="breadcrumb-caret">▼</span>
+      </summary>
+      <ul class="breadcrumb-list">
+        <li><a href="./00_index.qmd">Welcome</a></li>
+        <li><a href="../../legacy/a_intro_appendix/01_creating_llm_accounts.html">A.1 AI Assistants </a></li>
+        <li><a href="../../legacy/a_intro_appendix/02_how_to_get_help.html">A.2 How to Get Help</a></li>
+        <li><a href="../../legacy/a_intro_appendix/03_installing_python.html">A.3 Install Python</a></li>
+        <li><a href="../../legacy/a_intro_appendix/04_first_python_interaction.html">A.4 First Python Steps</a></li>
+        <li><a href="../../legacy/a_intro_appendix/05_installing_your_editor.html">A.5 Install Editor</a></li>
+        <li><a href="../../legacy/a_intro_appendix/06_setting_up_git_and_github.html">A.6 Git &amp; GitHub</a></li>
+        <li><a href="../../legacy/a_intro_appendix/07_forking_and_cloning.html">A.7 Fork &amp; Clone Project</a></li>
+        <li><a href="../../legacy/a_intro_appendix/08_installing_and_testing_quarto.html">A.8 Install Quarto</a></li>
+        <li><a href="../../legacy/a_intro_appendix/09_alternative_gitpod_setup.html">A.9 Emergency: Gitpod</a></li>
+        <li><a href="../../legacy/a_intro_appendix/a_wsl2.html">A.A Setup WSL2</a></li>
+      </ul>
+    </details>
+  </div>
+
+  <hr class="nav-divider">
+
+  <!-- Prev/Next Buttons - Auto-generated by JavaScript -->
+  <div class="navigation">
+    <div class="nav-buttons">
+      <div class="nav-left" id="nav-prev">
+        <!-- Will be populated by JavaScript -->
+      </div>
+      <div class="nav-right" id="nav-next">
+        <!-- Will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Navigation mapping for this section
+  const pages = [
+    { file: '00_index.qmd', title: 'Welcome' },
+    { file: '01_creating_llm_accounts.qmd', title: 'A.1 AI Assistants' },
+    { file: '02_how_to_get_help.qmd', title: 'A.2 How to Get Help' },
+    { file: '03_installing_python.qmd', title: 'A.3 Install Python' },
+    { file: '04_first_python_interaction.qmd', title: 'A.4 First Python Steps' },
+    { file: '05_installing_your_editor.qmd', title: 'A.5 Install Editor' },
+    { file: '06_setting_up_git_and_github.qmd', title: 'A.6 Git & GitHub' },
+    { file: '07_forking_and_cloning.qmd', title: 'A.7 Fork & Clone Project' },
+    { file: '08_installing_and_testing_quarto.qmd', title: 'A.8 Install Quarto' },
+    { file: '09_alternative_gitpod_setup.qmd', title: 'A.9 Emergency: Gitpod' },
+    { file: 'a_wsl2.qmd', title: 'A.A Setup WSL2' }
+  ];
+  
+  // Get current page from URL
+  const currentPath = window.location.pathname;
+  const currentFile = currentPath.split('/').pop().replace('.html', '.qmd');
+  
+  // Find current page index
+  const currentIndex = pages.findIndex(page => page.file === currentFile);
+  
+  if (currentIndex !== -1) {
+    // Add previous button
+    if (currentIndex > 0) {
+      const prevPage = pages[currentIndex - 1];
+      const prevHtml = prevPage.file.replace('.qmd', '.html');
+      document.getElementById('nav-prev').innerHTML = 
+        `<a href="./${prevHtml}" class="nav-button prev">← ${prevPage.title}</a>`;
+    }
+    
+    // Add next button
+    if (currentIndex < pages.length - 1) {
+      const nextPage = pages[currentIndex + 1];
+      const nextHtml = nextPage.file.replace('.qmd', '.html');
+      document.getElementById('nav-next').innerHTML = 
+        `<a href="./${nextHtml}" class="nav-button next">${nextPage.title} →</a>`;
+    }
+    
+    // Update breadcrumb current page
+    document.querySelector('.breadcrumb-current').textContent = pages[currentIndex].title;
+  }
+});
+</script>
+
+
+</section>
+
+</main> <!-- /main -->
+<!-- Auto-Include Accessibility System -->
+<!-- This file automatically adds the accessibility widget to all pages -->
+<script>
+/**
+ * Accessibility Toggle System
+ * Handles dyslexic-friendly font switching with persistence
+ * Automatically injects accessibility widget on all pages
+ */
+
+// Initialize accessibility system when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    createAccessibilityWidget();
+    initAccessibility();
+});
+
+function createAccessibilityWidget() {
+    // Check if toggle already exists
+    if (document.getElementById('dyslexic-toggle')) {
+        return;
+    }
+    
+    // Find the navbar right section (where GitHub icon is)
+    const navbar = document.querySelector('.navbar-nav.navbar-nav-scroll.ms-auto') || 
+                   document.querySelector('.navbar-nav[class*="right"]') ||
+                   document.querySelector('.navbar .navbar-nav:last-child') ||
+                   document.querySelector('.navbar-nav');
+    
+    if (navbar) {
+        // Create accessibility toggle that matches Quarto navbar styling
+        const toggleItem = document.createElement('li');
+        toggleItem.className = 'nav-item accessibility-nav-item';
+        toggleItem.innerHTML = `
+            <div class="nav-link accessibility-toggle-nav">
+                <input type="checkbox" id="dyslexic-toggle" class="accessibility-checkbox">
+                <label for="dyslexic-toggle" class="accessibility-label">
+                    <span class="accessibility-icon">🔤</span>
+                    <span class="accessibility-text">Dyslexic</span>
+                </label>
+            </div>
+        `;
+        
+        // Insert before the last item (usually GitHub icon is last)
+        navbar.appendChild(toggleItem);
+    } else {
+        // Fallback: create a simple floating button if navbar not found
+        const fallbackToggle = document.createElement('div');
+        fallbackToggle.id = 'accessibility-fallback';
+        fallbackToggle.innerHTML = `
+            <div class="accessibility-fallback-toggle">
+                <input type="checkbox" id="dyslexic-toggle">
+                <label for="dyslexic-toggle">🔤 Dyslexic font</label>
+            </div>
+        `;
+        fallbackToggle.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        document.body.appendChild(fallbackToggle);
+    }
+}
+
+function initAccessibility() {
+    // Check for saved preference
+    const isDyslexicMode = localStorage.getItem('dyslexicMode') === 'true';
+    
+    // Find the checkbox (from widget or manual HTML)
+    const checkbox = document.getElementById('dyslexic-toggle');
+    
+    if (checkbox) {
+        // Set checkbox state to match saved preference
+        checkbox.checked = isDyslexicMode;
+        
+        // Apply dyslexic mode if it was previously enabled
+        if (isDyslexicMode) {
+            document.body.classList.add('dyslexic-mode');
+        }
+        
+        // Add event listener for toggle
+        checkbox.addEventListener('change', toggleDyslexicFont);
+    }
+}
+
+function toggleDyslexicFont() {
+    const checkbox = document.getElementById('dyslexic-toggle');
+    const isEnabled = checkbox.checked;
+    
+    if (isEnabled) {
+        // Enable dyslexic mode
+        document.body.classList.add('dyslexic-mode');
+        localStorage.setItem('dyslexicMode', 'true');
+    } else {
+        // Disable dyslexic mode
+        document.body.classList.remove('dyslexic-mode');
+        localStorage.setItem('dyslexicMode', 'false');
+    }
+    
+    // Sync other checkboxes if they exist (mobile + desktop)
+    const allCheckboxes = document.querySelectorAll('input[id*="dyslexic-toggle"]');
+    allCheckboxes.forEach(cb => {
+        if (cb !== checkbox) {
+            cb.checked = isEnabled;
+        }
+    });
+}
+</script> 
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Copyright © Template Course Title, Template Semester Year</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

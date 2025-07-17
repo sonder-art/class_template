@@ -1,0 +1,189 @@
+---
+title: "Installing Cursor - Your AI-Powered Code Editor"
+format:
+  html:
+    css:
+      - ../../../quarto_code/styles/main.css
+      - ../../../quarto_code/styles/themes/evangelion.css
+---
+
+::: {.objective}
+### Your Goals for This Section
+- **Understand what a code editor is** and why it's your most important tool.
+- **Install Cursor**, our recommended AI-powered code editor.
+- **Learn how to use LLMs for installation purposes**
+- **Learn the main parts of the interface**.
+- **Install the essential extensions** for Python and Quarto.
+:::
+
+## Video (Must see)
+{{< video https://youtu.be/cE84Q5IRR6U width="560" height="315" >}}
+
+
+
+## Your Digital Workshop
+
+::: {.definition title="What is a Code Editor?"}
+A code editor is your digital workshop, your primary tool for creating. It's like a word processor (like Microsoft Word or Google Docs) but supercharged for writing code. It understands programming languages, helping you with color-coding, auto-completion, and finding errors.
+
+We use **Cursor**, a special version of the world's most popular editor (VS Code) that has powerful AI features built right in. It integrates everything you need into one window: a file browser, a terminal to run commands, and AI assistants to help you code.
+:::
+
+## Editor Setup Flow at a Glance
+
+```{mermaid}
+graph LR
+  classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+  classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+  classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+
+  Install["Install Cursor (package manager)"]:::action --> Open["Open project folder in Cursor"]:::action --> Ext["Install Python & Quarto extensions"]:::action --> WSLQ{{Using Windows WSL?}}:::decision
+  WSLQ -->|Yes| WSL["Install WSL ext<br/>launch with cursor ."]:::action --> Ready["Editor ready 🎉"]:::node
+  WSLQ -->|No| Ready
+
+  linkStyle default stroke:#007acc,stroke-width:3px;
+```
+
+Use this map as a quick checklist before diving into the detailed steps below.
+
+## A Modern Approach: Using AI as Your Installation Guide
+
+Software and installation methods change quickly. While this guide provides reliable, step-by-step instructions, it's also a perfect opportunity to practice a critical skill: using an AI assistant as your primary guide, with our documentation as your "safety net" to verify the AI's output.
+
+```{mermaid}
+graph TD
+    classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+    classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+    classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+    classDef doc fill:#e8f5e9,stroke:#4caf50,stroke-width:2px,color:#000;
+
+    Goal["Define Your Goal:<br/>'Install Cursor'"]:::node -->
+    Think["Think about CONTEXT:<br/>What's my OS? Preferences?"]:::action -->
+    Prompt["Draft Prompt using R-C-T"]:::action -->
+    AI["Get AI's Answer"]:::node -->
+    Compare{{Compare AI answer<br/>to this guide's steps}}:::decision
+
+    Compare -->|They Match!| Proceed["Follow AI steps to install"]:::action
+    Compare -->|They Don't Match| TrustDoc["Trust this guide's steps<br/>(it's your safety net)"]:::doc
+
+    Proceed --> Error{{Installation Fails?}}:::decision
+    Error --> |Yes| Debug["Use AI to debug:<br/>Provide goal, code, & EXACT error"]:::action
+    Error --> |No| Done["You're all set! 🎉"]:::node
+    Debug --> Proceed
+
+    linkStyle default stroke:#007acc,stroke-width:3px;
+```
+
+Instead of immediately following the steps below, try this first. Open your AI assistant (like Cursor or ChatGPT) and give it a detailed, high-quality prompt based on the R-C-T framework.
+
+::: {.prompt title="Your First Prompt: Installing Cursor"}
+You are an expert technical assistant who provides clear, step-by-step instructions for beginners.
+
+I am using **[Your Operating System: e.g., macOS Sonoma, Windows 11, Ubuntu 22.04]**.
+
+I want to install the code editor **Cursor**. If possible, I'd prefer to use my operating system's standard package manager (like Homebrew on Mac, Winget on Windows, or apt on Linux).
+
+Please provide me with a complete, step-by-step guide to do this. For each step that requires a terminal command, show the exact command and briefly explain what it does.
+:::
+
+#### How to Evaluate the AI's Answer
+
+Once the AI gives you a response, your job is to be the project manager, not just a follower.
+
+1.  **Compare with this Guide:** Read the AI's suggestion. Now, scroll down and look at the installation instructions in this guide for your operating system. Do they match?
+    *   If **yes**, you've successfully used AI to get a correct answer! You can proceed with confidence.
+    *   If **no**, the AI might be outdated or suggesting a different method. For this course, it's best to **trust the instructions written in this guide**.
+
+2.  **What If You Get an Error?** This will happen eventually, and it's a great learning moment. Use the AI as your debugger.
+
+    ::: {.prompt title="Follow-up Prompt: Debugging an Error"}
+    I followed your instructions, but Step [Number] failed.
+
+    **The command I ran was:**
+    `[The exact command you typed]`
+
+    **The error message I received was:**
+    `[The exact error message you saw]`
+
+    Can you explain what this error means and give me the corrected command?
+    :::
+
+This process—asking, verifying with documentation, and asking again with errors—is the core workflow of a modern developer. By trying it now, you are building one of the most valuable skills for your career.
+
+
+## Step 1: Install Cursor
+
+We recommend using your system's package manager from the terminal, as it's the fastest and most reliable way to install and update software. Choose the tab for your operating system.
+
+::: {.panel-tabset}
+
+### macOS (Homebrew)
+
+1.  **Requirement:** You need [Homebrew](https://brew.sh), the package manager for macOS. If you didn't install it in the Python step, open your Terminal and follow the instructions on their website.
+2.  **Install Cursor:** Run this command in your terminal:
+
+    ```bash
+    brew install --cask cursor
+    ```
+
+### Windows (Winget)
+
+1.  **Requirement:** This uses the built-in `winget` package manager, which is standard on modern Windows.
+2.  **Install Cursor:** Open **PowerShell** as an administrator and run:
+
+    ```bash
+    winget install Anysphere.Cursor
+    ```
+
+### Linux (AppImage)
+
+The most universal method for Linux is using the AppImage.
+
+1.  Go to the [official Cursor website](https://cursor.sh/) and download the `.AppImage` file.
+2.  Open your terminal and navigate to your `Downloads` folder: `cd ~/Downloads`
+3.  Make the file executable: `chmod +x Cursor-*.AppImage`
+4.  Run it: `./Cursor-*.AppImage --no-sandbox`
+
+:::
+
+## Step 2: A Quick Tour of the Interface
+
+In software development, you don't open individual files; you open the entire project **folder**. After you `clone` the class project in a later step, you will open that folder in Cursor.
+
+When you do, you'll see three main areas:
+
+1.  **File Explorer (Left):** A tree view of all the files and folders in your project. Click any file here to open it.
+2.  **Editor Pane (Center):** This is where your files open in tabs. You'll do all your writing and editing here.
+3.  **Terminal Panel (Bottom):** A command line built directly into Cursor. You can open it by pressing ``Ctrl+` `` (the backtick key, next to `1`) or from the "Terminal" > "New Terminal" menu. We will use this constantly.
+
+## Step 3: Install Essential Extensions
+
+Extensions add new features to your editor. We need two for our course.
+
+1.  Open Cursor.
+2.  Click the **Extensions** icon on the far-left vertical bar (it looks like four squares).
+3.  In the search bar that appears, search for and install these two extensions:
+    -   **Python** (by Microsoft): This provides core support for the Python language, including better auto-complete and error checking.
+    -   **Quarto** (by Quarto): This gives you syntax highlighting and a helpful **"Render"** button for our documents.
+
+## Step 4: Special Instructions for Windows (WSL) Users
+
+If you are using Windows with WSL (the recommended setup), you must do one more thing to connect Cursor to your Linux environment.
+
+1.  **Install the WSL extension:** In the Extensions view, search for `WSL` and install the extension from **Microsoft**.
+2.  **Always open projects from the Ubuntu/Linux terminal.** This is the crucial part.
+
+::: {.callout-tip title="The Correct Way to Open Projects on WSL"}
+To make Cursor talk to your Linux files, you **must** launch it from the Linux (Ubuntu) terminal.
+
+1.  Open your **Ubuntu** terminal (not PowerShell).
+2.  Navigate to your project directory, e.g., `cd ~/Documents/your-project-folder`.
+3.  From inside that folder, type the command `cursor .` and press Enter.
+
+The `.` is a shortcut for "this current folder." This command opens the Cursor application correctly connected to your Linux environment, allowing it to see your files and use the Linux version of Python you installed.
+:::
+
+## What's Next?
+
+You now have your digital workshop set up. The next step is to install the tools for creating your project's "time machine" and "online portfolio": Git and GitHub.
+

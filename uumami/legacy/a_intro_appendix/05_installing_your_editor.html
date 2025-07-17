@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.41">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>A.5 Install Your Editor, The Digital Workshop – Template Course Title (TMPL101) - Template Semester Year</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-48ffa3e5b9d089919c6712c39e5b00f2.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-cb3b7c359e805d2ad2cb864d1485d16c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<style>
+div.callout-objective.callout {
+  border-left-color: #4A90E2;
+}
+div.callout-objective.callout-style-default > .callout-header {
+  background-color: rgba(74, 144, 226, 0.13);
+}
+div.callout-objective .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-objective.callout-style-default .callout-icon::before, div.callout-objective.callout-titled .callout-icon::before {
+  content: '🎯';
+  background-image: none;
+}
+div.callout-prompt.callout {
+  border-left-color: #00B894;
+}
+div.callout-prompt.callout-style-default > .callout-header {
+  background-color: rgba(0, 184, 148, 0.13);
+}
+div.callout-prompt .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-prompt.callout-style-default .callout-icon::before, div.callout-prompt.callout-titled .callout-icon::before {
+  content: '🤖';
+  background-image: none;
+}
+div.callout-definition.callout {
+  border-left-color: #6C5CE7;
+}
+div.callout-definition.callout-style-default > .callout-header {
+  background-color: rgba(108, 92, 231, 0.13);
+}
+div.callout-definition .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-definition.callout-style-default .callout-icon::before, div.callout-definition.callout-titled .callout-icon::before {
+  content: '📚';
+  background-image: none;
+}
+div.callout-exercise.callout {
+  border-left-color: #F39C12;
+}
+div.callout-exercise.callout-style-default > .callout-header {
+  background-color: rgba(243, 156, 18, 0.13);
+}
+div.callout-exercise .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-exercise.callout-style-default .callout-icon::before, div.callout-exercise.callout-titled .callout-icon::before {
+  content: '✏️';
+  background-image: none;
+}
+div.callout-homework.callout {
+  border-left-color: #E17055;
+}
+div.callout-homework.callout-style-default > .callout-header {
+  background-color: rgba(225, 112, 85, 0.13);
+}
+div.callout-homework .callout-toggle::before {  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgb(33, 37, 41)" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>');}
+div.callout-homework.callout-style-default .callout-icon::before, div.callout-homework.callout-titled .callout-icon::before {
+  content: '📝';
+  background-image: none;
+}
+</style>
+
+
+<link rel="stylesheet" href="../../quarto_code/styles/main.css">
+<link rel="stylesheet" href="../../quarto_code/styles/themes/evangelion.css">
+<link rel="stylesheet" href="../styles/main.css">
+<link rel="stylesheet" href="../styles/themes/evangelion.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Template Course Title (TMPL101) - Template Semester Year</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Class Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../syllabus.qmd"> 
+<span class="menu-text">Syllabus</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../schedule.qmd"> 
+<span class="menu-text">Schedule</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-course" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">📚 Course</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-course">    
+        <li>
+    <a class="dropdown-item" href="../../notas/01_intro/00_index.html">
+ <span class="dropdown-text">01. Welcome to the Course Setup</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-documentation" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">📖 Documentation</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-documentation">    
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/00_index.html">
+ <span class="dropdown-text">📋 Complete Overview</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/01_quickstart/00_index.html">
+ <span class="dropdown-text">🚀 Quick Start Guide</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/02_architecture/00_index.html">
+ <span class="dropdown-text">🏗️ System Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/03_scripts_reference/00_index.html">
+ <span class="dropdown-text">🛠️ Scripts Reference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/04_troubleshooting/00_index.html">
+ <span class="dropdown-text">🔧 Troubleshooting</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/05_development/00_index.html">
+ <span class="dropdown-text">🚀 Development Guide</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../quarto_development/01_automation_system/06_auto_generation/00_index.html">
+ <span class="dropdown-text">🤖 Auto Generation</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/your-organization/your-repo-template"> <i class="bi bi-github" role="img" aria-label="GitHub Repository">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://drive.google.com/drive/folders/your_google_drive_id"> <i class="bi bi-folder-fill" role="img" aria-label="Google Drive for Class Files">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#video-must-see" id="toc-video-must-see" class="nav-link active" data-scroll-target="#video-must-see">Video (Must see)</a></li>
+  <li><a href="#your-digital-workshop" id="toc-your-digital-workshop" class="nav-link" data-scroll-target="#your-digital-workshop">Your Digital Workshop</a></li>
+  <li><a href="#editor-setup-flow-at-a-glance" id="toc-editor-setup-flow-at-a-glance" class="nav-link" data-scroll-target="#editor-setup-flow-at-a-glance">Editor Setup Flow at a Glance</a></li>
+  <li><a href="#a-modern-approach-using-ai-as-your-installation-guide" id="toc-a-modern-approach-using-ai-as-your-installation-guide" class="nav-link" data-scroll-target="#a-modern-approach-using-ai-as-your-installation-guide">A Modern Approach: Using AI as Your Installation Guide</a></li>
+  <li><a href="#step-1-install-cursor" id="toc-step-1-install-cursor" class="nav-link" data-scroll-target="#step-1-install-cursor">Step 1: Install Cursor</a></li>
+  <li><a href="#step-2-a-quick-tour-of-the-interface" id="toc-step-2-a-quick-tour-of-the-interface" class="nav-link" data-scroll-target="#step-2-a-quick-tour-of-the-interface">Step 2: A Quick Tour of the Interface</a></li>
+  <li><a href="#step-3-install-essential-extensions" id="toc-step-3-install-essential-extensions" class="nav-link" data-scroll-target="#step-3-install-essential-extensions">Step 3: Install Essential Extensions</a></li>
+  <li><a href="#step-4-special-instructions-for-windows-wsl-users" id="toc-step-4-special-instructions-for-windows-wsl-users" class="nav-link" data-scroll-target="#step-4-special-instructions-for-windows-wsl-users">Step 4: Special Instructions for Windows (WSL) Users</a></li>
+  <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s Next?</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">A.5 Install Your Editor, The Digital Workshop</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-objective callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Your Goals for This Section
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Understand what a code editor is</strong> and why it’s your most important tool.</li>
+<li><strong>Install Cursor</strong>, our recommended AI-powered code editor.</li>
+<li><strong>Learn how to use LLMs for installation purposes</strong></li>
+<li><strong>Learn the main parts of the interface</strong>.</li>
+<li><strong>Install the essential extensions</strong> for Python and Quarto.</li>
+</ul>
+</div>
+</div>
+<section id="video-must-see" class="level2">
+<h2 class="anchored" data-anchor-id="video-must-see">Video (Must see)</h2>
+<div class="quarto-video"><iframe data-external="1" src="https://www.youtube.com/embed/cE84Q5IRR6U" width="560" height="315" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</section>
+<section id="your-digital-workshop" class="level2">
+<h2 class="anchored" data-anchor-id="your-digital-workshop">Your Digital Workshop</h2>
+<div class="callout callout-style-default callout-definition callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What is a Code Editor?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A code editor is your digital workshop, your primary tool for creating. It’s like a word processor (like Microsoft Word or Google Docs) but supercharged for writing code. It understands programming languages, helping you with color-coding, auto-completion, and finding errors.</p>
+<p>We use <strong>Cursor</strong>, a special version of the world’s most popular editor (VS Code) that has powerful AI features built right in. It integrates everything you need into one window: a file browser, a terminal to run commands, and AI assistants to help you code.</p>
+</div>
+</div>
+</section>
+<section id="editor-setup-flow-at-a-glance" class="level2">
+<h2 class="anchored" data-anchor-id="editor-setup-flow-at-a-glance">Editor Setup Flow at a Glance</h2>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">graph LR
+  classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+  classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+  classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+
+  Install["Install Cursor (package manager)"]:::action --&gt; Open["Open project folder in Cursor"]:::action --&gt; Ext["Install Python &amp; Quarto extensions"]:::action --&gt; WSLQ{{Using Windows WSL?}}:::decision
+  WSLQ --&gt;|Yes| WSL["Install WSL ext&lt;br/&gt;launch with cursor ."]:::action --&gt; Ready["Editor ready 🎉"]:::node
+  WSLQ --&gt;|No| Ready
+
+  linkStyle default stroke:#007acc,stroke-width:3px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Use this map as a quick checklist before diving into the detailed steps below.</p>
+</section>
+<section id="a-modern-approach-using-ai-as-your-installation-guide" class="level2">
+<h2 class="anchored" data-anchor-id="a-modern-approach-using-ai-as-your-installation-guide">A Modern Approach: Using AI as Your Installation Guide</h2>
+<p>Software and installation methods change quickly. While this guide provides reliable, step-by-step instructions, it’s also a perfect opportunity to practice a critical skill: using an AI assistant as your primary guide, with our documentation as your “safety net” to verify the AI’s output.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">graph TD
+    classDef node fill:#ffffff,stroke:#007acc,stroke-width:2px,color:#000,font-size:14px,font-weight:bold;
+    classDef action fill:#000000,stroke:#000000,stroke-width:2px,color:#ffffff,font-size:12px,font-weight:bold;
+    classDef decision fill:#f2f2f2,stroke:#000000,stroke-width:2px,color:#000,font-size:12px,font-weight:bold;
+    classDef doc fill:#e8f5e9,stroke:#4caf50,stroke-width:2px,color:#000;
+
+    Goal["Define Your Goal:&lt;br/&gt;'Install Cursor'"]:::node --&gt;
+    Think["Think about CONTEXT:&lt;br/&gt;What's my OS? Preferences?"]:::action --&gt;
+    Prompt["Draft Prompt using R-C-T"]:::action --&gt;
+    AI["Get AI's Answer"]:::node --&gt;
+    Compare{{Compare AI answer&lt;br/&gt;to this guide's steps}}:::decision
+
+    Compare --&gt;|They Match!| Proceed["Follow AI steps to install"]:::action
+    Compare --&gt;|They Don't Match| TrustDoc["Trust this guide's steps&lt;br/&gt;(it's your safety net)"]:::doc
+
+    Proceed --&gt; Error{{Installation Fails?}}:::decision
+    Error --&gt; |Yes| Debug["Use AI to debug:&lt;br/&gt;Provide goal, code, &amp; EXACT error"]:::action
+    Error --&gt; |No| Done["You're all set! 🎉"]:::node
+    Debug --&gt; Proceed
+
+    linkStyle default stroke:#007acc,stroke-width:3px;
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Instead of immediately following the steps below, try this first. Open your AI assistant (like Cursor or ChatGPT) and give it a detailed, high-quality prompt based on the R-C-T framework.</p>
+<div class="callout callout-style-default callout-prompt callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Your First Prompt: Installing Cursor
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You are an expert technical assistant who provides clear, step-by-step instructions for beginners.</p>
+<p>I am using <strong>[Your Operating System: e.g., macOS Sonoma, Windows 11, Ubuntu 22.04]</strong>.</p>
+<p>I want to install the code editor <strong>Cursor</strong>. If possible, I’d prefer to use my operating system’s standard package manager (like Homebrew on Mac, Winget on Windows, or apt on Linux).</p>
+<p>Please provide me with a complete, step-by-step guide to do this. For each step that requires a terminal command, show the exact command and briefly explain what it does.</p>
+</div>
+</div>
+<section id="how-to-evaluate-the-ais-answer" class="level4">
+<h4 class="anchored" data-anchor-id="how-to-evaluate-the-ais-answer">How to Evaluate the AI’s Answer</h4>
+<p>Once the AI gives you a response, your job is to be the project manager, not just a follower.</p>
+<ol type="1">
+<li><p><strong>Compare with this Guide:</strong> Read the AI’s suggestion. Now, scroll down and look at the installation instructions in this guide for your operating system. Do they match?</p>
+<ul>
+<li>If <strong>yes</strong>, you’ve successfully used AI to get a correct answer! You can proceed with confidence.</li>
+<li>If <strong>no</strong>, the AI might be outdated or suggesting a different method. For this course, it’s best to <strong>trust the instructions written in this guide</strong>.</li>
+</ul></li>
+<li><p><strong>What If You Get an Error?</strong> This will happen eventually, and it’s a great learning moment. Use the AI as your debugger.</p>
+<div class="callout callout-style-default callout-prompt callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Follow-up Prompt: Debugging an Error
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I followed your instructions, but Step [Number] failed.</p>
+<p><strong>The command I ran was:</strong> <code>[The exact command you typed]</code></p>
+<p><strong>The error message I received was:</strong> <code>[The exact error message you saw]</code></p>
+<p>Can you explain what this error means and give me the corrected command?</p>
+</div>
+</div></li>
+</ol>
+<p>This process—asking, verifying with documentation, and asking again with errors—is the core workflow of a modern developer. By trying it now, you are building one of the most valuable skills for your career.</p>
+</section>
+</section>
+<section id="step-1-install-cursor" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-install-cursor">Step 1: Install Cursor</h2>
+<p>We recommend using your system’s package manager from the terminal, as it’s the fastest and most reliable way to install and update software. Choose the tab for your operating system.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">macOS (Homebrew)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Windows (Winget)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Linux (AppImage)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<ol type="1">
+<li><p><strong>Requirement:</strong> You need <a href="https://brew.sh">Homebrew</a>, the package manager for macOS. If you didn’t install it in the Python step, open your Terminal and follow the instructions on their website.</p></li>
+<li><p><strong>Install Cursor:</strong> Run this command in your terminal:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">brew</span> install <span class="at">--cask</span> cursor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<ol type="1">
+<li><p><strong>Requirement:</strong> This uses the built-in <code>winget</code> package manager, which is standard on modern Windows.</p></li>
+<li><p><strong>Install Cursor:</strong> Open <strong>PowerShell</strong> as an administrator and run:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">winget</span> install Anysphere.Cursor</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<p>The most universal method for Linux is using the AppImage.</p>
+<ol type="1">
+<li>Go to the <a href="https://cursor.sh/">official Cursor website</a> and download the <code>.AppImage</code> file.</li>
+<li>Open your terminal and navigate to your <code>Downloads</code> folder: <code>cd ~/Downloads</code></li>
+<li>Make the file executable: <code>chmod +x Cursor-*.AppImage</code></li>
+<li>Run it: <code>./Cursor-*.AppImage --no-sandbox</code></li>
+</ol>
+</div>
+</div>
+</div>
+</section>
+<section id="step-2-a-quick-tour-of-the-interface" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-a-quick-tour-of-the-interface">Step 2: A Quick Tour of the Interface</h2>
+<p>In software development, you don’t open individual files; you open the entire project <strong>folder</strong>. After you <code>clone</code> the class project in a later step, you will open that folder in Cursor.</p>
+<p>When you do, you’ll see three main areas:</p>
+<ol type="1">
+<li><strong>File Explorer (Left):</strong> A tree view of all the files and folders in your project. Click any file here to open it.</li>
+<li><strong>Editor Pane (Center):</strong> This is where your files open in tabs. You’ll do all your writing and editing here.</li>
+<li><strong>Terminal Panel (Bottom):</strong> A command line built directly into Cursor. You can open it by pressing <code>Ctrl+`</code> (the backtick key, next to <code>1</code>) or from the “Terminal” &gt; “New Terminal” menu. We will use this constantly.</li>
+</ol>
+</section>
+<section id="step-3-install-essential-extensions" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-install-essential-extensions">Step 3: Install Essential Extensions</h2>
+<p>Extensions add new features to your editor. We need two for our course.</p>
+<ol type="1">
+<li>Open Cursor.</li>
+<li>Click the <strong>Extensions</strong> icon on the far-left vertical bar (it looks like four squares).</li>
+<li>In the search bar that appears, search for and install these two extensions:
+<ul>
+<li><strong>Python</strong> (by Microsoft): This provides core support for the Python language, including better auto-complete and error checking.</li>
+<li><strong>Quarto</strong> (by Quarto): This gives you syntax highlighting and a helpful <strong>“Render”</strong> button for our documents.</li>
+</ul></li>
+</ol>
+</section>
+<section id="step-4-special-instructions-for-windows-wsl-users" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-special-instructions-for-windows-wsl-users">Step 4: Special Instructions for Windows (WSL) Users</h2>
+<p>If you are using Windows with WSL (the recommended setup), you must do one more thing to connect Cursor to your Linux environment.</p>
+<ol type="1">
+<li><strong>Install the WSL extension:</strong> In the Extensions view, search for <code>WSL</code> and install the extension from <strong>Microsoft</strong>.</li>
+<li><strong>Always open projects from the Ubuntu/Linux terminal.</strong> This is the crucial part.</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled" title="The Correct Way to Open Projects on WSL">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The Correct Way to Open Projects on WSL
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>To make Cursor talk to your Linux files, you <strong>must</strong> launch it from the Linux (Ubuntu) terminal.</p>
+<ol type="1">
+<li>Open your <strong>Ubuntu</strong> terminal (not PowerShell).</li>
+<li>Navigate to your project directory, e.g., <code>cd ~/Documents/your-project-folder</code>.</li>
+<li>From inside that folder, type the command <code>cursor .</code> and press Enter.</li>
+</ol>
+<p>The <code>.</code> is a shortcut for “this current folder.” This command opens the Cursor application correctly connected to your Linux environment, allowing it to see your files and use the Linux version of Python you installed.</p>
+</div>
+</div>
+</section>
+<section id="whats-next" class="level2">
+<h2 class="anchored" data-anchor-id="whats-next">What’s Next?</h2>
+<p>You now have your digital workshop set up. The next step is to install the tools for creating your project’s “time machine” and “online portfolio”: Git and GitHub.</p>
+<div class="fw-light callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Setup Guides
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><a href="../../legacy/a_intro_appendix/01_creating_llm_accounts.html"><strong>A.1</strong> AI Assistants</a></li>
+<li><a href="../../legacy/a_intro_appendix/02_how_to_get_help.html"><strong>A.2</strong> How to Get Help</a></li>
+<li><a href="../../legacy/a_intro_appendix/03_installing_python.html"><strong>A.3</strong> Install Python</a></li>
+<li><a href="../../legacy/a_intro_appendix/04_first_python_interaction.html"><strong>A.4</strong> First Python Steps</a></li>
+<li><a href="../../legacy/a_intro_appendix/05_installing_your_editor.html"><strong>A.5</strong> Install Your Editor</a></li>
+<li><a href="../../legacy/a_intro_appendix/06_setting_up_git_and_github.html"><strong>A.6</strong> Setup Git &amp; GitHub</a></li>
+<li><a href="../../legacy/a_intro_appendix/07_forking_and_cloning.html"><strong>A.7</strong> Fork &amp; Clone Project</a></li>
+<li><a href="../../legacy/a_intro_appendix/08_installing_and_testing_quarto.html"><strong>A.8</strong> Install &amp; Test Quarto</a></li>
+<li><a href="../../legacy/a_intro_appendix/09_alternative_gitpod_setup.html"><strong>A.9</strong> Emergency: Gitpod</a></li>
+<li><a href="../../legacy/a_intro_appendix/a_wsl2.html"><strong>A.A</strong> Setup WSL2</a></li>
+</ul>
+</div>
+</div>
+<div class="page-navigation-container">
+
+  <!-- Smart Breadcrumb Dropdown -->
+  <div class="breadcrumb-container">
+    <details class="breadcrumb-dropdown">
+      <summary>
+        <span class="breadcrumb-prefix">Setup Guide:</span>
+        <span class="breadcrumb-current">Current Page</span>
+        <span class="breadcrumb-caret">▼</span>
+      </summary>
+      <ul class="breadcrumb-list">
+        <li><a href="./00_index.qmd">Welcome</a></li>
+        <li><a href="../../legacy/a_intro_appendix/01_creating_llm_accounts.html">A.1 AI Assistants </a></li>
+        <li><a href="../../legacy/a_intro_appendix/02_how_to_get_help.html">A.2 How to Get Help</a></li>
+        <li><a href="../../legacy/a_intro_appendix/03_installing_python.html">A.3 Install Python</a></li>
+        <li><a href="../../legacy/a_intro_appendix/04_first_python_interaction.html">A.4 First Python Steps</a></li>
+        <li><a href="../../legacy/a_intro_appendix/05_installing_your_editor.html">A.5 Install Editor</a></li>
+        <li><a href="../../legacy/a_intro_appendix/06_setting_up_git_and_github.html">A.6 Git &amp; GitHub</a></li>
+        <li><a href="../../legacy/a_intro_appendix/07_forking_and_cloning.html">A.7 Fork &amp; Clone Project</a></li>
+        <li><a href="../../legacy/a_intro_appendix/08_installing_and_testing_quarto.html">A.8 Install Quarto</a></li>
+        <li><a href="../../legacy/a_intro_appendix/09_alternative_gitpod_setup.html">A.9 Emergency: Gitpod</a></li>
+        <li><a href="../../legacy/a_intro_appendix/a_wsl2.html">A.A Setup WSL2</a></li>
+      </ul>
+    </details>
+  </div>
+
+  <hr class="nav-divider">
+
+  <!-- Prev/Next Buttons - Auto-generated by JavaScript -->
+  <div class="navigation">
+    <div class="nav-buttons">
+      <div class="nav-left" id="nav-prev">
+        <!-- Will be populated by JavaScript -->
+      </div>
+      <div class="nav-right" id="nav-next">
+        <!-- Will be populated by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Navigation mapping for this section
+  const pages = [
+    { file: '00_index.qmd', title: 'Welcome' },
+    { file: '01_creating_llm_accounts.qmd', title: 'A.1 AI Assistants' },
+    { file: '02_how_to_get_help.qmd', title: 'A.2 How to Get Help' },
+    { file: '03_installing_python.qmd', title: 'A.3 Install Python' },
+    { file: '04_first_python_interaction.qmd', title: 'A.4 First Python Steps' },
+    { file: '05_installing_your_editor.qmd', title: 'A.5 Install Editor' },
+    { file: '06_setting_up_git_and_github.qmd', title: 'A.6 Git & GitHub' },
+    { file: '07_forking_and_cloning.qmd', title: 'A.7 Fork & Clone Project' },
+    { file: '08_installing_and_testing_quarto.qmd', title: 'A.8 Install Quarto' },
+    { file: '09_alternative_gitpod_setup.qmd', title: 'A.9 Emergency: Gitpod' },
+    { file: 'a_wsl2.qmd', title: 'A.A Setup WSL2' }
+  ];
+  
+  // Get current page from URL
+  const currentPath = window.location.pathname;
+  const currentFile = currentPath.split('/').pop().replace('.html', '.qmd');
+  
+  // Find current page index
+  const currentIndex = pages.findIndex(page => page.file === currentFile);
+  
+  if (currentIndex !== -1) {
+    // Add previous button
+    if (currentIndex > 0) {
+      const prevPage = pages[currentIndex - 1];
+      const prevHtml = prevPage.file.replace('.qmd', '.html');
+      document.getElementById('nav-prev').innerHTML = 
+        `<a href="./${prevHtml}" class="nav-button prev">← ${prevPage.title}</a>`;
+    }
+    
+    // Add next button
+    if (currentIndex < pages.length - 1) {
+      const nextPage = pages[currentIndex + 1];
+      const nextHtml = nextPage.file.replace('.qmd', '.html');
+      document.getElementById('nav-next').innerHTML = 
+        `<a href="./${nextHtml}" class="nav-button next">${nextPage.title} →</a>`;
+    }
+    
+    // Update breadcrumb current page
+    document.querySelector('.breadcrumb-current').textContent = pages[currentIndex].title;
+  }
+});
+</script>
+
+
+</section>
+
+</main> <!-- /main -->
+<!-- Auto-Include Accessibility System -->
+<!-- This file automatically adds the accessibility widget to all pages -->
+<script>
+/**
+ * Accessibility Toggle System
+ * Handles dyslexic-friendly font switching with persistence
+ * Automatically injects accessibility widget on all pages
+ */
+
+// Initialize accessibility system when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    createAccessibilityWidget();
+    initAccessibility();
+});
+
+function createAccessibilityWidget() {
+    // Check if toggle already exists
+    if (document.getElementById('dyslexic-toggle')) {
+        return;
+    }
+    
+    // Find the navbar right section (where GitHub icon is)
+    const navbar = document.querySelector('.navbar-nav.navbar-nav-scroll.ms-auto') || 
+                   document.querySelector('.navbar-nav[class*="right"]') ||
+                   document.querySelector('.navbar .navbar-nav:last-child') ||
+                   document.querySelector('.navbar-nav');
+    
+    if (navbar) {
+        // Create accessibility toggle that matches Quarto navbar styling
+        const toggleItem = document.createElement('li');
+        toggleItem.className = 'nav-item accessibility-nav-item';
+        toggleItem.innerHTML = `
+            <div class="nav-link accessibility-toggle-nav">
+                <input type="checkbox" id="dyslexic-toggle" class="accessibility-checkbox">
+                <label for="dyslexic-toggle" class="accessibility-label">
+                    <span class="accessibility-icon">🔤</span>
+                    <span class="accessibility-text">Dyslexic</span>
+                </label>
+            </div>
+        `;
+        
+        // Insert before the last item (usually GitHub icon is last)
+        navbar.appendChild(toggleItem);
+    } else {
+        // Fallback: create a simple floating button if navbar not found
+        const fallbackToggle = document.createElement('div');
+        fallbackToggle.id = 'accessibility-fallback';
+        fallbackToggle.innerHTML = `
+            <div class="accessibility-fallback-toggle">
+                <input type="checkbox" id="dyslexic-toggle">
+                <label for="dyslexic-toggle">🔤 Dyslexic font</label>
+            </div>
+        `;
+        fallbackToggle.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        `;
+        document.body.appendChild(fallbackToggle);
+    }
+}
+
+function initAccessibility() {
+    // Check for saved preference
+    const isDyslexicMode = localStorage.getItem('dyslexicMode') === 'true';
+    
+    // Find the checkbox (from widget or manual HTML)
+    const checkbox = document.getElementById('dyslexic-toggle');
+    
+    if (checkbox) {
+        // Set checkbox state to match saved preference
+        checkbox.checked = isDyslexicMode;
+        
+        // Apply dyslexic mode if it was previously enabled
+        if (isDyslexicMode) {
+            document.body.classList.add('dyslexic-mode');
+        }
+        
+        // Add event listener for toggle
+        checkbox.addEventListener('change', toggleDyslexicFont);
+    }
+}
+
+function toggleDyslexicFont() {
+    const checkbox = document.getElementById('dyslexic-toggle');
+    const isEnabled = checkbox.checked;
+    
+    if (isEnabled) {
+        // Enable dyslexic mode
+        document.body.classList.add('dyslexic-mode');
+        localStorage.setItem('dyslexicMode', 'true');
+    } else {
+        // Disable dyslexic mode
+        document.body.classList.remove('dyslexic-mode');
+        localStorage.setItem('dyslexicMode', 'false');
+    }
+    
+    // Sync other checkboxes if they exist (mobile + desktop)
+    const allCheckboxes = document.querySelectorAll('input[id*="dyslexic-toggle"]');
+    allCheckboxes.forEach(cb => {
+        if (cb !== checkbox) {
+            cb.checked = isEnabled;
+        }
+    });
+}
+</script> 
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Copyright © Template Course Title, Template Semester Year</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Built with <a href="https://quarto.org/">Quarto</a></p>
+</div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

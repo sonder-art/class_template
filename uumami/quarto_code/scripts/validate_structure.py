@@ -70,7 +70,7 @@ class StructureValidator:
         self.patterns = {
             'chapter_directory': r'^\d{2}_[a-zA-Z0-9_]+$',        # 00_intro, 01_python_basics
             'appendix_directory': r'^[a-z]_[a-zA-Z0-9_]+$',       # a_installation, b_troubleshooting
-            'section_directory': r'^[a-z]_[a-zA-Z0-9_]+$',        # a_prompt_engineering, b_intro_system
+            'section_directory': r'^\d{2}_[a-zA-Z0-9_]+$',        # 00_prompt_engineering, 01_intro_system
             'index_file': r'^\d{2}_index\.qmd$',                  # 00_index.qmd, 01_index.qmd
             'navigation_file': r'^_nav\.qmd$',                    # _nav.qmd
             'section_file': r'^\d{2}_[a-zA-Z0-9_]+\.qmd$',        # 00_overview.qmd, 01_setup.qmd

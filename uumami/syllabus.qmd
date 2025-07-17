@@ -1,0 +1,42 @@
+---
+title: "Course Syllabus"
+---
+
+# Course Syllabus
+
+## Course Information
+
+- **Course Title**: {{< meta class_name >}}
+- **Course Code**: {{< meta course_code >}}
+- **Period**: {{< meta period >}}
+- **Instructor**: {{< meta instructor_name >}}
+- **Email**: {{< meta instructor_email >}}
+- **Office Hours**: {{< meta office_hours >}}
+
+## Course Description
+
+This course provides a comprehensive introduction to modern software development practices...
+
+## Learning Objectives
+
+By the end of this course, students will be able to:
+
+1. Write clean, efficient, and well-documented code
+2. Use version control systems effectively
+3. Collaborate on software projects using modern tools
+4. Apply best practices for software development
+
+## Schedule
+
+Please see the [course schedule](schedule.qmd) for detailed week-by-week topics.
+
+## Assessment
+
+- Assignments: 40%
+- Midterm Project: 30% 
+- Final Project: 30%
+
+## Resources
+
+- [Course Repository]({{< meta repository_url >}})
+- [Class Files]({{< meta class_drive_url >}})

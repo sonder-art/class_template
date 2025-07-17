@@ -1,0 +1,18 @@
+# 04
+
+> **📖 Section Overview**  
+> Part of **Intro** chapter. This section contains 2 files covering 04.
+
+<!-- AUTO-INDEX-START -->
+## 📁 Section Contents
+
+### Setting up Git and GitHub
+**File**: [`01_git_setup.qmd`](./01_git_setup.qmd)  
+**Type**: Content file  
+
+<!-- AUTO-INDEX-END -->
+
+<!-- USER-CONTENT-START -->
+<!-- Add your custom section content here - it will be preserved during auto-updates -->
+<!-- USER-CONTENT-END -->
+

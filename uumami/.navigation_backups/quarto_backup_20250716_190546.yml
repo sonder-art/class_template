@@ -1,12 +1,7 @@
 project:
   type: website
   output-dir: _site
-  render:
-  - '*.qmd'
-  - '!legacy/'
-  - '!quarto_code/templates/'
 metadata:
-  user_name: uumami
   class_name: Template Course Title
   course_code: TMPL101
   period: Template Semester Year
@@ -56,10 +51,23 @@ website:
       text: Schedule
     - text: 📚 Course
       menu:
-      - text: 01. Intro
-        href: notas/01_intro/00_index.qmd
-      - text: 01. Automation System
-        href: notas/01_automation_system/00_index.qmd
+      - text: 00. Welcome to the Course Setup
+        href: notas/00_intro/00_index.qmd
+    - text: 📖 Documentation
+      menu:
+      - text: 📋 Complete Overview
+        href: quarto_development/00_automation_index.qmd
+      - text: 🚀 Quick Start Guide
+        href: quarto_development/01_quickstart.qmd
+      - text: 🏗️ System Architecture
+        href: quarto_development/02_architecture.qmd
+      - text: 🛠️ Scripts Reference
+        href: quarto_development/03_scripts_reference.qmd
+      - text: 🔧 Troubleshooting
+        href: quarto_development/04_troubleshooting.qmd
+      - text: 🚀 Development Guide
+        href: quarto_development/05_development.qmd
+
     right:
     - icon: github
       href: '{{< meta repository_url >}}'

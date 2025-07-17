@@ -1,0 +1,325 @@
+---
+title: "Student Setup Workflow"
+subtitle: "Fork to Finished in Minutes"
+format:
+  html:
+    css:
+      - ../../../quarto_code/styles/main.css
+      - ../../../quarto_code/styles/themes/evangelion.css
+    toc: true
+---
+
+# Student Setup Workflow
+
+> **🎓 Designed for Students**  
+> This workflow is optimized for students who need to quickly set up their own copy of the course website and start working.
+
+## 🚀 Complete Student Setup
+
+### Phase 1: Repository Setup
+
+**1. Fork the Repository**
+- Go to the course repository on GitHub
+- Click "Fork" to create your own copy
+- Clone your fork to your computer
+
+```bash
+# Clone your forked repository
+git clone https://github.com/YOUR_USERNAME/COURSE_REPOSITORY.git
+cd COURSE_REPOSITORY
+```
+
+**2. Configure Your Environment**
+
+Edit `_quarto.yml` to use your GitHub username:
+
+```yaml
+metadata:
+  user_name: YOUR_GITHUB_USERNAME  # Critical: Change this!
+  # Everything else stays the same
+```
+
+**Why this matters:** This single change makes all paths work automatically. The automation system uses this to find your directories without any hardcoded paths.
+
+### Phase 2: Automation Setup
+
+**3. Install Dependencies**
+
+```bash
+# Check if you have the requirements
+python3 --version    # Should be 3.8+
+quarto --version     # Should be 1.3+
+
+# Install Python packages
+pip install pyyaml click rich
+```
+
+**4. Run Initial Setup**
+
+```bash
+# Navigate to your automation scripts
+cd YOUR_USERNAME/quarto_code/scripts
+
+# Run the master setup
+python3 master_update.py
+```
+
+**What this does:**
+- ✅ Scans your content structure
+- ✅ Validates everything follows conventions
+- ✅ Generates your personal navbar
+- ✅ Creates missing directory indexes
+- ✅ Makes automatic backups
+
+### Phase 3: Verification
+
+**5. Test Everything Works**
+
+```bash
+# Go back to your user directory  
+cd ..
+
+# Build your site
+quarto render
+
+# Preview locally (optional)
+quarto preview
+```
+
+**Success indicators:**
+- Site builds without errors
+- Navigation shows your chapters
+- All links work properly
+- Styles load correctly
+
+## 🔄 Daily Usage Patterns
+
+### Option A: Simple Mode (Recommended)
+
+**For most students - run manually when needed:**
+
+```bash
+# After making changes to content
+cd YOUR_USERNAME/quarto_code/scripts
+python3 master_update.py
+
+# Then build your site
+cd .. && quarto render
+```
+
+**When to run this:**
+- After adding new chapters/sections
+- When you haven't used the system in a while
+- If navigation seems out of sync
+- Before submitting assignments
+
+### Option B: Power User Mode
+
+**For active content creators - automatic updates:**
+
+```bash
+# Start real-time monitoring
+cd YOUR_USERNAME/quarto_code/scripts  
+python3 smart_auto_generator.py --watch
+```
+
+**Leave this running while you work!**
+
+**What happens automatically:**
+- File saves trigger index updates
+- Navigation refreshes instantly
+- Structure gets validated
+- Your custom content is preserved
+
+## 📚 Content Organization for Students
+
+### Understanding the Structure
+
+```
+YOUR_USERNAME/
+├── notas/                    # Your course content goes here
+│   ├── 01_intro/            # Chapter 1
+│   │   ├── 00_index.qmd     # Auto-generated (don't edit)
+│   │   ├── 01_section/      # Section 1
+│   │   └── 02_section/      # Section 2  
+│   └── 02_chapter/          # Chapter 2
+├── quarto_code/             # Automation system (don't modify)
+└── _quarto.yml              # Auto-updated navigation
+```
+
+### Where to Put Your Work
+
+**✅ DO edit these:**
+- Content files: `01_overview.qmd`, `02_exercises.qmd`
+- Your sections: anything in `01_section/`, `02_section/`
+- Custom content: between `<!-- USER-CONTENT-START -->` and `<!-- USER-CONTENT-END -->`
+
+**❌ DON'T edit these:**
+- Index files: `00_index.qmd` (auto-generated)
+- Scripts: anything in `quarto_code/scripts/`
+- Generated navigation: most of `_quarto.yml`
+
+### Adding Your Own Content
+
+**Creating a new assignment/exercise:**
+
+```bash
+# 1. Create the file in appropriate chapter
+echo "# My Assignment" > YOUR_USERNAME/notas/01_intro/03_my_work.qmd
+
+# 2. Update automation (if not using watch mode)
+cd YOUR_USERNAME/quarto_code/scripts
+python3 master_update.py
+```
+
+**Adding custom content to indexes:**
+
+Use the preservation markers in any `00_index.qmd`:
+
+```markdown
+<!-- USER-CONTENT-START -->
+## My Personal Notes
+
+- Important concepts I learned
+- Things to remember for the exam
+- My practice exercises
+
+[Link to my custom work](03_my_work.qmd)
+<!-- USER-CONTENT-END -->
+```
+
+## 🎯 Student-Specific Tips
+
+### Assignment Workflow
+
+**1. Create your work area:**
+```bash
+mkdir YOUR_USERNAME/notas/01_intro/assignments
+echo "# Assignment 1" > YOUR_USERNAME/notas/01_intro/assignments/01_assignment1.qmd
+```
+
+**2. Update navigation:**
+```bash
+cd YOUR_USERNAME/quarto_code/scripts && python3 master_update.py
+```
+
+**3. Work on your assignment:**
+- Edit your `.qmd` files
+- Add content, code, solutions
+- Use `quarto render` to preview
+
+**4. Submit:**
+- Commit and push to your GitHub repository
+- Share the rendered website URL
+
+### Collaboration with Classmates
+
+**Each student has their own namespace:**
+- Your work: `YOUR_USERNAME/notas/`
+- Classmate's work: `THEIR_USERNAME/notas/`
+- Shared resources: `quarto_code/`, themes, etc.
+
+**Working together:**
+- Share content files via pull requests
+- Copy good examples to your namespace
+- Customize your own structure and styling
+
+### Keeping Up with Course Updates
+
+**When instructor adds new content:**
+
+```bash
+# 1. Fetch updates from the main repository
+git remote add upstream ORIGINAL_REPOSITORY_URL
+git fetch upstream
+git merge upstream/main
+
+# 2. Update your automation
+cd YOUR_USERNAME/quarto_code/scripts
+python3 master_update.py
+
+# 3. Resolve any conflicts and rebuild
+cd .. && quarto render
+```
+
+## 🚨 Common Student Issues
+
+### "I broke something!"
+
+**Quick recovery:**
+```bash
+# 1. Restore navigation from backup
+cd YOUR_USERNAME/quarto_code/scripts
+python3 generate_navigation.py --list-backups
+python3 generate_navigation.py --restore [recent_backup]
+
+# 2. Reset to clean state if needed
+cd YOUR_USERNAME && git checkout _quarto.yml
+
+# 3. Regenerate everything
+cd quarto_code/scripts && python3 master_update.py
+```
+
+### "My content disappeared!"
+
+**Content is preserved automatically:**
+- Check between `<!-- USER-CONTENT-START -->` and `<!-- USER-CONTENT-END -->` markers
+- Your `.qmd` files are never auto-modified
+- Only `00_index.qmd` files are auto-generated
+
+### "Navigation doesn't show my new work"
+
+**Update the automation:**
+```bash
+cd YOUR_USERNAME/quarto_code/scripts
+python3 master_update.py --verbose
+```
+
+Check for naming convention issues:
+- Use `01_`, `02_`, etc. (not `1_`, `2_`)
+- Use underscores, not spaces or hyphens
+- Follow the established patterns
+
+### "Site won't build"
+
+**Debug process:**
+```bash
+# 1. Check Quarto directly
+quarto check
+
+# 2. Validate structure
+cd YOUR_USERNAME/quarto_code/scripts
+python3 master_update.py --validation-only
+
+# 3. Get specific suggestions
+python3 validate_structure.py .. --fix-suggestions
+```
+
+## ✅ Student Success Checklist
+
+After setup, you should be able to:
+
+- [ ] **See your chapters** in the website navbar
+- [ ] **Navigate between sections** using the index pages
+- [ ] **Add new content** and have it appear automatically
+- [ ] **Build your site** without errors (`quarto render`)
+- [ ] **Make custom changes** that don't get overwritten
+- [ ] **Recover from mistakes** using backup system
+
+## 🎉 Next Steps for Students
+
+### Immediate Actions
+1. **Create your first assignment** in an appropriate chapter
+2. **Customize your index pages** with personal notes
+3. **Experiment with themes** in `quarto_code/styles/themes/`
+4. **Set up watch mode** for easier development
+
+### Long-term Learning
+1. **Understand the automation** by reading other documentation sections
+2. **Contribute improvements** back to the main repository
+3. **Help classmates** with their setup
+4. **Explore Quarto features** beyond the automation system
+
+---
+
+**🎓 You're all set!** You now have a professional, automated educational website that's entirely your own. Focus on learning and creating great content - the system handles all the technical details! 

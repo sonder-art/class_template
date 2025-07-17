@@ -1,0 +1,18 @@
+# 05
+
+> **📖 Section Overview**  
+> Part of **Automation System** chapter. This section contains 2 files covering 05.
+
+<!-- AUTO-INDEX-START -->
+## 📁 Section Contents
+
+### Complete Scripts Reference
+**File**: [`01_all_scripts.qmd`](./01_all_scripts.qmd)  
+**Type**: Content file  
+
+<!-- AUTO-INDEX-END -->
+
+<!-- USER-CONTENT-START -->
+<!-- Add your custom section content here - it will be preserved during auto-updates -->
+<!-- USER-CONTENT-END -->
+

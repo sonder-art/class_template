@@ -1,0 +1,14 @@
+<!-- Auto-generated Section Navigation Template -->
+```{=html}
+<div class="section-navigation-enhanced">
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // This will be populated by the main navigation system
+      if (window.QuartoNavigation && window.CollapsibleNavigation) {
+        const nav = new window.CollapsibleNavigation();
+        nav.initSectionNavigation();
+      }
+    });
+  </script>
+</div>
+```

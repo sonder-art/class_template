@@ -2,11 +2,11 @@ project:
   type: website
   output-dir: _site
   render:
-  - '*.qmd'
-  - '!legacy/'
-  - '!quarto_code/templates/'
+    - "*.qmd"
+    - "!legacy/"
+    - "!quarto_code/templates/"
 metadata:
-  user_name: uumami
+  user_name: uumami  # CHANGE THIS: Your GitHub username/repo name for path resolution
   class_name: Template Course Title
   course_code: TMPL101
   period: Template Semester Year
@@ -56,10 +56,24 @@ website:
       text: Schedule
     - text: 📚 Course
       menu:
-      - text: 01. Intro
+      - text: 01. Welcome to the Course Setup
         href: notas/01_intro/00_index.qmd
-      - text: 01. Automation System
-        href: notas/01_automation_system/00_index.qmd
+    - text: 📖 Documentation
+      menu:
+      - text: 📋 Complete Overview
+        href: quarto_development/01_automation_system/00_index.qmd
+      - text: 🚀 Quick Start Guide
+        href: quarto_development/01_automation_system/01_quickstart/00_index.qmd
+      - text: 🏗️ System Architecture
+        href: quarto_development/01_automation_system/02_architecture/00_index.qmd
+      - text: 🛠️ Scripts Reference
+        href: quarto_development/01_automation_system/03_scripts_reference/00_index.qmd
+      - text: 🔧 Troubleshooting
+        href: quarto_development/01_automation_system/04_troubleshooting/00_index.qmd
+      - text: 🚀 Development Guide
+        href: quarto_development/01_automation_system/05_development/00_index.qmd
+      - text: 🤖 Auto Generation
+        href: quarto_development/01_automation_system/06_auto_generation/00_index.qmd
     right:
     - icon: github
       href: '{{< meta repository_url >}}'

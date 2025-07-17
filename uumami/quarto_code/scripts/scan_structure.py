@@ -2,16 +2,24 @@
 """
 Content Discovery Engine for Quarto Educational Infrastructure
 
-This script scans directory structures to discover chapters, sections, and content
-following the educational naming conventions. It outputs structured JSON data
-for consumption by other automation scripts.
+ROLE: Helper script that scans directory structures to discover chapters, sections, 
+and content following educational naming conventions. Used by master_update.py and 
+other automation scripts.
+
+USAGE: Typically called by master_update.py, but can be run standalone for debugging.
+
+Key Features:
+- Discovers chapters, appendices, and sections with actual file prefixes and titles
+- Extracts titles from YAML frontmatter in .qmd files
+- Follows hierarchical numbering conventions (01_, 02_, etc.)
+- Outputs structured JSON data for other automation tools
+- Uses dynamic path resolution (no hardcoded paths)
 
 Usage:
-    python scan_structure.py <path> [options]
+    python scan_structure.py [options]
     
 Example:
-    python scan_structure.py uumami/
-    python scan_structure.py uumami/ --output structure.json --verbose
+    python scan_structure.py --output structure.json --verbose
 """
 
 import re
@@ -27,25 +35,53 @@ from rich.tree import Tree
 from rich.panel import Panel
 from rich.table import Table
 
+# Import configuration utilities
+try:
+    from config_utils import resolve_content_paths, get_user_name
+except ImportError:
+    sys.path.append(str(Path(__file__).parent))
+    from config_utils import resolve_content_paths, get_user_name
+
 console = Console()
 
-# Naming convention patterns
-NAMING_PATTERNS = {
-    'chapter': r'^\d{2}_[\w_]+$',           # 00_intro, 01_python_basics
-    'appendix': r'^[a-z]_[\w_]+$',          # a_installation, b_troubleshooting
-    'section_file': r'^\d{2}_[\w_]+\.qmd$', # 00_overview.qmd, 01_setup.qmd
-    'index_file': r'^\d{2}_index\.qmd$',    # 00_index.qmd, 01_index.qmd
-    'section_dir': r'^[a-z]_[\w_]+$',       # a_prompt_engineering, b_intro_system
-    'nav_file': r'^_nav\.qmd$'              # _nav.qmd
+# ============================================================================
+# CONTENT SCANNING CONFIGURATION
+# ============================================================================
+# This section defines what directories and content to scan for automation.
+# Modify these lists to control what gets processed by the automation system.
+
+# Directories to scan for content (includes all subdirectories)
+CONTENT_DIRECTORIES = {
+    'notas',                    # Main educational content following 01_, 02_ patterns
+    'quarto_development',       # Development documentation (doesn't follow strict patterns)
 }
 
-# Patterns to exclude from scanning
+# Special directories that should be scanned even if they don't follow naming patterns
+SPECIAL_DIRECTORIES = {
+    'quarto_development': {
+        'description': 'Development documentation and automation guides',
+        'allow_non_standard_names': True,   # Allow directories like 'automation_system'
+        'scan_subdirectories': True,        # Scan all subdirectories recursively
+    }
+}
+
+# Naming convention patterns - Hierarchical System
+NAMING_PATTERNS = {
+    'chapter': r'^0[1-9]_[\w_]+$|^[1-9]\d_[\w_]+$',    # 01_intro, 02_python (chapters start from 01)
+    'appendix': r'^[a-z]_[\w_]+$',                      # a_installation, b_troubleshooting
+    'section_file': r'^0[1-9]_[\w_]+\.qmd$|^[1-9]\d_[\w_]+\.qmd$',  # 01_lesson.qmd, 02_advanced.qmd
+    'index_file': r'^00_index\.qmd$',                   # 00_index.qmd (indices always use 00_)
+    'section_dir': r'^0[1-9]_[\w_]+$|^[1-9]\d_[\w_]+$', # 01_prompt_engineering, 02_systems (sections start from 01)
+    'nav_file': r'^_nav\.qmd$',                         # _nav.qmd
+    'special_dir': r'^[\w_]+$',                         # Any word characters (for special directories)
+}
+
+# What to exclude even within included directories
 EXCLUDE_PATTERNS = {
-    'directories': {'scripts', 'examples', 'resources', 'legacy', 'quarto_code', 
-                   '_site', '.quarto', '__pycache__', 'quarto_development'},
     'files': {'.py', '.sh', '.json', '.csv', '.txt', '.yml', '.yaml'},
     'hidden': r'^\.',                       # Hidden files/directories
-    'temp': r'^__.*__$'                     # Temporary files
+    'temp': r'^__.*__$',                    # Temporary files
+    'system': {'_site', '.quarto', '__pycache__', 'scripts', 'examples', 'resources', 'legacy'}
 }
 
 
@@ -69,22 +105,25 @@ def extract_title_from_qmd(file_path: Path) -> Optional[str]:
         return None
 
 
-def generate_display_title(prefix: str, title: str, index: int = 0) -> str:
-    """Generate display title with proper numbering."""
-    if prefix.isdigit():
-        # Chapter numbering: 0.0, 0.1, etc.
-        return f"{prefix}.{index} {title}" if index > 0 else f"{prefix}. {title}"
+def generate_display_title(prefix: str, title: str, use_prefix_only: bool = True) -> str:
+    """Generate display title using actual file prefixes."""
+    if use_prefix_only:
+        # Use the actual prefix from the file/directory name
+        if prefix.isdigit():
+            return f"{prefix}. {title}"
+        else:
+            return f"{prefix.upper()}. {title}"
     else:
-        # Appendix lettering: A.0, A.1, etc.
-        return f"{prefix.upper()}.{index} {title}" if index > 0 else f"{prefix.upper()}. {title}"
+        # Legacy format (deprecated)
+        return f"{prefix}. {title}"
 
 
-def is_excluded(path: Path) -> bool:
+def is_excluded(path: Path, parent_dir: str = None) -> bool:
     """Check if a path should be excluded from scanning."""
     name = path.name
     
-    # Check directory exclusions
-    if path.is_dir() and name in EXCLUDE_PATTERNS['directories']:
+    # Check system directory exclusions
+    if path.is_dir() and name in EXCLUDE_PATTERNS['system']:
         return True
     
     # Check file extension exclusions
@@ -102,22 +141,50 @@ def is_excluded(path: Path) -> bool:
     return False
 
 
-def scan_section_directory(section_path: Path, prefix: str) -> Dict[str, Any]:
+def is_content_directory_included(dir_name: str) -> bool:
+    """Check if a directory should be scanned for content."""
+    return dir_name in CONTENT_DIRECTORIES
+
+
+def should_scan_non_standard_directory(dir_name: str, parent_dir: str) -> bool:
+    """Check if a non-standard directory should be scanned based on special rules."""
+    if parent_dir in SPECIAL_DIRECTORIES:
+        special_config = SPECIAL_DIRECTORIES[parent_dir]
+        return special_config.get('allow_non_standard_names', False)
+    return False
+
+
+def scan_section_directory(section_path: Path, prefix: str, is_special: bool = False) -> Dict[str, Any]:
     """Scan a section directory for subsections and files."""
-    section_data = {
-        'name': section_path.name,
-        'prefix': prefix,
-        'title': prefix.replace('_', ' ').title(),  # Default title
-        'path': str(section_path),
-        'type': 'directory',
-        'subsections': []
-    }
     
-    # Look for index file to extract title
-    index_pattern = re.compile(rf'^{re.escape(prefix)}_index\.qmd$')
-    for file_path in section_path.iterdir():
-        if file_path.is_file() and index_pattern.match(file_path.name):
-            title = extract_title_from_qmd(file_path)
+    if is_special:
+        # Special section directory that doesn't follow standard patterns
+        section_data = {
+            'name': section_path.name,
+            'prefix': prefix,
+            'title': section_path.name.replace('_', ' ').title(),
+            'path': str(section_path),
+            'type': 'directory',
+            'subsections': [],
+            'is_special': True
+        }
+    else:
+        # Standard section directory
+        section_data = {
+            'name': section_path.name,
+            'prefix': prefix,
+            'title': prefix.replace('_', ' ').title(),  # Default title
+            'path': str(section_path),
+            'type': 'directory',
+            'subsections': []
+        }
+    
+    # Look for index file to extract title (check both 00_index.qmd and {prefix}_index.qmd)
+    index_files = ['00_index.qmd', f'{prefix}_index.qmd']
+    for index_file in index_files:
+        index_path = section_path / index_file
+        if index_path.exists():
+            title = extract_title_from_qmd(index_path)
             if title:
                 section_data['title'] = title
             break
@@ -151,20 +218,35 @@ def scan_section_directory(section_path: Path, prefix: str) -> Dict[str, Any]:
     return section_data
 
 
-def scan_chapter_directory(chapter_path: Path) -> Dict[str, Any]:
+def scan_chapter_directory(chapter_path: Path, is_special: bool = False) -> Dict[str, Any]:
     """Scan a chapter directory for index file and sections."""
-    name_parts = chapter_path.name.split('_', 1)
-    prefix = name_parts[0]
     
-    chapter_data = {
-        'name': chapter_path.name,
-        'prefix': prefix,
-        'title': name_parts[1].replace('_', ' ').title() if len(name_parts) > 1 else 'Untitled',
-        'path': str(chapter_path),
-        'has_index': False,
-        'index_file': None,
-        'sections': []
-    }
+    if is_special:
+        # Handle special directories that don't follow standard naming patterns
+        chapter_data = {
+            'name': chapter_path.name,
+            'prefix': 'special',  # Special marker for non-standard directories
+            'title': chapter_path.name.replace('_', ' ').title(),
+            'path': str(chapter_path),
+            'has_index': False,
+            'index_file': None,
+            'sections': [],
+            'is_special': True
+        }
+    else:
+        # Standard chapter directory processing
+        name_parts = chapter_path.name.split('_', 1)
+        prefix = name_parts[0]
+        
+        chapter_data = {
+            'name': chapter_path.name,
+            'prefix': prefix,
+            'title': name_parts[1].replace('_', ' ').title() if len(name_parts) > 1 else 'Untitled',
+            'path': str(chapter_path),
+            'has_index': False,
+            'index_file': None,
+            'sections': []
+        }
     
     # Look for index file
     index_pattern = re.compile(NAMING_PATTERNS['index_file'])
@@ -196,46 +278,70 @@ def scan_chapter_directory(chapter_path: Path) -> Dict[str, Any]:
                     'sort_key': item.stem
                 })
         elif item.is_dir():
-            # Section directory
+            # Section directory - handle both standard and special patterns
             if re.match(NAMING_PATTERNS['section_dir'], item.name):
+                # Standard section directory (01_name, 02_name, etc.)
                 section_prefix = item.name.split('_')[0]
                 section_data = scan_section_directory(item, section_prefix)
                 section_items.append({
                     **section_data,
                     'sort_key': section_prefix
                 })
+            elif is_special and re.match(NAMING_PATTERNS['special_dir'], item.name):
+                # Special directory that doesn't follow standard patterns
+                section_data = scan_section_directory(item, item.name, is_special=True)
+                section_items.append({
+                    **section_data,
+                    'sort_key': item.name
+                })
     
     # Sort sections by prefix (alphabetical for letter prefixes, numerical for number prefixes)
     section_items.sort(key=lambda x: x['sort_key'])
     
-    # Add display titles with proper numbering
-    for i, section in enumerate(section_items):
+    # Add display titles using actual file prefixes
+    for section in section_items:
         if section['type'] == 'directory':
             section['display_title'] = generate_display_title(
-                section['prefix'], section['title'], i
+                section['prefix'], section['title']
             )
         else:
-            # For files, use the extracted title as-is
-            section['display_title'] = section['title']
+            # For files, extract prefix from filename and use actual title
+            if section.get('file'):
+                file_prefix = section['file'].split('_')[0] if '_' in section['file'] else section['file'].split('.')[0]
+                section['display_title'] = generate_display_title(file_prefix, section['title'])
+            else:
+                section['display_title'] = section['title']
     
     chapter_data['sections'] = section_items
     
     return chapter_data
 
 
-def scan_content_structure(base_path: Path) -> Dict[str, Any]:
-    """Scan the content directory structure and return organized data."""
+def scan_content_structure(base_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Scan all configured content directories and return organized data."""
     
-    # Look for notas directory
-    notas_path = base_path / 'notas' if (base_path / 'notas').exists() else base_path
-    
-    if not notas_path.exists():
-        raise FileNotFoundError(f"Content directory not found: {notas_path}")
+    # Use configuration utilities to resolve paths
+    try:
+        paths = resolve_content_paths()
+        user_root = paths.get('user_root')
+        user_name = paths.get('user_name', 'uumami')
+        
+        if user_root is None:
+            raise FileNotFoundError("Could not determine user root directory")
+        
+    except Exception as e:
+        console.print(f"[yellow]⚠️ Warning:[/yellow] Could not load configuration: {e}")
+        if base_path:
+            user_root = base_path
+            user_name = 'uumami'
+        else:
+            raise FileNotFoundError("No base path provided and configuration loading failed")
     
     structure_data = {
         'scan_timestamp': datetime.now().isoformat(),
-        'base_path': str(base_path),
-        'content_path': str(notas_path),
+        'user_name': user_name,
+        'base_path': str(paths.get('project_root', base_path or Path.cwd())),
+        'content_directories': list(CONTENT_DIRECTORIES),
         'chapters': [],
         'appendices': [],
         'stats': {
@@ -246,24 +352,53 @@ def scan_content_structure(base_path: Path) -> Dict[str, Any]:
         }
     }
     
-    # Scan for chapters and appendices
-    for item in sorted(notas_path.iterdir()):
-        if is_excluded(item) or not item.is_dir():
-            continue
+    # Scan each configured content directory
+    for content_dir_name in CONTENT_DIRECTORIES:
+        content_path = user_root / content_dir_name
         
-        if re.match(NAMING_PATTERNS['chapter'], item.name):
-            # Chapter directory (XX_name)
-            chapter_data = scan_chapter_directory(item)
-            structure_data['chapters'].append(chapter_data)
-            structure_data['stats']['total_chapters'] += 1
-            structure_data['stats']['total_sections'] += len(chapter_data['sections'])
+        if not content_path.exists():
+            console.print(f"[yellow]⚠️ Warning:[/yellow] Content directory not found: {content_path}")
+            continue
             
-        elif re.match(NAMING_PATTERNS['appendix'], item.name):
-            # Appendix directory (Y_name)
-            appendix_data = scan_chapter_directory(item)  # Same structure as chapter
-            structure_data['appendices'].append(appendix_data)
-            structure_data['stats']['total_appendices'] += 1
-            structure_data['stats']['total_sections'] += len(appendix_data['sections'])
+        console.print(f"[blue]🔍 Scanning content directory:[/blue] {content_dir_name}")
+        
+        # Scan for chapters and appendices in this directory
+        for item in sorted(content_path.iterdir()):
+            if is_excluded(item, content_dir_name) or not item.is_dir():
+                continue
+            
+            # Check if this matches standard patterns
+            is_standard_chapter = re.match(NAMING_PATTERNS['chapter'], item.name)
+            is_standard_appendix = re.match(NAMING_PATTERNS['appendix'], item.name)
+            
+            # Check if we should scan non-standard directories
+            is_special_dir = should_scan_non_standard_directory(item.name, content_dir_name)
+            
+            if is_standard_chapter:
+                # Standard chapter directory (XX_name)
+                chapter_data = scan_chapter_directory(item)
+                chapter_data['source_directory'] = content_dir_name
+                structure_data['chapters'].append(chapter_data)
+                structure_data['stats']['total_chapters'] += 1
+                structure_data['stats']['total_sections'] += len(chapter_data['sections'])
+                
+            elif is_standard_appendix:
+                # Standard appendix directory (Y_name)
+                appendix_data = scan_chapter_directory(item)
+                appendix_data['source_directory'] = content_dir_name
+                structure_data['appendices'].append(appendix_data)
+                structure_data['stats']['total_appendices'] += 1
+                structure_data['stats']['total_sections'] += len(appendix_data['sections'])
+                
+            elif is_special_dir:
+                # Special directory that doesn't follow standard patterns
+                # Treat as a chapter but mark it as special
+                special_data = scan_chapter_directory(item, is_special=True)
+                special_data['source_directory'] = content_dir_name
+                special_data['is_special'] = True
+                structure_data['chapters'].append(special_data)
+                structure_data['stats']['total_chapters'] += 1
+                structure_data['stats']['total_sections'] += len(special_data['sections'])
     
     # Sort chapters numerically, appendices alphabetically
     structure_data['chapters'].sort(key=lambda x: int(x['prefix']))
@@ -341,7 +476,8 @@ def display_stats_table(stats: Dict[str, int]) -> None:
 
 
 @click.command()
-@click.argument('path', type=click.Path(exists=True, path_type=Path))
+@click.option('--path', type=click.Path(exists=True, path_type=Path), 
+              help='Base directory to scan (auto-detected from config if not provided)')
 @click.option('--output', '-o', type=click.Path(path_type=Path), 
               help='Output JSON file path')
 @click.option('--verbose', '-v', is_flag=True, 
@@ -350,11 +486,11 @@ def display_stats_table(stats: Dict[str, int]) -> None:
               help='Validate naming conventions only')
 @click.option('--pretty', is_flag=True, default=True,
               help='Pretty-print JSON output')
-def main(path: Path, output: Optional[Path], verbose: bool, validate: bool, pretty: bool):
+def main(path: Optional[Path], output: Optional[Path], verbose: bool, validate: bool, pretty: bool):
     """
     Scan directory structure for educational content organization.
     
-    PATH: Base directory to scan (typically 'uumami/')
+    Automatically detects content paths from _quarto.yml configuration.
     """
     try:
         with console.status("[bold green]Scanning content structure..."):

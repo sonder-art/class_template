@@ -1,0 +1,515 @@
+---
+title: "Common Issues & Solutions"
+subtitle: "Quick Fixes for Automation Problems"
+format:
+  html:
+    css:
+      - ../../../quarto_code/styles/main.css
+      - ../../../quarto_code/styles/themes/evangelion.css
+    toc: true
+---
+
+# Common Issues & Solutions
+
+> **🔧 Fast Fixes for Common Problems**  
+> This guide covers the most frequent issues with the automation system and provides step-by-step solutions.
+
+## 🚨 Emergency Recovery
+
+### "I Broke Everything!"
+
+**Quick recovery steps:**
+
+```bash
+# 1. Navigate to your scripts directory
+cd your_username/quarto_code/scripts
+
+# 2. Restore navigation from backup
+python3 generate_navigation.py --list-backups
+python3 generate_navigation.py --restore [most_recent_backup]
+
+# 3. Reset to clean state if needed
+cd ../.. && git checkout _quarto.yml
+
+# 4. Regenerate everything fresh
+cd your_username/quarto_code/scripts
+python3 master_update.py --force
+
+# 5. Test that everything works
+cd .. && quarto render
+```
+
+If this doesn't work, continue reading for specific issue solutions.
+
+## 📊 Structure Validation Issues
+
+### "Structure validation failed"
+
+**Problem:** Your content doesn't follow naming conventions
+
+**Diagnosis:**
+```bash
+cd your_username/quarto_code/scripts
+python3 master_update.py --validation-only
+```
+
+**Common causes and fixes:**
+
+#### Wrong number format
+```bash
+# ❌ Wrong
+01_intro/    # Single digit
+1_intro/     # No leading zero
+
+# ✅ Correct  
+01_intro/    # Two digits with leading zero
+02_python/
+```
+
+#### Wrong separators
+```bash
+# ❌ Wrong
+01-intro/        # Hyphens
+01 intro/        # Spaces
+01_intro_to_py/  # Too many underscores
+
+# ✅ Correct
+01_intro/        # Single underscore
+02_python/
+```
+
+#### Missing index files
+```bash
+# Every chapter/section directory needs:
+01_intro/00_index.qmd    # Auto-generated, let system create
+
+# If missing, run:
+python3 master_update.py  # Creates missing indexes
+```
+
+### "Naming convention errors"
+
+**Get specific suggestions:**
+```bash
+python3 validate_structure.py .. --fix-suggestions
+```
+
+**Common fixes:**
+
+```bash
+# Fix chapter naming
+mv 1_intro 01_intro
+mv chapter1 01_chapter1
+
+# Fix section naming  
+mv a_basics 01_basics
+mv section1 01_section1
+
+# Fix file naming
+mv intro.qmd 01_intro.qmd
+mv lesson1.qmd 01_lesson1.qmd
+```
+
+## 🧭 Navigation Issues
+
+### "Navigation generation failed"
+
+**Problem:** `_quarto.yml` can't be updated
+
+**Diagnosis:**
+```bash
+cd your_username/quarto_code/scripts
+python3 generate_navigation.py --dry-run --verbose
+```
+
+**Common solutions:**
+
+#### Invalid YAML syntax
+```bash
+# Check YAML syntax
+cd ../.. && quarto check
+
+# Fix common YAML errors:
+# - Missing colons after keys
+# - Incorrect indentation  
+# - Unmatched quotes
+```
+
+#### Corrupted `_quarto.yml`
+```bash
+# Restore from backup
+cd your_username/quarto_code/scripts
+python3 generate_navigation.py --list-backups
+python3 generate_navigation.py --restore [backup_file]
+```
+
+#### Missing dependencies
+```bash
+# Reinstall required packages
+pip install pyyaml click rich
+```
+
+### "My new chapter doesn't appear in navbar"
+
+**Solutions in order:**
+
+1. **Check naming convention:**
+   ```bash
+   # Must be exactly: NN_name/
+   ls your_username/notas/
+   # Should show: 01_intro/ 02_python/ etc.
+   ```
+
+2. **Update navigation:**
+   ```bash
+   cd your_username/quarto_code/scripts
+   python3 master_update.py
+   ```
+
+3. **Check for validation errors:**
+   ```bash
+   python3 master_update.py --validation-only
+   ```
+
+4. **Force regeneration:**
+   ```bash
+   python3 master_update.py --force --verbose
+   ```
+
+## 🔧 System and Path Issues
+
+### "Could not find _quarto.yml"
+
+**Problem:** Scripts can't locate your project configuration
+
+**Solutions:**
+
+#### Wrong working directory
+```bash
+# Make sure you're in the right place
+pwd
+# Should be: /path/to/your_repository/your_username/quarto_code/scripts
+
+# If not, navigate correctly:
+cd /path/to/your_repository/your_username/quarto_code/scripts
+```
+
+#### Wrong user_name in config
+```bash
+# Check your _quarto.yml
+cat ../../_quarto.yml | grep user_name
+
+# Should show:
+metadata:
+  user_name: your_github_username
+
+# If wrong, edit _quarto.yml and fix the user_name
+```
+
+#### Missing _quarto.yml
+```bash
+# Check if file exists
+ls ../../_quarto.yml
+
+# If missing, you're in wrong directory or project is corrupted
+```
+
+### "ImportError: No module named 'click'"
+
+**Problem:** Missing Python dependencies
+
+**Solution:**
+```bash
+# Install missing packages
+pip install pyyaml click rich
+
+# Verify installation
+python3 -c "import click, yaml, rich; print('All dependencies installed')"
+```
+
+### "Permission denied" errors
+
+**Problem:** File permission issues
+
+**Solutions:**
+```bash
+# Fix script permissions
+chmod +x your_username/quarto_code/scripts/*.py
+
+# Fix directory permissions
+chmod -R 755 your_username/
+
+# If on Windows with WSL, check mount permissions
+```
+
+## 🏗️ Build and Render Issues
+
+### "Quarto render failed"
+
+**Problem:** Site won't build properly
+
+**Diagnosis process:**
+
+1. **Check Quarto directly:**
+   ```bash
+   cd your_username
+   quarto check
+   ```
+
+2. **Check for broken links:**
+   ```bash
+   # Look for common link issues
+   grep -r "href.*\.qmd" . | grep -v "00_index"
+   ```
+
+3. **Validate structure first:**
+   ```bash
+   cd quarto_code/scripts
+   python3 master_update.py --validation-only
+   ```
+
+**Common solutions:**
+
+#### Broken CSS paths
+```bash
+# Check for old-style paths in your files
+grep -r "styles/main.css" your_username/notas/
+
+# Should be:
+css: ../../quarto_code/styles/main.css
+# Not:
+css: ../styles/main.css
+```
+
+#### Missing files
+```bash
+# Generate missing index files
+cd your_username/quarto_code/scripts
+python3 master_update.py
+```
+
+#### YAML frontmatter errors
+```bash
+# Check for YAML syntax errors in your .qmd files
+quarto check --quiet your_username/notas/01_intro/01_lesson.qmd
+```
+
+### "Site builds but navigation is broken"
+
+**Solutions:**
+
+1. **Regenerate navigation:**
+   ```bash
+   cd your_username/quarto_code/scripts
+   python3 master_update.py --force
+   ```
+
+2. **Check browser cache:**
+   - Hard refresh (Ctrl+F5 or Cmd+Shift+R)
+   - Clear browser cache
+   - Try private/incognito window
+
+3. **Verify file structure:**
+   ```bash
+   # Check that navigation files exist
+   find your_username/notas -name "_nav.qmd"
+   find your_username/notas -name "00_index.qmd"
+   ```
+
+## ⏱️ Watch Mode Issues
+
+### "Watch mode not detecting changes"
+
+**Problem:** `smart_auto_generator.py --watch` not working
+
+**Solutions:**
+
+1. **Check file system events:**
+   ```bash
+   # On Linux, might need inotify tools
+   sudo apt-get install inotify-tools
+
+   # On macOS, check file system case sensitivity
+   # On Windows, check WSL file system setup
+   ```
+
+2. **Use verbose mode:**
+   ```bash
+   python3 smart_auto_generator.py --watch --verbose
+   ```
+
+3. **Check file permissions:**
+   ```bash
+   # Make sure you can write to the directories
+   ls -la your_username/notas/
+   ```
+
+4. **Restart watch mode:**
+   ```bash
+   # Stop with Ctrl+C and restart
+   python3 smart_auto_generator.py --watch
+   ```
+
+### "Watch mode crashes"
+
+**Common causes:**
+
+1. **Too many files:**
+   ```bash
+   # Check content directory configuration
+# The system only scans directories listed in CONTENT_DIRECTORIES
+# Check scan_structure.py lines 51-55 for configured directories
+   ```
+
+2. **Permissions issues:**
+   ```bash
+   # Check you can read/write in the directory
+   touch test_file && rm test_file
+   ```
+
+3. **Python environment:**
+   ```bash
+   # Make sure you have the right packages
+   pip install --upgrade watchdog
+   ```
+
+## 📝 Content Preservation Issues
+
+### "My custom content disappeared"
+
+**Problem:** Content in `00_index.qmd` was overwritten
+
+**Investigation:**
+```bash
+# Check if your content was between the right markers
+grep -A 10 -B 10 "USER-CONTENT" your_username/notas/01_intro/00_index.qmd
+```
+
+**Recovery:**
+```bash
+# Check Git history
+cd your_username
+git log --oneline -- notas/01_intro/00_index.qmd
+
+# Restore from Git if needed
+git checkout HEAD~1 -- notas/01_intro/00_index.qmd
+
+# Or restore content from backup
+cd quarto_code/scripts
+python3 generate_navigation.py --list-backups
+```
+
+**Prevention:**
+Always put custom content between the markers:
+```markdown
+<!-- USER-CONTENT-START -->
+Your custom content here
+<!-- USER-CONTENT-END -->
+```
+
+### "Index files have wrong content"
+
+**Problem:** Auto-generated indexes don't match your structure
+
+**Solutions:**
+
+1. **Force regeneration:**
+   ```bash
+   cd your_username/quarto_code/scripts
+   python3 smart_auto_generator.py --force-update
+   ```
+
+2. **Check structure:**
+   ```bash
+   python3 scan_structure.py --verbose
+   ```
+
+3. **Clear content hash cache:**
+   ```bash
+   rm your_username/.content_hashes.json
+   python3 master_update.py
+   ```
+
+## 🔍 Debugging and Diagnostics
+
+### Getting Detailed Information
+
+**Full system diagnosis:**
+```bash
+cd your_username/quarto_code/scripts
+
+# Check structure
+python3 scan_structure.py --verbose
+
+# Validate everything
+python3 validate_structure.py .. --fix-suggestions
+
+# Check navigation
+python3 generate_navigation.py --dry-run --verbose
+
+# Test master update
+python3 master_update.py --validation-only --verbose
+```
+
+**Log files and outputs:**
+```bash
+# Save diagnostics to file
+python3 master_update.py --verbose > debug_output.txt 2>&1
+
+# Check for specific errors
+grep -i error debug_output.txt
+grep -i warning debug_output.txt
+```
+
+### Environment Information
+
+**System check:**
+```bash
+# Check versions
+python3 --version
+quarto --version
+pip list | grep -E "(click|rich|pyyaml)"
+
+# Check paths
+pwd
+ls -la
+echo $PATH
+```
+
+**Project check:**
+```bash
+# Verify project structure
+ls -la ../../
+cat ../../_quarto.yml | head -20
+ls -la ../
+```
+
+## 📞 Getting Help
+
+### Before Asking for Help
+
+**Gather this information:**
+
+1. **Error message:** Copy the exact error text
+2. **Command used:** What command caused the issue
+3. **Working directory:** Output of `pwd`
+4. **System info:** OS, Python version, Quarto version
+5. **Diagnostic output:** Run `python3 master_update.py --verbose`
+
+### Self-Help Resources
+
+1. **Validation:** `python3 master_update.py --validation-only`
+2. **Suggestions:** `python3 validate_structure.py .. --fix-suggestions`
+3. **Dry run:** `python3 generate_navigation.py --dry-run`
+4. **Verbose mode:** Add `--verbose` to any command
+
+### Emergency Contacts
+
+**If nothing works:**
+1. Restore from Git: `git checkout HEAD~1`
+2. Start fresh: Re-fork the repository
+3. Manual setup: Follow basic Quarto documentation
+
+---
+
+**🔧 Still having issues?** Most problems are fixed by checking naming conventions, running `master_update.py`, and ensuring you're in the right directory. The automation system is designed to be forgiving and self-healing! 

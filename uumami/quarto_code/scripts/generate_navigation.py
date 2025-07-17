@@ -2,16 +2,25 @@
 """
 Automated Navigation Generation for Quarto Educational Infrastructure
 
-This script auto-generates the navbar section of _quarto.yml from discovered content
-structure while preserving all existing configuration elements. It provides
-comprehensive backup/restore functionality and supports multiple operation modes.
+ROLE: Helper script that auto-generates the navbar section of _quarto.yml from 
+discovered content structure. Used by master_update.py for main navigation.
+
+USAGE: Typically called by master_update.py, but can be run standalone for navbar updates.
+
+Key Features:
+- Auto-generates navbar from content structure
+- Preserves all existing _quarto.yml configuration
+- Comprehensive backup/restore functionality
+- Supports multiple operation modes (dry-run, force, restore)
+- Dynamic path resolution for portability
+- Safe operations with validation
 
 Usage:
-    python generate_navigation.py <path> [options]
+    python generate_navigation.py [options]
     
 Example:
-    python generate_navigation.py uumami/
-    python generate_navigation.py uumami/ --dry-run --backup
+    python generate_navigation.py
+    python generate_navigation.py --dry-run --backup
     python generate_navigation.py --restore backup_20250716_123456.yml
 """
 
@@ -33,22 +42,36 @@ from rich.prompt import Confirm
 from rich.syntax import Syntax
 from rich import box
 
-# Import our content discovery engine
+# Import our content discovery engine and configuration utilities
 try:
     from scan_structure import scan_content_structure
+    from config_utils import resolve_content_paths, get_user_name, get_project_root
 except ImportError:
     sys.path.append(str(Path(__file__).parent))
     from scan_structure import scan_content_structure
+    from config_utils import resolve_content_paths, get_user_name, get_project_root
 
 console = Console()
 
 class NavigationGenerator:
     """Main navigation generation engine."""
     
-    def __init__(self, base_path: Path):
-        self.base_path = base_path
-        self.quarto_config_path = base_path / '_quarto.yml'
-        self.backup_dir = base_path / '.navigation_backups'
+    def __init__(self, base_path: Optional[Path] = None):
+        # Use configuration utilities to resolve paths
+        try:
+            self.paths = resolve_content_paths()
+            self.base_path = self.paths['project_root']
+            self.user_name = self.paths['user_name']
+        except Exception:
+            # Fallback to provided base_path
+            if base_path is None:
+                raise ValueError("Could not resolve paths from configuration and no base_path provided")
+            self.base_path = base_path
+            self.user_name = 'uumami'
+            self.paths = {'project_root': base_path, 'user_name': self.user_name}
+        
+        self.quarto_config_path = self.paths.get('config_file', self.base_path / '_quarto.yml')
+        self.backup_dir = self.base_path / '.navigation_backups'
         self.backup_dir.mkdir(exist_ok=True)
         
         # Elements to preserve from existing configuration
@@ -444,7 +467,7 @@ def main(path: Optional[Path], dry_run: bool, backup: bool, force: bool,
     """
     Generate automated navigation for Quarto educational sites.
     
-    PATH: Base directory containing _quarto.yml (typically 'uumami/')
+    Automatically detects project structure from _quarto.yml configuration.
     
     Automatically generates navbar structure from content discovery while
     preserving all existing configuration elements.
@@ -471,13 +494,7 @@ def main(path: Optional[Path], dry_run: bool, backup: bool, force: bool,
             display_backup_list(generator)
             sys.exit(0)
         
-        # Require path for generation
-        if not path:
-            console.print("[red]❌ Error:[/red] Path required for navigation generation")
-            console.print("Use --help for usage information")
-            sys.exit(1)
-        
-        # Initialize generator
+        # Initialize generator (auto-detects paths if not provided)
         generator = NavigationGenerator(path)
         
         # Scan content structure

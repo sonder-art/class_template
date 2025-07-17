@@ -10,6 +10,9 @@
 /* OpenDyslexic Font Import for Accessibility via Fontsource */
 @import url('https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.2.5/index.css');
 
+/* Component Imports */
+@import url('collapsible-navigation.css');
+
 /* 
 --------------------------------------------
    1. MASTER CONTROL PANEL (CSS Custom Properties)

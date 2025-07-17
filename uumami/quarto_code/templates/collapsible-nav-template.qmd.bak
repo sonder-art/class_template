@@ -1,0 +1,42 @@
+::: {.callout-tip icon=false}
+## 🧭 Enhanced Navigation
+
+Use this template to add collapsible navigation to your content pages. Simply include this file in your `.qmd` documents.
+
+**Usage:** `{{< include ../../quarto_code/templates/collapsible-nav-template.qmd >}}`
+:::
+
+```{=html}
+{{< include quarto_code/components/collapsible-navigation.html >}}
+```
+
+::: {.navigation-info}
+### Navigation Features
+
+- **📂 Hierarchical Navigation**: Explore chapters and sections with collapsible trees
+- **🧭 Smart Breadcrumbs**: Context-aware navigation path with dropdown
+- **⚡ Quick Controls**: Expand/collapse all sections or toggle sidebar
+- **⬅️➡️ Sequential Navigation**: Automatic previous/next page detection
+- **💾 Memory**: Saves your navigation preferences locally
+- **📱 Responsive**: Works beautifully on all device sizes
+- **♿ Accessible**: Full keyboard navigation and screen reader support
+
+### Keyboard Shortcuts
+
+- **Tab**: Navigate through interactive elements
+- **Enter/Space**: Expand/collapse sections
+- **Arrow Keys**: Navigate within dropdown menus
+- **Escape**: Close expanded dropdowns
+:::
+
+::: {.callout-note}
+### For Content Creators
+
+This navigation component automatically detects your content structure and provides contextual navigation. No configuration required - just include the template and it works!
+
+**Features:**
+- Auto-detects chapter and section hierarchy
+- Generates sequential navigation based on file structure
+- Provides breadcrumb navigation based on URL path
+- Remembers user preferences (expanded/collapsed state)
+::: 
