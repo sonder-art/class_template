@@ -53,6 +53,23 @@ website:
       menu:
       - text: 00. Welcome to the Course Setup
         href: notas/00_intro/00_index.qmd
+        contents:
+        - text: A. A
+          href: notas/00_intro/a_prompt_engineering/
+        - text: B.1 B
+          href: notas/00_intro/b_intro_sistema_operativo/
+        - text: C.2 C
+          href: notas/00_intro/c_intro_terminal/
+        - text: D.3 D
+          href: notas/00_intro/d_intro_github_1/
+        - text: E.4 E
+          href: notas/00_intro/e_intro_python/
+        - text: F.5 F
+          href: notas/00_intro/f_intro_cursor/
+        - text: G.6 G
+          href: notas/00_intro/g_intro_github_2/
+        - text: H.7 H
+          href: notas/00_intro/h_intro_quarto/
     - text: 🔧 Development
       menu:
       - text: Quarto Reference
