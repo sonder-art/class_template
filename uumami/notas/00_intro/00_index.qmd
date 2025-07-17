@@ -3,8 +3,8 @@ title: "Welcome to the Course Setup"
 format:
   html:
     css:
-      - ../styles/main.css
-      - ../styles/themes/evangelion.css
+      - ../../quarto_code/styles/main.css
+      - ../../quarto_code/styles/themes/evangelion.css
 ---
 
 ::: {.objective}
