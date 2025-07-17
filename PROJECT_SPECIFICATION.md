@@ -21,10 +21,14 @@
 - [x] **Validation**: Ensure site builds and navigation works after moves (`quarto render index.qmd` ✅)
 
 ### Phase 2: Core Automation Scripts 🤖  
-- [ ] **`scan_structure.py`**: Content discovery with naming pattern validation
-  - [ ] Implement directory scanning with regex patterns for XX_name/ and Y_name/
-  - [ ] Detect .qmd files vs directories, identify index files
-  - [ ] Output structured JSON for other scripts to consume
+- [x] **`scan_structure.py`**: Content discovery with naming pattern validation ✅ **COMPLETED**
+  - [x] Implement directory scanning with regex patterns for XX_name/ and Y_name/
+  - [x] Detect .qmd files vs directories, identify index files
+  - [x] Output structured JSON for other scripts to consume
+  - [x] Professional CLI interface with click and rich console output
+  - [x] YAML frontmatter title extraction from .qmd files
+  - [x] Comprehensive error handling and validation modes
+  - [x] Successfully tested against current notas/00_intro/ structure
 - [ ] **`validate_structure.py`**: Structure enforcement and error checking
   - [ ] Validate naming conventions (XX_ for chapters, Y_ for appendices)
   - [ ] Check required files exist (XX_index.qmd, _nav.qmd)
@@ -420,13 +424,13 @@ rsync -av --ignore-existing "${INSTRUCTOR_CONTENT_DIR}/" "${DEST_DIR}/"
 - Quarto 1.3+ (extension support required)
 - `coatless-quarto/custom-callout` extension (CRITICAL for educational callouts)
 
-**Python Dependencies** (for automation scripts):
+**Python Dependencies** (for automation scripts) ✅ **UPDATED**:
 ```python
 REQUIRED_PACKAGES = {
     'pathlib': 'built-in',      # Path manipulation
-    'pyyaml': '>= 6.0',         # YAML processing  
-    'click': '>= 8.0',          # CLI interfaces
-    'rich': '>= 12.0',          # Console output
+    'pyyaml': '>= 6.0',         # YAML processing (already in requirements.txt)
+    'click': '>= 8.0',          # CLI interfaces (✅ added to uumami/requirements.txt)
+    'rich': '>= 12.0',          # Console output (✅ added to uumami/requirements.txt)
     're': 'built-in'            # Regex validation
 }
 ```
