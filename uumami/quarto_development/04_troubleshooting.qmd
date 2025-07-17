@@ -1,0 +1,458 @@
+---
+title: "Troubleshooting Guide"
+subtitle: "Common Issues & Solutions"
+format:
+  html:
+    css:
+      - ../../quarto_code/styles/main.css
+      - ../../quarto_code/styles/themes/evangelion.css
+    toc: true
+---
+
+# Troubleshooting Guide
+
+> **🔧 Problem Solving Central**  
+> Comprehensive solutions for common issues, debugging techniques, and recovery procedures to keep your automation system running smoothly.
+
+## Quick Diagnosis
+
+### System Health Check
+
+Run this complete diagnostic sequence:
+
+```bash
+# 1. Check Python dependencies
+python3 -c "import yaml, click, rich; print('✅ Dependencies OK')"
+
+# 2. Verify Quarto installation
+quarto --version
+
+# 3. Test basic structure scan
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --validate
+
+# 4. Check validation passes
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/
+
+# 5. Test site builds
+cd uumami && quarto render index.qmd
+```
+
+### Emergency Recovery
+
+If everything breaks:
+
+```bash
+# 1. Restore navigation from backup
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --list-backups
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --restore [latest_backup]
+
+# 2. Reset to Git state (if using version control)
+cd uumami && git checkout _quarto.yml
+
+# 3. Regenerate from scratch
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --force
+```
+
+## Common Issues & Solutions
+
+### 🔴 Structure Discovery Problems
+
+#### "No chapters found in content structure"
+
+**Symptoms**: Empty scan results, no content discovered
+
+**Diagnosis**:
+```bash
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --verbose
+```
+
+**Common Causes & Solutions**:
+
+1. **Wrong directory structure**
+   ```bash
+   # Check you have the right layout
+   ls -la uumami/notas/
+   
+   # Should show: XX_chapter_name/ directories
+   # Fix: Create proper directory structure
+   mkdir uumami/notas/00_intro
+   ```
+
+2. **Incorrect naming patterns**
+   ```bash
+   # Wrong: intro/, first_chapter/, appendix_a/
+   # Right: 00_intro/, 01_basics/, a_setup/
+   
+   # Fix naming
+   mv uumami/notas/intro uumami/notas/00_intro
+   ```
+
+3. **Missing notas directory**
+   ```bash
+   # Create content directory
+   mkdir -p uumami/notas/00_intro
+   touch uumami/notas/00_intro/00_index.qmd
+   ```
+
+#### "Module not found: scan_structure"
+
+**Symptoms**: Import errors when running scripts
+
+**Solutions**:
+```bash
+# Ensure you're running from project root
+cd /path/to/class_template
+
+# Check file exists
+ls -la uumami/quarto_code/scripts/scan_structure.py
+
+# Run with full path
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/
+```
+
+### 🔴 Validation Failures
+
+#### "Validation failed: Outdated CSS paths"
+
+**Symptoms**: CSS references point to old `styles/` location
+
+**Automatic Fix**:
+```bash
+# Get specific suggestions
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --fix-suggestions
+
+# Common fix pattern:
+# Change: - styles/main.css
+# To:     - ../../quarto_code/styles/main.css
+```
+
+**Manual Fix Example**:
+```yaml
+# In .qmd file YAML frontmatter:
+format:
+  html:
+    css:
+      - ../../quarto_code/styles/main.css          # ← Updated path
+      - ../../quarto_code/styles/themes/evangelion.css
+```
+
+#### "Missing required index file"
+
+**Symptoms**: Chapters without `XX_index.qmd` files
+
+**Solution**:
+```bash
+# Create missing index files
+touch uumami/notas/00_intro/00_index.qmd
+
+# Add basic content
+cat > uumami/notas/00_intro/00_index.qmd << 'EOF'
+---
+title: "Chapter Title"
+format:
+  html:
+    css:
+      - ../../quarto_code/styles/main.css
+      - ../../quarto_code/styles/themes/evangelion.css
+---
+
+# Chapter Content
+EOF
+```
+
+#### "Duplicate chapter prefix found"
+
+**Symptoms**: Multiple chapters with same number
+
+**Diagnosis**:
+```bash
+# Find duplicates
+ls -la uumami/notas/ | grep "^d" | grep -E "^[0-9]{2}_"
+```
+
+**Solution**: Renumber chapters sequentially
+```bash
+# Example fix
+mv uumami/notas/01_duplicate uumami/notas/02_renamed
+```
+
+### 🔴 Navigation Generation Problems
+
+#### "Generated configuration failed validation"
+
+**Symptoms**: Navbar generation fails with validation error
+
+**Debug Steps**:
+```bash
+# 1. Test dry-run first
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --dry-run
+
+# 2. Check source structure
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/
+
+# 3. Verify Quarto can parse current config
+cd uumami && quarto render index.qmd
+```
+
+**Common Fixes**:
+1. **Fix structure issues first**: Run validation and fix all errors
+2. **Check YAML syntax**: Ensure `_quarto.yml` is valid YAML
+3. **Verify paths exist**: Ensure all referenced files actually exist
+
+#### "Backup creation failed"
+
+**Symptoms**: Can't create backup directory or files
+
+**Solutions**:
+```bash
+# Check permissions
+ls -la uumami/
+
+# Create backup directory manually
+mkdir -p uumami/.navigation_backups
+chmod 755 uumami/.navigation_backups
+
+# Check disk space
+df -h .
+```
+
+#### "Restore operation failed"
+
+**Symptoms**: Can't restore from backup file
+
+**Debug & Fix**:
+```bash
+# List available backups
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --list-backups
+
+# Check backup file exists and is readable
+ls -la uumami/.navigation_backups/
+
+# Manual restore
+cp uumami/.navigation_backups/quarto_backup_YYYYMMDD_HHMMSS.yml uumami/_quarto.yml
+```
+
+### 🔴 Quarto Render Problems
+
+#### "Project validation failed"
+
+**Symptoms**: Quarto can't parse generated `_quarto.yml`
+
+**Diagnosis**:
+```bash
+# Check YAML syntax
+python3 -c "import yaml; yaml.safe_load(open('uumami/_quarto.yml'))"
+
+# Check Quarto specific validation
+cd uumami && quarto check
+```
+
+**Solutions**:
+1. **Restore from backup**:
+   ```bash
+   python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --restore [backup_file]
+   ```
+
+2. **Regenerate navigation**:
+   ```bash
+   python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --force
+   ```
+
+#### "Unable to resolve link target"
+
+**Symptoms**: Warnings about missing files in navbar
+
+**Expected vs. Problematic**:
+```bash
+# Expected warnings (missing content files):
+WARN: Unable to resolve link target: syllabus.qmd       # ← Create these files
+WARN: Unable to resolve link target: schedule.qmd
+
+# Problematic warnings (automation issues):
+WARN: Unable to resolve link target: notas/00_intro/00_index.qmd  # ← Check paths
+```
+
+**Solutions**:
+```bash
+# Create missing content files
+touch uumami/syllabus.qmd uumami/schedule.qmd
+
+# Check generated paths are correct
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --verbose
+```
+
+### 🔴 Permission & Environment Issues
+
+#### "Permission denied" errors
+
+**Symptoms**: Can't write to files or directories
+
+**Solutions**:
+```bash
+# Fix directory permissions
+chmod 755 uumami/
+chmod 755 uumami/quarto_code/
+chmod 755 uumami/quarto_code/scripts/
+
+# Fix file permissions
+chmod 644 uumami/_quarto.yml
+chmod +x uumami/quarto_code/scripts/*.py
+```
+
+#### "Command not found: python3"
+
+**Solutions by Platform**:
+
+**Linux/macOS**:
+```bash
+# Check Python installation
+which python3 || which python
+
+# Install if missing (Ubuntu/Debian)
+sudo apt update && sudo apt install python3 python3-pip
+
+# Install if missing (macOS with Homebrew)
+brew install python3
+```
+
+**Windows**:
+```bash
+# Use Python launcher
+py -3 uumami/quarto_code/scripts/scan_structure.py uumami/
+
+# Or install Python 3.8+ from python.org
+```
+
+#### "Module not found: yaml/click/rich"
+
+**Solution**:
+```bash
+# Install missing dependencies
+pip install pyyaml click rich
+
+# Or install from requirements
+pip install -r uumami/requirements.txt
+```
+
+## Debugging Techniques
+
+### Enable Verbose Output
+
+All scripts support verbose mode:
+
+```bash
+# Detailed scan information
+python3 scan_structure.py uumami/ --verbose
+
+# Comprehensive validation details
+python3 validate_structure.py uumami/ --verbose
+
+# Navigation generation with diff preview
+python3 generate_navigation.py uumami/ --dry-run --verbose
+```
+
+### Data Inspection
+
+**Structure Data Debugging**:
+```bash
+# Save and inspect structure data
+python3 scan_structure.py uumami/ --output debug.json
+cat debug.json | python3 -m json.tool | head -50
+```
+
+**Configuration Debugging**:
+```bash
+# Pretty-print current YAML
+python3 -c "import yaml; print(yaml.dump(yaml.safe_load(open('uumami/_quarto.yml')), indent=2))"
+```
+
+### Log Analysis
+
+**Error Message Patterns**:
+
+| Error Pattern | Likely Cause | Solution |
+|---------------|--------------|----------|
+| `FileNotFoundError` | Missing files or wrong paths | Check file exists, verify path |
+| `yaml.YAMLError` | Invalid YAML syntax | Fix YAML formatting |
+| `TypeError: unsupported operand` | Python version or import issue | Check Python 3.8+, verify imports |
+| `ValidationError` | Content doesn't follow conventions | Fix naming patterns |
+
+## Performance Issues
+
+### Slow Operations
+
+**Large Content Structures** (50+ chapters):
+
+```bash
+# Use incremental approaches
+python3 scan_structure.py uumami/ --output cache.json
+python3 validate_structure.py --input cache.json
+
+# Skip backup for faster generation (careful!)
+python3 generate_navigation.py uumami/ --no-backup --force
+```
+
+### Memory Issues
+
+**High Memory Usage**:
+```bash
+# Check system resources
+free -h  # Linux
+top -o MEM  # macOS
+
+# Process smaller sections if needed
+python3 scan_structure.py uumami/notas/00_intro/ --verbose
+```
+
+## Best Practices for Prevention
+
+### Regular Maintenance
+
+```bash
+#!/bin/bash
+# Daily maintenance script
+
+echo "🔍 Daily structure check..."
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --ci
+
+echo "🧹 Cleanup old backups (keep last 10)..."
+cd uumami/.navigation_backups
+ls -t quarto_backup_*.yml | tail -n +11 | xargs rm -f
+
+echo "✅ Maintenance complete"
+```
+
+### Monitoring Script
+
+```bash
+#!/bin/bash
+# Health monitoring
+
+ISSUES=$(python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --strict 2>&1)
+if [ $? -ne 0 ]; then
+    echo "⚠️ Structure issues found:"
+    echo "$ISSUES"
+    exit 1
+fi
+
+echo "✅ All systems healthy"
+```
+
+### Safe Operation Checklist
+
+Before major changes:
+
+- [ ] **Git commit current state** (`git add -A && git commit -m "Before automation changes"`)
+- [ ] **Run full validation** (`validate_structure.py --fix-suggestions`)
+- [ ] **Test in dry-run mode** (`generate_navigation.py --dry-run`)
+- [ ] **Verify backup system** (`--list-backups` shows recent backups)
+- [ ] **Test site builds** (`quarto render index.qmd`)
+
+---
+
+**🆘 Still having issues?** Check the [Development Guide](05_development.qmd) for advanced customization options or create an issue with:
+
+1. **Error messages** (full output)
+2. **System information** (OS, Python version, Quarto version)
+3. **Directory structure** (`tree uumami/ -L 3`)
+4. **Configuration** (anonymized `_quarto.yml`) 

@@ -1,0 +1,441 @@
+---
+title: "Scripts Reference"
+subtitle: "Complete Tool Documentation"
+format:
+  html:
+    css:
+      - ../../quarto_code/styles/main.css
+      - ../../quarto_code/styles/themes/evangelion.css
+    toc: true
+---
+
+# Scripts Reference
+
+> **🛠️ Complete Tool Documentation**  
+> Detailed reference for every automation script including usage patterns, options, examples, and integration guidelines.
+
+## Overview
+
+All automation scripts are located in `uumami/quarto_code/scripts/` and follow consistent patterns:
+
+- **Professional CLI**: Built with `click` for consistent interfaces
+- **Rich Output**: Color-coded console output with progress indicators
+- **Error Handling**: Comprehensive error reporting with actionable suggestions
+- **Help System**: Built-in documentation via `--help` flag
+
+## Script 1: Content Discovery Engine
+
+### `scan_structure.py`
+
+**Purpose**: Discovers and analyzes directory structure for navigation generation
+
+**Location**: `uumami/quarto_code/scripts/scan_structure.py`
+
+#### Basic Usage
+
+```bash
+# Basic content scan
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/
+
+# Verbose output with statistics
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --verbose
+
+# Save structure data for other tools
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --output structure.json
+```
+
+#### Command Options
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `PATH` | Base directory to scan | `uumami/` |
+| `--output` / `-o` | Save JSON to file | `--output data.json` |
+| `--verbose` / `-v` | Detailed console output | `--verbose` |
+| `--validate` | Structure validation only | `--validate` |
+| `--pretty` | Pretty-print JSON | `--pretty` (default) |
+
+#### Output Format
+
+**Console Output**:
+```
+📚 Content Structure
+└── 📖 00. Welcome to the Course Setup (✅ index)
+    ├── 📁 A. Prompt Engineering
+    ├── 📁 B. Operating System Intro
+    └── [... more sections]
+
+📊 Structure Statistics
+┏━━━━━━━━━━━━━┳━━━━━━━┓
+┃ Metric      ┃ Count ┃
+┡━━━━━━━━━━━━━╇━━━━━━━┩
+│ Chapters    │     1 │
+│ Sections    │     8 │
+│ Total Files │     9 │
+└─────────────┴───────┘
+```
+
+**JSON Output Structure**:
+```json
+{
+  "scan_timestamp": "2025-07-16T18:17:48.128564",
+  "base_path": "uumami",
+  "content_path": "uumami/notas",
+  "chapters": [
+    {
+      "name": "00_intro",
+      "prefix": "00",
+      "title": "Welcome to the Course Setup",
+      "path": "uumami/notas/00_intro",
+      "has_index": true,
+      "index_file": "00_index.qmd",
+      "sections": [...]
+    }
+  ],
+  "appendices": [],
+  "stats": {
+    "total_chapters": 1,
+    "total_sections": 8,
+    "total_files": 9
+  }
+}
+```
+
+#### Integration Usage
+
+**In Other Scripts**:
+```python
+from scan_structure import scan_content_structure
+
+# Get structure data
+structure_data = scan_content_structure(Path("uumami"))
+chapters = structure_data['chapters']
+```
+
+**Pipeline Usage**:
+```bash
+# Generate data → Validate → Process
+python3 scan_structure.py uumami/ --output temp.json
+python3 validate_structure.py --input temp.json
+python3 generate_navigation.py uumami/
+```
+
+---
+
+## Script 2: Structure Validation Engine
+
+### `validate_structure.py`
+
+**Purpose**: Ensures naming conventions and structural integrity
+
+**Location**: `uumami/quarto_code/scripts/validate_structure.py`
+
+#### Basic Usage
+
+```bash
+# Full validation with visual output
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/
+
+# Strict mode (errors only)
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --strict
+
+# Get actionable fix suggestions
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --fix-suggestions
+```
+
+#### Command Options
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `PATH` | Base directory to validate | `uumami/` |
+| `--input` / `-i` | Use existing JSON data | `--input structure.json` |
+| `--strict` | Show errors only | `--strict` |
+| `--fix-suggestions` | Include fix recommendations | `--fix-suggestions` |
+| `--ci` | CI-friendly exit codes | `--ci` |
+| `--table` | Compact table format | `--table` |
+| `--verbose` / `-v` | Detailed reporting | `--verbose` |
+
+#### Validation Categories
+
+**ERROR (Must Fix)**:
+- Invalid naming patterns (not XX_name or Y_name)
+- Missing required index files
+- Broken path references
+- Duplicate chapter/appendix prefixes
+- Invalid YAML frontmatter syntax
+
+**WARNING (Should Fix)**:
+- Missing navigation files (_nav.qmd)
+- Non-sequential chapter numbering
+- Empty sections with no content
+- Inconsistent title formatting
+
+**INFO (Optimization)**:
+- Suggested improvements
+- Structure statistics
+- Performance recommendations
+
+#### Output Examples
+
+**Success Case**:
+```
+✅ VALIDATION PASSED
+Errors: 0 | Warnings: 0 | Info: 0
+
+🎉 Perfect! No issues found.
+```
+
+**Issues Found**:
+```
+❌ VALIDATION FAILED
+Errors: 2 | Warnings: 1 | Info: 0
+
+📂 Path References
+├── 🔴 Outdated CSS path in 00_index.qmd: ../styles/main.css
+│   ├── 📁 uumami/notas/00_intro/00_index.qmd
+│   └── 💡 Suggestion: Update to: ../../quarto_code/styles/main.css
+└── 🔴 Outdated CSS path in 00_index.qmd: ../styles/themes/evangelion.css
+
+📂 Navigation
+└── 🟡 Missing navigation file in 00_intro
+    ├── 📁 uumami/notas/00_intro
+    └── 💡 Suggestion: Create file: _nav.qmd for chapter navigation
+```
+
+#### CI Integration
+
+```bash
+# In CI/CD pipeline
+python3 validate_structure.py uumami/ --ci --strict
+echo "Exit code: $?"  # 0 = success, 1 = validation failed
+```
+
+---
+
+## Script 3: Navigation Generation Engine
+
+### `generate_navigation.py`
+
+**Purpose**: Auto-generates navbar while preserving existing configuration
+
+**Location**: `uumami/quarto_code/scripts/generate_navigation.py`
+
+#### Basic Usage
+
+```bash
+# Preview changes (recommended first step)
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --dry-run
+
+# Apply changes with automatic backup
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/
+
+# Force apply without confirmation
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --force
+```
+
+#### Command Options
+
+| Option | Description | Example |
+|--------|-------------|---------|
+| `PATH` | Base directory with _quarto.yml | `uumami/` |
+| `--dry-run` | Preview without applying | `--dry-run` |
+| `--backup` / `--no-backup` | Control backup creation | `--no-backup` |
+| `--force` | Skip confirmations | `--force` |
+| `--restore` | Restore from backup | `--restore backup.yml` |
+| `--list-backups` | Show available backups | `--list-backups` |
+| `--verbose` / `-v` | Detailed information | `--verbose` |
+
+#### Workflow Examples
+
+**Safe Generation Workflow**:
+```bash
+# 1. Preview changes
+python3 generate_navigation.py uumami/ --dry-run --verbose
+
+# 2. Apply with backup (interactive)
+python3 generate_navigation.py uumami/
+
+# 3. Verify site builds
+cd uumami && quarto render index.qmd
+```
+
+**Automated Workflow**:
+```bash
+# Non-interactive generation
+python3 generate_navigation.py uumami/ --force --backup
+```
+
+**Recovery Workflow**:
+```bash
+# List available backups
+python3 generate_navigation.py uumami/ --list-backups
+
+# Restore specific backup
+python3 generate_navigation.py uumami/ --restore uumami/.navigation_backups/backup_20250716_123456.yml
+```
+
+#### Generated Structure
+
+**Before (Manual)**:
+```yaml
+navbar:
+  left:
+    - text: "Appendices"
+      menu:
+        - text: "A: Getting Started"  
+          href: a_intro_appendix/00_index.qmd
+```
+
+**After (Automated)**:
+```yaml
+navbar:
+  left:
+    - href: index.qmd
+      text: Class Notes
+    - text: 📚 Course
+      menu:
+        - text: "00. Welcome to the Course Setup"
+          href: notas/00_intro/00_index.qmd
+    - text: 🔧 Development
+      menu:
+        - text: Quarto Reference
+          href: quarto_development/c_quarto_appendix/00_index.qmd
+  right:
+    # All existing elements preserved
+```
+
+#### Backup Management
+
+**Backup Location**: `uumami/.navigation_backups/`
+
+**Backup Format**: `quarto_backup_YYYYMMDD_HHMMSS.yml`
+
+**List Backups**:
+```
+📦 Available Backups
+├── quarto_backup_20250716_182829.yml │ 2025-07-16 18:25:32 │ 2,862 bytes
+├── quarto_backup_20250716_182532.yml │ 2025-07-16 18:00:27 │ 2,606 bytes
+└── quarto_backup_20250716_182415.yml │ 2025-07-16 18:00:27 │ 2,606 bytes
+```
+
+---
+
+## Integration Patterns
+
+### Script Chaining
+
+**Sequential Processing**:
+```bash
+# Complete workflow
+python3 scan_structure.py uumami/ --output temp.json
+python3 validate_structure.py --input temp.json --ci
+python3 generate_navigation.py uumami/ --force
+cd uumami && quarto render
+```
+
+**Error Handling Chain**:
+```bash
+#!/bin/bash
+set -e  # Exit on any error
+
+echo "🔍 Validating structure..."
+python3 validate_structure.py uumami/ --ci || {
+    echo "❌ Validation failed - see suggestions:"
+    python3 validate_structure.py uumami/ --fix-suggestions
+    exit 1
+}
+
+echo "🧭 Generating navigation..."
+python3 generate_navigation.py uumami/ --force || {
+    echo "❌ Navigation generation failed"
+    exit 1
+}
+
+echo "🏗️ Building site..."
+cd uumami && quarto render || {
+    echo "❌ Site build failed - restoring backup"
+    cd ..
+    python3 generate_navigation.py uumami/ --list-backups
+    exit 1
+}
+
+echo "✅ All systems operational!"
+```
+
+### Data Flow Integration
+
+**Structured Data Sharing**:
+```python
+# Example integration pattern
+import json
+from pathlib import Path
+from scan_structure import scan_content_structure
+from validate_structure import StructureValidator
+from generate_navigation import NavigationGenerator
+
+# 1. Discovery
+structure_data = scan_content_structure(Path("uumami"))
+
+# 2. Validation  
+validator = StructureValidator()
+is_valid = validator.validate_structure(structure_data)
+
+if is_valid:
+    # 3. Generation
+    generator = NavigationGenerator(Path("uumami"))
+    generator.generate_navigation(structure_data)
+else:
+    print("Fix validation issues first")
+```
+
+### Custom Extensions
+
+**Adding New Validation Rules**:
+```python
+# In validate_structure.py
+def validate_custom_rules(self, structure_data):
+    """Add your custom validation logic here."""
+    for chapter in structure_data['chapters']:
+        # Custom validation logic
+        if not self.check_custom_requirement(chapter):
+            self.add_issue(
+                ValidationLevel.WARNING,
+                "Custom",
+                f"Custom requirement not met in {chapter['name']}",
+                chapter['path'],
+                "Add the required custom element"
+            )
+```
+
+---
+
+## Performance Guidelines
+
+### Optimization Tips
+
+**Large Content Structures** (50+ chapters):
+- Use `--output` to save scan results and reuse
+- Run validation in `--strict` mode for faster CI
+- Consider incremental navbar updates
+
+**Development Workflow**:
+- Use `--dry-run` extensively during development
+- Keep recent backups for quick rollback
+- Test with small content sets first
+
+**Production Deployment**:
+- Always use backup-enabled generation
+- Run full validation before deployment
+- Monitor backup disk usage
+
+### Resource Usage
+
+| Operation | Typical Time | Memory | Disk Usage |
+|-----------|-------------|--------|------------|
+| Content Scan | <1s | <10MB | Negligible |
+| Validation | <2s | <15MB | Report files |
+| Navigation Gen | <1s | <5MB | Backup files |
+| Full Pipeline | <5s | <25MB | <1MB total |
+
+---
+
+**📚 Need more help?** Check the [Troubleshooting Guide](04_troubleshooting.qmd) for common issues and solutions. 

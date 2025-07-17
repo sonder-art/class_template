@@ -1,0 +1,233 @@
+---
+title: "Quick Start Guide"
+subtitle: "Get Running in 5 Minutes"
+format:
+  html:
+    css:
+      - ../../quarto_code/styles/main.css
+      - ../../quarto_code/styles/themes/evangelion.css
+    toc: true
+---
+
+# Quick Start Guide
+
+> **⚡ Fast Track to Automation**  
+> Get the Quarto Educational Automation System running immediately with these essential commands and workflows.
+
+## Prerequisites Checklist
+
+Before starting, ensure you have:
+
+- [x] **Quarto 1.3+** installed (`quarto --version`)
+- [x] **Python 3.8+** with required packages
+- [x] **Working directory** with `uumami/` structure
+- [x] **Git repository** (recommended for safety)
+
+### Install Dependencies
+
+```bash
+# Install Python packages
+pip install pyyaml click rich
+
+# Verify Quarto works
+cd uumami && quarto render index.qmd
+```
+
+## Essential Commands
+
+### 1. Content Discovery
+
+**Scan your content structure:**
+
+```bash
+# Basic scan
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/
+
+# Detailed view with statistics
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --verbose
+
+# Save structure data for other tools
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --output structure.json
+```
+
+**What it does:** Discovers chapters, sections, and content following naming conventions.
+
+### 2. Structure Validation
+
+**Check content quality:**
+
+```bash
+# Full validation with suggestions
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/
+
+# Show only errors (strict mode)
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --strict
+
+# Get fix suggestions for issues
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --fix-suggestions
+```
+
+**What it does:** Ensures naming conventions, required files, and path references are correct.
+
+### 3. Navigation Generation
+
+**Auto-generate navbar:**
+
+```bash
+# Preview changes (recommended first step)
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --dry-run
+
+# Apply changes with backup
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/
+
+# Force apply without confirmation
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --force
+```
+
+**What it does:** Creates dynamic navbar from content structure while preserving existing elements.
+
+## Common Workflows
+
+### Daily Usage Pattern
+
+```bash
+# 1. Check content structure
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/
+
+# 2. Update navigation if content changed
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --dry-run
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/
+
+# 3. Build and test site
+cd uumami && quarto render
+```
+
+### Content Creation Workflow
+
+```bash
+# 1. Create new chapter directory
+mkdir uumami/notas/01_new_chapter
+
+# 2. Add index file
+touch uumami/notas/01_new_chapter/01_index.qmd
+
+# 3. Validate structure
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/
+
+# 4. Update navigation
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/
+```
+
+### Recovery Workflow
+
+```bash
+# List available backups
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --list-backups
+
+# Restore from backup
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --restore backup_file.yml
+
+# Verify restoration
+cd uumami && quarto render index.qmd
+```
+
+## Directory Structure Guide
+
+### Content Organization
+
+```
+uumami/notas/
+├── 00_intro/           # Chapter 00
+│   ├── 00_index.qmd    # Required: Chapter landing page
+│   ├── _nav.qmd        # Optional: Navigation component
+│   ├── a_section/      # Section directories (letter prefix)
+│   └── b_section/
+├── 01_basics/          # Chapter 01  
+└── a_appendix/         # Appendix (letter prefix)
+```
+
+### Automation Structure
+
+```
+uumami/quarto_code/
+├── scripts/            # All automation tools
+│   ├── scan_structure.py
+│   ├── validate_structure.py
+│   └── generate_navigation.py
+├── components/         # UI components
+├── styles/            # Theming system
+└── templates/         # Content templates (future)
+```
+
+## Naming Conventions
+
+### Required Patterns
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| **Chapters** | `XX_name/` | `00_intro/`, `01_basics/` |
+| **Appendices** | `Y_name/` | `a_setup/`, `b_troubleshooting/` |
+| **Sections** | `Y_name/` | `a_overview/`, `b_details/` |
+| **Index Files** | `XX_index.qmd` | `00_index.qmd`, `01_index.qmd` |
+
+### Validation Rules
+
+- **Chapter numbers**: 00-99 (numeric order)
+- **Appendix letters**: a-z (alphabetic order)  
+- **Section letters**: a-z within chapters
+- **No conflicts**: Unique prefixes within scope
+- **Required files**: Every chapter needs `XX_index.qmd`
+
+## Troubleshooting Quick Fixes
+
+### Common Issues
+
+**🔴 "Structure validation failed"**
+```bash
+# Get detailed error report
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/ --fix-suggestions
+```
+
+**🔴 "Navigation generation failed"**
+```bash
+# Check structure first
+python3 uumami/quarto_code/scripts/validate_structure.py uumami/
+
+# Try dry-run to see the issue
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --dry-run
+```
+
+**🔴 "Quarto render failed"**
+```bash
+# Restore from backup
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --list-backups
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --restore [backup_file]
+```
+
+### Emergency Commands
+
+```bash
+# Reset to clean state
+cd uumami && git checkout _quarto.yml
+
+# Force regenerate everything
+python3 uumami/quarto_code/scripts/generate_navigation.py uumami/ --force
+
+# Check system health
+python3 uumami/quarto_code/scripts/scan_structure.py uumami/ --validate
+```
+
+## Next Steps
+
+::: {.callout-tip}
+### Ready for More?
+
+- **Understanding**: Read [Architecture Guide](02_architecture.qmd)
+- **Deep Dive**: Explore [Scripts Reference](03_scripts_reference.qmd)
+- **Problems**: Check [Troubleshooting](04_troubleshooting.qmd)
+- **Customization**: See [Development Guide](05_development.qmd)
+:::
+
+---
+
+**🚀 You're all set!** The automation system is now ready to manage your educational content professionally and efficiently. 
