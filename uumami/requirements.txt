@@ -13,4 +13,8 @@
 
 # Required for Quarto to execute Python code cells
 jupyter
-pyyaml 
+pyyaml
+
+# Automation script dependencies
+click>=8.0
+rich>=12.0 
