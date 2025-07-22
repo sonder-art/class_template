@@ -15,7 +15,7 @@
 - [x] Create the framework_code/components/ directory structure for functional components
 - [x] Create the framework_code/themes/ directory structure with theme organization system
 - [x] Implement a default theme with basic styling and layout
-- [ ] Implement the file naming convention rules (numbers for primary content, letters for code files)
+- [x] Implement the file naming convention rules (numbers for primary content, letters for code files)
 - [ ] Create validation logic for chapter directory structure and naming conventions
 - [ ] Configure Hugo as the static site generator with basic settings
 - [ ] Integrate JupyterLite for browser-based notebook execution
