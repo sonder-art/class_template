@@ -1,0 +1,50 @@
+# Default Theme Configuration
+# Evangelion-Inspired Dark Theme for GitHub Class Template Repository
+
+name: "default"
+display_name: "Evangelion Dark"
+description: "Dark theme inspired by Evangelion with excellent readability and high contrast"
+version: "1.0.0"
+author: "Framework Team"
+
+# Theme properties
+style: "dark"
+primary_color: "#00ff41"  # Eva green
+secondary_color: "#ff6600"  # Eva orange
+background_color: "#0a0a0a"  # Pure black
+text_color: "#ffffff"  # Pure white
+
+# Font configuration
+fonts:
+  primary: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif"
+  monospace: "'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace"
+
+# Layout configuration
+layout:
+  sidebar_width: "280px"
+  max_content_width: "1200px"
+  desktop_first: true
+  mobile_breakpoint: "768px"
+
+# Accessibility features
+accessibility:
+  high_contrast_support: true
+  reduced_motion_support: true
+  keyboard_navigation: true
+  screen_reader_friendly: true
+
+# Files included in theme
+files:
+  - "css/main.css"
+  # Future: add more theme files as needed
+  # - "css/components.css"
+  # - "js/theme.js"
+  # - "assets/logo.svg"
+
+# Theme categories for organization
+categories:
+  - "dark"
+  - "high-contrast"
+  - "modern"
+  - "evangelion"
+  - "readable" 
