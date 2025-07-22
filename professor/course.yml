@@ -1,0 +1,59 @@
+# Course Offering Metadata for GitHub Class Template Repository
+# This file contains information specific to the current class offering
+# Data that changes per semester but follows a consistent schema
+#
+# PURPOSE:
+# - Components (syllabus page, contact card, footer) read this file for consistent rendering
+# - Scripts validate presence of required fields and generate summaries
+# - Student forks inherit baseline file they can customize for personal copy
+# - Future automation (calendar integration, announcements) can extend schema
+
+# === BASIC COURSE INFORMATION ===
+course_name: "Introduction to Data Science"
+course_code: "DS101"
+semester: "Fall 2025"
+
+# === PROFESSOR INFORMATION ===
+professor:
+  name: "Dr. Jane Doe"
+  email: "jane.doe@example.edu"
+  office_hours: "Tue 14:00-16:00, Room 123"
+  office_location: "Building A, Room 123"
+
+# === COURSE RESOURCES ===
+resources:
+  repository: "github.com/university/ds101"
+  shared_drive: "https://drive.example.com/ds101"
+  syllabus: "syllabus.pdf"  # will be in the professor's (and students') root/main directory
+  announcements_feed: "announcements.md"  # will be in the professor's (and students') root/main directory
+
+# === COMMUNICATION POLICY ===
+contact_policy: "Email within 24h."
+
+# === EXTENSIBLE FIELDS FOR FUTURE USE ===
+# The schema supports additional fields for future automation:
+#
+# schedule:
+#   - day: "Monday"
+#     time: "10:00-11:30"
+#     location: "Room 205"
+#   - day: "Wednesday" 
+#     time: "10:00-11:30"
+#     location: "Room 205"
+#
+# grading:
+#   homework: 40
+#   midterm: 25
+#   final: 25
+#   participation: 10
+#
+# important_dates:
+#   midterm: "2025-10-15"
+#   final: "2025-12-10"
+#   drop_deadline: "2025-09-30"
+#
+# textbooks:
+#   - title: "Data Science Handbook"
+#     author: "Smith, J."
+#     isbn: "978-0123456789"
+#     required: true 

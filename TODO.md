@@ -8,7 +8,7 @@
 
 - [x] Create the core directory structure with /professor and /students directories
 - [x] Define the dna.yml file schema with required and optional fields for framework configuration
-- [ ] Define the course.yml file schema for class offering metadata
+- [x] Define the course.yml file schema for class offering metadata
 - [ ] Create a parser to read and validate dna.yml configuration values
 - [ ] Create a parser to read and validate course.yml metadata
 - [ ] Create the detailed internal structure for /professor directory with all subdirectories (class_notes, framework_code, etc.)
