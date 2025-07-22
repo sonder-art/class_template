@@ -10,7 +10,7 @@
 - [x] Define the dna.yml file schema with required and optional fields for framework configuration
 - [x] Define the course.yml file schema for class offering metadata
 - [x] Create a parser to read and validate dna.yml configuration values
-- [ ] Create a parser to read and validate course.yml metadata
+- [x] Create a parser to read and validate course.yml metadata
 - [ ] Create the detailed internal structure for /professor directory with all subdirectories (class_notes, framework_code, etc.)
 - [ ] Create the framework_code/components/ directory structure for functional components
 - [ ] Create the framework_code/themes/ directory structure with theme organization system
