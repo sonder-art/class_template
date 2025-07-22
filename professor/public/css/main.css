@@ -1,0 +1,383 @@
+/*
+ * Default Theme: Evangelion-Inspired Dark Theme
+ * Framework: GitHub Class Template Repository
+ * Design: Dark, high-contrast, easy to read with Evangelion color palette
+ */
+
+/* === FONT SYSTEM === */
+:root {
+  /* Best readable font stack - system fonts for performance and readability */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+  
+  /* === EVANGELION COLOR PALETTE === */
+  /* Dark backgrounds */
+  --color-bg-primary: #0a0a0a;        /* Pure black background */
+  --color-bg-secondary: #1a1a1a;      /* Slightly lighter for cards/sections */
+  --color-bg-tertiary: #2a2a2a;       /* Even lighter for hover states */
+  
+  /* Evangelion signature colors */
+  --color-eva-green: #00ff41;         /* Bright neon green (Matrix/Eva style) */
+  --color-eva-orange: #ff6600;        /* Eva Unit-01 orange */
+  --color-eva-purple: #660099;        /* Eva Unit-01 purple */
+  --color-eva-red: #ff0033;           /* Eva emergency/warning red */
+  --color-eva-blue: #0099ff;          /* Eva interface blue */
+  
+  /* Text colors for maximum readability */
+  --color-text-primary: #ffffff;      /* Pure white for main text */
+  --color-text-secondary: #cccccc;    /* Light gray for secondary text */
+  --color-text-muted: #888888;        /* Muted gray for less important text */
+  --color-text-accent: var(--color-eva-green); /* Eva green for highlights */
+  
+  /* Interactive elements */
+  --color-link: var(--color-eva-green);
+  --color-link-hover: var(--color-eva-orange);
+  --color-button-primary: var(--color-eva-green);
+  --color-button-secondary: var(--color-eva-blue);
+  
+  /* Spacing and layout */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+  
+  /* Border radius for modern look */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  
+  /* Shadows for depth */
+  --shadow-sm: 0 1px 2px rgba(0, 255, 65, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 255, 65, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 255, 65, 0.2);
+}
+
+/* === BASE STYLES === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === TYPOGRAPHY === */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-primary);
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: var(--color-eva-green);
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+}
+
+h2 {
+  font-size: 2rem;
+  color: var(--color-eva-orange);
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--color-eva-blue);
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+}
+
+h6 {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+  max-width: 70ch; /* Optimal reading width */
+}
+
+/* === LINKS === */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+  text-shadow: 0 0 5px currentColor;
+}
+
+a:focus {
+  outline: 2px solid var(--color-eva-green);
+  outline-offset: 2px;
+}
+
+/* === CODE BLOCKS === */
+code {
+  font-family: var(--font-mono);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-eva-green);
+  padding: 0.2em 0.4em;
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+}
+
+pre {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  overflow-x: auto;
+  margin-bottom: var(--spacing-md);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* === LAYOUT CONTAINERS === */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.content-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === SIDEBAR LAYOUT (Desktop-first as specified) === */
+.layout-main {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+  gap: var(--spacing-lg);
+}
+
+.sidebar {
+  background-color: var(--color-bg-secondary);
+  border-right: 2px solid var(--color-eva-green);
+  padding: var(--spacing-lg);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.main-content {
+  padding: var(--spacing-lg);
+  max-width: none;
+}
+
+/* === NAVIGATION === */
+.nav-tree {
+  list-style: none;
+}
+
+.nav-tree li {
+  margin-bottom: var(--spacing-sm);
+}
+
+.nav-tree a {
+  display: block;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s ease;
+}
+
+.nav-tree a:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+.nav-tree a.active {
+  background-color: var(--color-eva-green);
+  color: var(--color-bg-primary);
+}
+
+/* === BUTTONS === */
+.btn {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-primary);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--color-eva-green);
+  color: var(--color-bg-primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-eva-orange);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-eva-blue);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-eva-blue);
+  color: var(--color-bg-primary);
+}
+
+/* === CARDS === */
+.card {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+  border-color: var(--color-eva-green);
+  box-shadow: var(--shadow-md);
+}
+
+/* === TABLES === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: var(--spacing-lg);
+}
+
+th, td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-bg-tertiary);
+}
+
+th {
+  background-color: var(--color-bg-secondary);
+  color: var(--color-eva-green);
+  font-weight: 600;
+}
+
+tr:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* === MOBILE RESPONSIVENESS === */
+@media (max-width: 768px) {
+  .layout-main {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    height: 100vh;
+    width: 280px;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .mobile-nav-toggle {
+    display: block;
+    position: fixed;
+    top: var(--spacing-md);
+    left: var(--spacing-md);
+    z-index: 1001;
+    background-color: var(--color-eva-green);
+    color: var(--color-bg-primary);
+    border: none;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .main-content {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-nav-toggle {
+    display: none;
+  }
+}
+
+/* === ACCESSIBILITY === */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-bg-primary: #000000;
+    --color-text-primary: #ffffff;
+    --color-eva-green: #00ff00;
+  }
+}
+
+/* === UTILITY CLASSES === */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-muted { color: var(--color-text-muted); }
+.text-accent { color: var(--color-text-accent); }
+
+.mb-0 { margin-bottom: 0; }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+
+.mt-0 { margin-top: 0; }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); } 

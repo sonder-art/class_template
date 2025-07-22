@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode | default "en" }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
+    <meta name="author" content="{{ .Site.Params.author | default .Site.Params.professor_name }}">
+    
+    <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+    
+    <!-- Math rendering -->
+    {{ if .Site.Params.enable_mathjax }}
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        }
+      };
+    </script>
+    {{ end }}
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
+</head>
+<body class="theme-{{ .Site.Params.theme_name | default "default" }}">
+    <div class="page-wrapper">
+        <!-- Header -->
+        <header class="site-header">
+            <div class="container">
+                <h1 class="site-title">
+                    <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
+                </h1>
+                {{ if .Site.Params.course_name }}
+                <p class="course-info">{{ .Site.Params.course_name }} - {{ .Site.Params.semester }}</p>
+                {{ end }}
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <div class="container">
+                {{ block "main" . }}{{ end }}
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="container">
+                {{ if .Site.Params.professor_name }}
+                <p>&copy; {{ now.Format "2006" }} {{ .Site.Params.professor_name }}</p>
+                {{ end }}
+                <p>Powered by <a href="https://gohugo.io/">Hugo</a> & GitHub Class Template</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Search functionality -->
+    {{ if .Site.Params.enable_search }}
+    <script src="{{ "js/search.js" | relURL }}"></script>
+    {{ end }}
+</body>
+</html> 

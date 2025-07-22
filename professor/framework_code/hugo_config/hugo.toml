@@ -7,7 +7,7 @@ defaultContentLanguage = "en"
 [module]
   [module.hugoVersion]
     extended = true
-    min = "0.120.0"
+    min = "0.140.0"
 
 # Content and publishing settings
 contentDir = "content"
@@ -138,8 +138,8 @@ relativeURLs = true
 
 # Permalinks
 [permalinks]
-  class_notes = "/notes/:section/:filename/"
-  homework = "/homework/:filename/"
+  class_notes = "/notes/:section/:contentbasename/"
+  homework = "/homework/:contentbasename/"
 
 # Image processing
 [imaging]
