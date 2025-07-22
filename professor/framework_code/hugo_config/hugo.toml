@@ -1,0 +1,210 @@
+title = "GitHub Class Template Repository"
+baseURL = "https://example.github.io/class_template"
+languageCode = "en-us"
+defaultContentLanguage = "en"
+
+# Hugo version requirements
+[module]
+  [module.hugoVersion]
+    extended = true
+    min = "0.120.0"
+
+# Content and publishing settings
+contentDir = "content"
+publishDir = "public"
+staticDir = "static"
+layoutDir = "layouts"
+dataDir = "data"
+archetypeDir = "archetypes"
+
+# Enable Git info for last modified dates
+enableGitInfo = true
+enableRobotsTXT = true
+enableEmoji = true
+
+# URL structure
+disableKinds = ["taxonomy", "term"]
+canonifyURLs = false
+relativeURLs = true
+
+# Content processing
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true  # Allow HTML in Markdown
+    [markup.goldmark.parser]
+      [markup.goldmark.parser.attribute]
+        block = true
+        title = true
+    [markup.goldmark.extensions]
+      linkify = true
+      strikethrough = true
+      table = true
+      taskList = true
+  
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = true
+    lineNumbersInTable = true
+    noClasses = false
+    style = "github-dark"  # Fits our Evangelion theme
+    tabWidth = 4
+
+  [markup.tableOfContents]
+    endLevel = 3
+    ordered = false
+    startLevel = 2
+
+# Site parameters for theme and framework
+[params]
+  # Theme configuration
+  theme_name = "default"  # References our Evangelion theme
+  
+  # Framework metadata
+  framework_version = "1.0.0"
+  repository_type = "class_template"
+  
+  # Professor information (will be overridden by course.yml)
+  professor_name = "Professor Name"
+  course_name = "Course Name"
+  semester = "Semester Year"
+  
+  # Navigation settings
+  show_sidebar = true
+  sidebar_width = "280px"
+  enable_search = true
+  search_mode = "simple"
+  
+  # Content settings
+  enable_homework_nav = true
+  enable_chapter_nav = true
+  show_last_modified = true
+  show_reading_time = true
+  
+  # Social and contact
+  email = ""
+  office_hours = ""
+  office_location = ""
+  
+  # GitHub integration
+  github_repo = ""
+  edit_page = true
+  
+  # Math rendering
+  enable_mathjax = true
+  enable_katex = false
+  
+  # Code execution (JupyterLite integration)
+  enable_jupyter = true
+  jupyter_lite_url = ""
+  
+  # Accessibility
+  enable_high_contrast = true
+  enable_reduced_motion = true
+
+# Menu configuration
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 10
+  
+  [[menu.main]]
+    name = "Class Notes"
+    url = "/class_notes/"
+    weight = 20
+  
+  [[menu.main]]
+    name = "Homework"
+    url = "/homework/"
+    weight = 30
+  
+  [[menu.main]]
+    name = "Resources"
+    url = "/resources/"
+    weight = 40
+
+# Output formats
+[outputs]
+  home = ["HTML", "RSS", "JSON"]  # JSON for search index
+  page = ["HTML"]
+  section = ["HTML", "RSS"]
+
+[outputFormats]
+  [outputFormats.RSS]
+    mediatype = "application/rss"
+    baseName = "feed"
+
+# Permalinks
+[permalinks]
+  class_notes = "/notes/:section/:filename/"
+  homework = "/homework/:filename/"
+
+# Image processing
+[imaging]
+  quality = 85
+  resampleFilter = "lanczos"
+  
+# Minification (for production)
+[minify]
+  disableCSS = false
+  disableHTML = false
+  disableJS = false
+  disableJSON = false
+  disableSVG = false
+  disableXML = false
+  
+  [minify.tdewolff]
+    [minify.tdewolff.css]
+      decimals = -1
+      keepCSS2 = true
+    [minify.tdewolff.html]
+      keepComments = false
+      keepConditionalComments = true
+      keepDefaultAttrVals = true
+      keepDocumentTags = true
+      keepEndTags = true
+      keepQuotes = false
+      keepWhitespace = false
+    [minify.tdewolff.js]
+      keepVarNames = false
+      precision = 0
+    [minify.tdewolff.json]
+      precision = 0
+
+# Security settings
+[security]
+  [security.exec]
+    allow = ["^dart-sass-embedded$", "^go$", "^npx$", "^postcss$"]
+  [security.funcs]
+    getenv = ["^HUGO_", "^CI$"]
+  [security.http]
+    methods = ["(?i)GET|POST"]
+    urls = [".*"]
+
+# Cache configuration
+[caches]
+  [caches.getjson]
+    dir = ":cacheDir/:project"
+    maxAge = "1h"
+  [caches.getcsv]
+    dir = ":cacheDir/:project"
+    maxAge = "1h"
+  [caches.images]
+    dir = ":resourceDir/_gen"
+    maxAge = "1440h"
+  [caches.assets]
+    dir = ":resourceDir/_gen"
+    maxAge = "1440h"
+
+# Development server settings
+[server]
+  [[server.headers]]
+    for = "**"
+    [server.headers.values]
+      X-Frame-Options = "DENY"
+      X-XSS-Protection = "1; mode=block"
+      X-Content-Type-Options = "nosniff"
+      Referrer-Policy = "strict-origin-when-cross-origin"
+      Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;" 

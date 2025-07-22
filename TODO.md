@@ -17,7 +17,7 @@
 - [x] Implement a default theme with basic styling and layout
 - [x] Implement the file naming convention rules (numbers for primary content, letters for code files)
 - [x] Create validation logic for chapter directory structure and naming conventions
-- [ ] Configure Hugo as the static site generator with basic settings
+- [x] Configure Hugo as the static site generator with basic settings
 - [ ] Integrate JupyterLite for browser-based notebook execution
 - [ ] Setup LaTeX rendering support in Hugo for mathematical content
 
