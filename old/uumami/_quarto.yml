@@ -45,6 +45,7 @@ custom-callout:
     icon-symbol: 📚
     color: '#6C5CE7'
 website:
+  search: false
   title: '{{< meta class_name >}} ({{< meta course_code >}}) - {{< meta period >}}'
   navbar:
     left:
@@ -58,20 +59,8 @@ website:
       menu:
       - text: 01. Intro
         href: notas/01_intro/00_index.qmd
-    - text: 🔧 Automation
-      menu:
-      - text: Overview
-        href: quarto_development/01_automation_system/01_overview/01_main_concepts.qmd
-      - text: Quick Start
-        href: quarto_development/01_automation_system/02_quickstart/01_getting_started.qmd
-      - text: Student Setup
-        href: quarto_development/01_automation_system/03_workflows/01_student_setup.qmd
-      - text: Content Creation
-        href: quarto_development/01_automation_system/03_workflows/02_content_creation.qmd
-      - text: Troubleshooting
-        href: quarto_development/01_automation_system/04_troubleshooting/01_common_issues.qmd
-      - text: Scripts Reference
-        href: quarto_development/01_automation_system/05_reference/01_all_scripts.qmd
+      - text: 01. Automation System
+        href: notas/01_automation_system/00_index.qmd
     right:
     - icon: github
       href: '{{< meta repository_url >}}'
