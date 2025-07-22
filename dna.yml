@@ -1,0 +1,45 @@
+# DNA Configuration File for GitHub Class Template Repository
+# This file stores framework and operational metadata used by automation scripts and CI/CD
+# 
+# REQUIRED FIELDS:
+# - professor_profile: GitHub username of the professor (used for directory handling)
+#
+# OPTIONAL FIELDS:
+# - All other fields are optional and extensible for future use
+# - Unknown keys are read generically so new behavior can be layered gradually
+
+# === REQUIRED CONFIGURATION ===
+professor_profile: uumami
+
+# === OPTIONAL FRAMEWORK CONFIGURATION ===
+# Active visual theme from framework_code/themes/
+theme: default
+
+# Search implementation mode (simple for basic client-side search)
+search_mode: simple
+
+# Enable/disable automatic index regeneration
+index_generation: true
+
+# Synchronization strategy for professor->student updates
+# Options: additive (default), force
+sync_mode: additive
+
+# Enabled authoring tools and integrations
+authoring_tools:
+  - agent
+
+# Default license for content display
+license: CC-BY-4.0
+
+# === FUTURE EXTENSIBILITY ===
+# This file is intentionally extensible. Additional keys can be added over time
+# and interpreted by scripts/components without changing structure.
+# Examples of future configuration options:
+#
+# calendar_integration: true
+# announcement_feeds: true
+# build_notifications: slack
+# content_validation_level: strict
+# student_permissions: read-only
+# auto_deploy: github-pages 
