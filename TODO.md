@@ -13,7 +13,7 @@
 - [x] Create a parser to read and validate course.yml metadata
 - [x] Create the detailed internal structure for /professor directory with all subdirectories (class_notes, framework_code, etc.)
 - [x] Create the framework_code/components/ directory structure for functional components
-- [ ] Create the framework_code/themes/ directory structure with theme organization system
+- [x] Create the framework_code/themes/ directory structure with theme organization system
 - [ ] Implement a default theme with basic styling and layout
 - [ ] Implement the file naming convention rules (numbers for primary content, letters for code files)
 - [ ] Create validation logic for chapter directory structure and naming conventions
