@@ -505,11 +505,35 @@ pre code {
 .folder-content {
   display: none;
   margin-left: var(--space-4);
+  position: relative;
+}
+
+.folder-content::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 30px; /* Stop before the last chapter */
+  width: 1px;
+  background-color: var(--text-secondary);
+  opacity: 0.8;
 }
 
 /* Chapter Item */
 .chapter-item {
   margin-bottom: var(--space-1);
+  position: relative;
+}
+
+.chapter-item::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 20px;
+  width: 10px;
+  height: 1px;
+  background-color: var(--text-secondary);
+  opacity: 0.8;
 }
 
 .chapter-header {
@@ -572,11 +596,47 @@ pre code {
 .chapter-content {
   display: none;
   margin-left: var(--space-4);
+  position: relative;
+}
+
+.chapter-content::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 20px; /* Stop before the last item */
+  width: 1px;
+  background-color: var(--text-secondary);
+  opacity: 0.7;
 }
 
 /* File Item */
 .file-item {
   margin-bottom: 1px;
+  position: relative;
+}
+
+.file-item::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 18px;
+  width: 10px;
+  height: 1px;
+  background-color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+/* Tree structure styling for better hierarchy visualization */
+.chapter-item:last-child::after {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 20px;
+  width: 1px;
+  height: 20px;
+  background-color: var(--text-secondary);
+  opacity: 0.6;
 }
 
 .file-link {
