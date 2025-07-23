@@ -8,119 +8,343 @@ Automatically generates navigation tree from content structure including:
 */}}
 
 <nav class="sidebar-nav">
-    <div class="nav-header">
-        <h3>📚 Navigation</h3>
+    <!-- Profile Section -->
+    <div class="nav-profile">
+        <div class="profile-image">
+            {{ $profileImage := .Site.Params.profile_image | default "/assets/images/profile-placeholder.svg" }}
+            <img src="{{ $profileImage }}" alt="{{ .Site.Params.professor_name | default "Instructor" }}" class="profile-avatar">
+        </div>
+        <div class="profile-info">
+            <h3 class="profile-name">{{ .Site.Params.professor_name | default "Instructor" }}</h3>
+            <p class="profile-role">{{ .Site.Params.course_name | default "Course" }}</p>
+        </div>
     </div>
     
-    {{/* Get all content categories in correct order */}}
+    <!-- Utility Icons -->
+    <div class="nav-utilities">
+        <a href="/" class="utility-btn" title="Home">
+            <span class="utility-icon">🏠</span>
+        </a>
+        <button class="utility-btn" title="Search (Coming Soon)" disabled>
+            <span class="utility-icon">🔍</span>
+        </button>
+        <button class="utility-btn" title="Font Settings (Coming Soon)" disabled>
+            <span class="utility-icon">🔤</span>
+        </button>
+    </div>
+    
+
+    
+    {{/* Simple VSCode-style file tree */}}
     {{ $categories := slice "class_notes" "framework_tutorials" "framework_documentation" }}
     
-    {{ range $categories }}
-        {{ $categoryName := . }}
-        {{ $categoryPages := where $.Site.RegularPages "Section" $categoryName }}
-        
-        {{ if $categoryPages }}
-            {{ $categoryTitle := $categoryName | replaceRE "_" " " | title }}
+    <div class="file-tree">
+        {{ range $categories }}
+            {{ $categoryName := . }}
+            {{ $categoryPages := where $.Site.RegularPages "Section" $categoryName }}
             
-            <div class="nav-category">
-                <div class="nav-category-header">
-                    <a href="/{{ $categoryName }}/00_master_index/" 
-                       class="nav-category-link {{ if eq $.Section $categoryName }}active{{ end }}"
-                       title="{{ $categoryTitle }}">
-                        {{ $categoryTitle }}
-                    </a>
-                </div>
+            {{ if $categoryPages }}
+                {{ $categoryTitle := $categoryName | replaceRE "_" " " | title }}
                 
-                {{/* Get unique chapter directories */}}
-                {{ $chapterDirs := slice }}
-                {{ range $categoryPages }}
-                    {{ $dir := path.Dir .File.Path }}
-                    {{ $dirName := path.Base $dir }}
-                    {{ if ne $dirName $categoryName }}
-                        {{ if not (in $chapterDirs $dirName) }}
-                            {{ $chapterDirs = $chapterDirs | append $dirName }}
-                        {{ end }}
-                    {{ end }}
-                {{ end }}
+                {{/* Category Folder */}}
+                <div class="folder-item" data-category="{{ $categoryName }}">
+                    <div class="folder-header" data-target="category-{{ $categoryName }}">
+                        <span class="folder-icon">▶</span>
+                        <a href="/{{ $categoryName }}/00_master_index/" class="folder-name-link {{ if and (eq $.Section $categoryName) (eq $.File.BaseFileName "00_master_index") }}active{{ end }}">
+                            <span class="folder-name">{{ $categoryTitle }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="folder-content" id="category-{{ $categoryName }}">
                 
-                {{/* Sort chapter directories: numbered first, then appendices */}}
-                {{ $numberedChapters := slice }}
-                {{ $appendixChapters := slice }}
-                
-                {{ range $chapterDirs }}
-                    {{ $firstChar := substr . 0 1 }}
-                    {{ if and (ge $firstChar "0") (le $firstChar "9") }}
-                        {{ $numberedChapters = $numberedChapters | append . }}
-                    {{ else if and (ge $firstChar "A") (le $firstChar "Z") }}
-                        {{ $appendixChapters = $appendixChapters | append . }}
-                    {{ else }}
-                        {{ $numberedChapters = $numberedChapters | append . }}
-                    {{ end }}
-                {{ end }}
-                
-                {{/* Sort by name (alphabetical/numeric) */}}
-                {{ $numberedChapters = sort $numberedChapters }}
-                {{ $appendixChapters = sort $appendixChapters }}
-                
-                {{/* Display chapters */}}
-                {{ if or $numberedChapters $appendixChapters }}
-                    <div class="nav-chapters">
-                        {{/* Display numbered chapters first */}}
-                        {{ range $numberedChapters }}
-                            {{ $chapterName := . }}
-                            {{ $chapterPages := where $categoryPages "File.Dir" "eq" (printf "%s/%s/" $categoryName $chapterName) }}
-                            
-                            {{ if $chapterPages }}
-                                {{ partial "chapter-nav.html" (dict "chapterName" $chapterName "chapterPages" $chapterPages "categoryName" $categoryName "currentPage" $ "isAppendix" false) }}
+                        {{/* Simple chapter listing with proper numeric sorting */}}
+                        {{ $chapterDirs := slice }}
+                        {{ range $categoryPages }}
+                            {{ $dir := path.Dir .File.Path }}
+                            {{ $dirName := path.Base $dir }}
+                            {{ if ne $dirName $categoryName }}
+                                {{ if not (in $chapterDirs $dirName) }}
+                                    {{ $chapterDirs = $chapterDirs | append $dirName }}
+                                {{ end }}
                             {{ end }}
                         {{ end }}
                         
-                        {{/* Display appendix chapters */}}
-                        {{ range $appendixChapters }}
-                            {{ $chapterName := . }}
-                            {{ $chapterPages := where $categoryPages "File.Dir" "eq" (printf "%s/%s/" $categoryName $chapterName) }}
-                            
-                            {{ if $chapterPages }}
-                                {{ partial "chapter-nav.html" (dict "chapterName" $chapterName "chapterPages" $chapterPages "categoryName" $categoryName "currentPage" $ "isAppendix" true) }}
+                        {{/* Separate numbered chapters from appendix chapters for proper sorting */}}
+                        {{ $numberedChapters := slice }}
+                        {{ $appendixChapters := slice }}
+                        
+                        {{ range $chapterDirs }}
+                            {{ if findRE "^[A-Z]_" . }}
+                                {{ $appendixChapters = $appendixChapters | append . }}
+                            {{ else }}
+                                {{ $numberedChapters = $numberedChapters | append . }}
                             {{ end }}
                         {{ end }}
+                        
+                        {{/* Sort numbered chapters by extracting the number */}}
+                        {{ $sortedNumbered := slice }}
+                        {{ range seq 0 99 }}
+                            {{ $num := . }}
+                            {{ $paddedNum := printf "%02d_" $num }}
+                            {{ $unpadded := printf "%d_" $num }}
+                            {{ range $numberedChapters }}
+                                {{ if or (hasPrefix . $paddedNum) (hasPrefix . $unpadded) }}
+                                    {{ if not (in $sortedNumbered .) }}
+                                        {{ $sortedNumbered = $sortedNumbered | append . }}
+                                    {{ end }}
+                                {{ end }}
+                            {{ end }}
+                        {{ end }}
+                        
+                        {{/* Sort appendix chapters alphabetically */}}
+                        {{ $appendixChapters = sort $appendixChapters }}
+                        
+                        {{/* Combine: numbered first, then appendices */}}
+                        {{ $chapterDirs = slice }}
+                        {{ range $sortedNumbered }}
+                            {{ $chapterDirs = $chapterDirs | append . }}
+                        {{ end }}
+                        {{ range $appendixChapters }}
+                            {{ $chapterDirs = $chapterDirs | append . }}
+                        {{ end }}
+                        
+                        {{ range $chapterDirs }}
+                            {{ $chapterName := . }}
+                            {{ $chapterPages := where $categoryPages "File.Dir" "eq" (printf "%s/%s/" $categoryName $chapterName) }}
+                            {{ $chapterTitle := $chapterName | replaceRE "^([0-9]+|[A-Z])_" "$1. " | replaceRE "_" " " | title }}
+                            
+                            {{/* Chapter Folder */}}
+                            <div class="chapter-item">
+                                <div class="chapter-header" data-target="chapter-{{ $categoryName }}-{{ $chapterName }}">
+                                    <span class="chapter-icon">▶</span>
+                                    {{ $isChapterIndex := and (eq $.Section $categoryName) (eq (path.Base (path.Dir $.File.Path)) $chapterName) (eq $.File.BaseFileName "00_index") }}
+                                    <a href="/{{ $categoryName }}/{{ $chapterName | lower }}/00_index/" class="chapter-name-link {{ if $isChapterIndex }}active{{ end }}">
+                                        <span class="chapter-name">{{ $chapterTitle }}</span>
+                                    </a>
+                                </div>
+                                
+                                <div class="chapter-content" id="chapter-{{ $categoryName }}-{{ $chapterName }}">
+                                    {{/* Sort pages within chapter numerically */}}
+                                    {{ $sortedPages := slice }}
+                                    {{ $appendixPages := slice }}
+                                    
+                                    {{/* Separate numbered pages from appendix pages */}}
+                                    {{ range $chapterPages }}
+                                        {{ if not (eq .File.BaseFileName "00_index") }}
+                                            {{ if findRE "^[A-Z]_" .File.BaseFileName }}
+                                                {{ $appendixPages = $appendixPages | append . }}
+                                            {{ else }}
+                                                {{ $sortedPages = $sortedPages | append . }}
+                                            {{ end }}
+                                        {{ end }}
+                                    {{ end }}
+                                    
+                                    {{/* Sort numbered pages by extracting the number */}}
+                                    {{ $finalSortedPages := slice }}
+                                    {{ range seq 0 99 }}
+                                        {{ $num := . }}
+                                        {{ $paddedNum := printf "%02d_" $num }}
+                                        {{ $unpadded := printf "%d_" $num }}
+                                        {{ range $sortedPages }}
+                                            {{ if or (hasPrefix .File.BaseFileName $paddedNum) (hasPrefix .File.BaseFileName $unpadded) }}
+                                                {{ if not (in $finalSortedPages .) }}
+                                                    {{ $finalSortedPages = $finalSortedPages | append . }}
+                                                {{ end }}
+                                            {{ end }}
+                                        {{ end }}
+                                    {{ end }}
+                                    
+                                    {{/* Sort appendix pages alphabetically */}}
+                                    {{ $appendixPages = sort $appendixPages "File.BaseFileName" }}
+                                    
+                                    {{/* Combine: numbered first, then appendices */}}
+                                    {{ $allSortedPages := slice }}
+                                    {{ range $finalSortedPages }}
+                                        {{ $allSortedPages = $allSortedPages | append . }}
+                                    {{ end }}
+                                    {{ range $appendixPages }}
+                                        {{ $allSortedPages = $allSortedPages | append . }}
+                                    {{ end }}
+                                    
+                                    {{ range $allSortedPages }}
+                                        {{ $fileName := .File.BaseFileName | replaceRE "^([0-9]+|[A-Z])_" "$1. " | replaceRE "_" " " | title }}
+                                        <div class="file-item {{ if eq $.RelPermalink .RelPermalink }}active{{ end }}">
+                                            <a href="{{ .RelPermalink }}" class="file-link">
+                                                <span class="file-name">{{ $fileName }}</span>
+                                                {{ if .Params.estimated_time }}
+                                                    <span class="file-time">{{ .Params.estimated_time }}</span>
+                                                {{ end }}
+                                            </a>
+                                        </div>
+                                    {{ end }}
+                                </div>
+                            </div>
+                        {{ end }}
                     </div>
-                {{ end }}
-            </div>
+                </div>
+            {{ end }}
         {{ end }}
-    {{ end }}
+    </div>
 </nav>
 
-{{/* JavaScript for collapsible navigation */}}
+{{/* VSCode-style persistent navigation */}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const toggles = document.querySelectorAll('.nav-toggle');
+    const STORAGE_KEY = 'vscode-nav-state';
     
-    toggles.forEach(toggle => {
-        toggle.addEventListener('click', function() {
-            const target = this.getAttribute('data-target');
+    // Load saved expansion state
+    function loadNavigationState() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : {};
+        } catch (e) {
+            return {};
+        }
+    }
+    
+    // Save expansion state
+    function saveNavigationState(state) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+            // Ignore storage errors
+        }
+    }
+    
+    // Get current expansion state
+    function getCurrentState() {
+        const state = {};
+        document.querySelectorAll('[data-target]').forEach(element => {
+            const target = element.getAttribute('data-target');
             const content = document.getElementById(target);
-            const icon = this.querySelector('.toggle-icon');
-            const isExpanded = this.getAttribute('aria-expanded') === 'true';
-            
-            if (isExpanded) {
-                this.setAttribute('aria-expanded', 'false');
-                this.classList.remove('expanded');
-                content.classList.remove('expanded');
-                icon.textContent = '▶';
-            } else {
-                this.setAttribute('aria-expanded', 'true');
-                this.classList.add('expanded');
-                content.classList.add('expanded');
-                icon.textContent = '▼';
+            if (content) {
+                state[target] = content.style.display === 'block';
             }
         });
-    });
-    
-    // Auto-expand current chapter on page load
-    const currentChapter = document.querySelector('.nav-chapter-header.active .nav-toggle');
-    if (currentChapter && !currentChapter.classList.contains('expanded')) {
-        currentChapter.click();
+        return state;
     }
+    
+    // Apply expansion state
+    function applyNavigationState(state) {
+        Object.keys(state).forEach(target => {
+            const content = document.getElementById(target);
+            const header = document.querySelector(`[data-target="${target}"]`);
+            if (content && header) {
+                const icon = header.querySelector('.folder-icon') || header.querySelector('.chapter-icon');
+                if (state[target]) {
+                    content.style.display = 'block';
+                    if (icon) icon.textContent = '▼';
+                } else {
+                    content.style.display = 'none';
+                    if (icon) icon.textContent = '▶';
+                }
+            }
+        });
+    }
+    
+    // Auto-expand hierarchy for current page
+    function autoExpandCurrentHierarchy() {
+        const currentSection = '{{ $.Section }}';
+        const savedState = loadNavigationState();
+        
+        if (currentSection) {
+            // Always expand current category (parent hierarchy)
+            savedState[`category-${currentSection}`] = true;
+            
+            // Find active file and expand its chapter (parent hierarchy)
+            const activeFile = document.querySelector('.file-item.active');
+            if (activeFile) {
+                const chapterContent = activeFile.closest('.chapter-content');
+                if (chapterContent) {
+                    savedState[chapterContent.id] = true;
+                }
+            }
+        }
+        
+        return savedState;
+    }
+    
+    // Toggle expansion and save state
+    function toggleExpansion(icon, targetId) {
+        const content = document.getElementById(targetId);
+        if (!content) return;
+        
+        const isExpanded = content.style.display === 'block';
+        
+        if (isExpanded) {
+            content.style.display = 'none';
+            icon.textContent = '▶';
+        } else {
+            content.style.display = 'block';
+            icon.textContent = '▼';
+        }
+        
+        // Save current state
+        saveNavigationState(getCurrentState());
+    }
+    
+    // Initialize file tree with persistent state
+    function initializeFileTree() {
+        // Load and merge saved state with auto-expanded hierarchy
+        const savedState = autoExpandCurrentHierarchy();
+        applyNavigationState(savedState);
+        saveNavigationState(savedState);
+        
+        // Handle folder icons (categories)
+        document.querySelectorAll('.folder-icon').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const header = this.parentElement;
+                const targetId = header.getAttribute('data-target');
+                toggleExpansion(this, targetId);
+            });
+        });
+        
+        // Handle chapter icons
+        document.querySelectorAll('.chapter-icon').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const header = this.parentElement;
+                const targetId = header.getAttribute('data-target');
+                toggleExpansion(this, targetId);
+            });
+        });
+        
+                 // Handle folder title clicks (navigate + auto-expand children)
+         document.querySelectorAll('.folder-name-link').forEach(link => {
+             link.addEventListener('click', function(e) {
+                 // Let the navigation happen, but first expand immediate children
+                 const header = this.closest('.folder-header');
+                 const targetId = header.getAttribute('data-target');
+                 const content = document.getElementById(targetId);
+                 const icon = header.querySelector('.folder-icon');
+                 
+                 if (content && content.style.display !== 'block') {
+                     content.style.display = 'block';
+                     if (icon) icon.textContent = '▼';
+                     saveNavigationState(getCurrentState());
+                 }
+             });
+         });
+         
+         // Handle chapter title clicks (navigate + auto-expand children)
+         document.querySelectorAll('.chapter-name-link').forEach(link => {
+             link.addEventListener('click', function(e) {
+                 // Let the navigation happen, but first expand immediate children
+                 const header = this.closest('.chapter-header');
+                 const targetId = header.getAttribute('data-target');
+                 const content = document.getElementById(targetId);
+                 const icon = header.querySelector('.chapter-icon');
+                 
+                 if (content && content.style.display !== 'block') {
+                     content.style.display = 'block';
+                     if (icon) icon.textContent = '▼';
+                     saveNavigationState(getCurrentState());
+                 }
+             });
+         });
+    }
+    
+    initializeFileTree();
 });
 </script> 

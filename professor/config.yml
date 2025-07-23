@@ -8,6 +8,10 @@ theme:
   name: "evangelion"
   path: "framework_code/themes"
 
+# Profile settings
+profile:
+  image: "/assets/images/profile-placeholder.svg"  # Path to profile image
+
 # Accessibility options
 accessibility:
   default_font: "normal"  # normal | opendyslexic

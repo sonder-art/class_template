@@ -29,6 +29,11 @@ buildFuture = false
     source = "{{ hugo.assets_path | default('framework_code/assets') }}"
     target = "assets"
   
+  # Static assets (images, etc.) served directly
+  [[module.mounts]]
+    source = "{{ hugo.assets_path | default('framework_code/assets') }}"
+    target = "static/assets"
+  
   [[module.mounts]]
     source = "framework_code/css"
     target = "assets/css"
@@ -62,6 +67,9 @@ buildFuture = false
   professor_name = "{{ professor.name }}"
   professor_email = "{{ professor.email }}"
   contact_policy = "{{ contact_policy }}"
+  
+  # Profile settings from config.yml
+  profile_image = "{{ profile.image | default('/assets/images/profile-placeholder.svg') }}"
   
   # Accessibility settings from config.yml
   default_font = "{{ accessibility.default_font | default('normal') }}"

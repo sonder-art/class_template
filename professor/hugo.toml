@@ -37,6 +37,11 @@ buildFuture = false
     source = "framework_code/assets"
     target = "assets"
   
+  # Static assets (images, etc.) served directly
+  [[module.mounts]]
+    source = "framework_code/assets"
+    target = "static/assets"
+  
   [[module.mounts]]
     source = "framework_code/css"
     target = "assets/css"
@@ -70,6 +75,9 @@ buildFuture = false
   professor_name = "Template Instructor"
   professor_email = "instructor@example.edu"
   contact_policy = "Email within 24 hours for questions."
+  
+  # Profile settings from config.yml
+  profile_image = "/assets/images/profile-placeholder.svg"
   
   # Accessibility settings from config.yml
   default_font = "normal"
