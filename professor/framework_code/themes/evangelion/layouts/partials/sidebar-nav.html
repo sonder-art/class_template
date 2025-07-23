@@ -24,7 +24,9 @@ Automatically generates navigation tree from content structure including:
             
             <div class="nav-category">
                 <div class="nav-category-header">
-                    <a href="/{{ $categoryName }}/00_master_index/" class="nav-category-link {{ if eq $.Section $categoryName }}active{{ end }}">
+                    <a href="/{{ $categoryName }}/00_master_index/" 
+                       class="nav-category-link {{ if eq $.Section $categoryName }}active{{ end }}"
+                       title="{{ $categoryTitle }}">
                         {{ $categoryTitle }}
                     </a>
                 </div>
