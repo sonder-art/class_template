@@ -17,7 +17,7 @@ Step-by-step guides for using the framework. Start here if you're new to the sys
 ## 📊 Content Statistics
 
 - **3** chapters
-- **4** content files
+- **6** content files
 
 ## 📚 Chapters
 
@@ -31,12 +31,14 @@ Step-by-step guides for using the framework. Start here if you're new to the sys
 - [How the Framework Works](01_understanding_the_framework/02_how_it_works_overview.md) 🟢
 
 ### [Initial Setup](02_initial_setup/00_index.md)
-*Chapter covering step-by-step guide to using start.sh for initial student directory setup*
+*Chapter covering complete step-by-step guide for students and professors from forking the repository to publishing your first site*
 
-📊 1 content files
+📊 3 content files
 
 **Content:**
+- [Complete Workflow Guide: From Fork to First Site](02_initial_setup/01_complete_workflow_guide.md) 🟢
 - [Running the Setup Script](02_initial_setup/05_running_the_setup_script.md) 🟢
+- [Quick Reference Cheat Sheet](02_initial_setup/A_quick_reference_cheat_sheet.md) 🟢
 
 ## 📎 Appendices
 

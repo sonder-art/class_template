@@ -228,6 +228,10 @@ def validate_file_naming(file_path: Path) -> List[str]:
         # Homework file - check pattern hw_NN
         if not re.match(r'^hw_\d+$', name_without_ext):
             errors.append("Homework files must follow pattern 'hw_NN.md' (e.g., hw_01.md)")
+    elif re.match(r'^[A-Z]_', name_without_ext):
+        # Appendix file - check pattern A_descriptive_name (capital letter prefix)
+        if not re.match(r'^[A-Z]_[a-z0-9_]+$', name_without_ext):
+            errors.append("Appendix files must follow pattern 'A_descriptive_name.md' with capital letter prefix")
     elif re.match(r'^\d+_', name_without_ext):
         # Primary content file - check pattern NN_descriptive_name
         if not re.match(r'^\d{2}_[a-z0-9_]+$', name_without_ext):

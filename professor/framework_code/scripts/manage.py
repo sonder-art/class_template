@@ -8,6 +8,10 @@ Usage Examples:
   ./manage.py --dev            # Start development server  
   ./manage.py --sync           # Sync updates (students only)
   ./manage.py --deploy         # Production deployment
+  ./manage.py --publish        # Complete build + deploy
+  ./manage.py --build --dev    # Build and start dev server
+  ./manage.py --build --deploy # Build and deploy (same as --publish)
+  ./manage.py --sync --build   # Sync and build (students)
   ./manage.py --status         # Show current state
 """
 
@@ -365,6 +369,13 @@ Examples:
   ./manage.py --dev             Start development server
   ./manage.py --sync            Sync framework updates (students only)
   ./manage.py --deploy          Build for production deployment
+  ./manage.py --publish         Complete build + deploy pipeline
+  
+Command Combinations:
+  ./manage.py --build --dev     Build and start development server
+  ./manage.py --build --deploy  Build and deploy (same as --publish)
+  ./manage.py --sync --build    Sync updates and build (students)
+  ./manage.py --sync --dev      Sync updates and start dev server (students)
   
 Advanced:
   ./manage.py --validate        Run validation only
@@ -385,6 +396,8 @@ Advanced:
                        help="Sync framework updates (students only)")
     parser.add_argument("--deploy", action="store_true",
                        help="Build for production deployment")
+    parser.add_argument("--publish", action="store_true",
+                       help="Complete build and deploy pipeline (alias for --deploy)")
     
     # Advanced operations
     parser.add_argument("--validate", action="store_true",
@@ -435,6 +448,7 @@ def main():
     
     # Execute commands
     try:
+        # Handle single commands first
         if args.status:
             manager.show_status()
             
@@ -444,17 +458,47 @@ def main():
         elif args.sync:
             manager.sync_student_updates()
             
-        elif args.dev:
-            manager.start_development_server(port=args.port)
+        elif args.clean:
+            manager.clean_generated_files()
             
+        # Handle build/deploy combinations
+        elif args.publish or (args.build and args.deploy):
+            # Complete publish pipeline: build + deploy
+            console.print("\n🚀 [bold]Complete Publish Pipeline[/bold]")
+            console.print("This will: build + validate + deploy")
+            
+            if not args.force and not Confirm.ask("Continue with complete publish?"):
+                return
+                
+            success = manager.full_build_pipeline(force=True)
+            if success:
+                console.print("🎉 Complete publish pipeline completed successfully!")
+            else:
+                console.print("❌ Publish pipeline failed")
+                
+        elif args.build and args.dev:
+            # Build and start dev server
+            if manager.full_build_pipeline(force=args.force):
+                manager.start_development_server(port=args.port)
+                
+        elif args.sync and args.build:
+            # Sync and build (for students)
+            if manager.sync_student_updates():
+                manager.full_build_pipeline(force=args.force)
+                
+        elif args.sync and args.dev:
+            # Sync and start dev server (for students)
+            if manager.sync_student_updates():
+                manager.start_development_server(port=args.port)
+                
         elif args.build:
             manager.full_build_pipeline(force=args.force)
             
         elif args.deploy:
             manager.build_production()
             
-        elif args.clean:
-            manager.clean_generated_files()
+        elif args.dev:
+            manager.start_development_server(port=args.port)
             
         else:
             parser.print_help()
