@@ -1,7 +1,7 @@
 ---
 title: "Initial Setup"
 type: "index"
-date: "2025-07-22"
+date: "2025-07-23"
 author: "Framework (Auto-generated)"
 summary: "Index for Initial Setup chapter"
 ---
@@ -21,6 +21,7 @@ summary: "Index for Initial Setup chapter"
 
 ← [Previous: Understanding The Framework](../01_understanding_the_framework/00_index.md)
 ↑ [Back to Framework Tutorials](../00_master_index.md)
+[Next: Github Hugo Terminal Commands](../A_github_hugo_terminal_commands/00_index.md) →
 
 ---
 

@@ -122,7 +122,7 @@
 - [x] Implement automatic generation of 00_index.md for each chapter
 - [x] Implement automatic generation of 00_master_index.md for the entire site
 - [x] Create logic to detect homework files (hw_ prefix) and surface them in navigation
-- [ ] Add support for appendix chapters with capital letter prefixes (A_, B_, etc.)
+- [x] Add support for appendix chapters with capital letter prefixes (A_, B_, etc.)
 - [x] **REFINED**: Professional navigation spacing with proper touch targets and visual hierarchy
 
 ## 🎨 Content Processing & Display

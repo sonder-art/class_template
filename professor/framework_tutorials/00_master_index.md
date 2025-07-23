@@ -1,7 +1,7 @@
 ---
 title: "Framework Tutorials"
 type: "master-index"
-date: "2025-07-22"
+date: "2025-07-23"
 author: "Framework (Auto-generated)"
 summary: "Master index for Framework Tutorials content"
 ---
@@ -16,8 +16,8 @@ Step-by-step guides for using the framework. Start here if you're new to the sys
 
 ## 📊 Content Statistics
 
-- **2** chapters
-- **3** content files
+- **3** chapters
+- **4** content files
 
 ## 📚 Chapters
 
@@ -37,6 +37,16 @@ Step-by-step guides for using the framework. Start here if you're new to the sys
 
 **Content:**
 - [Running the Setup Script](02_initial_setup/05_running_the_setup_script.md) 🟢
+
+## 📎 Appendices
+
+### [Github Hugo Terminal Commands](A_github_hugo_terminal_commands/00_index.md)
+*Chapter covering quick reference for common github and hugo command-line flags and options*
+
+📊 1 content files
+
+**Content:**
+- [Terminal Flags Quick Reference](A_github_hugo_terminal_commands/01_terminal_flags_quick_reference.md) 🟢
 
 ---
 
