@@ -1,0 +1,749 @@
+/* Evangelion Theme - Professional UX/UI Design
+ * Inspired by Evangelion Unit-01 with focus on:
+ * - Eye comfort and reduced strain
+ * - Professional readability and accessibility  
+ * - Proper visual hierarchy and spacing
+ * - Modern UI/UX best practices
+ */
+
+:root {
+  /* === EVANGELION COLOR PALETTE (UX OPTIMIZED) === */
+  
+  /* Primary backgrounds - Warm dark purples for eye comfort */
+  --bg-color: #0B0910;           /* Very deep warm purple-black */
+  --surface-color: #1A1025;      /* Dark purple surface - warmer tone */
+  --elevated-color: #2A1D3A;     /* Medium purple for cards/elevated elements */
+  --overlay-color: #342447;      /* Lighter purple for overlays */
+  
+  /* Text colors - Optimized for readability and eye comfort */
+  --text-primary: #F8F9FB;       /* Warm white - easier on eyes than pure white */
+  --text-secondary: #D1D6E0;     /* Light gray-purple for secondary text */
+  --text-muted: #9CA3B8;        /* Muted purple-gray for less important text */
+  --text-disabled: #6B7280;     /* Disabled state text */
+  
+  /* Evangelion accent colors - Softer and more professional */
+  --eva-green-primary: #00D084;   /* Professional teal-green (easier on eyes) */
+  --eva-green-hover: #00B877;     /* Darker green for hover states */
+  --eva-green-soft: #00A86B;      /* Softer green for subtle accents */
+  --eva-green-glow: rgba(0, 208, 132, 0.15); /* Subtle glow effect */
+  
+  /* NEW: Evangelion cyan/blue for headings (Eva Unit-00 + AT Field) */
+  --eva-cyan-primary: #00D9FF;    /* Bright cyan for headings */
+  --eva-cyan-hover: #00BCD4;      /* Darker cyan for hover states */
+  --eva-cyan-soft: #4FC3F7;       /* Softer cyan variant */
+  --eva-cyan-glow: rgba(0, 217, 255, 0.2); /* Cyan glow effect */
+  
+  --eva-purple-primary: #7C3AED;  /* Bright purple accent */
+  --eva-purple-hover: #6D28D9;    /* Darker purple hover */
+  --eva-purple-soft: #8B5CF6;     /* Softer purple variant */
+  
+  --eva-orange-accent: #FF8C42;   /* Warm orange for warnings/highlights */
+  --eva-red-accent: #EF4444;      /* Red for errors/critical actions */
+  
+  /* Semantic colors */
+  --success-color: var(--eva-green-primary);
+  --warning-color: var(--eva-orange-accent);
+  --error-color: var(--eva-red-accent);
+  --info-color: var(--eva-cyan-primary);  /* Changed to cyan */
+  
+  /* UI element backgrounds */
+  --header-bg: var(--bg-color);
+  --sidebar-bg: var(--surface-color);
+  --footer-bg: var(--surface-color);
+  --card-bg: var(--elevated-color);
+  
+  /* Navigation - Properly spaced and touch-friendly */
+  --nav-link-color: var(--text-secondary);
+  --nav-hover-bg: var(--elevated-color);
+  --nav-hover-color: var(--eva-green-primary);
+  --nav-active-bg: var(--eva-green-primary);
+  --nav-active-color: var(--bg-color);
+  --nav-border-radius: 8px;
+  --nav-padding-y: 12px;
+  --nav-padding-x: 16px;
+  --nav-margin-bottom: 8px;
+  
+  /* Border and separator colors */
+  --border-subtle: #2A1D3A;      /* Subtle borders */
+  --border-default: #342447;     /* Default borders */
+  --border-emphasis: var(--eva-green-primary); /* Emphasized borders */
+  
+  /* Content area colors - High contrast for readability */
+  --blockquote-bg: var(--surface-color);
+  --blockquote-border: var(--eva-green-primary);
+  
+  /* CODE STYLING - Professional and readable */
+  --code-bg: #1E1B26;            /* Slightly lighter than surface for contrast */
+  --code-text: #E2E8F0;          /* High contrast light gray */
+  --code-border: var(--border-default);
+  --code-highlight: var(--eva-green-soft); /* For syntax highlighting */
+  
+  --pre-bg: #0F0D14;             /* Very dark for terminal blocks */
+  --pre-text: var(--eva-green-primary); /* Green for terminal feel */
+  --pre-border: var(--eva-green-primary);
+  --pre-glow: var(--eva-green-glow);
+  
+  /* Interactive elements - Touch-friendly and accessible */
+  --btn-height: 44px;            /* Minimum touch target size */
+  --btn-padding-x: 24px;
+  --btn-border-radius: 8px;
+  --btn-font-weight: 500;
+  
+  --btn-primary-bg: var(--eva-green-primary);
+  --btn-primary-color: var(--bg-color);
+  --btn-primary-hover: var(--eva-green-hover);
+  
+  --btn-secondary-bg: var(--elevated-color);
+  --btn-secondary-color: var(--text-primary);
+  --btn-secondary-hover: var(--overlay-color);
+  --btn-secondary-border: var(--border-default);
+  
+  /* Links - Professional styling */
+  --link-color: var(--eva-green-primary);
+  --link-hover-color: var(--eva-green-hover);
+  --link-visited: var(--eva-purple-soft);
+  --link-underline: rgba(0, 208, 132, 0.3);
+  
+  /* === TYPOGRAPHY SCALE === */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Monaco', 'Consolas', monospace;
+  
+  /* Font sizes - Perfect readability scale */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px - optimal reading size */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  
+  /* Line heights - Optimal for readability */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;   /* Perfect for body text */
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  
+  /* Font weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* === SPACING SYSTEM (8px grid) === */
+  --space-1: 0.25rem;     /* 4px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-8: 2rem;        /* 32px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-12: 3rem;       /* 48px */
+  --space-16: 4rem;       /* 64px */
+  
+  /* === SHADOWS & EFFECTS === */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  
+  --glow-green: 0 0 20px var(--eva-green-glow);
+  --glow-cyan: 0 0 20px var(--eva-cyan-glow);    /* New cyan glow */
+  --glow-purple: 0 0 20px rgba(124, 58, 237, 0.15);
+  
+  /* Border radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+}
+
+/* === GLOBAL STYLES === */
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === TYPOGRAPHY - MAXIMUM READABILITY === */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.025em;
+}
+
+/* H1 - Maximum contrast and visibility */
+h1 {
+  font-size: var(--text-4xl);
+  color: #FFFFFF !important; /* Pure white for maximum contrast */
+  font-weight: 900; /* Extra extra bold */
+  margin: var(--space-8) 0;
+  padding: var(--space-6) 0;
+  text-align: center;
+  border: none !important;
+  background: none !important;
+  position: relative;
+}
+
+/* H2 - Clear and prominent */
+h2 {
+  font-size: var(--text-3xl);
+  color: var(--eva-cyan-primary) !important;
+  font-weight: 800;
+  margin: var(--space-8) 0 var(--space-6) 0;
+  padding: var(--space-4) 0;
+  background: none !important;
+  border: none !important;
+  position: relative;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--eva-cyan-primary), transparent);
+}
+
+/* H3 - Bright and clear */
+h3 {
+  font-size: var(--text-2xl);
+  color: #FFFFFF !important;
+  font-weight: var(--font-bold);
+  margin: var(--space-6) 0 var(--space-4) 0;
+  padding: var(--space-2) 0;
+  background: none !important;
+  border: none !important;
+}
+
+/* H4 - Clean and visible */
+h4 {
+  font-size: var(--text-xl);
+  color: var(--eva-cyan-primary) !important;
+  font-weight: var(--font-bold);
+  margin: var(--space-5) 0 var(--space-3) 0;
+  padding: var(--space-2) 0;
+  background: none !important;
+  border: none !important;
+}
+
+/* H5 - Clear hierarchy */
+h5 {
+  font-size: var(--text-lg);
+  color: #FFFFFF !important;
+  font-weight: var(--font-semibold);
+  margin: var(--space-4) 0 var(--space-2) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* H6 - Subtle but readable */
+h6 {
+  font-size: var(--text-base);
+  color: var(--text-secondary) !important;
+  font-weight: var(--font-semibold);
+  margin: var(--space-3) 0 var(--space-2) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Override any conflicting styles */
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6,
+article h1,
+article h2,
+article h3,
+article h4,
+article h5,
+article h6 {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.content h1 {
+  color: #FFFFFF !important;
+  font-size: var(--text-4xl) !important;
+  font-weight: 900 !important;
+}
+
+.content h2 {
+  color: var(--eva-cyan-primary) !important;
+  font-size: var(--text-3xl) !important;
+  font-weight: 800 !important;
+}
+
+.content h3 {
+  color: #FFFFFF !important;
+  font-size: var(--text-2xl) !important;
+  font-weight: var(--font-bold) !important;
+}
+
+.content h4 {
+  color: var(--eva-cyan-primary) !important;
+  font-size: var(--text-xl) !important;
+  font-weight: var(--font-bold) !important;
+}
+
+/* Special heading treatments - simplified */
+.page-title {
+  font-size: var(--text-4xl);
+  color: #FFFFFF !important;
+  font-weight: 900;
+  text-align: center;
+  margin: var(--space-8) 0;
+  padding: var(--space-6);
+  background: none !important;
+  border: none !important;
+}
+
+.section-title {
+  font-size: var(--text-2xl);
+  color: var(--eva-cyan-primary) !important;
+  font-weight: var(--font-bold);
+  margin: var(--space-6) 0 var(--space-4) 0;
+  padding: var(--space-3) 0;
+  background: none !important;
+  border: none !important;
+}
+
+p {
+  margin-bottom: var(--space-4);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  font-size: var(--text-base);
+}
+
+/* === CODE STYLING === */
+
+code {
+  background-color: var(--code-bg) !important;
+  color: var(--code-text) !important;
+  border: 1px solid var(--code-border);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+pre {
+  background-color: var(--pre-bg) !important;
+  color: var(--pre-text) !important;
+  border: 2px solid var(--pre-border) !important;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  overflow-x: auto;
+  box-shadow: var(--glow-green);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  margin: var(--space-6) 0;
+}
+
+pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0;
+}
+
+/* Configuration/code sections */
+.hugo-config,
+.code-section,
+.config-display {
+  background-color: var(--pre-bg) !important;
+  color: var(--pre-text) !important;
+  border: 2px solid var(--pre-border) !important;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--glow-green);
+  margin: var(--space-6) 0;
+}
+
+/* === NAVIGATION - PROPERLY SPACED === */
+
+.site-header {
+  background-color: var(--header-bg);
+  border-bottom: 2px solid var(--eva-cyan-primary);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-4) 0;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+  border: none !important;
+  padding: 0 !important;
+}
+
+.header-content h1 a {
+  color: var(--eva-cyan-primary);
+  text-decoration: none;
+  font-weight: var(--font-bold);
+}
+
+/* MAIN NAVIGATION - PROPERLY SPACED */
+.main-nav {
+  display: flex;
+  gap: var(--space-8); /* Much more space between nav items */
+  align-items: center;
+}
+
+.main-nav a {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: var(--font-medium);
+  font-size: var(--text-lg);
+  padding: var(--space-3) var(--space-5); /* Generous padding for touch targets */
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  border-bottom: none !important; /* Remove default link underline */
+  white-space: nowrap;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.main-nav a:hover {
+  background-color: var(--nav-hover-bg);
+  color: var(--eva-green-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-bottom: none !important;
+}
+
+.main-nav a.active {
+  background-color: var(--eva-green-primary);
+  color: var(--bg-color);
+  font-weight: var(--font-bold);
+  box-shadow: var(--glow-green);
+}
+
+.site-nav {
+  padding: var(--space-6) var(--space-4);
+}
+
+.nav-link {
+  display: block;
+  color: var(--nav-link-color);
+  padding: var(--nav-padding-y) var(--nav-padding-x);
+  margin-bottom: var(--nav-margin-bottom);
+  border-radius: var(--nav-border-radius);
+  text-decoration: none;
+  font-weight: var(--font-medium);
+  font-size: var(--text-base);
+  line-height: 1.4;
+  transition: all var(--transition-fast);
+  min-height: 44px; /* Touch-friendly */
+  display: flex;
+  align-items: center;
+}
+
+.nav-link:hover {
+  background-color: var(--nav-hover-bg);
+  color: var(--nav-hover-color);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav-link.active {
+  background-color: var(--nav-active-bg);
+  color: var(--nav-active-color);
+  font-weight: var(--font-semibold);
+  box-shadow: var(--glow-green);
+}
+
+/* Navigation sections */
+.nav-section {
+  margin-bottom: var(--space-8);
+}
+
+.nav-section-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-4);
+  padding: 0 var(--nav-padding-x);
+}
+
+/* === LINKS === */
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid var(--link-underline);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+  border-bottom-color: var(--link-hover-color);
+  text-shadow: 0 0 8px var(--eva-green-glow);
+}
+
+a:visited {
+  color: var(--link-visited);
+}
+
+/* === BUTTONS === */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
+  border-radius: var(--btn-border-radius);
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  font-weight: var(--btn-font-weight);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-color);
+  border-color: var(--btn-primary-bg);
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-primary-hover);
+  border-color: var(--btn-primary-hover);
+  box-shadow: var(--glow-green);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-color);
+  border-color: var(--btn-secondary-border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--btn-secondary-hover);
+  border-color: var(--eva-purple-primary);
+  color: var(--eva-purple-primary);
+}
+
+/* === LAYOUT === */
+
+.site-sidebar {
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
+  min-width: 280px; /* Proper sidebar width */
+}
+
+.site-main {
+  padding: var(--space-8);
+  max-width: 900px; /* Optimal reading width */
+  line-height: var(--leading-relaxed);
+}
+
+.site-footer {
+  background-color: var(--footer-bg);
+  border-top: 1px solid var(--border-default);
+  color: var(--text-muted);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+}
+
+/* === CARDS & CONTENT === */
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-6);
+}
+
+blockquote {
+  border-left: 4px solid var(--blockquote-border);
+  background-color: var(--blockquote-bg);
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  margin: var(--space-6) 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* === TABLES === */
+
+table {
+  width: 100%;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: var(--space-6) 0;
+}
+
+th {
+  background-color: var(--elevated-color);
+  color: var(--text-primary);
+  font-weight: var(--font-semibold);
+  text-align: left;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 2px solid var(--border-emphasis);
+}
+
+td {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+tr:hover {
+  background-color: var(--elevated-color);
+}
+
+/* === SCROLLBAR === */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--eva-green-primary);
+  box-shadow: var(--glow-green);
+}
+
+/* === SELECTION === */
+
+::selection {
+  background-color: var(--eva-green-primary);
+  color: var(--bg-color);
+}
+
+::-moz-selection {
+  background-color: var(--eva-green-primary);
+  color: var(--bg-color);
+}
+
+/* === FOCUS INDICATORS === */
+
+*:focus {
+  outline: 2px solid var(--eva-green-primary);
+  outline-offset: 2px;
+  box-shadow: var(--glow-green);
+}
+
+/* === FORM ELEMENTS === */
+
+input, textarea, select {
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border: 2px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  transition: all var(--transition-fast);
+  min-height: 44px; /* Touch-friendly */
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--eva-green-primary);
+  box-shadow: var(--glow-green);
+  outline: none;
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 768px) {
+  .site-sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+  }
+  
+  .sidebar-open .site-sidebar {
+    transform: translateX(0);
+    box-shadow: var(--shadow-xl);
+  }
+  
+  .site-main {
+    padding: var(--space-4);
+  }
+  
+  h1 {
+    font-size: var(--text-3xl);
+  }
+  
+  h2 {
+    font-size: var(--text-2xl);
+  }
+}
+
+/* === HIGH CONTRAST MODE === */
+
+.high-contrast {
+  --bg-color: #000000;
+  --text-primary: #FFFFFF;
+  --eva-green-primary: #00FF00;
+  --border-default: #FFFFFF;
+  --nav-active-bg: #00FF00;
+  --nav-active-color: #000000;
+  --code-bg: #000000;
+  --code-text: #00FF00;
+  --pre-bg: #000000;
+  --pre-text: #00FF00;
+} 

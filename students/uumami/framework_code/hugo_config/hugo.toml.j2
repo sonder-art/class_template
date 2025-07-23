@@ -1,0 +1,94 @@
+# Hugo Configuration Template - Self-Contained
+# This file is processed by generate_hugo_config.py
+# Variables are filled from course.yml and config.yml ONLY
+# NO dependency on root dna.yml for rendering
+
+baseURL = "{{ site.baseurl | default('') }}"
+languageCode = "en-us"
+title = "{{ site.title | default('Class Template') }}"
+
+# Content and build settings
+publishDir = "{{ hugo.output_dir | default('framework_code/hugo_generated') }}"
+buildDrafts = {{ build.include_draft_content | default('false') | toml_bool }}
+buildFuture = false
+
+# Module configuration for content mounts and framework assets
+[module]
+{% for source in hugo.content_sources | default(['class_notes', 'framework_tutorials', 'framework_documentation']) %}
+  [[module.mounts]]
+    source = "{{ source }}"
+    target = "content/{{ source }}"
+{% endfor %}
+  # Homepage mount
+  [[module.mounts]]
+    source = "{{ hugo.homepage_source | default('home.md') }}"
+    target = "content/_index.md"
+  
+  # Framework assets mounts - direct from framework_code
+  [[module.mounts]]
+    source = "{{ hugo.assets_path | default('framework_code/assets') }}"
+    target = "assets"
+  
+  [[module.mounts]]
+    source = "framework_code/css"
+    target = "assets/css"
+  
+  # Theme assets mount - no duplication
+  [[module.mounts]]
+    source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/css"
+    target = "assets/theme"
+  
+  # Theme layouts mount - direct from framework_code
+  [[module.mounts]]
+    source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/layouts"
+    target = "layouts"
+
+# Markup configuration
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    style = "{{ appearance.code_highlighting | default('github') }}"
+    lineNos = true
+    anchorLineNos = false
+    lineNumbersInTable = true
+
+# Site parameters from course.yml and config.yml
+[params]
+  course_name = "{{ course_name }}"
+  course_code = "{{ course_code }}"
+  semester = "{{ semester }}"
+  professor_name = "{{ professor.name }}"
+  professor_email = "{{ professor.email }}"
+  contact_policy = "{{ contact_policy }}"
+  
+  # Accessibility settings from config.yml
+  default_font = "{{ accessibility.default_font | default('normal') }}"
+  high_contrast = {{ accessibility.high_contrast | default('false') | toml_bool }}
+  
+  # Navigation settings
+  sidebar_style = "{{ navigation.sidebar_style | default('tree') }}"
+  show_breadcrumbs = {{ navigation.show_breadcrumbs | default('true') | toml_bool }}
+  
+  # Theme colors from course.yml branding
+  primary_color = "{{ branding.primary_color | default('#2E3440') }}"
+  accent_color = "{{ branding.accent_color | default('#88C0D0') }}"
+  
+  # Content display settings
+  show_difficulty_badges = {{ content.show_difficulty_badges | default('true') | toml_bool }}
+  show_estimated_time = {{ content.show_estimated_time | default('true') | toml_bool }}
+  homework_highlight = {{ content.homework_highlight | default('true') | toml_bool }}
+
+# Menu configuration (auto-generated from content structure)
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 10
+{% for source in hugo.content_sources | default(['class_notes', 'framework_tutorials', 'framework_documentation']) %}
+  [[menu.main]]
+    name = "{{ source.replace('_', ' ').title() }}"
+    url = "/{{ source }}/"
+    weight = {{ loop.index + 1 }}0
+{% endfor %} 

@@ -243,3 +243,4 @@ students/**/*.ipynb         # Optionally ignore Jupyter notebooks if you only wa
 /.quarto/
 _site/
 /.luarc.json
+**/hugo_generated/

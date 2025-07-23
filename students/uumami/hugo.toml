@@ -1,0 +1,112 @@
+# Hugo Configuration Template - Self-Contained
+# This file is processed by generate_hugo_config.py
+# Variables are filled from course.yml and config.yml ONLY
+# NO dependency on root dna.yml for rendering
+
+baseURL = ""
+languageCode = "en-us"
+title = "Class Template Framework"
+
+# Content and build settings
+publishDir = "framework_code/hugo_generated"
+buildDrafts = false
+buildFuture = false
+
+# Module configuration for content mounts and framework assets
+[module]
+
+  [[module.mounts]]
+    source = "class_notes"
+    target = "content/class_notes"
+
+  [[module.mounts]]
+    source = "framework_tutorials"
+    target = "content/framework_tutorials"
+
+  [[module.mounts]]
+    source = "framework_documentation"
+    target = "content/framework_documentation"
+
+  # Homepage mount
+  [[module.mounts]]
+    source = "home.md"
+    target = "content/_index.md"
+  
+  # Framework assets mounts - direct from framework_code
+  [[module.mounts]]
+    source = "framework_code/assets"
+    target = "assets"
+  
+  [[module.mounts]]
+    source = "framework_code/css"
+    target = "assets/css"
+  
+  # Theme assets mount - no duplication
+  [[module.mounts]]
+    source = "framework_code/themes/evangelion/css"
+    target = "assets/theme"
+  
+  # Theme layouts mount - direct from framework_code
+  [[module.mounts]]
+    source = "framework_code/themes/evangelion/layouts"
+    target = "layouts"
+
+# Markup configuration
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    style = "github"
+    lineNos = true
+    anchorLineNos = false
+    lineNumbersInTable = true
+
+# Site parameters from course.yml and config.yml
+[params]
+  course_name = "GitHub Class Template Example"
+  course_code = "TMPL101"
+  semester = "Template 2025"
+  professor_name = "Template Instructor"
+  professor_email = "instructor@example.edu"
+  contact_policy = "Email within 24 hours for questions."
+  
+  # Accessibility settings from config.yml
+  default_font = "normal"
+  high_contrast = false
+  
+  # Navigation settings
+  sidebar_style = "tree"
+  show_breadcrumbs = true
+  
+  # Theme colors from course.yml branding
+  primary_color = "#2E3440"
+  accent_color = "#88C0D0"
+  
+  # Content display settings
+  show_difficulty_badges = true
+  show_estimated_time = true
+  homework_highlight = true
+
+# Menu configuration (auto-generated from content structure)
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 10
+
+  [[menu.main]]
+    name = "Class Notes"
+    url = "/class_notes/"
+    weight = 20
+
+  [[menu.main]]
+    name = "Framework Tutorials"
+    url = "/framework_tutorials/"
+    weight = 30
+
+  [[menu.main]]
+    name = "Framework Documentation"
+    url = "/framework_documentation/"
+    weight = 40
+ 

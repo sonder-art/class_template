@@ -1,5 +1,0 @@
-# This file inherits from the root requirements file.
-# As a student, you can add any extra packages you need for your homework below.
--r ../../requirements.txt
-
-# e.g., scikit-image 

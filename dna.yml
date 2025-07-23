@@ -1,45 +1,20 @@
-# DNA Configuration File for GitHub Class Template Repository
-# This file stores framework and operational metadata used by automation scripts and CI/CD
-# 
-# REQUIRED FIELDS:
-# - professor_profile: GitHub username of the professor (used for directory handling)
-#
-# OPTIONAL FIELDS:
-# - All other fields are optional and extensible for future use
-# - Unknown keys are read generically so new behavior can be layered gradually
+# DNA Configuration - Framework Metadata & Meta-Process Control
+# This file controls repository-wide automation and framework behavior
+# NEVER contains rendering preferences - those belong in config.yml
 
-# === REQUIRED CONFIGURATION ===
+# REQUIRED: Professor identification for directory handling
 professor_profile: uumami
 
-# === OPTIONAL FRAMEWORK CONFIGURATION ===
-# Active visual theme from framework_code/themes/
-theme: default
-
-# Search implementation mode (simple for basic client-side search)
-search_mode: simple
-
-# Enable/disable automatic index regeneration
-index_generation: true
-
-# Synchronization strategy for professor->student updates
-# Options: additive (default), force
+# Framework meta-process settings
 sync_mode: additive
-
-# Enabled authoring tools and integrations
-authoring_tools:
-  - agent
-
-# Default license for content display
+authoring_tools: ["agent"]
 license: CC-BY-4.0
 
-# === FUTURE EXTENSIBILITY ===
-# This file is intentionally extensible. Additional keys can be added over time
-# and interpreted by scripts/components without changing structure.
-# Examples of future configuration options:
-#
-# calendar_integration: true
-# announcement_feeds: true
-# build_notifications: slack
-# content_validation_level: strict
-# student_permissions: read-only
-# auto_deploy: github-pages 
+# Build and CI/CD automation settings
+hugo_auto_config: true
+accessibility_enabled: true
+index_generation: true
+
+# Advanced meta-process options
+strict_validation: false
+auto_deploy: true 
