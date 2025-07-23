@@ -17,4 +17,5 @@ index_generation: true
 
 # Advanced meta-process options
 strict_validation: false
+content_validation: true
 auto_deploy: true 

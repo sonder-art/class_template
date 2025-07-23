@@ -3,6 +3,8 @@
 Hugo Configuration Generator - Self-Contained
 Merges values from course.yml and config.yml to generate hugo.toml
 NO dependency on root dna.yml for rendering - fully self-contained per directory
+
+Now includes optional content validation before Hugo config generation.
 """
 
 import os
@@ -10,6 +12,13 @@ import sys
 import yaml
 from pathlib import Path
 from jinja2 import Environment, BaseLoader
+
+# Import validation system (optional)
+try:
+    from validate_content import ContentValidator, load_validation_config
+    VALIDATION_AVAILABLE = True
+except ImportError:
+    VALIDATION_AVAILABLE = False
 
 def load_yaml_file(file_path):
     """Load and parse a YAML file, return empty dict if file doesn't exist."""
@@ -111,6 +120,44 @@ def generate_hugo_config(base_dir):
         print(f"Error writing hugo.toml: {e}")
         return False
 
+def run_content_validation(base_dir: Path) -> bool:
+    """
+    Run content validation if available and enabled.
+    
+    Args:
+        base_dir: Base directory to validate
+        
+    Returns:
+        bool: True if validation passed or was skipped, False if validation failed
+    """
+    if not VALIDATION_AVAILABLE:
+        return True  # Skip validation if not available
+    
+    # Load validation configuration
+    config = load_validation_config(base_dir)
+    
+    if not config.get('content_validation', True):
+        print("📝 Content validation disabled in configuration")
+        return True
+    
+    print("📝 Running content validation...")
+    
+    try:
+        validator = ContentValidator(base_dir, config.get('strict_validation', False))
+        success = validator.validate_all_content()
+        
+        if success:
+            print("✅ Content validation passed")
+        else:
+            print("❌ Content validation failed")
+        
+        return success
+        
+    except Exception as e:
+        print(f"⚠️  Content validation error: {e}")
+        # Don't fail build on validation errors unless in strict mode
+        return not config.get('strict_validation', False)
+
 def main():
     """Main entry point - works from any self-contained directory."""
     # Work from current directory (self-contained approach)
@@ -130,6 +177,11 @@ def main():
         sys.exit(1)
     
     print(f"🔧 Generating self-contained Hugo configuration from {base_dir}")
+    
+    # Run content validation before Hugo config generation
+    if not run_content_validation(base_dir):
+        print("❌ Build aborted due to content validation failures")
+        sys.exit(1)
     
     if generate_hugo_config(base_dir):
         print("✅ Hugo configuration generated successfully")
