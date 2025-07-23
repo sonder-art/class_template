@@ -1,0 +1,124 @@
+{{/*
+Dynamic Sidebar Navigation for GitHub Class Template Framework
+Automatically generates navigation tree from content structure including:
+- Numbered chapters (01_, 02_, etc.) 
+- Appendix chapters (A_, B_, etc.)
+- Current page highlighting
+- Collapsible sections
+*/}}
+
+<nav class="sidebar-nav">
+    <div class="nav-header">
+        <h3>📚 Navigation</h3>
+    </div>
+    
+    {{/* Get all content categories in correct order */}}
+    {{ $categories := slice "class_notes" "framework_tutorials" "framework_documentation" }}
+    
+    {{ range $categories }}
+        {{ $categoryName := . }}
+        {{ $categoryPages := where $.Site.RegularPages "Section" $categoryName }}
+        
+        {{ if $categoryPages }}
+            {{ $categoryTitle := $categoryName | replaceRE "_" " " | title }}
+            
+            <div class="nav-category">
+                <div class="nav-category-header">
+                    <a href="/{{ $categoryName }}/00_master_index/" class="nav-category-link {{ if eq $.Section $categoryName }}active{{ end }}">
+                        {{ $categoryTitle }}
+                    </a>
+                </div>
+                
+                {{/* Get unique chapter directories */}}
+                {{ $chapterDirs := slice }}
+                {{ range $categoryPages }}
+                    {{ $dir := path.Dir .File.Path }}
+                    {{ $dirName := path.Base $dir }}
+                    {{ if ne $dirName $categoryName }}
+                        {{ if not (in $chapterDirs $dirName) }}
+                            {{ $chapterDirs = $chapterDirs | append $dirName }}
+                        {{ end }}
+                    {{ end }}
+                {{ end }}
+                
+                {{/* Sort chapter directories: numbered first, then appendices */}}
+                {{ $numberedChapters := slice }}
+                {{ $appendixChapters := slice }}
+                
+                {{ range $chapterDirs }}
+                    {{ $firstChar := substr . 0 1 }}
+                    {{ if and (ge $firstChar "0") (le $firstChar "9") }}
+                        {{ $numberedChapters = $numberedChapters | append . }}
+                    {{ else if and (ge $firstChar "A") (le $firstChar "Z") }}
+                        {{ $appendixChapters = $appendixChapters | append . }}
+                    {{ else }}
+                        {{ $numberedChapters = $numberedChapters | append . }}
+                    {{ end }}
+                {{ end }}
+                
+                {{/* Sort by name (alphabetical/numeric) */}}
+                {{ $numberedChapters = sort $numberedChapters }}
+                {{ $appendixChapters = sort $appendixChapters }}
+                
+                {{/* Display chapters */}}
+                {{ if or $numberedChapters $appendixChapters }}
+                    <div class="nav-chapters">
+                        {{/* Display numbered chapters first */}}
+                        {{ range $numberedChapters }}
+                            {{ $chapterName := . }}
+                            {{ $chapterPages := where $categoryPages "File.Dir" "eq" (printf "%s/%s/" $categoryName $chapterName) }}
+                            
+                            {{ if $chapterPages }}
+                                {{ partial "chapter-nav.html" (dict "chapterName" $chapterName "chapterPages" $chapterPages "categoryName" $categoryName "currentPage" $ "isAppendix" false) }}
+                            {{ end }}
+                        {{ end }}
+                        
+                        {{/* Display appendix chapters */}}
+                        {{ range $appendixChapters }}
+                            {{ $chapterName := . }}
+                            {{ $chapterPages := where $categoryPages "File.Dir" "eq" (printf "%s/%s/" $categoryName $chapterName) }}
+                            
+                            {{ if $chapterPages }}
+                                {{ partial "chapter-nav.html" (dict "chapterName" $chapterName "chapterPages" $chapterPages "categoryName" $categoryName "currentPage" $ "isAppendix" true) }}
+                            {{ end }}
+                        {{ end }}
+                    </div>
+                {{ end }}
+            </div>
+        {{ end }}
+    {{ end }}
+</nav>
+
+{{/* JavaScript for collapsible navigation */}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggles = document.querySelectorAll('.nav-toggle');
+    
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const target = this.getAttribute('data-target');
+            const content = document.getElementById(target);
+            const icon = this.querySelector('.toggle-icon');
+            const isExpanded = this.getAttribute('aria-expanded') === 'true';
+            
+            if (isExpanded) {
+                this.setAttribute('aria-expanded', 'false');
+                this.classList.remove('expanded');
+                content.classList.remove('expanded');
+                icon.textContent = '▶';
+            } else {
+                this.setAttribute('aria-expanded', 'true');
+                this.classList.add('expanded');
+                content.classList.add('expanded');
+                icon.textContent = '▼';
+            }
+        });
+    });
+    
+    // Auto-expand current chapter on page load
+    const currentChapter = document.querySelector('.nav-chapter-header.active .nav-toggle');
+    if (currentChapter && !currentChapter.classList.contains('expanded')) {
+        currentChapter.click();
+    }
+});
+</script> 

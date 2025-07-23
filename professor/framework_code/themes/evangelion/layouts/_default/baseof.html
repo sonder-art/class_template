@@ -43,14 +43,7 @@
     
     <aside class="site-sidebar">
         {{ block "sidebar" . }}
-            <nav class="nav-tree">
-                <h3>Navigation</h3>
-                {{ range .Site.Menus.main }}
-                    <ul>
-                        <li><a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a></li>
-                    </ul>
-                {{ end }}
-            </nav>
+            {{ partial "sidebar-nav.html" . }}
         {{ end }}
     </aside>
     
