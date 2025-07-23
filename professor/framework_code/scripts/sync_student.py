@@ -92,6 +92,26 @@ def should_sync_file(rel_path, exclusion_patterns):
     
     return True, "include"
 
+def is_framework_file(rel_path):
+    """Check if file is part of framework and should always be overwritten."""
+    path_str = str(rel_path).replace('\\', '/')  # Normalize path separators
+    
+    # Framework files that should always be synced/overwritten
+    framework_paths = [
+        'framework_code/scripts/',
+        'framework_code/themes/',
+        'framework_code/components/',
+        'framework_code/css/',
+        'framework_code/assets/',
+        'framework_code/hugo_config/'
+    ]
+    
+    for framework_path in framework_paths:
+        if path_str.startswith(framework_path):
+            return True
+    
+    return False
+
 def load_dna_config():
     """Load dna.yml configuration to get professor profile."""
     try:
@@ -241,7 +261,7 @@ def perform_sync(professor_dir, student_dir, changes, force_update_list=None):
     student_path = Path(student_dir)
     
     force_update_list = force_update_list or []
-    results = {'created': 0, 'updated': 0, 'skipped': 0, 'errors': 0}
+    results = {'created': 0, 'updated': 0, 'skipped': 0, 'errors': 0, 'framework_forced': 0}
     
     all_files = changes['new_files'] + changes['updated_files']
     
@@ -262,8 +282,15 @@ def perform_sync(professor_dir, student_dir, changes, force_update_list=None):
             source_file = professor_path / rel_path
             target_file = student_path / rel_path
             
-            force_update = str(rel_path) in force_update_list
+            # Check if this is a framework file that needs force updating
+            is_framework = is_framework_file(rel_path)
+            force_update = str(rel_path) in force_update_list or is_framework
+            
             result = sync_file(source_file, target_file, force_update)
+            
+            # Track framework force updates separately
+            if is_framework and result in ['updated', 'created']:
+                results['framework_forced'] = results.get('framework_forced', 0) + 1
             
             results[result] = results.get(result, 0) + 1
             progress.advance(task)
@@ -283,6 +310,7 @@ def show_sync_summary(student_name, changes, results):
     table.add_row("🔄 Updated Files", str(len(changes['updated_files'])), "Professor made changes")
     table.add_row("✅ Files Created", str(results['created']), "Successfully added")
     table.add_row("🔄 Files Updated", str(results['updated']), "Successfully updated")
+    table.add_row("🔧 Framework Updated", str(results.get('framework_forced', 0)), "Framework files force-synced")
     table.add_row("⏭️ Files Skipped", str(results['skipped']), "Unchanged, protected your work")
     table.add_row("🚫 Files Excluded", str(len(changes['excluded_files'])), "Auto-generated/cache/dev files")
     table.add_row("🛡️ Your Files", str(len(changes['student_only_files'])), "Untouched, student-only")
@@ -324,6 +352,7 @@ def main():
         "Framework-level synchronization: professor/ → students/<username>/\n"
         "• Copies new files from instructor\n"
         "• Updates unchanged files you haven't modified\n"
+        "• [bold]Force-updates framework code[/bold] (scripts, themes, components)\n"
         "• Protects your personal work (non-destructive)\n"
         "• Preserves KEEP blocks during forced updates\n"
         "• Smart exclusions for auto-generated content",
@@ -356,6 +385,13 @@ def main():
     changes = scan_directory_changes(professor_dir, student_dir)
     
     total_changes = len(changes['new_files']) + len(changes['updated_files'])
+    
+    # Count framework files that will be force-updated
+    all_files = changes['new_files'] + changes['updated_files']
+    framework_files = [f for f in all_files if is_framework_file(f)]
+    
+    if framework_files:
+        console.print(f"[blue]🔧 Framework files to force-update: {len(framework_files)}[/blue] (scripts, themes, components)")
     
     if total_changes == 0:
         console.print(Panel(

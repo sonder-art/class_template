@@ -3,6 +3,8 @@
 Hugo Configuration Generator - Self-Contained
 Merges values from course.yml and config.yml to generate hugo.toml
 NO dependency on root dna.yml for rendering - fully self-contained per directory
+
+Now includes optional content validation before Hugo config generation.
 """
 
 import os
@@ -10,6 +12,39 @@ import sys
 import yaml
 from pathlib import Path
 from jinja2 import Environment, BaseLoader
+
+# Import validation system (optional, handle different execution contexts)
+try:
+    from validate_content import ContentValidator, load_validation_config
+    VALIDATION_AVAILABLE = True
+except ImportError:
+    try:
+        # Try relative import for different execution contexts
+        import sys
+        from pathlib import Path
+        script_dir = Path(__file__).parent
+        sys.path.insert(0, str(script_dir))
+        from validate_content import ContentValidator, load_validation_config
+        VALIDATION_AVAILABLE = True
+    except ImportError:
+        VALIDATION_AVAILABLE = False
+
+# Import index generation system (optional, handle different execution contexts)
+try:
+    from generate_indices import IndexGenerator
+    INDEX_GENERATION_AVAILABLE = True
+except ImportError:
+    try:
+        # Try relative import for different execution contexts
+        import sys
+        from pathlib import Path
+        script_dir = Path(__file__).parent
+        if str(script_dir) not in sys.path:
+            sys.path.insert(0, str(script_dir))
+        from generate_indices import IndexGenerator
+        INDEX_GENERATION_AVAILABLE = True
+    except ImportError:
+        INDEX_GENERATION_AVAILABLE = False
 
 def load_yaml_file(file_path):
     """Load and parse a YAML file, return empty dict if file doesn't exist."""
@@ -111,6 +146,100 @@ def generate_hugo_config(base_dir):
         print(f"Error writing hugo.toml: {e}")
         return False
 
+def run_content_validation(base_dir: Path) -> bool:
+    """
+    Run content validation if available and enabled.
+    
+    Args:
+        base_dir: Base directory to validate
+        
+    Returns:
+        bool: True if validation passed or was skipped, False if validation failed
+    """
+    if not VALIDATION_AVAILABLE:
+        return True  # Skip validation if not available
+    
+    # Load validation configuration
+    config = load_validation_config(base_dir)
+    
+    if not config.get('content_validation', True):
+        print("📝 Content validation disabled in configuration")
+        return True
+    
+    print("📝 Running content validation...")
+    
+    try:
+        validator = ContentValidator(base_dir, config.get('strict_validation', False))
+        success = validator.validate_all_content()
+        
+        if success:
+            print("✅ Content validation passed")
+        else:
+            print("❌ Content validation failed")
+        
+        return success
+        
+    except Exception as e:
+        print(f"⚠️  Content validation error: {e}")
+        # Don't fail build on validation errors unless in strict mode
+        return not config.get('strict_validation', False)
+
+def run_index_generation(base_dir: Path) -> bool:
+    """
+    Run automatic index generation if available and enabled.
+    
+    Args:
+        base_dir: Base directory to generate indices for
+        
+    Returns:
+        bool: True if generation succeeded or was skipped, False if generation failed
+    """
+    if not INDEX_GENERATION_AVAILABLE:
+        return True  # Skip index generation if not available
+    
+    # Load index generation configuration from dna.yml (try multiple locations)
+    dna_paths = [
+        base_dir / 'dna.yml',  # Same directory
+        base_dir / '../dna.yml',  # Parent directory (for student directories)
+        base_dir / '../../dna.yml'  # Repository root (for nested student directories)
+    ]
+    
+    config = {'index_generation': True}
+    
+    for dna_path in dna_paths:
+        if dna_path.exists():
+            try:
+                with open(dna_path, 'r') as f:
+                    dna_config = yaml.safe_load(f) or {}
+                if 'index_generation' in dna_config:
+                    config['index_generation'] = bool(dna_config['index_generation'])
+                break  # Use the first found dna.yml
+            except Exception as e:
+                print(f"⚠️  Could not read {dna_path}: {e}")
+                continue
+    
+    if not config.get('index_generation', True):
+        print("📚 Index generation disabled in configuration")
+        return True
+    
+    print("📚 Running automatic index generation...")
+    
+    try:
+        generator = IndexGenerator(base_dir)
+        success = generator.generate_all_indices()
+        
+        if success:
+            print("✅ Index generation completed")
+        else:
+            print("⚠️  Index generation completed with warnings")
+        
+        return success
+        
+    except Exception as e:
+        print(f"⚠️  Index generation error: {e}")
+        # Don't fail build on index generation errors (graceful degradation)
+        return True
+
 def main():
     """Main entry point - works from any self-contained directory."""
     # Work from current directory (self-contained approach)
@@ -130,6 +259,16 @@ def main():
         sys.exit(1)
     
     print(f"🔧 Generating self-contained Hugo configuration from {base_dir}")
+    
+    # Run automatic index generation first
+    if not run_index_generation(base_dir):
+        print("❌ Build aborted due to index generation failures")
+        sys.exit(1)
+    
+    # Run content validation after index generation
+    if not run_content_validation(base_dir):
+        print("❌ Build aborted due to content validation failures")
+        sys.exit(1)
     
     if generate_hugo_config(base_dir):
         print("✅ Hugo configuration generated successfully")
