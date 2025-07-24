@@ -76,6 +76,11 @@
         <script src="{{ $floatingCopyJS.RelPermalink }}"></script>
     {{ end }}
     
+    {{ $sidebarNavigationJS := resources.Get "js/sidebar-navigation.js" }}
+    {{ if $sidebarNavigationJS }}
+        <script src="{{ $sidebarNavigationJS.RelPermalink }}"></script>
+    {{ end }}
+    
     <!-- Framework Component Stylesheets -->
     {{ $pythonUIFrameworkCSS := resources.Get "components/python-ui.css" }}
     {{ if $pythonUIFrameworkCSS }}
