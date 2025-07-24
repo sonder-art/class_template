@@ -1,0 +1,92 @@
+/* Framework Variables - System-Level CSS Variables
+ * Contains structural and system variables that are theme-independent
+ * Themes can override specific values but the structure remains consistent
+ */
+
+:root {
+  /* === TYPOGRAPHY SCALE === */
+  /* Universal typography system - themes can override font families */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Monaco', 'Consolas', monospace;
+  
+  /* Font sizes - Perfect readability scale */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px - optimal reading size */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  
+  /* Line heights - Optimal for readability */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;   /* Perfect for body text */
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+  
+  /* Font weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  
+  /* === SPACING SYSTEM (8px grid) === */
+  /* Consistent spacing across all themes */
+  --space-1: 0.25rem;     /* 4px */
+  --space-2: 0.5rem;      /* 8px */
+  --space-3: 0.75rem;     /* 12px */
+  --space-4: 1rem;        /* 16px */
+  --space-5: 1.25rem;     /* 20px */
+  --space-6: 1.5rem;      /* 24px */
+  --space-8: 2rem;        /* 32px */
+  --space-10: 2.5rem;     /* 40px */
+  --space-12: 3rem;       /* 48px */
+  --space-16: 4rem;       /* 64px */
+  
+  /* === LAYOUT DIMENSIONS === */
+  /* Standard UI element dimensions */
+  --btn-height: 44px;            /* Minimum touch target size */
+  --btn-padding-x: 24px;
+  --btn-font-weight: 500;
+  --nav-padding-y: 12px;
+  --nav-padding-x: 16px;
+  --nav-margin-bottom: 8px;
+  
+  /* === SHADOWS & EFFECTS === */
+  /* System-level shadow scale */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  
+  /* Border radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  /* === TRANSITIONS === */
+  /* Consistent animation timings */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+  
+  /* === RESPONSIVE BREAKPOINTS === */
+  /* Standard breakpoint variables (for CSS custom properties) */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1400px;
+  
+  /* === LAYOUT DIMENSIONS === */
+  /* Framework layout constants */
+  --sidebar-width: 280px;
+  --header-height: 56px;
+  --content-max-width: 1400px;
+  
+  /* === ACCESSIBILITY === */
+  /* Touch-friendly and accessibility standards */
+  --min-touch-target: 44px;
+  --focus-outline-width: 2px;
+  --focus-outline-offset: 2px;
+} 

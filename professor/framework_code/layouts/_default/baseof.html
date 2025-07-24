@@ -40,7 +40,23 @@
         <link rel="stylesheet" href="{{ $pythonUIFrameworkCSS.RelPermalink }}">
     {{ end }}
     
-    <!-- THEME HOOK: Load theme-specific stylesheets -->
+    <!-- FRAMEWORK CSS: Load framework structure and layout (PRIORITY) -->
+    {{ $frameworkVariables := resources.Get "css/framework_variables.css" }}
+    {{ if $frameworkVariables }}
+        <link rel="stylesheet" href="{{ $frameworkVariables.RelPermalink }}">
+    {{ end }}
+    
+    {{ $frameworkLayout := resources.Get "css/framework_layout.css" }}
+    {{ if $frameworkLayout }}
+        <link rel="stylesheet" href="{{ $frameworkLayout.RelPermalink }}">
+    {{ end }}
+    
+    {{ $frameworkComponents := resources.Get "css/framework_components.css" }}
+    {{ if $frameworkComponents }}
+        <link rel="stylesheet" href="{{ $frameworkComponents.RelPermalink }}">
+    {{ end }}
+    
+    <!-- THEME HOOK: Load theme-specific stylesheets (AFTER framework) -->
     {{ block "theme-styles" . }}
         <!-- Theme stylesheets will be loaded here -->
         {{ $themeCSS := resources.Get "theme/theme.css" }}
