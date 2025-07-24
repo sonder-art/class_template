@@ -60,6 +60,11 @@
     {{ if $navigationJS }}
         <script src="{{ $navigationJS.RelPermalink }}"></script>
     {{ end }}
+    
+    {{ $mathRenderingJS := resources.Get "js/math-rendering.js" }}
+    {{ if $mathRenderingJS }}
+        <script src="{{ $mathRenderingJS.RelPermalink }}"></script>
+    {{ end }}
 </head>
 <body class="site-container{{ if .Site.Params.default_font }} font-{{ .Site.Params.default_font }}{{ end }}{{ if .Site.Params.high_contrast }} high-contrast{{ end }}">
     
@@ -125,30 +130,12 @@
 
     
     <!-- ============================================================================
-         KATEX MATH RENDERING INITIALIZATION
-         Handles LaTeX formula rendering throughout the site
+         PYTHON ENVIRONMENT INITIALIZATION
+         Handles Pyodide loading and Python execution setup
          ============================================================================ -->
     <script>
-    // KaTeX Auto-Render Initialization - Production Version
+    // Initialize Python environment on DOM ready
     document.addEventListener("DOMContentLoaded", function() {
-        if (typeof renderMathInElement !== 'undefined') {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: '$$', right: '$$', display: true},
-                {left: '$', right: '$', display: false},
-                {left: '\\(', right: '\\)', display: false},
-                {left: '\\[', right: '\\]', display: true}
-            ],
-            throwOnError: false,
-            errorColor: '#cc0000',
-            strict: false,
-            trust: false,
-            macros: {
-                "\\f": "#1f(#2)"
-            }
-        });
-        }
-        
         // Initialize Python environment if needed
         initializePythonEnvironment();
     });
