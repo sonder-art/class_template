@@ -43,10 +43,19 @@ buildFuture = false
     source = "framework_code/css"
     target = "assets/css"
   
+  [[module.mounts]]
+    source = "framework_code/components"
+    target = "assets/components"
+  
   # Theme assets mount - no duplication
   [[module.mounts]]
     source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/css"
     target = "assets/theme"
+  
+  # Theme components mount - preserve directory structure  
+  [[module.mounts]]
+    source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/css/components"
+    target = "assets/theme/components"
   
   # Theme layouts mount - direct from framework_code
   [[module.mounts]]
