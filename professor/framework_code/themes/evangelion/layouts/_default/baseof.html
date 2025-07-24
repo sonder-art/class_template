@@ -275,81 +275,187 @@
     let pyodide = null;
     
     async function initializePythonEnvironment() {
-        // Check if we have any python-exec containers
         const pythonContainers = document.querySelectorAll('.python-exec-container');
         console.log(`🔍 Found ${pythonContainers.length} Python execution containers`);
-        
-        // Initialize code editors and syntax highlighting
+
+        // Setup each container with clean single-textarea approach
         pythonContainers.forEach(container => {
-            const textarea = container.querySelector('.python-code-editor');
-            const codeElement = container.querySelector('code');
+            const textarea = container.querySelector('.python-code-input');
             
-            if (textarea && codeElement) {
-                // Set initial code
-                const pythonCode = textarea.value.trim();
-                container.dataset.pythonCode = pythonCode;
-                console.log('📝 Set Python code for container:', pythonCode.substring(0, 50) + '...');
+            if (textarea) {
+                console.log('📝 Initializing Python container with simplified approach');
                 
-                // Setup live editing
-                setupCodeEditor(container, textarea, codeElement);
+                // Setup keyboard shortcuts and behavior
+                setupPythonEditor(container, textarea);
             }
         });
-        
+
         if (pythonContainers.length > 0 && !pyodideReady) {
             console.log('🐍 Starting Pyodide initialization...');
-            
-            // Check if loadPyodide function is available
+
             if (typeof loadPyodide === 'undefined') {
                 console.error('❌ loadPyodide function not found - Pyodide script failed to load');
-                document.querySelectorAll('.python-exec-button').forEach(btn => {
-                    btn.textContent = '❌ Python Failed';
-                    btn.disabled = true;
-                });
+                updateAllButtons('❌ Python Failed', true);
                 return;
             }
-            
+
             try {
                 console.log('🔄 Loading Pyodide runtime...');
                 pyodide = await loadPyodide();
                 pyodideReady = true;
                 console.log('✅ Pyodide loaded successfully!');
-                
-                // Update all execution buttons to be enabled
-                document.querySelectorAll('.python-exec-button').forEach(btn => {
-                    btn.disabled = false;
-                    btn.textContent = '▶️ Run Python';
-                });
-                
+
+                updateAllButtons('▶️ Run Python', false);
                 console.log('🎉 Python execution environment ready!');
+                
             } catch (error) {
                 console.error('❌ Failed to load Pyodide:', error);
-                document.querySelectorAll('.python-exec-button').forEach(btn => {
-                    btn.textContent = '❌ Python Error';
-                    btn.disabled = true;
-                });
+                updateAllButtons('❌ Python Error', true);
             }
         }
     }
-    
-    // Make functions globally available
-    window.executePythonCode = async function(button) {
-        const container = button.closest('.python-exec-container');
-        const code = container.dataset.pythonCode;
-        const outputDiv = container.querySelector('.python-exec-output');
-        const resultPre = container.querySelector('.python-exec-result');
+
+    function updateAllButtons(text, disabled) {
+        document.querySelectorAll('.python-exec-button').forEach(btn => {
+            const buttonText = btn.querySelector('.button-text');
+            const buttonIcon = btn.querySelector('.button-icon');
+            
+            if (buttonText) buttonText.textContent = text.replace(/^.*?\s/, ''); // Remove emoji for text
+            if (buttonIcon) buttonIcon.textContent = text.match(/^.*?(?=\s)/)?.[0] || '▶️'; // Extract emoji
+            btn.disabled = disabled;
+        });
+    }
+
+    function setupPythonEditor(container, textarea) {
+        // Keyboard shortcuts
+        textarea.addEventListener('keydown', function(e) {
+            // Ctrl+Enter or Cmd+Enter: Execute code
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                const button = container.querySelector('.python-exec-button');
+                if (button && !button.disabled) {
+                    executePythonCode(button);
+                }
+            }
+            
+            // Tab: Insert 4 spaces for indentation
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                
+                // Insert 4 spaces
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+            
+            // Ctrl+/ or Cmd+/: Toggle line comment
+            if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                e.preventDefault();
+                toggleLineComment(this);
+            }
+        });
+
+        // Auto-resize textarea based on content
+        textarea.addEventListener('input', function() {
+            autoResizeTextarea(this);
+        });
+
+        // Initial resize
+        autoResizeTextarea(textarea);
+    }
+
+    function autoResizeTextarea(textarea) {
+        // Reset height to recalculate
+        textarea.style.height = 'auto';
         
-        if (!pyodideReady) {
-            resultPre.textContent = '❌ Python environment not ready. Please wait for Pyodide to load.';
-            outputDiv.style.display = 'block';
-            return;
+        // Calculate required height (minimum 8 lines, maximum 60vh)
+        const lineHeight = parseInt(window.getComputedStyle(textarea).lineHeight);
+        const minHeight = lineHeight * 8; // 8 lines minimum
+        const maxHeight = Math.min(window.innerHeight * 0.6, 600); // 60vh or 600px max
+        
+        const scrollHeight = Math.max(textarea.scrollHeight, minHeight);
+        const finalHeight = Math.min(scrollHeight, maxHeight);
+        
+        textarea.style.height = finalHeight + 'px';
+        
+        // Update the parent editor container height
+        const editor = textarea.closest('.python-exec-editor');
+        if (editor) {
+            editor.style.minHeight = finalHeight + 'px';
+        }
+    }
+
+    function toggleLineComment(textarea) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const lines = textarea.value.split('\n');
+        
+        // Find which lines are selected
+        let startLine = 0;
+        let endLine = 0;
+        let currentPos = 0;
+        
+        for (let i = 0; i < lines.length; i++) {
+            if (currentPos <= start && start <= currentPos + lines[i].length) {
+                startLine = i;
+            }
+            if (currentPos <= end && end <= currentPos + lines[i].length) {
+                endLine = i;
+                break;
+            }
+            currentPos += lines[i].length + 1; // +1 for newline
         }
         
-        // Show output container
-        outputDiv.style.display = 'block';
-        resultPre.textContent = '⏳ Executing...';
-        button.disabled = true;
-        button.textContent = '⏳ Running...';
+        // Check if all selected lines are commented
+        let allCommented = true;
+        for (let i = startLine; i <= endLine; i++) {
+            if (!lines[i].trim().startsWith('#')) {
+                allCommented = false;
+                break;
+            }
+        }
         
+        // Toggle comments
+        for (let i = startLine; i <= endLine; i++) {
+            if (allCommented) {
+                // Remove comment
+                lines[i] = lines[i].replace(/^\s*#\s?/, '');
+            } else {
+                // Add comment
+                const indentMatch = lines[i].match(/^(\s*)/);
+                const indent = indentMatch ? indentMatch[1] : '';
+                const content = lines[i].slice(indent.length);
+                lines[i] = indent + '# ' + content;
+            }
+        }
+        
+        textarea.value = lines.join('\n');
+        autoResizeTextarea(textarea);
+    }
+
+    window.executePythonCode = async function(button) {
+        const container = button.closest('.python-exec-container');
+        const textarea = container.querySelector('.python-code-input');
+        const code = textarea.value.trim();
+        const outputDiv = container.querySelector('.python-exec-output');
+        const resultPre = container.querySelector('.python-exec-result');
+
+        if (!pyodideReady) {
+            showOutput(outputDiv, resultPre, '❌ Python environment not ready. Please wait for Pyodide to load.');
+            return;
+        }
+
+        if (!code) {
+            showOutput(outputDiv, resultPre, '⚠️ No code to execute. Write some Python code first!');
+            return;
+        }
+
+        // Set loading state
+        container.classList.add('loading');
+        showOutput(outputDiv, resultPre, '⏳ Executing Python code...');
+        updateButtonState(button, '⏳', 'Running...', true);
+
         try {
             // Capture stdout
             pyodide.runPython(`
@@ -358,34 +464,80 @@ from io import StringIO
 sys.stdout = StringIO()
             `);
             
-            // Execute the user code
+            // Execute user code
             pyodide.runPython(code);
             
-            // Get the output
+            // Get output
             const output = pyodide.runPython("sys.stdout.getvalue()");
             
             // Restore stdout
             pyodide.runPython("sys.stdout = sys.__stdout__");
-            
+
             // Display result
             if (output.trim()) {
-                resultPre.textContent = output;
+                showOutput(outputDiv, resultPre, output);
             } else {
-                resultPre.textContent = '✅ Code executed successfully (no output)';
+                showOutput(outputDiv, resultPre, '✅ Code executed successfully (no output)');
             }
             
+            container.classList.remove('error');
+
         } catch (error) {
-            resultPre.textContent = `❌ Error: ${error.message}`;
+            showOutput(outputDiv, resultPre, `❌ Error: ${error.message}`);
+            container.classList.add('error');
+            
         } finally {
-            button.disabled = false;
-            button.textContent = '▶️ Run Python';
+            container.classList.remove('loading');
+            updateButtonState(button, '▶️', 'Run Python', false);
         }
     }
-    
+
+    function showOutput(outputDiv, resultPre, content) {
+        outputDiv.style.display = 'block';
+        resultPre.textContent = content;
+        
+        // Scroll output into view
+        outputDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function updateButtonState(button, icon, text, disabled) {
+        const buttonIcon = button.querySelector('.button-icon');
+        const buttonText = button.querySelector('.button-text');
+        
+        if (buttonIcon) buttonIcon.textContent = icon;
+        if (buttonText) buttonText.textContent = text;
+        button.disabled = disabled;
+    }
+
     window.clearPythonOutput = function(button) {
         const container = button.closest('.python-exec-container');
         const outputDiv = container.querySelector('.python-exec-output');
         outputDiv.style.display = 'none';
+        
+        // Remove error state
+        container.classList.remove('error');
+    }
+
+    window.copyPythonOutput = function(button) {
+        const container = button.closest('.python-exec-container');
+        const resultPre = container.querySelector('.python-exec-result');
+        
+        if (resultPre && resultPre.textContent.trim()) {
+            navigator.clipboard.writeText(resultPre.textContent).then(() => {
+                // Show feedback
+                const originalText = button.textContent;
+                button.textContent = '✅';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 1000);
+            }).catch(err => {
+                console.error('Failed to copy output:', err);
+                button.textContent = '❌';
+                setTimeout(() => {
+                    button.textContent = '📋';
+                }, 1000);
+            });
+        }
     }
     
     // Global Lab Environment Functions
@@ -470,261 +622,513 @@ sys.stdout = StringIO()
         }, 2000);
     }
     
-    // Code Editor Setup
-    function setupCodeEditor(container, textarea, codeElement) {
-        // Sync textarea with syntax highlighting
-        function updateHighlighting() {
-            codeElement.textContent = textarea.value;
-            if (typeof Prism !== 'undefined') {
-                Prism.highlightElement(codeElement);
-            }
-            // Update the stored code
-            container.dataset.pythonCode = textarea.value.trim();
-        }
-        
-        // Initial highlighting
-        updateHighlighting();
-        
-        // Update on input
-        textarea.addEventListener('input', updateHighlighting);
-        
-        // Handle tab key for indentation
-        textarea.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                
-                // Insert 4 spaces for tab
-                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 4;
-                
-                updateHighlighting();
-            }
-        });
-        
-        // Sync scroll positions
-        textarea.addEventListener('scroll', function() {
-            const highlightElement = codeElement.parentElement;
-            highlightElement.scrollTop = this.scrollTop;
-            highlightElement.scrollLeft = this.scrollLeft;
-        });
-        
-        // Ensure perfect alignment on resize
-        function ensureAlignment() {
-            const textareaStyles = window.getComputedStyle(textarea);
-            const highlightElement = codeElement.parentElement;
-            
-            // Copy critical styles for perfect alignment
-            highlightElement.style.padding = textareaStyles.padding;
-            highlightElement.style.border = textareaStyles.border;
-            highlightElement.style.fontSize = textareaStyles.fontSize;
-            highlightElement.style.fontFamily = textareaStyles.fontFamily;
-            highlightElement.style.lineHeight = textareaStyles.lineHeight;
-        }
-        
-        // Initial alignment
-        ensureAlignment();
-        
-        // Re-align on window resize
-        window.addEventListener('resize', ensureAlignment);
-    }
+
     </script>
     
     <style>
-    /* Inline Python Execution Styling */
+    /* === LEETCODE-INSPIRED PYTHON EXECUTION UX/UI === */
+    
+    /* Container with CSS Grid Layout System */
     .python-exec-container {
+        display: grid;
+        gap: 0;
         border: 2px solid var(--eva-green-primary);
-        border-radius: 12px;
-        overflow: hidden;
-        margin: var(--space-6) 0;
+        border-radius: var(--radius-lg);
         background: var(--elevated-color);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        max-width: 100%;
+        margin: var(--space-6) 0;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        transition: all var(--transition-normal);
+        min-height: 200px; /* Ensure all containers have minimum height */
     }
     
+    /* Pure Code Layout (Default) */
+    .python-exec-container:not(.two-column) {
+        grid-template-areas: 
+            "header"
+            "editor" 
+            "output";
+        grid-template-rows: auto 1fr auto;
+    }
+    
+    /* Two-Column Layout - Force visibility */
+    .python-exec-container.two-column {
+        display: grid !important;
+        grid-template-areas:
+            "explanation header"
+            "explanation editor" 
+            "output output" !important;
+        grid-template-columns: 1.2fr 1fr !important;
+        grid-template-rows: auto 1fr auto !important;
+        gap: 2px; /* Add visible gap for debugging */
+        min-height: 500px !important; /* Force visible height */
+        background: #ff0000 !important; /* Temporary red background for debugging */
+    }
+    
+    /* Header Section - Force visibility */
     .python-exec-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 20px;
-        background: linear-gradient(135deg, var(--eva-green-primary), var(--eva-cyan-primary));
-        color: var(--bg-color);
+        grid-area: header !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        height: var(--btn-height) !important; /* 44px - touch-friendly */
+        padding: 0 var(--space-4) !important;
+        background: linear-gradient(135deg, var(--eva-green-primary), var(--eva-cyan-primary)) !important;
+        color: var(--bg-color) !important;
+        border-bottom: 1px solid var(--border-default) !important;
+        min-height: 50px !important; /* Force visible height */
     }
     
     .python-exec-label {
-        font-weight: bold;
-        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-weight: var(--font-semibold);
+        font-size: var(--text-sm);
+    }
+    
+    .python-icon {
+        font-size: var(--text-lg);
+        line-height: 1;
+    }
+    
+    .layout-badge {
+        font-size: var(--text-xs);
+        padding: var(--space-1) var(--space-2);
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: var(--radius-sm);
+        margin-left: var(--space-2);
+    }
+    
+    .python-exec-controls {
+        display: flex;
+        gap: var(--space-2);
     }
     
     .python-exec-button, .python-exec-clear {
-        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: var(--space-1);
+        padding: var(--space-2) var(--space-3);
         border: none;
-        border-radius: 6px;
+        border-radius: var(--radius-sm);
         background: var(--bg-color);
         color: var(--eva-green-primary);
-        font-weight: bold;
+        font-weight: var(--font-medium);
+        font-size: var(--text-xs);
         cursor: pointer;
-        transition: all 0.2s ease;
-        margin-left: 8px;
+        transition: all var(--transition-fast);
+        min-height: 32px;
     }
     
-    .python-exec-button:hover:not(:disabled), .python-exec-clear:hover {
-        background: var(--elevated-color);
+    .python-exec-button:hover:not(:disabled) {
+        background: var(--surface-color);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .python-exec-clear:hover {
+        background: var(--eva-red-accent);
+        color: white;
         transform: translateY(-1px);
     }
     
     .python-exec-button:disabled {
-        opacity: 0.6;
+        opacity: 0.7;
         cursor: not-allowed;
+        background: var(--surface-color);
     }
     
-    .python-exec-code {
-        padding: 0;
-        position: relative;
+    .button-icon, .button-text {
+        line-height: 1;
     }
     
-    /* Code Editor Styling */
-    .code-editor-container {
-        position: relative;
-        min-height: 200px;
-        max-height: 400px;
-        background: #1a0d26;
-        overflow: hidden;
-        border: 1px solid #4a2c5a;
+    /* Explanation Area (Two-Column Layout) - Force visibility */
+    .python-exec-explanation {
+        grid-area: explanation !important;
+        padding: var(--space-4) !important;
+        background: #00ff00 !important; /* Temporary green background for debugging */
+        border-right: 1px solid var(--border-default) !important;
+        font-size: var(--text-sm) !important;
+        line-height: var(--leading-relaxed) !important;
+        overflow-y: auto !important;
+        max-height: 60vh !important;
+        min-height: 400px !important; /* Force visible height */
+        display: block !important; /* Force visibility */
+        width: 100% !important;
     }
     
-    .python-code-editor, .syntax-highlight {
-        /* Exact same properties for perfect alignment */
-        font-family: 'Fira Code', 'Monaco', 'Menlo', 'Consolas', monospace;
-        font-size: 14px;
-        line-height: 1.6;
-        padding: 16px;
-        margin: 0;
+    .explanation-auto-content {
+        width: 100% !important;
+        height: 100% !important;
+        display: block !important;
+        background: #0000ff !important; /* Temporary blue background for debugging */
+        padding: var(--space-2) !important;
+    }
+    
+    .explanation-content {
+        color: var(--text-secondary);
+    }
+    
+    .explanation-content h2 {
+        color: var(--eva-cyan-primary) !important;
+        font-size: var(--text-lg) !important;
+        margin: 0 0 var(--space-3) 0 !important;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: var(--space-2);
+    }
+    
+    .explanation-content h3 {
+        color: var(--text-primary) !important;
+        font-size: var(--text-base) !important;
+        margin: var(--space-4) 0 var(--space-2) 0 !important;
+    }
+    
+    .explanation-content p {
+        margin: 0 0 var(--space-3) 0;
+        color: var(--text-secondary);
+    }
+    
+    .explanation-content ul, .explanation-content ol {
+        margin: var(--space-2) 0;
+        padding-left: var(--space-4);
+    }
+    
+    .explanation-content li {
+        margin: var(--space-1) 0;
+        color: var(--text-secondary);
+    }
+    
+    .explanation-content code {
+        background: var(--code-bg) !important;
+        color: var(--eva-green-primary) !important;
+        padding: var(--space-1) var(--space-2) !important;
+        border-radius: var(--radius-sm) !important;
+        font-size: var(--text-xs) !important;
+    }
+    
+    .explanation-content strong {
+        color: var(--eva-cyan-primary);
+        font-weight: var(--font-semibold);
+    }
+    
+    .explanation-content .katex {
+        font-size: 1em !important;
+    }
+    
+    .explanation-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 250px;
+        text-align: center;
+        padding: var(--space-4);
+    }
+    
+    .placeholder-icon {
+        font-size: 48px;
+        margin-bottom: var(--space-3);
+        opacity: 0.7;
+    }
+    
+    .explanation-placeholder h4 {
+        color: var(--eva-cyan-primary) !important;
+        margin: 0 0 var(--space-3) 0 !important;
+        font-size: var(--text-lg) !important;
+    }
+    
+    .explanation-placeholder p {
+        color: var(--text-secondary);
+        margin: 0 0 var(--space-2) 0;
+        font-size: var(--text-sm);
+    }
+    
+    .explanation-placeholder code {
+        display: inline-block;
+        margin: var(--space-2) 0;
+        padding: var(--space-2) var(--space-3);
+        background: var(--elevated-color);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-sm);
+        color: var(--eva-green-primary);
+        font-size: var(--text-xs);
+        word-break: break-all;
+    }
+    
+    .placeholder-note {
+        font-size: var(--text-xs) !important;
+        color: var(--text-muted) !important;
+        font-style: italic;
+    }
+    
+    /* Code Editor Section - Force visibility */
+    .python-exec-editor {
+        grid-area: editor !important;
+        position: relative !important;
+        min-height: calc(var(--leading-normal) * var(--text-sm) * 8) !important; /* 8 lines minimum */
+        max-height: 60vh !important;
+        background: #1a0d26 !important; /* Deep purple coding background */
+        display: block !important;
+        width: 100% !important;
+    }
+    
+    .python-code-input {
+        width: 100%;
+        height: 100%;
+        min-height: inherit;
+        max-height: inherit;
         border: none;
-        box-sizing: border-box;
+        outline: none;
+        resize: vertical;
+        padding: var(--space-4);
+        margin: 0;
+        
+        /* Typography - VSCode Evangelion Theme */
+        font-family: var(--font-mono); /* Fira Code */
+        font-size: var(--text-sm);
+        line-height: var(--leading-normal);
+        letter-spacing: 0.025em;
+        
+        /* Evangelion-inspired coding colors */
+        background: #1a0d26; /* Deep purple coding background */
+        color: #e8e3f0; /* Light purple-white for general text */
+        caret-color: #00ff41; /* Bright green cursor */
+        
+        /* Code styling */
         white-space: pre;
         word-wrap: normal;
         tab-size: 4;
-        letter-spacing: 0.5px;
-    }
-    
-    .python-code-editor {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        color: transparent;
-        caret-color: #00ff41;
-        outline: none;
-        resize: none;
-        z-index: 2;
         overflow: auto;
+        
+        /* Enhanced visual contrast */
+        border: 1px solid #4a2c5a;
+        box-shadow: inset 0 0 0 1px rgba(0, 217, 255, 0.1);
+        
+        /* Framework scrollbar */
         scrollbar-width: thin;
-        scrollbar-color: #88C0D0 #1a0d26;
+        scrollbar-color: var(--eva-green-primary) #1a0d26;
     }
     
-    .python-code-editor::-webkit-scrollbar {
+    .python-code-input::-webkit-scrollbar {
         width: 8px;
         height: 8px;
     }
     
-    .python-code-editor::-webkit-scrollbar-track {
+    .python-code-input::-webkit-scrollbar-track {
         background: #1a0d26;
     }
     
-    .python-code-editor::-webkit-scrollbar-thumb {
-        background: #88C0D0;
-        border-radius: 4px;
+    .python-code-input::-webkit-scrollbar-thumb {
+        background: var(--eva-green-primary);
+        border-radius: var(--radius-sm);
     }
     
-    .syntax-highlight {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #1a0d26;
-        z-index: 1;
-        overflow: hidden;
-        pointer-events: none;
+    .python-code-input::-webkit-scrollbar-thumb:hover {
+        background: var(--eva-green-hover);
     }
     
-    /* Evangelion Theme - Intense colors with high contrast */
-    .syntax-highlight code {
-        background: transparent !important;
-        color: #e8e3f0 !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        line-height: inherit !important;
-        padding: 0 !important;
-        margin: 0 !important;
+    .python-code-input:focus {
+        box-shadow: inset 0 0 0 2px var(--eva-green-primary), 
+                   0 0 8px var(--eva-green-glow);
     }
     
-    /* Evangelion color scheme */
-    .token.comment, .token.prolog, .token.doctype, .token.cdata { 
-        color: #7c4dff !important; 
-        font-style: italic !important; 
-    }
-    .token.string, .token.attr-value { 
-        color: #00ff41 !important; 
-        font-weight: 500 !important; 
-    }
-    .token.keyword, .token.control, .token.directive, .token.unit { 
-        color: #ff6d00 !important; 
-        font-weight: bold !important; 
-    }
-    .token.function, .token.method { 
-        color: #00e5ff !important; 
-        font-weight: bold !important; 
-    }
-    .token.number, .token.boolean { 
-        color: #e91e63 !important; 
-        font-weight: 500 !important; 
-    }
-    .token.operator, .token.important { 
-        color: #ffeb3b !important; 
-        font-weight: bold !important; 
-    }
-    .token.punctuation, .token.bracket { 
-        color: #b39ddb !important; 
-    }
-    .token.builtin, .token.class-name { 
-        color: #ff5722 !important; 
-        font-weight: 600 !important; 
-    }
-    .token.variable { 
-        color: #03dac6 !important; 
-    }
-    .token.property { 
-        color: #ffc107 !important; 
+    .python-code-input:focus {
+        box-shadow: inset 0 0 0 2px var(--eva-green-primary), 
+                   0 0 8px var(--eva-green-glow);
+        border-color: var(--eva-green-primary);
     }
     
+    .python-code-input::placeholder {
+        color: #9CA3B8; /* Muted purple-gray */
+        opacity: 0.8;
+        font-style: italic;
+    }
+    
+    /* Enhanced selection styling for better readability */
+    .python-code-input::selection {
+        background: var(--eva-green-primary);
+        color: var(--bg-color);
+    }
+    
+    .python-code-input::-moz-selection {
+        background: var(--eva-green-primary);
+        color: var(--bg-color);
+    }
+    
+    /* Output Section */
     .python-exec-output {
+        grid-area: output;
         border-top: 1px solid var(--border-default);
         background: var(--bg-color);
     }
     
     .python-exec-output-header {
-        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-3) var(--space-4);
         background: var(--surface-color);
-        font-weight: bold;
-        color: var(--eva-cyan-primary);
         border-bottom: 1px solid var(--border-default);
+        font-weight: var(--font-medium);
+        font-size: var(--text-sm);
+        color: var(--eva-cyan-primary);
+    }
+    
+    .output-icon, .output-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+    
+    .output-controls {
+        display: flex;
+        gap: var(--space-2);
+    }
+    
+    .output-copy {
+        padding: var(--space-1) var(--space-2);
+        border: 1px solid var(--border-default);
+        border-radius: var(--radius-sm);
+        background: var(--elevated-color);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        font-size: var(--text-xs);
+    }
+    
+    .output-copy:hover {
+        background: var(--eva-green-primary);
+        color: var(--bg-color);
+        border-color: var(--eva-green-primary);
     }
     
     .python-exec-result {
         margin: 0;
-        padding: 20px;
-        background: var(--bg-color) !important;
+        padding: var(--space-4);
+        background: var(--bg-color);
         border: none;
         border-radius: 0;
         color: var(--text-primary);
         font-family: var(--font-mono);
+        font-size: var(--text-sm);
+        line-height: var(--leading-relaxed);
         white-space: pre-wrap;
         overflow-x: auto;
+        max-height: 400px;
+        overflow-y: auto;
+        
+        /* Framework scrollbar */
+        scrollbar-width: thin;
+        scrollbar-color: var(--eva-cyan-primary) var(--bg-color);
+    }
+    
+    .python-exec-result::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .python-exec-result::-webkit-scrollbar-track {
+        background: var(--bg-color);
+    }
+    
+    .python-exec-result::-webkit-scrollbar-thumb {
+        background: var(--eva-cyan-primary);
+        border-radius: var(--radius-sm);
+    }
+    
+    /* === RESPONSIVE DESIGN === */
+    
+    /* Mobile: Stack vertically */
+    @media (max-width: 768px) {
+        .python-exec-container.two-column {
+            grid-template-areas:
+                "header"
+                "editor"
+                "explanation"
+                "output";
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+        
+        .python-exec-explanation {
+            border-right: none;
+            border-top: 1px solid var(--border-default);
+            min-height: auto;
+            max-height: 300px;
+        }
+        
+        .explanation-placeholder {
+            min-height: 100px;
+            padding: var(--space-3);
+        }
+        
+        .python-exec-header {
+            padding: 0 var(--space-3);
+        }
+        
+        .python-exec-controls {
+            gap: var(--space-1);
+        }
+        
+        .python-exec-button, .python-exec-clear {
+            padding: var(--space-1) var(--space-2);
+            font-size: var(--text-xs);
+        }
+        
+        .button-text {
+            display: none; /* Show only icons on mobile */
+        }
+    }
+    
+    /* Tablet: Adjusted proportions */
+    @media (min-width: 769px) and (max-width: 1023px) {
+        .python-exec-container.two-column {
+            grid-template-columns: 1fr 1fr; /* Equal columns on tablet */
+        }
+    }
+    
+    /* Large screens: Optimal proportions */
+    @media (min-width: 1200px) {
+        .python-exec-container.two-column {
+            grid-template-columns: 1.3fr 1fr; /* More space for explanation */
+        }
+        
+        .python-exec-editor {
+            min-height: calc(var(--leading-normal) * var(--text-sm) * 10); /* 10 lines on large screens */
+        }
+    }
+    
+    /* === HOVER STATES & INTERACTIONS === */
+    
+    .python-exec-container:hover {
+        box-shadow: var(--shadow-lg);
+        border-color: var(--eva-green-hover);
+    }
+    
+    .python-exec-container:focus-within {
+        box-shadow: var(--shadow-lg), var(--glow-green);
+        border-color: var(--eva-green-primary);
+    }
+    
+    /* Loading state */
+    .python-exec-container.loading .python-exec-button {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    .python-exec-container.loading .python-code-input {
+        opacity: 0.8;
+        pointer-events: none;
+    }
+    
+    /* Error state */
+    .python-exec-container.error {
+        border-color: var(--eva-red-accent);
+    }
+    
+    .python-exec-container.error .python-exec-header {
+        background: linear-gradient(135deg, var(--eva-red-accent), var(--eva-orange-accent));
     }
     </style>
 </body>

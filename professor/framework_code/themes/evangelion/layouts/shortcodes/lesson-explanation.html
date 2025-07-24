@@ -1,0 +1,299 @@
+{{/*
+Lesson Explanation Component
+Used inside python-lesson container for tutorial content
+*/}}
+
+<div class="lesson-explanation">
+  <div class="explanation-header">
+    <button class="copy-explanation-button" onclick="copyExplanationContent(this)" 
+            title="Copy Explanation">
+      <span class="copy-icon">📋</span>
+      <span class="copy-text">Copy</span>
+    </button>
+  </div>
+  <div class="explanation-content">
+    {{ .Inner | markdownify }}
+  </div>
+</div>
+
+<style>
+.lesson-explanation {
+  background: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 24px;
+  height: fit-content;
+}
+
+.lesson-explanation .explanation-content h2,
+.lesson-explanation .explanation-content h3,
+.lesson-explanation .explanation-content h4 {
+  margin-top: 0;
+  color: var(--accent-color);
+}
+
+.lesson-explanation .explanation-content p {
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.lesson-explanation .explanation-content ul,
+.lesson-explanation .explanation-content ol {
+  padding-left: 20px;
+  margin-bottom: 16px;
+}
+
+.lesson-explanation .explanation-content li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.lesson-explanation .explanation-content code {
+  background: var(--elevated-color);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9em;
+}
+
+.lesson-explanation .explanation-content blockquote {
+  border-left: 4px solid var(--accent-color);
+  padding-left: 16px;
+  margin: 16px 0;
+  color: var(--text-secondary);
+}
+
+/* Math rendering support */
+.lesson-explanation .explanation-content .katex {
+  font-size: 1.1em;
+}
+
+/* Copy button for explanation */
+.explanation-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-color, #4b5563);
+  background: var(--elevated-color, #374151);
+}
+
+.copy-explanation-button {
+  background: #6b7280;  /* Dark gray */
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.copy-explanation-button:hover {
+  background: #4b5563;
+}
+
+.copy-icon, .copy-text {
+  font-size: 12px;
+}
+
+@media (max-width: 480px) {
+  .copy-text {
+    display: none;
+  }
+}
+</style>
+
+<script>
+function copyExplanationContent(button) {
+  const explanation = button.closest('.lesson-explanation');
+  if (!explanation) return;
+  
+  const content = explanation.querySelector('.explanation-content');
+  if (!content) return;
+  
+  // Convert HTML to well-formatted markdown-like text
+  const text = htmlToFormattedText(content);
+  
+  navigator.clipboard.writeText(text).then(() => {
+    console.log('✅ Explanation copied to clipboard');
+    
+    // Visual feedback
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<span class="copy-icon">✅</span><span class="copy-text">Copied!</span>';
+    setTimeout(() => {
+      button.innerHTML = originalHTML;
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy explanation:', err);
+  });
+}
+
+function htmlToFormattedText(element) {
+  let result = '';
+  
+  function processNode(node, indent = '') {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent.trim();
+      if (text) {
+        result += text;
+      }
+      return;
+    }
+    
+    if (node.nodeType !== Node.ELEMENT_NODE) return;
+    
+    const tagName = node.tagName.toLowerCase();
+    
+    switch (tagName) {
+      case 'h1':
+        result += '\n# ';
+        processChildren(node);
+        result += '\n\n';
+        break;
+      case 'h2':
+        result += '\n## ';
+        processChildren(node);
+        result += '\n\n';
+        break;
+      case 'h3':
+        result += '\n### ';
+        processChildren(node);
+        result += '\n\n';
+        break;
+      case 'h4':
+        result += '\n#### ';
+        processChildren(node);
+        result += '\n\n';
+        break;
+      case 'p':
+        result += '\n';
+        processChildren(node);
+        result += '\n';
+        break;
+      case 'strong':
+      case 'b':
+        result += '**';
+        processChildren(node);
+        result += '**';
+        break;
+      case 'em':
+      case 'i':
+        result += '*';
+        processChildren(node);
+        result += '*';
+        break;
+      case 'code':
+        if (node.parentNode && node.parentNode.tagName.toLowerCase() === 'pre') {
+          // Block code
+          result += '\n```\n';
+          processChildren(node);
+          result += '\n```\n';
+        } else {
+          // Inline code
+          result += '`';
+          processChildren(node);
+          result += '`';
+        }
+        break;
+      case 'pre':
+        // Handle pre blocks
+        result += '\n';
+        processChildren(node);
+        result += '\n';
+        break;
+      case 'ul':
+        result += '\n';
+        processChildren(node, indent);
+        result += '\n';
+        break;
+      case 'ol':
+        result += '\n';
+        let counter = 1;
+        for (const child of node.children) {
+          if (child.tagName.toLowerCase() === 'li') {
+            result += `${indent}${counter}. `;
+            processChildren(child, indent + '   ');
+            result += '\n';
+            counter++;
+          }
+        }
+        result += '\n';
+        break;
+      case 'li':
+        if (node.parentNode.tagName.toLowerCase() === 'ul') {
+          result += `${indent}- `;
+          processChildren(node, indent + '  ');
+          result += '\n';
+        }
+        // ol li items are handled in the ol case
+        break;
+      case 'br':
+        result += '\n';
+        break;
+      case 'div':
+        // Handle KaTeX math blocks
+        if (node.classList.contains('katex-display')) {
+          const mathML = node.querySelector('.katex-mathml math');
+          if (mathML) {
+            result += '\n$$' + extractMathFromKaTeX(node) + '$$\n';
+          } else {
+            processChildren(node, indent);
+          }
+        } else {
+          processChildren(node, indent);
+        }
+        break;
+      case 'span':
+        // Handle inline KaTeX
+        if (node.classList.contains('katex')) {
+          result += '$' + extractMathFromKaTeX(node) + '$';
+        } else {
+          processChildren(node, indent);
+        }
+        break;
+      default:
+        processChildren(node, indent);
+        break;
+    }
+  }
+  
+  function processChildren(node, indent = '') {
+    for (const child of node.childNodes) {
+      processNode(child, indent);
+    }
+  }
+  
+  function extractMathFromKaTeX(katexElement) {
+    // Try to get original LaTeX from data attribute or annotation
+    const annotation = katexElement.querySelector('annotation[encoding="application/x-tex"]');
+    if (annotation) {
+      return annotation.textContent;
+    }
+    
+    // Fallback: try to get from title attribute or data-original
+    if (katexElement.title) {
+      return katexElement.title;
+    }
+    
+    // Last resort: return the text content but clean it up
+    let mathText = katexElement.textContent.trim();
+    // Remove extra spaces and normalize
+    mathText = mathText.replace(/\s+/g, ' ');
+    return mathText;
+  }
+  
+  processNode(element);
+  
+  // Clean up extra newlines and spaces
+  result = result
+    .replace(/\n\s*\n\s*\n/g, '\n\n')  // Remove triple+ newlines
+    .replace(/^\s+|\s+$/g, '')          // Trim start/end
+    .replace(/[ \t]+/g, ' ');           // Normalize spaces
+  
+  return result;
+}
+</script> 

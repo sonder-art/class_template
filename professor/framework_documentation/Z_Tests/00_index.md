@@ -18,7 +18,7 @@ summary: "Index for Tests chapter"
 🟢 **Easy** | ⏱️ **5 min** | 📋 **Documentation**
 
 ### [JupyterLite Integration Test](02_jupyterlite_integration_test.md)
-*Simple test of JupyterLite browser-based notebook integration*
+*Test of JupyterLite integration with natural markdown content*
 
 🟡 **Medium** | ⏱️ **5 min** | 📋 **Documentation**
 

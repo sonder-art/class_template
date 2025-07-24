@@ -1,0 +1,654 @@
+{{/*
+Unified Python Editor Component
+Usage: 
+  {{< python-editor >}}code{{< /python-editor >}}                    # Full width layout
+  {{< python-editor layout="constrained" >}}code{{< /python-editor >}} # Constrained for two-column
+*/}}
+
+{{ $layout := .Get "layout" | default "full" }}
+{{ $editorId := printf "python-editor-%d" .Ordinal }}
+
+<div class="python-editor-wrapper" data-layout="{{ $layout }}">
+  <div class="python-editor-container" id="{{ $editorId }}">
+    
+    <!-- Header with title and controls -->
+    <div class="python-editor-header">
+      <div class="editor-title">
+        <span class="editor-icon">🐍</span>
+        <span class="editor-text">Interactive Python</span>
+        {{ if eq $layout "constrained" }}
+          <span class="editor-badge">Lesson Mode</span>
+        {{ else }}
+          <span class="editor-badge">Full Width</span>
+        {{ end }}
+      </div>
+      <div class="editor-controls">
+        <button class="run-button" onclick="runPythonCode('{{ $editorId }}')" 
+                title="Run Python Code (Ctrl+Enter)">
+          <span class="button-icon">▶</span>
+          <span class="button-text">Run</span>
+        </button>
+        <button class="copy-code-button" onclick="copyPythonCode('{{ $editorId }}')" 
+                title="Copy Code">
+          <span class="button-icon">📋</span>
+          <span class="button-text">Copy</span>
+        </button>
+        <button class="clear-button" onclick="clearPythonEditorOutput('{{ $editorId }}')" 
+                title="Clear Output">
+          <span class="button-icon">🗑</span>
+          <span class="button-text">Clear</span>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Code input area -->
+    <div class="python-editor-input">
+      <div class="code-editor" 
+           contenteditable="true" 
+           spellcheck="false"
+           data-placeholder="# Write your Python code here...
+print('Hello, World!')
+
+# Press Ctrl+Enter to run">{{ .Inner }}</div>
+    </div>
+    
+    <!-- Output area (hidden in lesson layouts) -->
+    <div class="python-editor-output" id="output-{{ $editorId }}"></div>
+    
+  </div>
+</div>
+
+<style>
+/* Eva Theme Color Palette */
+:root {
+  --python-primary: #a78bfa;     /* Purple accent */
+  --python-success: #34d399;     /* Green for output */
+  --python-error: #f87171;       /* Red for errors */
+  --python-warning: #fbbf24;     /* Yellow for warnings */
+  --python-surface: #1f2937;     /* Dark surface */
+  --python-surface-alt: #374151; /* Alternative surface */
+  --python-border: #4b5563;      /* Border color */
+  --python-text: #f9fafb;        /* Primary text */
+  --python-text-dim: #d1d5db;    /* Secondary text */
+  --python-text-subtle: #9ca3af; /* Tertiary text */
+}
+
+/* Main wrapper - adapts to layout context */
+.python-editor-wrapper {
+  margin: 24px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.python-editor-wrapper[data-layout="constrained"] {
+  margin: 0;
+  height: fit-content;
+}
+
+/* Container */
+.python-editor-container {
+  background: var(--card-color, var(--python-surface));
+  border: 1px solid var(--border-color, var(--python-border));
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Header styling */
+.python-editor-header {
+  background: var(--elevated-color, var(--python-surface-alt));
+  border-bottom: 1px solid var(--border-color, var(--python-border));
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 20px;
+}
+
+.editor-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--text-color, var(--python-text));
+}
+
+.editor-icon {
+  font-size: 16px;
+}
+
+.editor-text {
+  font-size: 14px;
+}
+
+.editor-badge {
+  background: #8b5cf6;  /* Darker purple for better contrast */
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Button controls */
+.editor-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.run-button,
+.clear-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.run-button {
+  background: #8b5cf6;  /* Darker purple for better contrast */
+  color: white;
+}
+
+.run-button:hover {
+  background: #7c3aed;  /* Even darker on hover */
+}
+
+.clear-button {
+  background: #6b7280;  /* Darker gray for better contrast */
+  color: white;
+}
+
+.clear-button:hover {
+  background: #4b5563;  /* Even darker on hover */
+}
+
+.copy-code-button {
+  background: #8b5cf6;  /* Purple like run button */
+  color: white;
+}
+
+.copy-code-button:hover {
+  background: #7c3aed;  /* Darker on hover */
+}
+
+.copy-output-button {
+  background: #6b7280;  /* Dark gray like clear button */
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.copy-output-button:hover {
+  background: #4b5563;
+}
+
+.button-icon {
+  font-size: 12px;
+}
+
+.button-text {
+  font-size: 12px;
+}
+
+/* Responsive button text */
+@media (max-width: 480px) {
+  .button-text {
+    display: none;
+  }
+}
+
+/* Code editor */
+.python-editor-input {
+  border-bottom: 1px solid var(--border-color, var(--python-border));
+}
+
+.code-editor {
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 16px;
+  background: var(--background-color, var(--python-surface));
+  color: var(--text-color, var(--python-text));
+  border: none;
+  outline: none;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  min-height: 120px;
+  resize: vertical;
+  word-wrap: break-word;
+}
+
+.code-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-tertiary, var(--python-text-subtle));
+  font-style: italic;
+  white-space: pre-line;
+}
+
+/* Eva Theme Syntax Highlighting */
+.code-editor .python-keyword { color: #bb9af7; }      /* Purple for keywords */
+.code-editor .python-string { color: #9ece6a; }       /* Green for strings */
+.code-editor .python-comment { color: #565f89; }      /* Gray for comments */
+.code-editor .python-number { color: #ff9e64; }       /* Orange for numbers */
+.code-editor .python-function { color: #7aa2f7; }     /* Blue for functions */
+.code-editor .python-operator { color: #89ddff; }     /* Cyan for operators */
+
+/* Output area */
+.python-editor-output {
+  background: var(--elevated-color, var(--python-surface-alt));
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--text-secondary, var(--python-text-dim));
+  min-height: 40px;
+  max-height: 400px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border-color, var(--python-border));
+  display: none;
+}
+
+.python-editor-output:not(:empty) {
+  display: block;
+}
+
+/* Hide individual output in lesson layouts (temporarily less aggressive for debugging) */
+.python-lesson-container .python-editor-wrapper .python-editor-output,
+.python-lesson-container .python-editor-container .python-editor-output {
+  display: none;
+}
+
+/* But allow fallback if no shared output is found */
+.python-lesson-container .python-editor-wrapper .python-editor-output.fallback-visible,
+.python-lesson-container .python-editor-container .python-editor-output.fallback-visible {
+  display: block !important;
+  opacity: 0.7;
+  border: 2px dashed orange;
+}
+
+.python-editor-output:empty::before {
+  content: "Output will appear here...";
+  color: var(--text-tertiary, var(--python-text-subtle));
+  font-style: italic;
+}
+
+/* Output styling */
+.python-editor-output .success { color: var(--python-success); }
+.python-editor-output .error { color: var(--python-error); }
+.python-editor-output .warning { color: var(--python-warning); }
+
+/* Layout adaptations */
+.python-editor-wrapper[data-layout="full"] .code-editor {
+  /* Full-width: grows with content, no max constraint */
+  overflow-y: hidden;
+  resize: vertical;
+}
+
+.python-editor-wrapper[data-layout="constrained"] .code-editor {
+  /* Constrained: matches description height with minimum */
+  min-height: 300px;
+  height: 100%;
+  overflow-y: auto;
+  resize: none;
+}
+
+/* Two-column layout coordination */
+.python-lesson-container .python-editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.python-lesson-container .python-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.python-lesson-container .python-editor-input {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.python-lesson-container .python-editor-input .code-editor {
+  flex: 1;
+  height: 100%;
+}
+</style>
+
+<script>
+// Unified Python execution system
+function runPythonCode(editorId) {
+  const container = document.getElementById(editorId);
+  if (!container) {
+    console.error('Editor container not found:', editorId);
+    return;
+  }
+  
+  const codeEditor = container.querySelector('.code-editor');
+  let outputArea = container.querySelector('.python-editor-output');
+  
+  // For lesson layout, use the shared output area
+  const lessonContainer = container.closest('.python-lesson-container');
+  if (lessonContainer) {
+    // Try multiple selectors to find the shared output area
+    outputArea = lessonContainer.querySelector(':scope > .python-editor-output') || 
+                 lessonContainer.querySelector('.python-editor-output:not([id^="output-"])') ||
+                 lessonContainer.querySelector('[id^="lesson-output-"]');
+    
+    console.log('Lesson container found:', lessonContainer);
+    console.log('Shared output area found:', outputArea);
+    
+    if (!outputArea) {
+      console.error('Shared output area not found in lesson layout');
+      return;
+    }
+  }
+  
+  if (!codeEditor || !outputArea) {
+    console.error('Code editor or output area not found');
+    return;
+  }
+  
+  // Extract code with proper line break preservation
+  let code = '';
+  
+  if (codeEditor.innerText) {
+    // innerText preserves line breaks better than textContent
+    code = codeEditor.innerText;
+  } else if (codeEditor.textContent) {
+    code = codeEditor.textContent;
+  }
+  
+  // Ensure line breaks are properly normalized
+  code = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  
+  console.log('Code to execute:', JSON.stringify(code)); // Debug: show actual code with line breaks
+  
+  // Clear previous output and show output area
+  outputArea.textContent = '';
+  outputArea.style.display = 'block';
+  
+  // Show loading indicator
+  outputArea.innerHTML = '<span style="color: var(--python-warning);">🔄 Running Python...</span>';
+  
+  try {
+    // Check if Pyodide is ready
+    if (window.pyodide && window.pyodideReady === true) {
+      // Use real Python execution
+      executePythonCode();
+    } else if (typeof window.loadPyodide !== 'undefined' && !window.pyodide) {
+      // Load Pyodide if available but not initialized
+      outputArea.innerHTML = '<span style="color: var(--python-warning);">🔄 Loading Python environment...</span>';
+      
+      window.loadPyodide().then((pyodide) => {
+        window.pyodide = pyodide;
+        window.pyodideReady = true;
+        console.log('✅ Python environment loaded');
+        
+        // Retry execution
+        setTimeout(() => runPythonCode(editorId), 100);
+      }).catch((error) => {
+        console.error('❌ Failed to load Python environment:', error);
+        outputArea.innerHTML = '<span class="error">🚨 Failed to load Python environment</span>';
+      });
+      
+      return;
+    } else if (window.pyodideReady === false) {
+      // Pyodide is still loading
+      outputArea.innerHTML = '<span style="color: var(--python-warning);">⏳ Python environment starting up...</span>';
+      setTimeout(() => runPythonCode(editorId), 1000);
+      return;
+    } else {
+      // No Python environment available
+      outputArea.innerHTML = '<span class="error">🚨 Python environment not available</span>';
+      console.error('Python environment not found');
+      return;
+    }
+  } catch (error) {
+    console.error('Error in Python execution:', error);
+    outputArea.innerHTML = `<span class="error">🚨 Error: ${error.message}</span>`;
+  }
+  
+  // Clean Python execution function
+  function executePythonCode() {
+    try {
+      const pyodide = window.pyodide;
+      
+      // Capture output
+      pyodide.runPython(`
+import sys
+import io
+sys.stdout = io.StringIO()
+sys.stderr = io.StringIO()
+      `);
+      
+      // Execute user code
+      pyodide.runPython(code);
+      
+      // Get results
+      const stdout = pyodide.runPython('sys.stdout.getvalue()');
+      const stderr = pyodide.runPython('sys.stderr.getvalue()');
+      
+      // Display results
+      outputArea.innerHTML = '';
+      
+      if (stdout) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success';
+        successDiv.textContent = stdout;
+        outputArea.appendChild(successDiv);
+      }
+      
+      if (stderr) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error';
+        errorDiv.textContent = '🚨 Error: ' + stderr;
+        outputArea.appendChild(errorDiv);
+      }
+      
+      if (!stdout && !stderr) {
+        outputArea.innerHTML = '<span class="success">✅ Code executed successfully</span>';
+      }
+      
+      // Add copy button to output if there's content
+      if (stdout || stderr) {
+        const copyButton = document.createElement('button');
+        copyButton.className = 'copy-output-button';
+        copyButton.innerHTML = '<span>📋</span> Copy Output';
+        
+        // Store outputArea reference and add click handler
+        copyButton.addEventListener('click', function(e) {
+          e.preventDefault();
+          copyPythonEditorOutput(outputArea);
+        });
+        
+        copyButton.style.marginTop = '8px';
+        copyButton.style.display = 'block';
+        outputArea.appendChild(copyButton);
+      }
+      
+    } catch (error) {
+      outputArea.innerHTML = `<span class="error">🚨 Python Error: ${error.message}</span>`;
+      console.error('Python execution error:', error);
+    }
+  }
+}
+
+function clearPythonEditorOutput(editorId) {
+  const container = document.getElementById(editorId);
+  if (!container) return;
+  
+  // Handle both individual and lesson layout output areas
+  const lessonContainer = container.closest('.python-lesson-container');
+  if (lessonContainer) {
+    // Clear shared output area
+    const sharedOutput = lessonContainer.querySelector(':scope > .python-editor-output');
+    if (sharedOutput) {
+      sharedOutput.innerHTML = '<div class="output-placeholder">Output will appear here when you run the Python code...</div>';
+      console.log('✅ Cleared shared output area');
+    }
+  } else {
+    // Clear individual output area
+    const outputArea = container.querySelector('.python-editor-output');
+    if (outputArea) {
+      outputArea.textContent = '';
+      outputArea.style.display = 'none';
+      console.log('✅ Cleared individual output area');
+    }
+  }
+}
+
+// Copy functions
+function copyPythonCode(editorId) {
+  const container = document.getElementById(editorId);
+  if (!container) return;
+  
+  const codeEditor = container.querySelector('.code-editor');
+  if (!codeEditor) return;
+  
+  const code = codeEditor.innerText || codeEditor.textContent;
+  
+  navigator.clipboard.writeText(code).then(() => {
+    console.log('✅ Code copied to clipboard');
+    
+    // Visual feedback
+    const button = container.querySelector('.copy-code-button');
+    if (button) {
+      const originalText = button.innerHTML;
+      button.innerHTML = '<span class="button-icon">✅</span><span class="button-text">Copied!</span>';
+      setTimeout(() => {
+        button.innerHTML = originalText;
+      }, 2000);
+    }
+  }).catch(err => {
+    console.error('Failed to copy code:', err);
+  });
+}
+
+function copyPythonEditorOutput(outputArea) {
+  if (!outputArea) return;
+  
+  // Get all text content except the copy button
+  const textElements = outputArea.querySelectorAll('.success, .error');
+  let text = '';
+  textElements.forEach(el => {
+    text += el.textContent + '\n';
+  });
+  
+  if (!text.trim()) {
+    text = outputArea.textContent.replace(/📋\s*Copy Output/g, '').trim();
+  }
+  
+  navigator.clipboard.writeText(text).then(() => {
+    // Visual feedback
+    const button = outputArea.querySelector('.copy-output-button');
+    if (button) {
+      const originalText = button.innerHTML;
+      button.innerHTML = '<span>✅</span> Copied!';
+      setTimeout(() => {
+        button.innerHTML = originalText;
+      }, 2000);
+    }
+  }).catch(err => {
+    console.error('Failed to copy output:', err);
+  });
+}
+
+// TODO: Implement syntax highlighting with a safe approach (textarea + overlay)
+
+// Keyboard shortcuts and initialization
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize editors with proper expansion behavior
+  setTimeout(() => {
+    document.querySelectorAll('.code-editor').forEach(editor => {
+      const wrapper = editor.closest('.python-editor-wrapper');
+      const isFullWidth = wrapper && wrapper.dataset.layout !== 'constrained';
+      
+      // Auto-expansion for full-width editors only
+      if (isFullWidth) {
+        function adjustHeight() {
+          // Simple height adjustment without conflicts
+          if (editor.scrollHeight > editor.clientHeight) {
+            editor.style.height = editor.scrollHeight + 'px';
+          }
+        }
+        
+        // Adjust on input with debouncing
+        editor.addEventListener('input', function() {
+          clearTimeout(editor.adjustTimeout);
+          editor.adjustTimeout = setTimeout(adjustHeight, 100);
+        });
+        
+        // Initial adjustment
+        setTimeout(adjustHeight, 100);
+      }
+      
+      // Handle paste events - plain text only
+      editor.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text');
+        
+        // Insert plain text
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0);
+          range.deleteContents();
+          range.insertNode(document.createTextNode(paste));
+          range.collapse(false);
+        }
+        
+        // Adjust height after paste for full-width editors
+        if (isFullWidth) {
+          setTimeout(() => {
+            if (editor.scrollHeight > editor.clientHeight) {
+              editor.style.height = editor.scrollHeight + 'px';
+            }
+          }, 10);
+        }
+      });
+    });
+  }, 100);
+  
+  // Add keyboard shortcuts for all Python editors
+  document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === 'Enter') {
+      const activeEditor = document.activeElement;
+      if (activeEditor && activeEditor.classList.contains('code-editor')) {
+        e.preventDefault();
+        const container = activeEditor.closest('.python-editor-container');
+        if (container) {
+          runPythonCode(container.id);
+        }
+      }
+    }
+  });
+  
+  // Initialize Python environment status
+  console.log('🐍 Python Editor initialized');
+  
+  if (window.pyodide && window.pyodideReady) {
+    console.log('✅ Python environment ready');
+  } else {
+    console.log('⏳ Python environment will be loaded when needed');
+  }
+});
+</script> 
