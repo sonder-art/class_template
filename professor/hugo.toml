@@ -65,7 +65,12 @@ buildFuture = false
     source = "framework_code/themes/evangelion/css/components"
     target = "assets/theme/components"
   
-  # Theme layouts mount - direct from framework_code
+  # Framework layouts mount - PRIORITY (loaded first)
+  [[module.mounts]]
+    source = "framework_code/layouts"
+    target = "layouts"
+  
+  # Theme layouts mount - OVERRIDES (loaded second, can override framework)
   [[module.mounts]]
     source = "framework_code/themes/evangelion/layouts"
     target = "layouts"

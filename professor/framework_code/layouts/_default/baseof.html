@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ============================================================================
+         FRAMEWORK BASE LAYOUT - CORE HTML STRUCTURE
+         Contains meta tags, external libraries, framework assets
+         Theme-specific styling loaded via theme hooks
+         ============================================================================ -->
+    
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ if .Title }}{{ .Title }} - {{ end }}{{ .Site.Title }}</title>
+    <meta name="color-scheme" content="dark light">
+    
+    <!-- SEO and Description Meta Tags -->
+    {{ if .Description }}
+        <meta name="description" content="{{ .Description }}">
+    {{ else if .Summary }}
+        <meta name="description" content="{{ .Summary }}">
+    {{ else if .Site.Params.description }}
+        <meta name="description" content="{{ .Site.Params.description }}">
+    {{ end }}
+    
+    <!-- Framework Core Stylesheets -->
+    {{ $mainCSS := resources.Get "css/main.css" }}
+    {{ if $mainCSS }}
+        <link rel="stylesheet" href="{{ $mainCSS.RelPermalink }}">
+    {{ end }}
+    
+    <!-- Framework Component Stylesheets -->
+    {{ $floatingCopyCSS := resources.Get "css/floating-copy.css" }}
+    {{ if $floatingCopyCSS }}
+        {{ $floatingCopyCSS := $floatingCopyCSS | resources.Minify }}
+        <link rel="stylesheet" href="{{ $floatingCopyCSS.RelPermalink }}">
+    {{ end }}
+    
+    {{ $pythonUIFrameworkCSS := resources.Get "components/python-ui.css" }}
+    {{ if $pythonUIFrameworkCSS }}
+        <link rel="stylesheet" href="{{ $pythonUIFrameworkCSS.RelPermalink }}">
+    {{ end }}
+    
+    <!-- THEME HOOK: Load theme-specific stylesheets -->
+    {{ block "theme-styles" . }}
+        <!-- Theme stylesheets will be loaded here -->
+        {{ $themeCSS := resources.Get "theme/theme.css" }}
+        {{ if $themeCSS }}
+            <link rel="stylesheet" href="{{ $themeCSS.RelPermalink }}">
+        {{ end }}
+        
+        {{ $pythonUIThemeCSS := resources.Get "theme/components/python-ui.css" }}
+        {{ if $pythonUIThemeCSS }}
+            <link rel="stylesheet" href="{{ $pythonUIThemeCSS.RelPermalink }}">
+        {{ end }}
+    {{ end }}
+    
+    <!-- External Libraries (Framework Dependencies) -->
+    <!-- KaTeX for LaTeX Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    
+    <!-- Pyodide for Interactive Python Execution -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    
+    <!-- Prism.js for Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- THEME HOOK: Load theme-specific fonts and external resources -->
+    {{ block "theme-fonts" . }}
+        <!-- Google Fonts - can be overridden by themes -->
+        <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {{ end }}
+    
+    <!-- Framework JavaScript Modules -->
+    {{ $navigationJS := resources.Get "js/navigation.js" }}
+    {{ if $navigationJS }}
+        <script src="{{ $navigationJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $mathRenderingJS := resources.Get "js/math-rendering.js" }}
+    {{ if $mathRenderingJS }}
+        <script src="{{ $mathRenderingJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $pythonEnvJS := resources.Get "js/python-environment.js" }}
+    {{ if $pythonEnvJS }}
+        <script src="{{ $pythonEnvJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $floatingCopyJS := resources.Get "js/floating-copy.js" }}
+    {{ if $floatingCopyJS }}
+        <script src="{{ $floatingCopyJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $sidebarNavigationJS := resources.Get "js/sidebar-navigation.js" }}
+    {{ if $sidebarNavigationJS }}
+        <script src="{{ $sidebarNavigationJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    <!-- THEME HOOK: Additional theme scripts -->
+    {{ block "theme-scripts" . }}
+        <!-- Themes can add additional scripts here -->
+    {{ end }}
+</head>
+<body class="site-container{{ if .Site.Params.default_font }} font-{{ .Site.Params.default_font }}{{ end }}{{ if .Site.Params.high_contrast }} high-contrast{{ end }}">
+    
+    <!-- ============================================================================
+         FRAMEWORK SITE STRUCTURE
+         Navigation, header, main content, and footer layout
+         Themes control styling, framework controls structure
+         ============================================================================ -->
+    
+    <!-- Mobile Navigation Toggle Button -->
+    <button class="nav-toggle-btn" 
+            id="navToggle" 
+            aria-label="Toggle navigation menu"
+            aria-expanded="true"
+            aria-controls="siteNavigation">
+        <span class="nav-toggle-icon">
+            <span class="nav-toggle-line"></span>
+            <span class="nav-toggle-line"></span>
+            <span class="nav-toggle-line"></span>
+        </span>
+    </button>
+    
+    <!-- Mobile Navigation Overlay -->
+    <div class="nav-overlay" id="navOverlay"></div>
+    
+    <!-- Site Header with Breadcrumbs and Main Navigation -->
+    <header class="site-header">
+        <div class="header-content">
+            <h1><a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a></h1>
+            
+            <!-- Breadcrumb Navigation (shows when sidebar is collapsed) -->
+            <nav class="breadcrumb-nav" id="breadcrumbNav">
+                <span class="breadcrumb-current"></span>
+            </nav>
+            
+            <nav class="main-nav">
+                {{ range .Site.Menus.main }}
+                    <a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a>
+                {{ end }}
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Site Sidebar Navigation -->
+    <aside class="site-sidebar" id="siteNavigation" role="navigation">
+        {{ block "sidebar" . }}
+            {{ partial "sidebar-nav.html" . }}
+        {{ end }}
+    </aside>
+    
+    <!-- Main Content Area -->
+    <main class="site-main content">
+        {{ block "main" . }}{{ end }}
+    </main>
+    
+    <!-- Site Footer -->
+    <footer class="site-footer">
+        <p>&copy; {{ now.Year }} {{ .Site.Params.course_name }} - {{ .Site.Params.professor_name }}</p>
+        {{ if .Site.Params.contact_policy }}
+            <p>{{ .Site.Params.contact_policy }}</p>
+        {{ end }}
+    </footer>
+    
+    <!-- Framework Components -->
+    <!-- Floating Copy Button Component -->
+    <button class="floating-copy-button" id="floatingCopyBtn" title="Copy pure markdown content + code outputs">
+        📝
+    </button>
+
+    <!-- THEME HOOK: Additional theme body elements -->
+    {{ block "theme-body" . }}
+        <!-- Themes can add additional body elements here -->
+    {{ end }}
+
+</body>
+</html> 

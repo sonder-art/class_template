@@ -1,173 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <!-- ============================================================================
-         DOCUMENT HEAD SECTION
-         Contains meta tags, external stylesheets, and library imports
-         ============================================================================ -->
-    
-    <!-- Basic Meta Tags -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ if .Title }}{{ .Title }} - {{ end }}{{ .Site.Title }}</title>
-    <meta name="color-scheme" content="dark light">
-    
-    <!-- SEO and Description Meta Tags -->
-    {{ if .Description }}
-        <meta name="description" content="{{ .Description }}">
-    {{ else if .Summary }}
-        <meta name="description" content="{{ .Summary }}">
-    {{ else if .Site.Params.description }}
-        <meta name="description" content="{{ .Site.Params.description }}">
-    {{ end }}
-    
-    <!-- Framework and Theme Stylesheets -->
-    {{ $mainCSS := resources.Get "css/main.css" }}
-    {{ if $mainCSS }}
-        <link rel="stylesheet" href="{{ $mainCSS.RelPermalink }}">
-    {{ end }}
-    
+{{/*
+EVANGELION THEME - MINIMAL BASE LAYOUT
+Theme provides ONLY styling overrides - all structure comes from framework
+Framework handles: HTML structure, meta tags, external libraries, JavaScript loading
+Theme handles: Colors, fonts, visual customization only
+*/}}
+
+{{ define "theme-styles" }}
+    <!-- Evangelion Theme: Core theme stylesheet -->
     {{ $themeCSS := resources.Get "theme/theme.css" }}
     {{ if $themeCSS }}
         <link rel="stylesheet" href="{{ $themeCSS.RelPermalink }}">
     {{ end }}
     
-    <!-- Component Stylesheets -->
-    {{ $floatingCopyCSS := resources.Get "css/floating-copy.css" }}
-    {{ if $floatingCopyCSS }}
-        {{ $floatingCopyCSS := $floatingCopyCSS | resources.Minify }}
-        <link rel="stylesheet" href="{{ $floatingCopyCSS.RelPermalink }}">
-    {{ end }}
-    
-    <!-- External Libraries -->
-    <!-- KaTeX for LaTeX Math Rendering -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
-    
-    <!-- Pyodide for Interactive Python Execution -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    
-    <!-- Prism.js for Syntax Highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Framework JavaScript Modules -->
-    {{ $navigationJS := resources.Get "js/navigation.js" }}
-    {{ if $navigationJS }}
-        <script src="{{ $navigationJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $mathRenderingJS := resources.Get "js/math-rendering.js" }}
-    {{ if $mathRenderingJS }}
-        <script src="{{ $mathRenderingJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $pythonEnvJS := resources.Get "js/python-environment.js" }}
-    {{ if $pythonEnvJS }}
-        <script src="{{ $pythonEnvJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $floatingCopyJS := resources.Get "js/floating-copy.js" }}
-    {{ if $floatingCopyJS }}
-        <script src="{{ $floatingCopyJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $sidebarNavigationJS := resources.Get "js/sidebar-navigation.js" }}
-    {{ if $sidebarNavigationJS }}
-        <script src="{{ $sidebarNavigationJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    <!-- Framework Component Stylesheets -->
-    {{ $pythonUIFrameworkCSS := resources.Get "components/python-ui.css" }}
-    {{ if $pythonUIFrameworkCSS }}
-        <link rel="stylesheet" href="{{ $pythonUIFrameworkCSS.RelPermalink }}">
-    {{ end }}
-    
-    <!-- Theme Component Stylesheets -->
+    <!-- Evangelion Theme: Component styling overrides -->
     {{ $pythonUIThemeCSS := resources.Get "theme/components/python-ui.css" }}
     {{ if $pythonUIThemeCSS }}
         <link rel="stylesheet" href="{{ $pythonUIThemeCSS.RelPermalink }}">
     {{ end }}
-</head>
-<body class="site-container{{ if .Site.Params.default_font }} font-{{ .Site.Params.default_font }}{{ end }}{{ if .Site.Params.high_contrast }} high-contrast{{ end }}">
-    
-    <!-- ============================================================================
-         MAIN SITE STRUCTURE
-         Navigation, header, main content, and footer layout
-         ============================================================================ -->
-    
-    <!-- Mobile Navigation Toggle Button -->
-    <button class="nav-toggle-btn" 
-            id="navToggle" 
-            aria-label="Toggle navigation menu"
-            aria-expanded="true"
-            aria-controls="siteNavigation">
-        <span class="nav-toggle-icon">
-            <span class="nav-toggle-line"></span>
-            <span class="nav-toggle-line"></span>
-            <span class="nav-toggle-line"></span>
-        </span>
-    </button>
-    
-    <!-- Mobile Navigation Overlay -->
-    <div class="nav-overlay" id="navOverlay"></div>
-    
-    <!-- Site Header with Breadcrumbs and Main Navigation -->
-    <header class="site-header">
-        <div class="header-content">
-            <h1><a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a></h1>
-            
-            <!-- Breadcrumb Navigation (shows when sidebar is collapsed) -->
-            <nav class="breadcrumb-nav" id="breadcrumbNav">
-                <span class="breadcrumb-current"></span>
-            </nav>
-            
-            <nav class="main-nav">
-                {{ range .Site.Menus.main }}
-                    <a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a>
-                {{ end }}
-            </nav>
-        </div>
-    </header>
-    
-    <!-- Site Sidebar Navigation -->
-    <aside class="site-sidebar" id="siteNavigation" role="navigation">
-        {{ block "sidebar" . }}
-            {{ partial "sidebar-nav.html" . }}
-        {{ end }}
-    </aside>
-    
-    <!-- Main Content Area -->
-    <main class="site-main content">
-        {{ block "main" . }}{{ end }}
-    </main>
-    
-    <!-- Site Footer -->
-    <footer class="site-footer">
-        <p>&copy; {{ now.Year }} {{ .Site.Params.course_name }} - {{ .Site.Params.professor_name }}</p>
-        {{ if .Site.Params.contact_policy }}
-            <p>{{ .Site.Params.contact_policy }}</p>
-        {{ end }}
-    </footer>
+{{ end }}
 
-
+{{ define "theme-fonts" }}
+    <!-- Evangelion Theme: Google Fonts selection -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Evangelion Theme: Additional font imports -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+{{ end }}
 
-    
+{{ define "theme-scripts" }}
+    <!-- Evangelion Theme: Theme-specific JavaScript (if any) -->
+    <!-- Currently no theme-specific scripts needed -->
+{{ end }}
 
-    
-    <!-- ============================================================================
-         FLOATING COPY BUTTON COMPONENT
-         Provides page-wide content copying with formatting preservation
-         ============================================================================ -->
-    <button class="floating-copy-button" id="floatingCopyBtn" title="Copy pure markdown content + code outputs">
-        📝
-    </button>
-
-
-</body>
-</html> 
+{{ define "theme-body" }}
+    <!-- Evangelion Theme: Additional body elements (if any) -->
+    <!-- Currently no additional body elements needed -->
+{{ end }} 

@@ -1,14 +1,19 @@
 {{/*
+FRAMEWORK NAVIGATION COMPONENT
 Dynamic Sidebar Navigation for GitHub Class Template Framework
 Automatically generates navigation tree from content structure including:
 - Numbered chapters (01_, 02_, etc.) 
 - Appendix chapters (A_, B_, etc.)
 - Current page highlighting
 - Collapsible sections
+- VSCode-style file tree
+
+This component provides ALL navigation logic and structure.
+Theme only provides CSS styling for visual appearance.
 */}}
 
 <nav class="sidebar-nav" data-current-section="{{ .Section }}">
-    <!-- Profile Section -->
+    <!-- Framework Profile Section -->
     <div class="nav-profile">
         <div class="profile-image">
             {{ $profileImage := .Site.Params.profile_image | default "/assets/images/profile-placeholder.svg" }}
@@ -20,7 +25,7 @@ Automatically generates navigation tree from content structure including:
         </div>
     </div>
     
-    <!-- Utility Icons -->
+    <!-- Framework Utility Icons -->
     <div class="nav-utilities">
         <a href="/" class="utility-btn" title="Home">
             <span class="utility-icon">🏠</span>
@@ -33,9 +38,8 @@ Automatically generates navigation tree from content structure including:
         </button>
     </div>
     
-
-    
-    {{/* Simple VSCode-style file tree */}}
+    <!-- Framework File Tree Generation -->
+    {{/* Define content categories from framework configuration */}}
     {{ $categories := slice "class_notes" "framework_tutorials" "framework_documentation" }}
     
     <div class="file-tree">
@@ -46,7 +50,7 @@ Automatically generates navigation tree from content structure including:
             {{ if $categoryPages }}
                 {{ $categoryTitle := $categoryName | replaceRE "_" " " | title }}
                 
-                {{/* Category Folder */}}
+                {{/* Framework Category Folder Logic */}}
                 <div class="folder-item" data-category="{{ $categoryName }}">
                     <div class="folder-header" data-target="category-{{ $categoryName }}">
                         <span class="folder-icon">▶</span>
@@ -57,7 +61,7 @@ Automatically generates navigation tree from content structure including:
                     
                     <div class="folder-content" id="category-{{ $categoryName }}">
                 
-                        {{/* Simple chapter listing with proper numeric sorting */}}
+                        {{/* Framework Chapter Discovery and Sorting Logic */}}
                         {{ $chapterDirs := slice }}
                         {{ range $categoryPages }}
                             {{ $dir := path.Dir .File.Path }}
@@ -69,7 +73,7 @@ Automatically generates navigation tree from content structure including:
                             {{ end }}
                         {{ end }}
                         
-                        {{/* Separate numbered chapters from appendix chapters for proper sorting */}}
+                        {{/* Framework Numbered vs Appendix Chapter Separation */}}
                         {{ $numberedChapters := slice }}
                         {{ $appendixChapters := slice }}
                         
@@ -81,7 +85,7 @@ Automatically generates navigation tree from content structure including:
                             {{ end }}
                         {{ end }}
                         
-                        {{/* Sort numbered chapters by extracting the number */}}
+                        {{/* Framework Numeric Sorting Algorithm for Chapters */}}
                         {{ $sortedNumbered := slice }}
                         {{ range seq 0 99 }}
                             {{ $num := . }}
@@ -96,10 +100,10 @@ Automatically generates navigation tree from content structure including:
                             {{ end }}
                         {{ end }}
                         
-                        {{/* Sort appendix chapters alphabetically */}}
+                        {{/* Framework Appendix Chapter Sorting */}}
                         {{ $appendixChapters = sort $appendixChapters }}
                         
-                        {{/* Combine: numbered first, then appendices */}}
+                        {{/* Framework Chapter Order: Numbered first, then appendices */}}
                         {{ $chapterDirs = slice }}
                         {{ range $sortedNumbered }}
                             {{ $chapterDirs = $chapterDirs | append . }}
@@ -113,7 +117,7 @@ Automatically generates navigation tree from content structure including:
                             {{ $chapterPages := where $categoryPages "File.Dir" "eq" (printf "%s/%s/" $categoryName $chapterName) }}
                             {{ $chapterTitle := $chapterName | replaceRE "^([0-9]+|[A-Z])_" "$1. " | replaceRE "_" " " | title }}
                             
-                            {{/* Chapter Folder */}}
+                            {{/* Framework Chapter Folder Logic */}}
                             <div class="chapter-item">
                                 <div class="chapter-header" data-target="chapter-{{ $categoryName }}-{{ $chapterName }}">
                                     <span class="chapter-icon">▶</span>
@@ -124,11 +128,11 @@ Automatically generates navigation tree from content structure including:
                                 </div>
                                 
                                 <div class="chapter-content" id="chapter-{{ $categoryName }}-{{ $chapterName }}">
-                                    {{/* Sort pages within chapter numerically */}}
+                                    {{/* Framework Page Sorting Logic within Chapters */}}
                                     {{ $sortedPages := slice }}
                                     {{ $appendixPages := slice }}
                                     
-                                    {{/* Separate numbered pages from appendix pages */}}
+                                    {{/* Framework Numbered vs Appendix Page Separation */}}
                                     {{ range $chapterPages }}
                                         {{ if not (eq .File.BaseFileName "00_index") }}
                                             {{ if findRE "^[A-Z]_" .File.BaseFileName }}
@@ -139,7 +143,7 @@ Automatically generates navigation tree from content structure including:
                                         {{ end }}
                                     {{ end }}
                                     
-                                    {{/* Sort numbered pages by extracting the number */}}
+                                    {{/* Framework Numeric Sorting Algorithm for Pages */}}
                                     {{ $finalSortedPages := slice }}
                                     {{ range seq 0 99 }}
                                         {{ $num := . }}
@@ -154,10 +158,10 @@ Automatically generates navigation tree from content structure including:
                                         {{ end }}
                                     {{ end }}
                                     
-                                    {{/* Sort appendix pages alphabetically */}}
+                                    {{/* Framework Appendix Page Sorting */}}
                                     {{ $appendixPages = sort $appendixPages "File.BaseFileName" }}
                                     
-                                    {{/* Combine: numbered first, then appendices */}}
+                                    {{/* Framework Page Order: Numbered first, then appendices */}}
                                     {{ $allSortedPages := slice }}
                                     {{ range $finalSortedPages }}
                                         {{ $allSortedPages = $allSortedPages | append . }}
@@ -185,6 +189,4 @@ Automatically generates navigation tree from content structure including:
             {{ end }}
         {{ end }}
     </div>
-</nav>
-
- 
+</nav> 

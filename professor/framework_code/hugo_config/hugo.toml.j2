@@ -57,7 +57,12 @@ buildFuture = false
     source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/css/components"
     target = "assets/theme/components"
   
-  # Theme layouts mount - direct from framework_code
+  # Framework layouts mount - PRIORITY (loaded first)
+  [[module.mounts]]
+    source = "framework_code/layouts"
+    target = "layouts"
+  
+  # Theme layouts mount - OVERRIDES (loaded second, can override framework)
   [[module.mounts]]
     source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/layouts"
     target = "layouts"
