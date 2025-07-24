@@ -1,23 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- ============================================================================
+         DOCUMENT HEAD SECTION
+         Contains meta tags, external stylesheets, and library imports
+         ============================================================================ -->
+    
+    <!-- Basic Meta Tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ if .Title }}{{ .Title }} - {{ end }}{{ .Site.Title }}</title>
+    <meta name="color-scheme" content="dark light">
     
-    <!-- Framework CSS -->
-    {{ $mainCSS := resources.Get "css/main.css" }}
-    {{ if $mainCSS }}
-        <link rel="stylesheet" href="{{ $mainCSS.RelPermalink }}">
-    {{ end }}
-    
-    <!-- Theme CSS -->
-    {{ $themeCSS := resources.Get "theme/theme.css" }}
-    {{ if $themeCSS }}
-        <link rel="stylesheet" href="{{ $themeCSS.RelPermalink }}">
-    {{ end }}
-    
-    <!-- Page Description -->
+    <!-- SEO and Description Meta Tags -->
     {{ if .Description }}
         <meta name="description" content="{{ .Description }}">
     {{ else if .Summary }}
@@ -26,26 +21,41 @@
         <meta name="description" content="{{ .Site.Params.description }}">
     {{ end }}
     
-    <!-- Accessibility Features -->
-    <meta name="color-scheme" content="dark light">
+    <!-- Framework and Theme Stylesheets -->
+    {{ $mainCSS := resources.Get "css/main.css" }}
+    {{ if $mainCSS }}
+        <link rel="stylesheet" href="{{ $mainCSS.RelPermalink }}">
+    {{ end }}
     
-    <!-- KaTeX for LaTeX Math Rendering - Fixed Integrity Issue -->
+    {{ $themeCSS := resources.Get "theme/theme.css" }}
+    {{ if $themeCSS }}
+        <link rel="stylesheet" href="{{ $themeCSS.RelPermalink }}">
+    {{ end }}
+    
+    <!-- External Libraries -->
+    <!-- KaTeX for LaTeX Math Rendering -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
     
-    <!-- Pyodide for Inline Python Execution -->
+    <!-- Pyodide for Interactive Python Execution -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     
     <!-- Prism.js for Syntax Highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     
-    <!-- Google Fonts for better code font -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="site-container{{ if .Site.Params.default_font }} font-{{ .Site.Params.default_font }}{{ end }}{{ if .Site.Params.high_contrast }} high-contrast{{ end }}">
-    <!-- Navigation Toggle Button -->
+    
+    <!-- ============================================================================
+         MAIN SITE STRUCTURE
+         Navigation, header, main content, and footer layout
+         ============================================================================ -->
+    
+    <!-- Mobile Navigation Toggle Button -->
     <button class="nav-toggle-btn" 
             id="navToggle" 
             aria-label="Toggle navigation menu"
@@ -58,9 +68,10 @@
         </span>
     </button>
     
-    <!-- Navigation Overlay for Mobile -->
+    <!-- Mobile Navigation Overlay -->
     <div class="nav-overlay" id="navOverlay"></div>
     
+    <!-- Site Header with Breadcrumbs and Main Navigation -->
     <header class="site-header">
         <div class="header-content">
             <h1><a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a></h1>
@@ -78,16 +89,19 @@
         </div>
     </header>
     
+    <!-- Site Sidebar Navigation -->
     <aside class="site-sidebar" id="siteNavigation" role="navigation">
         {{ block "sidebar" . }}
             {{ partial "sidebar-nav.html" . }}
         {{ end }}
     </aside>
     
+    <!-- Main Content Area -->
     <main class="site-main content">
         {{ block "main" . }}{{ end }}
     </main>
     
+    <!-- Site Footer -->
     <footer class="site-footer">
         <p>&copy; {{ now.Year }} {{ .Site.Params.course_name }} - {{ .Site.Params.professor_name }}</p>
         {{ if .Site.Params.contact_policy }}
@@ -95,7 +109,10 @@
         {{ end }}
     </footer>
 
-    <!-- Collapsible Navigation JavaScript -->
+    <!-- ============================================================================
+         NAVIGATION SYSTEM JAVASCRIPT
+         Handles mobile navigation, sidebar toggle, and collapsible navigation
+         ============================================================================ -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const navToggle = document.getElementById('navToggle');
@@ -245,6 +262,10 @@
     });
     </script>
     
+    <!-- ============================================================================
+         KATEX MATH RENDERING INITIALIZATION
+         Handles LaTeX formula rendering throughout the site
+         ============================================================================ -->
     <script>
     // KaTeX Auto-Render Initialization - Production Version
     document.addEventListener("DOMContentLoaded", function() {
@@ -625,6 +646,11 @@ sys.stdout = StringIO()
 
     </script>
     
+    <!-- ============================================================================
+         CUSTOM CSS STYLES
+         Eva theme colors, Python components, floating copy button, etc.
+         TODO: Extract to external CSS files in Phase 2
+         ============================================================================ -->
     <style>
     /* === LEETCODE-INSPIRED PYTHON EXECUTION UX/UI === */
     
@@ -1099,7 +1125,10 @@ sys.stdout = StringIO()
         }
     }
     
-    /* === HOVER STATES & INTERACTIONS === */
+    /* ========================================================================
+       INTERACTIVE STATES & HOVER EFFECTS
+       Button hover states, focus effects, and loading/error states
+       ======================================================================== */
     
     .python-exec-container:hover {
         box-shadow: var(--shadow-lg);
@@ -1131,7 +1160,10 @@ sys.stdout = StringIO()
         background: linear-gradient(135deg, var(--eva-red-accent), var(--eva-orange-accent));
     }
     
-    /* === FLOATING COPY BUTTON === */
+    /* ========================================================================
+       FLOATING COPY BUTTON STYLES
+       Handles the page-wide content copy functionality
+       ======================================================================== */
     .floating-copy-button {
         position: fixed;
         bottom: 24px;
@@ -1209,13 +1241,20 @@ sys.stdout = StringIO()
     }
     </style>
     
-    <!-- Floating Copy Button -->
+    <!-- ============================================================================
+         FLOATING COPY BUTTON COMPONENT
+         Provides page-wide content copying with formatting preservation
+         ============================================================================ -->
     <button class="floating-copy-button" id="floatingCopyBtn" title="Copy pure markdown content + code outputs">
         📝
     </button>
 
+    <!-- ============================================================================
+         FLOATING COPY FUNCTIONALITY JAVASCRIPT
+         Handles content extraction, formatting, and clipboard operations
+         ============================================================================ -->
     <script>
-    // Comprehensive page content copying functionality
+    // === PAGE CONTENT COPYING SYSTEM ===
     function copyEntirePageContent() {
         const button = document.getElementById('floatingCopyBtn');
         
