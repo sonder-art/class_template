@@ -61,21 +61,6 @@
 
 /* === EVANGELION-SPECIFIC VISUAL ENHANCEMENTS === */
 
-/* Debug colors for two-column layout - remove in production */
-.python-exec-container.two-column {
-    gap: 2px; /* Visible gap for debugging */
-    background: #ff0000 !important; /* Temporary red background for debugging */
-}
-
-.python-exec-explanation {
-    background: #00ff00 !important; /* Temporary green background for debugging */
-}
-
-.explanation-auto-content {
-    background: #0000ff !important; /* Temporary blue background for debugging */
-    padding: var(--space-2) !important;
-}
-
 /* Enhanced Visual Effects */
 .python-exec-container:hover {
     border-color: var(--eva-green-hover);

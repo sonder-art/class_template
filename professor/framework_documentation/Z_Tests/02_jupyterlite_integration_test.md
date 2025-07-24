@@ -96,11 +96,6 @@ print(f"Sum of odd squares: {sum(odd_squares)}")
 
 
 
-## Tier 2: Full Lab Environment Test
-
-Launch the complete JupyterLite lab environment:
-
-{{< jupyterlite-lab root="framework_documentation/Z_Tests/" title="Test Lab Environment" >}}
 
 ### What to Test:
 
