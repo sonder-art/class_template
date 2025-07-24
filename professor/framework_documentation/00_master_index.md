@@ -41,12 +41,12 @@ Technical documentation for framework internals. Useful for contributors and adv
 ## 📎 Appendices
 
 ### [Tests](Z_Tests/00_index.md)
-*Chapter covering comprehensive test of latex mathematical expression rendering using katex*
+*Chapter covering testing mathematical formula rendering with katex*
 
 📊 2 content files
 
 **Content:**
-- [LaTeX Math Rendering Test](Z_Tests/01_latex_rendering_test.md) 🟢
+- [LaTeX Math Rendering Test](Z_Tests/01_latex_rendering_test.md)
 - [JupyterLite Integration Test](Z_Tests/02_jupyterlite_integration_test.md) 🟡
 
 ---

@@ -1,7 +1,7 @@
 ---
 title: "LaTeX Math Rendering Test"
 type: "documentation"
-date: 2025-01-20
+date: "2025-01-20"
 author: "Framework Team"
 summary: "Testing mathematical formula rendering with KaTeX"
 ---

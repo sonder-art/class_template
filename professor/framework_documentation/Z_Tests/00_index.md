@@ -13,9 +13,9 @@ summary: "Index for Tests chapter"
 ## 📚 Chapter Content
 
 ### [LaTeX Math Rendering Test](01_latex_rendering_test.md)
-*Comprehensive test of LaTeX mathematical expression rendering using KaTeX*
+*Testing mathematical formula rendering with KaTeX*
 
-🟢 **Easy** | ⏱️ **5 min** | 📋 **Documentation**
+📋 **Documentation**
 
 ### [JupyterLite Integration Test](02_jupyterlite_integration_test.md)
 *Test of JupyterLite integration with natural markdown content*
