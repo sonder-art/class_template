@@ -1130,6 +1130,379 @@ sys.stdout = StringIO()
     .python-exec-container.error .python-exec-header {
         background: linear-gradient(135deg, var(--eva-red-accent), var(--eva-orange-accent));
     }
+    
+    /* === FLOATING COPY BUTTON === */
+    .floating-copy-button {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 56px;
+        height: 56px;
+        background: #8b5cf6;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        transition: all 0.3s ease;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+    }
+    
+    .floating-copy-button:hover {
+        background: #7c3aed;
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    }
+    
+    .floating-copy-button:active {
+        transform: scale(0.95);
+    }
+    
+    .floating-copy-button.copied {
+        background: #10b981;
+        transform: scale(1.2);
+    }
+    
+    .floating-copy-button.copied::before {
+        content: '✅';
+    }
+    
+    /* Hide copy button on small screens to avoid overlap */
+    @media (max-width: 480px) {
+        .floating-copy-button {
+            bottom: 16px;
+            right: 16px;
+            width: 48px;
+            height: 48px;
+            font-size: 18px;
+        }
+    }
+    
+         /* Tooltip for floating button */
+     .floating-copy-button::after {
+         content: 'Copy Markdown Content';
+         position: absolute;
+         right: 100%;
+         top: 50%;
+         transform: translateY(-50%);
+         background: rgba(0, 0, 0, 0.8);
+         color: white;
+         padding: 8px 12px;
+         border-radius: 6px;
+         font-size: 12px;
+         white-space: nowrap;
+         opacity: 0;
+         visibility: hidden;
+         transition: all 0.3s ease;
+         margin-right: 12px;
+         pointer-events: none;
+     }
+    
+    .floating-copy-button:hover::after {
+        opacity: 1;
+        visibility: visible;
+    }
     </style>
+    
+    <!-- Floating Copy Button -->
+    <button class="floating-copy-button" id="floatingCopyBtn" title="Copy pure markdown content + code outputs">
+        📝
+    </button>
+
+    <script>
+    // Comprehensive page content copying functionality
+    function copyEntirePageContent() {
+        const button = document.getElementById('floatingCopyBtn');
+        
+        try {
+            // Get the main content area
+            const mainContent = document.querySelector('main.site-main') || 
+                               document.querySelector('.content') || 
+                               document.querySelector('main') ||
+                               document.querySelector('#content');
+            
+            if (!mainContent) {
+                console.error('Main content area not found');
+                return;
+            }
+            
+            // Convert content to formatted text
+            const formattedText = htmlToFormattedText(mainContent);
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(formattedText).then(() => {
+                console.log('✅ Page content copied to clipboard');
+                
+                // Visual feedback
+                button.classList.add('copied');
+                button.innerHTML = '✅';
+                
+                                 setTimeout(() => {
+                     button.classList.remove('copied');
+                     button.innerHTML = '📝';
+                 }, 2000);
+                
+            }).catch(err => {
+                console.error('Failed to copy page content:', err);
+                                 button.innerHTML = '❌';
+                 setTimeout(() => {
+                     button.innerHTML = '📝';
+                 }, 2000);
+            });
+            
+        } catch (error) {
+            console.error('Error copying page content:', error);
+        }
+    }
+    
+    // Enhanced HTML to formatted text converter for entire pages
+    function htmlToFormattedText(element) {
+        let result = '';
+        
+        function processNode(node, indent = '') {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const text = node.textContent.trim();
+                if (text) {
+                    result += text;
+                }
+                return;
+            }
+            
+            if (node.nodeType !== Node.ELEMENT_NODE) return;
+            
+            const tagName = node.tagName.toLowerCase();
+            
+            // Skip navigation, headers, footers, and ALL UI elements
+            if (tagName === 'nav' || tagName === 'header' || tagName === 'footer' || tagName === 'button' ||
+                node.classList.contains('nav-toggle-btn') ||
+                node.classList.contains('site-header') ||
+                node.classList.contains('site-sidebar') ||
+                node.classList.contains('site-footer') ||
+                node.classList.contains('floating-copy-button') ||
+                node.classList.contains('copy-code-button') ||
+                node.classList.contains('copy-output-button') ||
+                node.classList.contains('copy-explanation-button') ||
+                node.classList.contains('copy-output-button') ||
+                node.classList.contains('run-button') ||
+                node.classList.contains('clear-button') ||
+                node.classList.contains('python-editor-header') ||
+                node.classList.contains('editor-controls') ||
+                node.classList.contains('editor-title') ||
+                node.classList.contains('editor-badge') ||
+                node.classList.contains('explanation-header') ||
+                node.classList.contains('output-placeholder')) {
+                return;
+            }
+            
+            switch (tagName) {
+                case 'h1':
+                    result += '\n# ';
+                    processChildren(node);
+                    result += '\n\n';
+                    break;
+                case 'h2':
+                    result += '\n## ';
+                    processChildren(node);
+                    result += '\n\n';
+                    break;
+                case 'h3':
+                    result += '\n### ';
+                    processChildren(node);
+                    result += '\n\n';
+                    break;
+                case 'h4':
+                    result += '\n#### ';
+                    processChildren(node);
+                    result += '\n\n';
+                    break;
+                case 'h5':
+                    result += '\n##### ';
+                    processChildren(node);
+                    result += '\n\n';
+                    break;
+                case 'h6':
+                    result += '\n###### ';
+                    processChildren(node);
+                    result += '\n\n';
+                    break;
+                case 'p':
+                    result += '\n';
+                    processChildren(node);
+                    result += '\n';
+                    break;
+                case 'strong':
+                case 'b':
+                    result += '**';
+                    processChildren(node);
+                    result += '**';
+                    break;
+                case 'em':
+                case 'i':
+                    result += '*';
+                    processChildren(node);
+                    result += '*';
+                    break;
+                case 'code':
+                    if (node.parentNode && node.parentNode.tagName.toLowerCase() === 'pre') {
+                        // Block code
+                        result += '\n```\n';
+                        processChildren(node);
+                        result += '\n```\n';
+                    } else {
+                        // Inline code
+                        result += '`';
+                        processChildren(node);
+                        result += '`';
+                    }
+                    break;
+                case 'pre':
+                    result += '\n';
+                    processChildren(node);
+                    result += '\n';
+                    break;
+                case 'ul':
+                    result += '\n';
+                    processChildren(node, indent);
+                    result += '\n';
+                    break;
+                case 'ol':
+                    result += '\n';
+                    let counter = 1;
+                    for (const child of node.children) {
+                        if (child.tagName.toLowerCase() === 'li') {
+                            result += `${indent}${counter}. `;
+                            processChildren(child, indent + '   ');
+                            result += '\n';
+                            counter++;
+                        }
+                    }
+                    result += '\n';
+                    break;
+                case 'li':
+                    if (node.parentNode.tagName.toLowerCase() === 'ul') {
+                        result += `${indent}- `;
+                        processChildren(node, indent + '  ');
+                        result += '\n';
+                    }
+                    break;
+                case 'br':
+                    result += '\n';
+                    break;
+                case 'hr':
+                    result += '\n---\n\n';
+                    break;
+                case 'blockquote':
+                    result += '\n> ';
+                    processChildren(node);
+                    result += '\n\n';
+                    break;
+                case 'div':
+                    // Handle special components for pure markdown extraction
+                    if (node.classList.contains('katex-display')) {
+                        result += '\n$$' + extractMathFromKaTeX(node) + '$$\n';
+                    } else if (node.classList.contains('python-lesson-container')) {
+                        // Extract lesson content without UI wrappers
+                        processChildren(node, indent);
+                    } else if (node.classList.contains('python-editor-wrapper')) {
+                        // Extract code as it would appear in markdown
+                        const codeEditor = node.querySelector('.code-editor');
+                        if (codeEditor) {
+                            const code = codeEditor.innerText || codeEditor.textContent;
+                            if (code && code.trim()) {
+                                result += '\n```python\n';
+                                result += code.trim();
+                                result += '\n```\n\n';
+                            }
+                        }
+                        
+                        // Add output if present (as a simple code block)
+                        const output = node.querySelector('.python-editor-output .success, .python-editor-output .error');
+                        if (output && output.textContent.trim() && 
+                            !output.textContent.includes('Output will appear') &&
+                            !output.textContent.includes('Copy Output')) {
+                            result += '```\n';
+                            result += output.textContent.trim();
+                            result += '\n```\n\n';
+                        }
+                    } else if (node.classList.contains('lesson-explanation')) {
+                        // Extract explanation content directly
+                        const explanationContent = node.querySelector('.explanation-content');
+                        if (explanationContent) {
+                            processChildren(explanationContent, indent);
+                        } else {
+                            processChildren(node, indent);
+                        }
+                    } else if (node.classList.contains('explanation-header')) {
+                        // Skip the copy button header entirely
+                        return;
+                    } else if (node.classList.contains('python-editor-output') && 
+                               node.querySelector('.output-placeholder')) {
+                        // Skip placeholder output messages
+                        return;
+                    } else {
+                        processChildren(node, indent);
+                    }
+                    break;
+                case 'span':
+                    if (node.classList.contains('katex')) {
+                        result += '$' + extractMathFromKaTeX(node) + '$';
+                    } else {
+                        processChildren(node, indent);
+                    }
+                    break;
+                default:
+                    processChildren(node, indent);
+                    break;
+            }
+        }
+        
+        function processChildren(node, indent = '') {
+            for (const child of node.childNodes) {
+                processNode(child, indent);
+            }
+        }
+        
+        function extractMathFromKaTeX(katexElement) {
+            // Try to get original LaTeX from data attribute or annotation
+            const annotation = katexElement.querySelector('annotation[encoding="application/x-tex"]');
+            if (annotation) {
+                return annotation.textContent;
+            }
+            
+            // Fallback: try to get from title attribute or data-original
+            if (katexElement.title) {
+                return katexElement.title;
+            }
+            
+            // Last resort: return the text content but clean it up
+            let mathText = katexElement.textContent.trim();
+            mathText = mathText.replace(/\s+/g, ' ');
+            return mathText;
+        }
+        
+        processNode(element);
+        
+        // Clean up extra newlines and spaces
+        result = result
+            .replace(/\n\s*\n\s*\n/g, '\n\n')  // Remove triple+ newlines
+            .replace(/^\s+|\s+$/g, '')          // Trim start/end
+            .replace(/[ \t]+/g, ' ');           // Normalize spaces
+        
+        return result;
+    }
+    
+    // Initialize floating copy button
+    document.addEventListener('DOMContentLoaded', function() {
+        const floatingCopyBtn = document.getElementById('floatingCopyBtn');
+        if (floatingCopyBtn) {
+            floatingCopyBtn.addEventListener('click', copyEntirePageContent);
+        }
+    });
+    </script>
 </body>
 </html> 
