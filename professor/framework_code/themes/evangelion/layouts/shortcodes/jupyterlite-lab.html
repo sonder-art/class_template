@@ -1,0 +1,33 @@
+{{/*
+JupyterLite Lab Environment Component - Minimal Version
+Usage: {{< jupyterlite-lab root="path/to/directory/" title="Lab Title" >}}
+*/}}
+
+{{ $root := .Get "root" }}
+{{ $title := .Get "title" | default "Python Lab Environment" }}
+
+<div style="border: 2px solid #88C0D0; border-radius: 8px; padding: 20px; margin: 20px 0;">
+  <h4>{{ $title }}</h4>
+  {{ if $root }}
+    <p>📁 Working Directory: <code>{{ $root }}</code></p>
+  {{ end }}
+  <button onclick="openJupyterLiteLab('{{ $root }}', '{{ $title }}')">
+    🚀 Launch Lab Environment
+  </button>
+  <p><em>Click the button above to launch a full Python lab environment in your browser.</em></p>
+  <div id="lab-embed-{{ $root | replace "/" "-" | replace "." "-" | default "default" }}" class="lab-embed-container" style="display: none; height: 700px; margin-top: 20px;">
+    <!-- JupyterLite will be loaded here -->
+  </div>
+</div>
+
+<!-- Lab environment function is now global in baseof.html -->
+
+<style>
+.lab-embed-container {
+  border: 2px solid var(--eva-cyan-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--elevated-color);
+  position: relative;
+}
+</style> 

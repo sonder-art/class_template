@@ -1,0 +1,206 @@
+{{/*
+JupyterLite Embedding Component
+Usage: {{< jupyterlite notebook="example.ipynb" height="600px" >}}
+*/}}
+
+{{ $notebook := .Get "notebook" }}
+{{ $height := .Get "height" | default "600px" }}
+{{ $title := .Get "title" | default "Jupyter Notebook" }}
+
+<div class="jupyterlite-container" style="margin: var(--content-spacing) 0;">
+  <div class="jupyterlite-header">
+    <h4>{{ $title }}</h4>
+    <div class="jupyterlite-controls">
+      <button class="jupyterlite-launch" onclick="openJupyterLite('{{ $notebook }}')">
+        🚀 Launch JupyterLite
+      </button>
+      {{ if $notebook }}
+      <button class="jupyterlite-download" onclick="downloadNotebook('{{ $notebook }}')">
+        📥 Download Notebook
+      </button>
+      {{ end }}
+    </div>
+  </div>
+  
+  <div class="jupyterlite-embed" id="jupyterlite-{{ if $notebook }}{{ $notebook | urlize }}{{ else }}default{{ end }}" style="height: {{ $height }};">
+    <div class="jupyterlite-placeholder">
+      <div class="jupyterlite-icon">📓</div>
+      <p>Click "Launch JupyterLite" to start the interactive notebook environment</p>
+      <p class="jupyterlite-note">No installation required - runs entirely in your browser!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// JupyterLite Integration Functions
+function openJupyterLite(notebook) {
+  // Handle case where notebook might be undefined or empty
+  const notebookId = notebook || 'default';
+  const container = document.getElementById(`jupyterlite-${notebookId.replace(/[^a-zA-Z0-9]/g, '')}`);
+  const placeholder = container.querySelector('.jupyterlite-placeholder');
+  
+  // Show loading state
+  placeholder.innerHTML = `
+    <div class="jupyterlite-loading">
+      <div class="spinner"></div>
+      <p>Loading JupyterLite...</p>
+    </div>
+  `;
+  
+  // Create iframe for JupyterLite
+  const iframe = document.createElement('iframe');
+  
+  // Build JupyterLite URL with optional notebook preloading
+  let jupyterUrl = 'https://jupyterlite.github.io/demo/lab/index.html';
+  
+  if (notebook && notebook !== 'default') {
+    // Get the full URL to our notebook
+    const notebookUrl = window.location.origin + '/notebooks/' + notebook;
+    
+    // JupyterLite can load notebooks via URL parameter
+    jupyterUrl += '?fromURL=' + encodeURIComponent(notebookUrl);
+    
+    console.log('🔍 JupyterLite: Loading notebook from:', notebookUrl);
+    console.log('🔍 JupyterLite: Full URL:', jupyterUrl);
+  }
+  
+  iframe.src = jupyterUrl;
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+  iframe.style.borderRadius = '8px';
+  
+  // Replace placeholder with iframe
+  setTimeout(() => {
+    container.innerHTML = '';
+    container.appendChild(iframe);
+  }, 1000);
+}
+
+function downloadNotebook(notebook) {
+  // Create download link for the notebook
+  const link = document.createElement('a');
+  link.href = `/notebooks/${notebook}`;
+  link.download = notebook;
+  link.click();
+}
+</script>
+
+<style>
+.jupyterlite-container {
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--elevated-color);
+}
+
+.jupyterlite-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.jupyterlite-header h4 {
+  margin: 0;
+  color: var(--eva-cyan-primary);
+}
+
+.jupyterlite-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.jupyterlite-launch,
+.jupyterlite-download {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.jupyterlite-launch {
+  background: var(--eva-green-primary);
+  color: var(--bg-color);
+}
+
+.jupyterlite-launch:hover {
+  background: var(--eva-green-hover);
+  transform: translateY(-1px);
+}
+
+.jupyterlite-download {
+  background: var(--eva-purple-primary);
+  color: var(--text-primary);
+}
+
+.jupyterlite-download:hover {
+  background: var(--eva-purple-hover);
+  transform: translateY(-1px);
+}
+
+.jupyterlite-embed {
+  position: relative;
+  min-height: 400px;
+}
+
+.jupyterlite-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+}
+
+.jupyterlite-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.jupyterlite-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.jupyterlite-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-default);
+  border-top: 3px solid var(--eva-cyan-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .jupyterlite-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .jupyterlite-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+</style> 

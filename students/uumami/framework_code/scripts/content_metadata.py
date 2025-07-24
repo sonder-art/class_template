@@ -38,7 +38,7 @@ OPTIONAL_FIELDS = {
 # Valid content types for type field validation
 CONTENT_TYPES = [
     'tutorial', 'documentation', 'overview', 'note', 
-    'homework', 'project', 'reference'
+    'homework', 'project', 'reference', 'test'
 ]
 
 # Date format pattern (YYYY-MM-DD)

@@ -34,6 +34,11 @@ buildFuture = false
     source = "{{ hugo.assets_path | default('framework_code/assets') }}"
     target = "static/assets"
   
+  # Notebook files for JupyterLite
+  [[module.mounts]]
+    source = "framework_code/assets/notebooks"
+    target = "static/notebooks"
+  
   [[module.mounts]]
     source = "framework_code/css"
     target = "assets/css"
@@ -53,6 +58,12 @@ buildFuture = false
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          inline = [['$', '$'], ['\\(', '\\)']]
+          block = [['$$', '$$'], ['\\[', '\\]']]
   [markup.highlight]
     style = "{{ appearance.code_highlighting | default('github') }}"
     lineNos = true

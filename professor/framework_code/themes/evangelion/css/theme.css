@@ -1159,13 +1159,36 @@ pre code {
     position: static;
     left: 0 !important;
     right: auto;
-    padding-top: 60px;
+    height: 52px; /* Slightly smaller but still efficient on mobile */
+  }
+  
+  .header-content {
+    height: 100%;
+    padding: 0 var(--space-3);
+  }
+  
+  .header-content h1 {
+    font-size: 18px; /* Proportionally smaller but still prominent */
+  }
+  
+  .main-nav {
+    gap: 6px; /* Reasonable spacing on mobile */
+  }
+  
+  .main-nav a {
+    font-size: 15px; /* Readable size on mobile */
+    padding: 14px 16px; /* Maintain touch targets but proportional to 52px height */
   }
   
   .site-main {
     margin-left: 0 !important;
-    padding: var(--space-4);
-    margin-top: var(--space-4);
+    padding: var(--space-3);
+    margin-top: 56px; /* Account for optimized header height */
+    width: 95%; /* Consistent with responsive system */
+    max-width: none; /* No restrictions on mobile */
+    
+    /* Mobile-optimized spacing */
+    --content-spacing: 1rem; /* Tighter spacing for smaller screens */
   }
   
   .site-sidebar {
@@ -1270,54 +1293,65 @@ pre code {
   align-items: center;
 }
 
+/* Optimally Sized Title - Better Space Usage */
 .header-content h1 {
   margin: 0;
-  font-size: var(--text-2xl);
+  font-size: 20px; /* Larger to better fill 56px height */
+  font-weight: 600;
   border: none !important;
   padding: 0 !important;
+  line-height: 1.1;
 }
 
 .header-content h1 a {
   color: var(--eva-cyan-primary);
   text-decoration: none;
-  font-weight: var(--font-bold);
+  font-weight: inherit;
+  transition: opacity var(--transition-fast);
 }
 
-/* MAIN NAVIGATION - PROPERLY SPACED */
+.header-content h1 a:hover {
+  opacity: 0.8;
+}
+
+/* SPACE-EFFICIENT NAVIGATION */
 .main-nav {
   display: flex;
-  gap: var(--space-8); /* Much more space between nav items */
+  gap: 8px; /* Slightly more space for readability */
   align-items: center;
 }
 
 .main-nav a {
-  color: var(--text-primary);
+  color: var(--text-secondary);
   text-decoration: none;
-  font-weight: var(--font-medium);
-  font-size: var(--text-lg);
-  padding: var(--space-3) var(--space-5); /* Generous padding for touch targets */
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
-  border-bottom: none !important; /* Remove default link underline */
+  font-weight: 500;
+  font-size: 16px; /* Larger text to fill space better */
+  padding: 16px 20px; /* Use full height effectively - 56px container */
+  border-radius: 6px;
+  transition: all 0.15s ease;
   white-space: nowrap;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-}
-
-.main-nav a:hover {
-  background-color: var(--nav-hover-bg);
-  color: var(--eva-green-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  position: relative;
   border-bottom: none !important;
+  line-height: 1; /* Tight line height for compact design */
 }
 
-.main-nav a.active {
-  background-color: var(--eva-green-primary);
+/* Navigation Hover & Active States */
+.main-nav a:hover {
+  background-color: var(--elevated-color);
+  color: var(--eva-cyan-primary);
+  transform: translateY(-1px); /* Subtle lift effect */
+}
+
+.main-nav a.active,
+.main-nav a[aria-current="page"] {
+  background-color: var(--eva-cyan-primary);
   color: var(--bg-color);
-  font-weight: var(--font-bold);
-  box-shadow: var(--glow-green);
+  font-weight: 600;
+}
+
+.main-nav a:focus-visible {
+  outline: 2px solid var(--eva-cyan-primary);
+  outline-offset: 2px;
 }
 
 .site-nav {
@@ -1579,47 +1613,242 @@ a:visited {
   scrollbar-color: var(--border-default) transparent;
 }
 
-/* Content Area Adjustments */
+/* === RESEARCH-BACKED CONTENT WIDTH OPTIMIZATION === */
 .site-main {
   margin-left: 280px;
   transition: margin-left var(--transition-normal);
   padding: var(--space-8);
-  max-width: 900px;
-  line-height: var(--leading-relaxed);
-  min-height: calc(100vh - 80px);
+  
+  /* Mobile-first responsive width system */
+  width: 95%; /* Mobile: Optimal thumb reach and visual balance */
+  max-width: none;
+  
+  /* Progressive typography scaling */
+  line-height: clamp(1.6, 1.5 + 0.5vw, 1.7); /* Responsive line height */
+  
+  min-height: calc(100vh - 56px);
+  padding-top: 72px; /* Space for fixed header */
+  
+  /* Enhanced spacing for wider layouts */
+  --content-spacing: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* Tablet optimization (769-1023px) */
+@media (min-width: 769px) {
+  .site-main {
+    width: 90%; /* Comfortable reading width */
+  }
+}
+
+/* Desktop optimization (≥1024px) */
+@media (min-width: 1024px) {
+  .site-main {
+    width: 85%; /* Optimal desktop experience */
+    max-width: 1400px; /* UX/UI research-backed maximum */
+  }
+}
+
+/* === COMPONENT-SPECIFIC WIDTH CONSTRAINTS === */
+
+/* Code blocks: Optimal readability and copy-paste UX */
+.site-main pre,
+.site-main .highlight,
+.site-main .code-block {
+  max-width: 850px; /* VS Code-inspired optimal width */
+  overflow-x: auto; /* Horizontal scroll for long lines */
+  margin: var(--content-spacing) 0;
+}
+
+/* Tables: Use available space efficiently */
+.site-main table {
+  max-width: 100%; /* Use full content width */
+  margin: var(--content-spacing) 0;
+}
+
+/* Images and media: Visual impact optimization */
+.site-main img,
+.site-main figure,
+.site-main .image-content {
+  max-width: min(1200px, 100%); /* Optimal visual impact */
+  height: auto;
+  margin: var(--content-spacing) 0;
+}
+
+/* === ENHANCED TYPOGRAPHY SYSTEM === */
+
+/* Paragraph spacing scales with layout */
+.site-main p {
+  margin-bottom: var(--content-spacing);
+}
+
+/* Heading spacing optimization */
+.site-main h1,
+.site-main h2,
+.site-main h3,
+.site-main h4,
+.site-main h5,
+.site-main h6 {
+  margin-top: calc(var(--content-spacing) * 1.5);
+  margin-bottom: calc(var(--content-spacing) * 0.5);
+}
+
+/* List spacing enhancement */
+.site-main ul,
+.site-main ol {
+  margin-bottom: var(--content-spacing);
+}
+
+.site-main li {
+  margin-bottom: calc(var(--content-spacing) * 0.3);
+}
+
+/* Blockquote spacing */
+.site-main blockquote {
+  margin: calc(var(--content-spacing) * 1.2) 0;
+  padding-left: calc(var(--content-spacing) * 0.8);
+}
+
+/* === ENHANCED LAYOUTS FOR WIDE SCREENS === */
+
+/* Tutorial step layouts can use side-by-side on desktop */
+@media (min-width: 1024px) {
+  .site-main .tutorial-steps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--content-spacing) * 1.5);
+    align-items: start;
+  }
+  
+  .site-main .code-example-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(var(--content-spacing) * 1.5);
+    align-items: start;
+  }
+}
+
+/* Navigation indices can use multi-column on wide screens */
+@media (min-width: 1200px) {
+  .site-main .chapter-index-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: calc(var(--content-spacing) * 1.2);
+  }
+}
+
+/* Ensure horizontal scroll areas work well */
+.site-main .scroll-container {
+  overflow-x: auto;
+  overflow-y: visible;
+  max-width: 100%;
+  margin: var(--content-spacing) 0;
+}
+
+/* === KATEX MATH RENDERING INTEGRATION === */
+
+/* KaTeX base styling to match Evangelion theme */
+.katex {
+  font-size: 1.1em; /* Slightly larger for better readability */
+  color: var(--text-primary) !important;
+}
+
+.katex .base {
+  color: var(--text-primary);
+}
+
+/* Block math styling */
+.katex-display {
+  margin: calc(var(--content-spacing) * 1.2) 0;
+  padding: var(--space-4);
+  background: var(--code-bg);
+  border-radius: 8px;
+  border-left: 4px solid var(--eva-cyan-primary);
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+/* Inline math styling */
+.katex {
+  background: var(--surface-color);
+  padding: 2px 4px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Math in lists and other elements */
+li .katex,
+td .katex,
+th .katex {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+/* Error styling */
+.katex-error {
+  color: var(--error-color) !important;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--error-color);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+/* Mobile responsiveness for math */
+@media (max-width: 768px) {
+  .katex-display {
+    font-size: 0.9em;
+    padding: var(--space-3);
+    overflow-x: auto;
+  }
+  
+  .katex {
+    font-size: 1em;
+  }
+}
+
+/* === JUPYTERLITE THEME INTEGRATION === */
+
+/* Already defined in shortcode, but ensure theme consistency */
+.jupyterlite-container {
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: var(--elevated-color);
+  box-shadow: var(--shadow-sm);
 }
 
 .site-container.nav-collapsed .site-main {
   margin-left: 0;
 }
 
-/* Header Adjustments */
+/* === COMPACT EFFICIENT HEADER (OPTIMAL SPACE USAGE) === */
 .site-header {
   background-color: var(--header-bg);
-  border-bottom: 2px solid var(--eva-cyan-primary);
-  box-shadow: var(--shadow-md);
-  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--eva-cyan-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 0; /* Zero padding for tightest layout */
   position: fixed;
   top: 0;
   left: 280px;
   right: 0;
   z-index: 900;
   transition: left var(--transition-normal);
+  backdrop-filter: blur(8px);
+  height: 56px; /* Optimal height for content */
 }
 
 .site-container.nav-collapsed .site-header {
   left: 0;
 }
 
-/* Header Content Layout */
+/* Efficient Header Layout - Every Pixel Counts */
 .header-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--space-6);
+  padding: 0 var(--space-4);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 60px; /* Account for toggle button */
+  height: 100%; /* Use full header height */
 }
 
 .site-footer {
@@ -1631,6 +1860,27 @@ a:visited {
   font-size: var(--text-sm);
   margin-left: 280px;
   transition: margin-left var(--transition-normal);
+  
+  /* Footer content follows same width constraints as main content */
+  display: flex;
+  justify-content: center;
+}
+
+.site-footer > * {
+  width: 85%;
+  max-width: 1400px;
+}
+
+@media (max-width: 768px) {
+  .site-footer > * {
+    width: 95%;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1023px) {
+  .site-footer > * {
+    width: 90%;
+  }
 }
 
 .site-container.nav-collapsed .site-footer {

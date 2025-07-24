@@ -16,8 +16,8 @@ Technical documentation for framework internals. Useful for contributors and adv
 
 ## 📊 Content Statistics
 
-- **2** chapters
-- **3** content files
+- **3** chapters
+- **5** content files
 
 ## 📚 Chapters
 
@@ -37,6 +37,17 @@ Technical documentation for framework internals. Useful for contributors and adv
 
 **Content:**
 - [Sync Philosophy and Design](04_synchronization_engine/01_sync_philosophy_and_design.md) 🔴
+
+## 📎 Appendices
+
+### [Tests](Z_Tests/00_index.md)
+*Chapter covering comprehensive test of latex mathematical expression rendering using katex*
+
+📊 2 content files
+
+**Content:**
+- [LaTeX Math Rendering Test](Z_Tests/01_latex_rendering_test.md) 🟢
+- [JupyterLite Integration Test](Z_Tests/02_jupyterlite_integration_test.md) 🟡
 
 ---
 

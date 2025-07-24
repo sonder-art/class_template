@@ -28,6 +28,21 @@
     
     <!-- Accessibility Features -->
     <meta name="color-scheme" content="dark light">
+    
+    <!-- KaTeX for LaTeX Math Rendering - Fixed Integrity Issue -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+    
+    <!-- Pyodide for Inline Python Execution -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    
+    <!-- Prism.js for Syntax Highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Google Fonts for better code font -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="site-container{{ if .Site.Params.default_font }} font-{{ .Site.Params.default_font }}{{ end }}{{ if .Site.Params.high_contrast }} high-contrast{{ end }}">
     <!-- Navigation Toggle Button -->
@@ -229,5 +244,488 @@
         resetInactivityTimer();
     });
     </script>
+    
+    <script>
+    // KaTeX Auto-Render Initialization - Production Version
+    document.addEventListener("DOMContentLoaded", function() {
+        if (typeof renderMathInElement !== 'undefined') {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false,
+            errorColor: '#cc0000',
+            strict: false,
+            trust: false,
+            macros: {
+                "\\f": "#1f(#2)"
+            }
+        });
+        }
+        
+        // Initialize Python environment if needed
+        initializePythonEnvironment();
+    });
+    
+    // Global Python Execution System
+    let pyodideReady = false;
+    let pyodide = null;
+    
+    async function initializePythonEnvironment() {
+        // Check if we have any python-exec containers
+        const pythonContainers = document.querySelectorAll('.python-exec-container');
+        console.log(`🔍 Found ${pythonContainers.length} Python execution containers`);
+        
+        // Initialize code editors and syntax highlighting
+        pythonContainers.forEach(container => {
+            const textarea = container.querySelector('.python-code-editor');
+            const codeElement = container.querySelector('code');
+            
+            if (textarea && codeElement) {
+                // Set initial code
+                const pythonCode = textarea.value.trim();
+                container.dataset.pythonCode = pythonCode;
+                console.log('📝 Set Python code for container:', pythonCode.substring(0, 50) + '...');
+                
+                // Setup live editing
+                setupCodeEditor(container, textarea, codeElement);
+            }
+        });
+        
+        if (pythonContainers.length > 0 && !pyodideReady) {
+            console.log('🐍 Starting Pyodide initialization...');
+            
+            // Check if loadPyodide function is available
+            if (typeof loadPyodide === 'undefined') {
+                console.error('❌ loadPyodide function not found - Pyodide script failed to load');
+                document.querySelectorAll('.python-exec-button').forEach(btn => {
+                    btn.textContent = '❌ Python Failed';
+                    btn.disabled = true;
+                });
+                return;
+            }
+            
+            try {
+                console.log('🔄 Loading Pyodide runtime...');
+                pyodide = await loadPyodide();
+                pyodideReady = true;
+                console.log('✅ Pyodide loaded successfully!');
+                
+                // Update all execution buttons to be enabled
+                document.querySelectorAll('.python-exec-button').forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = '▶️ Run Python';
+                });
+                
+                console.log('🎉 Python execution environment ready!');
+            } catch (error) {
+                console.error('❌ Failed to load Pyodide:', error);
+                document.querySelectorAll('.python-exec-button').forEach(btn => {
+                    btn.textContent = '❌ Python Error';
+                    btn.disabled = true;
+                });
+            }
+        }
+    }
+    
+    // Make functions globally available
+    window.executePythonCode = async function(button) {
+        const container = button.closest('.python-exec-container');
+        const code = container.dataset.pythonCode;
+        const outputDiv = container.querySelector('.python-exec-output');
+        const resultPre = container.querySelector('.python-exec-result');
+        
+        if (!pyodideReady) {
+            resultPre.textContent = '❌ Python environment not ready. Please wait for Pyodide to load.';
+            outputDiv.style.display = 'block';
+            return;
+        }
+        
+        // Show output container
+        outputDiv.style.display = 'block';
+        resultPre.textContent = '⏳ Executing...';
+        button.disabled = true;
+        button.textContent = '⏳ Running...';
+        
+        try {
+            // Capture stdout
+            pyodide.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+            `);
+            
+            // Execute the user code
+            pyodide.runPython(code);
+            
+            // Get the output
+            const output = pyodide.runPython("sys.stdout.getvalue()");
+            
+            // Restore stdout
+            pyodide.runPython("sys.stdout = sys.__stdout__");
+            
+            // Display result
+            if (output.trim()) {
+                resultPre.textContent = output;
+            } else {
+                resultPre.textContent = '✅ Code executed successfully (no output)';
+            }
+            
+        } catch (error) {
+            resultPre.textContent = `❌ Error: ${error.message}`;
+        } finally {
+            button.disabled = false;
+            button.textContent = '▶️ Run Python';
+        }
+    }
+    
+    window.clearPythonOutput = function(button) {
+        const container = button.closest('.python-exec-container');
+        const outputDiv = container.querySelector('.python-exec-output');
+        outputDiv.style.display = 'none';
+    }
+    
+    // Global Lab Environment Functions
+    window.openJupyterLiteLab = function(root, title) {
+        console.log('🧪 Lab button clicked!');
+        console.log('📁 Root directory:', root);
+        console.log('🏷️ Title:', title);
+        
+        // Create container ID  
+        const containerId = `lab-embed-${(root || 'default').replace(/[^a-zA-Z0-9]/g, '-')}`;
+        console.log('🔍 Looking for container:', containerId);
+        
+        const container = document.getElementById(containerId);
+        console.log('📦 Container found:', container);
+        
+        if (!container) {
+            console.error('❌ Container not found:', containerId);
+            console.log('🔍 Available containers:', 
+                Array.from(document.querySelectorAll('[id*="lab-embed"]')).map(el => el.id));
+            alert(`Lab container not found: ${containerId}`);
+            return;
+        }
+        
+        // Show loading state
+        container.style.display = 'block';
+        container.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: var(--elevated-color); border-radius: 8px;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🧪</div>
+                <h3 style="color: var(--eva-cyan-primary); margin: 0 0 10px 0;">Loading JupyterLite Lab...</h3>
+                <p style="color: var(--text-secondary); margin: 0;">Setting up Python environment with Pyodide...</p>
+                ${root ? `<p style="color: var(--text-muted); margin: 10px 0 0 0; font-size: 14px;">Working Directory: <code>${root}</code></p>` : ''}
+            </div>
+        `;
+        
+        // Create iframe for JupyterLite Lab
+        const iframe = document.createElement('iframe');
+        
+        // Build JupyterLite URL
+        let jupyterUrl = 'https://jupyterlite.github.io/demo/lab/index.html';
+        
+        // Add path parameter if root is specified
+        if (root) {
+            jupyterUrl += `?path=${encodeURIComponent(root)}`;
+        }
+        
+        iframe.src = jupyterUrl;
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.borderRadius = '8px';
+        iframe.title = `JupyterLite Lab: ${title}`;
+        
+        // Replace loading content with iframe after a delay
+        setTimeout(() => {
+            container.innerHTML = '';
+            container.appendChild(iframe);
+            
+            // Add a close button
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '❌ Close Lab';
+            closeButton.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                z-index: 1000;
+                padding: 8px 12px;
+                background: var(--eva-red-primary, #BF616A);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            `;
+            closeButton.onclick = () => {
+                container.style.display = 'none';
+                container.innerHTML = '';
+            };
+            
+            container.style.position = 'relative';
+            container.appendChild(closeButton);
+            
+        }, 2000);
+    }
+    
+    // Code Editor Setup
+    function setupCodeEditor(container, textarea, codeElement) {
+        // Sync textarea with syntax highlighting
+        function updateHighlighting() {
+            codeElement.textContent = textarea.value;
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightElement(codeElement);
+            }
+            // Update the stored code
+            container.dataset.pythonCode = textarea.value.trim();
+        }
+        
+        // Initial highlighting
+        updateHighlighting();
+        
+        // Update on input
+        textarea.addEventListener('input', updateHighlighting);
+        
+        // Handle tab key for indentation
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                
+                // Insert 4 spaces for tab
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+                
+                updateHighlighting();
+            }
+        });
+        
+        // Sync scroll positions
+        textarea.addEventListener('scroll', function() {
+            const highlightElement = codeElement.parentElement;
+            highlightElement.scrollTop = this.scrollTop;
+            highlightElement.scrollLeft = this.scrollLeft;
+        });
+        
+        // Ensure perfect alignment on resize
+        function ensureAlignment() {
+            const textareaStyles = window.getComputedStyle(textarea);
+            const highlightElement = codeElement.parentElement;
+            
+            // Copy critical styles for perfect alignment
+            highlightElement.style.padding = textareaStyles.padding;
+            highlightElement.style.border = textareaStyles.border;
+            highlightElement.style.fontSize = textareaStyles.fontSize;
+            highlightElement.style.fontFamily = textareaStyles.fontFamily;
+            highlightElement.style.lineHeight = textareaStyles.lineHeight;
+        }
+        
+        // Initial alignment
+        ensureAlignment();
+        
+        // Re-align on window resize
+        window.addEventListener('resize', ensureAlignment);
+    }
+    </script>
+    
+    <style>
+    /* Inline Python Execution Styling */
+    .python-exec-container {
+        border: 2px solid var(--eva-green-primary);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: var(--space-6) 0;
+        background: var(--elevated-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        max-width: 100%;
+    }
+    
+    .python-exec-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, var(--eva-green-primary), var(--eva-cyan-primary));
+        color: var(--bg-color);
+    }
+    
+    .python-exec-label {
+        font-weight: bold;
+        font-size: 16px;
+    }
+    
+    .python-exec-button, .python-exec-clear {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        background: var(--bg-color);
+        color: var(--eva-green-primary);
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-left: 8px;
+    }
+    
+    .python-exec-button:hover:not(:disabled), .python-exec-clear:hover {
+        background: var(--elevated-color);
+        transform: translateY(-1px);
+    }
+    
+    .python-exec-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .python-exec-code {
+        padding: 0;
+        position: relative;
+    }
+    
+    /* Code Editor Styling */
+    .code-editor-container {
+        position: relative;
+        min-height: 200px;
+        max-height: 400px;
+        background: #1a0d26;
+        overflow: hidden;
+        border: 1px solid #4a2c5a;
+    }
+    
+    .python-code-editor, .syntax-highlight {
+        /* Exact same properties for perfect alignment */
+        font-family: 'Fira Code', 'Monaco', 'Menlo', 'Consolas', monospace;
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 16px;
+        margin: 0;
+        border: none;
+        box-sizing: border-box;
+        white-space: pre;
+        word-wrap: normal;
+        tab-size: 4;
+        letter-spacing: 0.5px;
+    }
+    
+    .python-code-editor {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        color: transparent;
+        caret-color: #00ff41;
+        outline: none;
+        resize: none;
+        z-index: 2;
+        overflow: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #88C0D0 #1a0d26;
+    }
+    
+    .python-code-editor::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .python-code-editor::-webkit-scrollbar-track {
+        background: #1a0d26;
+    }
+    
+    .python-code-editor::-webkit-scrollbar-thumb {
+        background: #88C0D0;
+        border-radius: 4px;
+    }
+    
+    .syntax-highlight {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #1a0d26;
+        z-index: 1;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    /* Evangelion Theme - Intense colors with high contrast */
+    .syntax-highlight code {
+        background: transparent !important;
+        color: #e8e3f0 !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    
+    /* Evangelion color scheme */
+    .token.comment, .token.prolog, .token.doctype, .token.cdata { 
+        color: #7c4dff !important; 
+        font-style: italic !important; 
+    }
+    .token.string, .token.attr-value { 
+        color: #00ff41 !important; 
+        font-weight: 500 !important; 
+    }
+    .token.keyword, .token.control, .token.directive, .token.unit { 
+        color: #ff6d00 !important; 
+        font-weight: bold !important; 
+    }
+    .token.function, .token.method { 
+        color: #00e5ff !important; 
+        font-weight: bold !important; 
+    }
+    .token.number, .token.boolean { 
+        color: #e91e63 !important; 
+        font-weight: 500 !important; 
+    }
+    .token.operator, .token.important { 
+        color: #ffeb3b !important; 
+        font-weight: bold !important; 
+    }
+    .token.punctuation, .token.bracket { 
+        color: #b39ddb !important; 
+    }
+    .token.builtin, .token.class-name { 
+        color: #ff5722 !important; 
+        font-weight: 600 !important; 
+    }
+    .token.variable { 
+        color: #03dac6 !important; 
+    }
+    .token.property { 
+        color: #ffc107 !important; 
+    }
+    
+    .python-exec-output {
+        border-top: 1px solid var(--border-default);
+        background: var(--bg-color);
+    }
+    
+    .python-exec-output-header {
+        padding: 12px 20px;
+        background: var(--surface-color);
+        font-weight: bold;
+        color: var(--eva-cyan-primary);
+        border-bottom: 1px solid var(--border-default);
+    }
+    
+    .python-exec-result {
+        margin: 0;
+        padding: 20px;
+        background: var(--bg-color) !important;
+        border: none;
+        border-radius: 0;
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        white-space: pre-wrap;
+        overflow-x: auto;
+    }
+    </style>
 </body>
 </html> 

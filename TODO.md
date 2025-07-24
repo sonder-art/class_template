@@ -63,8 +63,8 @@
 - [x] Create the framework_code/components/ directory structure for functional components
 - [x] Create the framework_code/themes/ directory structure with theme organization system
 - [x] Implement a default theme with basic styling and layout (Evangelion theme - REFINED)
-- [ ] Implement the file naming convention rules (numbers for primary content, letters for code files)
-- [ ] Create validation logic for chapter directory structure and naming conventions
+- [x] Implement the file naming convention rules (numbers for primary content, letters for code files)
+- [x] Create validation logic for chapter directory structure and naming conventions
 - [x] Configure Hugo as the static site generator with basic settings
 - [x] Design and implement landing/home page prototype (`professor/home.md`) using Evangelion dark theme components
 - [x] Build base navigation components (sidebar, top navigation, mini-TOC) and integrate into landing page
