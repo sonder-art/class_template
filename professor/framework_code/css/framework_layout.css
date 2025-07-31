@@ -72,16 +72,17 @@
 /* Content Wrapper with TOC */
 .content-wrapper {
   display: grid;
-  grid-template-columns: 1fr 250px;
+  grid-template-columns: 1fr 220px;
   grid-template-areas: "content toc";
-  gap: var(--space-8);
-  max-width: 1600px;
+  gap: var(--space-10);
+  max-width: 1800px;
   margin: 0 auto;
 }
 
 .main-content {
   grid-area: content;
   min-width: 0; /* Prevent overflow */
+  padding-right: var(--space-4); /* Extra breathing room */
 }
 
 /* === TABLE OF CONTENTS === */
@@ -291,23 +292,30 @@
   padding: 0;
 }
 
+/* Keep header consistent regardless of nav state */
+.site-header {
+  left: var(--sidebar-width);
+  right: 0;
+  width: auto; /* Let it calculate automatically */
+}
+
 .site-container.nav-collapsed .site-header {
   left: 0;
   right: 0;
-  width: 100vw; /* Ensure header extends full width when collapsed */
+  width: auto; /* Remove fixed width that causes issues */
 }
 
 /* Header Content Layout */
 .header-content {
-  max-width: 1200px;
+  max-width: 1800px; /* Match content width for consistency */
   margin: 0 auto;
   padding: 0 var(--space-4);
   display: grid;
-  grid-template-columns: minmax(120px, 200px) 1fr auto auto;
+  grid-template-columns: minmax(100px, 180px) 1fr auto auto;
   grid-template-areas: "title breadcrumb nav search";
   align-items: center;
   height: 100%;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
 .header-content h1 {
@@ -328,16 +336,18 @@
 .header-search {
   grid-area: search;
   justify-self: end;
+  min-width: 200px; /* Prevent search bar from breaking */
+  max-width: 300px;
 }
 
 /* Header Title Structure */
 .header-content h1 {
   margin: 0;
-  font-size: 18px; /* Smaller font to fit better */
+  font-size: 16px; /* Conservative size for stability */
   font-weight: 600;
   border: none !important;
   padding: 0 !important;
-  line-height: 1.1;
+  line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -356,12 +366,34 @@
 /* Responsive title adjustments */
 @media (max-width: 768px) {
   .header-content {
-    grid-template-columns: minmax(80px, 150px) 1fr auto auto;
+    grid-template-columns: minmax(60px, 120px) 1fr auto auto;
     gap: var(--space-2);
+    padding: 0 var(--space-2);
   }
   
   .header-content h1 {
-    font-size: 16px; /* Even smaller on mobile */
+    font-size: 14px; /* Smaller on mobile for better fit */
+  }
+  
+  .header-search {
+    min-width: 150px; /* Smaller on mobile */
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    grid-template-columns: 60px 1fr auto auto;
+    gap: var(--space-1);
+  }
+  
+  .header-content h1 {
+    font-size: 12px; /* Very small on tiny screens */
+  }
+  
+  .header-search {
+    min-width: 120px; /* Even smaller on tiny screens */
+    max-width: 150px;
   }
 }
 
@@ -382,8 +414,9 @@
 /* Large screens - show TOC */
 @media (min-width: 1400px) {
   .content-wrapper {
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 240px;
     gap: var(--space-12);
+    max-width: 2000px;
   }
   
   .toc-sidebar {
@@ -418,7 +451,9 @@
 
 /* Search Input */
 .header-search input[type="search"] {
-  width: 220px;
+  width: 100%; /* Responsive width based on container */
+  max-width: 220px;
+  min-width: 120px;
   height: 32px;
   padding: 0 32px 0 12px;
   border: 1px solid var(--border-color);
@@ -786,8 +821,11 @@
     margin-left: var(--space-8); /* Consistent spacing on wide screens too */
   }
   
-  .site-container.nav-collapsed .site-header {
-    left: 0;
-    width: 100vw; /* Full width header on wide screens when collapsed */
+  .content-wrapper {
+    max-width: 2200px; /* Even wider on very large screens */
+  }
+  
+  .header-content {
+    max-width: 2200px; /* Match ultra-wide content width */
   }
 } 
