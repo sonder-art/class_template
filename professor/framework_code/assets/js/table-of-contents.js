@@ -14,12 +14,16 @@
     let observer = null;
     let isManualNavigation = false;
     let scrollTimeout = null;
+    let tocContainer = null;
+    let isUserScrollingTOC = false;
+    let tocScrollTimeout = null;
     
     // Initialize TOC when DOM is ready
     function initTOC() {
         tocNav = document.getElementById('tocNav');
+        tocContainer = document.getElementById('tocSidebar');
         
-        if (!tocNav) {
+        if (!tocNav || !tocContainer) {
             console.log('TOC navigation element not found');
             return;
         }
@@ -28,6 +32,7 @@
         
         if (headings.length > 0) {
             setupScrollspy();
+            setupTOCScrollDetection();
             console.log(`Table of Contents generated with ${headings.length} headings`);
         } else {
             hideTOC();
@@ -140,16 +145,21 @@
                         clearTimeout(scrollTimeout);
                     }
                     
-                    // Immediately update active state
-                    updateActiveLink(link);
+                    // Remove focus from the clicked link to prevent focus outline
+                    link.blur();
+                    
+                    // Immediately update active state (forced update)
+                    updateActiveLink(link, true);
                     
                     // Perform smooth scroll
                     smoothScrollToElement(targetElement);
                     
-                    // Reset manual navigation flag after scroll completes
+                    // Reset manual navigation flag after scroll completes and force update
                     setTimeout(() => {
                         isManualNavigation = false;
-                    }, 1500); // Longer timeout to ensure scroll completes
+                        // Force an immediate update based on current scroll position
+                        setTimeout(updateActiveFromScroll, 100);
+                    }, 1000); // Reduced timeout for faster handoff
                 }
             });
         });
@@ -186,17 +196,19 @@
         
         // Fallback scroll listener for better responsiveness
         window.addEventListener('scroll', () => {
-            if (!scrollspyEnabled || isManualNavigation) return;
+            if (!scrollspyEnabled) return;
             
             clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(updateActiveFromScroll, 150);
+            // Use shorter delay during manual navigation for better responsiveness
+            const delay = isManualNavigation ? 50 : 150;
+            scrollTimeout = setTimeout(updateActiveFromScroll, delay);
         });
     }
     
     // Update the active link styling
-    function updateActiveLink(newActiveLink) {
-        // Prevent updates during manual navigation if it would change the manually set link
-        if (isManualNavigation && activeLink && newActiveLink !== activeLink) {
+    function updateActiveLink(newActiveLink, isForced = false) {
+        // Prevent updates during manual navigation unless it's forced (from manual click) or same link
+        if (isManualNavigation && !isForced && activeLink && newActiveLink !== activeLink) {
             return;
         }
         
@@ -209,6 +221,14 @@
         activeLink = newActiveLink;
         if (activeLink) {
             activeLink.classList.add('active');
+            
+            // Auto-scroll TOC to show active item (with delay for smooth UX)
+            if (!isUserScrollingTOC && !isManualNavigation) {
+                clearTimeout(tocScrollTimeout);
+                tocScrollTimeout = setTimeout(() => {
+                    scrollTOCToActiveItem(activeLink);
+                }, 300); // Small delay to avoid jarring movement
+            }
         }
     }
     
@@ -245,7 +265,7 @@
     
     // Update active link based on scroll position
     function updateActiveFromScroll() {
-        if (!scrollspyEnabled || isManualNavigation) return;
+        if (!scrollspyEnabled) return;
         
         const scrollTop = window.pageYOffset;
         const headerHeight = document.querySelector('.site-header')?.offsetHeight || 60;
@@ -285,11 +305,62 @@
             }
         }
         
-        if (activeHeading && !isManualNavigation) {
+        if (activeHeading) {
             const tocLink = tocNav.querySelector(`[data-heading-id="${activeHeading.id}"]`);
             if (tocLink && tocLink !== activeLink) {
                 updateActiveLink(tocLink);
             }
+        }
+    }
+    
+    // Detect when user is manually scrolling the TOC
+    function setupTOCScrollDetection() {
+        if (!tocContainer) return;
+        
+        tocContainer.addEventListener('scroll', () => {
+            isUserScrollingTOC = true;
+            
+            // Reset flag after user stops scrolling
+            clearTimeout(tocScrollTimeout);
+            tocScrollTimeout = setTimeout(() => {
+                isUserScrollingTOC = false;
+            }, 1000);
+        });
+    }
+    
+    // Auto-scroll TOC to keep active item visible
+    function scrollTOCToActiveItem(activeLink) {
+        if (!tocContainer || !activeLink || isUserScrollingTOC) return;
+        
+        const containerRect = tocContainer.getBoundingClientRect();
+        const linkRect = activeLink.getBoundingClientRect();
+        
+        // Check if the active link is visible in the TOC container
+        const linkTop = linkRect.top - containerRect.top;
+        const linkBottom = linkRect.bottom - containerRect.top;
+        const containerHeight = containerRect.height;
+        
+        // Define comfortable margins (show some context above/below)
+        const topMargin = 60;  // Space from top
+        const bottomMargin = 60; // Space from bottom
+        
+        let scrollTarget = null;
+        
+        // If link is above visible area
+        if (linkTop < topMargin) {
+            scrollTarget = tocContainer.scrollTop + linkTop - topMargin;
+        }
+        // If link is below visible area  
+        else if (linkBottom > containerHeight - bottomMargin) {
+            scrollTarget = tocContainer.scrollTop + linkBottom - containerHeight + bottomMargin;
+        }
+        
+        // Smooth scroll to target position
+        if (scrollTarget !== null) {
+            tocContainer.scrollTo({
+                top: scrollTarget,
+                behavior: 'smooth'
+            });
         }
     }
     

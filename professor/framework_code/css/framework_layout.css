@@ -154,6 +154,20 @@
   line-height: 1.5;
   border-left: 3px solid transparent;
   position: relative;
+  outline: none; /* Remove default focus outline */
+}
+
+.toc-nav a:focus:not(:focus-visible) {
+  /* Remove focus styling for mouse clicks */
+  outline: none;
+  box-shadow: none;
+}
+
+.toc-nav a:focus-visible {
+  /* Only show focus for keyboard navigation */
+  outline: 2px solid var(--eva-cyan-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 8px var(--eva-cyan-glow);
 }
 
 .toc-nav a:hover {
