@@ -2,6 +2,16 @@
 [
 {{- range $index, $page := $pages -}}
 {{- if $index -}},{{- end -}}
+{{- $pathParts := split $page.RelPermalink "/" -}}
+{{- $section := $page.Section -}}
+{{- $chapter := "" -}}
+{{- $filename := "" -}}
+{{- if ge (len $pathParts) 4 -}}
+  {{- $chapter = index $pathParts 2 -}}
+{{- end -}}
+{{- if ge (len $pathParts) 5 -}}
+  {{- $filename = index $pathParts 3 -}}
+{{- end -}}
 {
   "title": {{ $page.Title | jsonify }},
   "url": {{ $page.RelPermalink | jsonify }},
@@ -9,7 +19,10 @@
   "summary": {{ $page.Summary | jsonify }},
   "date": {{ $page.Date.Format "2006-01-02" | jsonify }},
   "section": {{ $page.Section | jsonify }},
-  "type": {{ $page.Type | jsonify }}
+  "type": {{ $page.Type | jsonify }},
+  "chapter": {{ $chapter | jsonify }},
+  "filename": {{ $filename | jsonify }},
+  "path": {{ $page.RelPermalink | jsonify }}
 }
 {{- end -}}
 ]

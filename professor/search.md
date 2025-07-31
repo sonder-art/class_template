@@ -31,17 +31,86 @@ type: "search"
     }
   }
   
-  // Simple search function
+  // Parse section numbering from page data
+  function getSectionNumber(page) {
+    const chapterMatch = page.chapter ? page.chapter.match(/^(\d+|[A-Z])\d*_/) : null;
+    const filenameMatch = page.filename ? page.filename.match(/^(\d+|[A-Z])\d*_/) : null;
+    
+    const chapterNum = chapterMatch ? chapterMatch[1] : '';
+    const fileNum = filenameMatch ? filenameMatch[1] : '';
+    
+    let sectionName = '';
+    switch(page.section) {
+      case 'framework_tutorials':
+        sectionName = 'Tutorials';
+        break;
+      case 'framework_documentation':
+        sectionName = 'Docs';
+        break;
+      case 'class_notes':
+        sectionName = 'Notes';
+        break;
+      default:
+        sectionName = page.section.replace('_', ' ');
+    }
+    
+    if (chapterNum && fileNum) {
+      return `${sectionName} ${chapterNum}.${fileNum}`;
+    } else if (chapterNum) {
+      return `${sectionName} ${chapterNum}`;
+    } else {
+      return sectionName;
+    }
+  }
+  
+  // Get chapter title from path
+  function getChapterTitle(page) {
+    if (page.chapter) {
+      return page.chapter.replace(/^\d+[A-Z]?_/, '').replace(/_/g, ' ');
+    }
+    return '';
+  }
+  
+  // Enhanced search function with scoring
   function performSearch(query) {
     if (!query || query.length < 2) {
       searchResults.innerHTML = '';
       return;
     }
     
-    const results = searchData.filter(page => {
-      const searchText = (page.title + ' ' + page.content + ' ' + page.summary).toLowerCase();
-      return searchText.includes(query.toLowerCase());
+    const results = [];
+    const lowercaseQuery = query.toLowerCase();
+    const queryWords = lowercaseQuery.split(' ').filter(word => word.length > 1);
+    
+    searchData.forEach(page => {
+      let score = 0;
+      const title = page.title.toLowerCase();
+      const content = page.content.toLowerCase();
+      const summary = page.summary.toLowerCase();
+      
+      queryWords.forEach(word => {
+        if (title.includes(word)) {
+          score += 100;
+        }
+        if (summary.includes(word)) {
+          score += 50;
+        }
+        const contentMatches = (content.match(new RegExp(word, 'g')) || []).length;
+        score += contentMatches * 5;
+      });
+      
+      if (score > 0) {
+        results.push({
+          ...page,
+          score: score,
+          sectionNumber: getSectionNumber(page),
+          chapterTitle: getChapterTitle(page)
+        });
+      }
     });
+    
+    // Sort by relevance
+    results.sort((a, b) => b.score - a.score);
     
     displayResults(results, query);
   }
@@ -54,10 +123,17 @@ type: "search"
     }
     
     const html = results.slice(0, 10).map(page => `
-      <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
-        <h3><a href="${page.url}">${page.title}</a></h3>
-        <p><strong>${page.section}</strong> • ${page.date}</p>
-        <p>${page.summary || page.content.substring(0, 200) + '...'}</p>
+      <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 12px;">
+          <h3 style="margin: 0; flex: 1;"><a href="${page.url}" style="color: #007cba; text-decoration: none;">${page.title}</a></h3>
+          <span style="background: #e6f3ff; color: #007cba; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; font-family: monospace;">${page.sectionNumber}</span>
+        </div>
+        <p style="margin: 0 0 8px 0; font-size: 13px; color: #666; font-style: italic;">
+          ${page.chapterTitle ? `${page.chapterTitle} • ` : ''}${page.type} • ${page.date}
+        </p>
+        <p style="margin: 0; color: #555; font-size: 14px; line-height: 1.4;">
+          ${page.summary || page.content.substring(0, 200) + '...'}
+        </p>
       </div>
     `).join('');
     

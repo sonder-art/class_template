@@ -139,12 +139,17 @@
             
             if (score > 0) {
                 const preview = getHugoTextPreview(page, query, 100);
+                const sectionNumber = getSectionNumber(page);
+                const chapterTitle = getChapterTitle(page);
+                
                 results.push({
                     title: page.title,
                     preview: preview,
                     url: page.url,
                     section: page.section,
                     type: page.type,
+                    sectionNumber: sectionNumber,
+                    chapterTitle: chapterTitle,
                     score: score
                 });
             }
@@ -153,6 +158,50 @@
         // Sort by relevance and return top 5
         results.sort((a, b) => b.score - a.score);
         return results.slice(0, 5);
+    }
+    
+    // Parse section numbering from page data
+    function getSectionNumber(page) {
+        // Extract numbers from chapter and filename
+        const chapterMatch = page.chapter ? page.chapter.match(/^(\d+|[A-Z])\d*_/) : null;
+        const filenameMatch = page.filename ? page.filename.match(/^(\d+|[A-Z])\d*_/) : null;
+        
+        const chapterNum = chapterMatch ? chapterMatch[1] : '';
+        const fileNum = filenameMatch ? filenameMatch[1] : '';
+        
+        // Create section reference
+        let sectionName = '';
+        switch(page.section) {
+            case 'framework_tutorials':
+                sectionName = 'Tutorials';
+                break;
+            case 'framework_documentation':
+                sectionName = 'Docs';
+                break;
+            case 'class_notes':
+                sectionName = 'Notes';
+                break;
+            default:
+                sectionName = page.section.replace('_', ' ');
+        }
+        
+        // Build the reference string
+        if (chapterNum && fileNum) {
+            return `${sectionName} ${chapterNum}.${fileNum}`;
+        } else if (chapterNum) {
+            return `${sectionName} ${chapterNum}`;
+        } else {
+            return sectionName;
+        }
+    }
+    
+    // Get chapter/section title from path
+    function getChapterTitle(page) {
+        if (page.chapter) {
+            // Remove number prefix and convert underscores to spaces
+            return page.chapter.replace(/^\d+[A-Z]?_/, '').replace(/_/g, ' ');
+        }
+        return '';
     }
     
     // Get a preview of text from Hugo page data
@@ -201,8 +250,13 @@
             <div class="search-dropdown-results">
                 ${results.map(result => `
                     <div class="search-result-item" data-url="${result.url}">
-                        <div class="search-result-title">${result.title}</div>
-                        <div class="search-result-meta">${result.section.replace('_', ' ')} • ${result.type}</div>
+                        <div class="search-result-header">
+                            <div class="search-result-title">${result.title}</div>
+                            <div class="search-result-number">${result.sectionNumber}</div>
+                        </div>
+                        <div class="search-result-meta">
+                            ${result.chapterTitle ? `${result.chapterTitle} • ` : ''}${result.type}
+                        </div>
                         <div class="search-result-preview">${result.preview}</div>
                     </div>
                 `).join('')}
