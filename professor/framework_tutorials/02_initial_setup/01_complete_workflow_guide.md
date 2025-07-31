@@ -9,7 +9,6 @@ estimated_time: 15
 tags: ["setup", "workflow", "git", "hugo", "beginners"]
 ---
 
-# Complete Workflow Guide: From Fork to First Site
 
 This tutorial walks you through the **complete process** from getting your own copy of the class repository to building and viewing your first website. Perfect for beginners and non-technical users.
 

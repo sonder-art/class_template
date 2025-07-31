@@ -8,7 +8,6 @@ difficulty: "easy"
 estimated_time: 5
 ---
 
-# Terminal Flags Quick Reference
 
 *A simple reference for the most useful command-line flags when working with GitHub and Hugo.*
 

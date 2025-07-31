@@ -9,7 +9,6 @@ estimated_time: 8
 tags: ["configuration", "hugo", "merging"]
 ---
 
-# Configuration Merging Logic
 
 This document explains how the `generate_hugo_config.py` script merges configuration from multiple sources to create the final `hugo.toml` file.
 

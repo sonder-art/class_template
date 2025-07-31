@@ -9,7 +9,6 @@ estimated_time: 12
 tags: ["sync", "philosophy", "design", "student-protection"]
 ---
 
-# Sync Philosophy and Design
 
 The synchronization system is built on a fundamental principle: **student work is sacred and must never be lost**. This document explains the design philosophy and technical implementation that ensures safe, non-destructive updates.
 

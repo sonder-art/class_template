@@ -9,7 +9,6 @@ estimated_time: 3
 tags: ["setup", "initialization", "getting-started"]
 ---
 
-# Running the Setup Script
 
 > **📋 For the Complete Workflow:** See [Complete Workflow Guide](01_complete_workflow_guide.md) for the full step-by-step process from fork to first site.
 

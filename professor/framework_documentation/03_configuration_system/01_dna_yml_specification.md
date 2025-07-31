@@ -9,7 +9,6 @@ estimated_time: 10
 tags: ["configuration", "dna.yml", "meta-process"]
 ---
 
-# DNA.yml Specification
 
 The `dna.yml` file at the repository root contains **meta-process controls only** - it manages framework behavior and automation settings but **never contains rendering preferences**.
 

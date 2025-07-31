@@ -9,7 +9,6 @@ estimated_time: 7
 tags: ["sync", "architecture", "workflow"]
 ---
 
-# How the Framework Works
 
 The framework operates on a simple but powerful model: **professor as source of truth** with **smart synchronization** to student directories. This tutorial explains how this works in practice.
 

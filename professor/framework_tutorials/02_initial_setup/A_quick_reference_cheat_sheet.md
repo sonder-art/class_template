@@ -9,7 +9,6 @@ estimated_time: 2
 tags: ["reference", "cheat-sheet", "commands", "quick-lookup"]
 ---
 
-# 📋 Quick Reference Cheat Sheet
 
 **Perfect for bookmarking!** The most common commands and workflows you'll use daily.
 

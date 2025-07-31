@@ -9,7 +9,6 @@ estimated_time: 5
 tags: ["introduction", "overview", "philosophy"]
 ---
 
-# What is this Framework?
 
 This GitHub Class Template Repository framework solves a fundamental problem in educational content delivery: how to create a consistent, automated, and flexible system for professors to distribute course materials while allowing students to maintain their own independent work environments.
 
