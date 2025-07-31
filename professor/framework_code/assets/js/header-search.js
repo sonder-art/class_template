@@ -54,8 +54,8 @@
             event.preventDefault();
             const query = event.target.value.trim();
             if (query) {
-                // Navigate to first result or perform site-wide search
-                window.location.href = `/search?q=${encodeURIComponent(query)}`;
+                // Navigate to dedicated search page
+                window.location.href = `/search/?q=${encodeURIComponent(query)}`;
             }
         }
     }
@@ -78,114 +78,110 @@
         }
     }
     
-    // Perform basic content search
-    function performSearch(query) {
-        const results = searchContent(query);
+    // Perform Hugo-powered content search
+    async function performSearch(query) {
+        const results = await searchContent(query);
         displaySearchResults(results, query);
     }
     
-    // Simple content search function
-    function searchContent(query) {
+    // Hugo search data cache
+    let searchData = null;
+    
+    // Load Hugo search index
+    async function loadSearchData() {
+        if (searchData) return searchData;
+        
+        try {
+            const response = await fetch('/search-index.json');
+            searchData = await response.json();
+            console.log(`Loaded ${searchData.length} pages for search`);
+            return searchData;
+        } catch (error) {
+            console.error('Failed to load search index:', error);
+            return [];
+        }
+    }
+    
+    // Hugo-powered content search function
+    async function searchContent(query) {
+        await loadSearchData();
+        
+        if (!searchData || searchData.length === 0) {
+            return [];
+        }
+        
         const results = [];
         const lowercaseQuery = query.toLowerCase();
+        const queryWords = lowercaseQuery.split(' ').filter(word => word.length > 1);
         
-        // Search in page content
-        const contentElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, .lesson-content, .python-output');
-        
-        contentElements.forEach((element, index) => {
-            const text = element.textContent || element.innerText;
-            if (text && text.toLowerCase().includes(lowercaseQuery)) {
-                const preview = getTextPreview(text, lowercaseQuery, 60);
+        searchData.forEach(page => {
+            let score = 0;
+            const title = page.title.toLowerCase();
+            const content = page.content.toLowerCase();
+            const summary = page.summary.toLowerCase();
+            
+            // Score calculation
+            queryWords.forEach(word => {
+                // Title matches get high priority
+                if (title.includes(word)) {
+                    score += 100;
+                }
+                
+                // Summary matches get medium priority
+                if (summary.includes(word)) {
+                    score += 50;
+                }
+                
+                // Content matches get lower priority
+                const contentMatches = (content.match(new RegExp(word, 'g')) || []).length;
+                score += contentMatches * 5;
+            });
+            
+            if (score > 0) {
+                const preview = getHugoTextPreview(page, query, 100);
                 results.push({
-                    title: getElementTitle(element),
+                    title: page.title,
                     preview: preview,
-                    element: element,
-                    score: calculateRelevance(text, lowercaseQuery)
+                    url: page.url,
+                    section: page.section,
+                    type: page.type,
+                    score: score
                 });
             }
         });
         
-        // Sort by relevance
+        // Sort by relevance and return top 5
         results.sort((a, b) => b.score - a.score);
-        
-        // Return top 5 results
         return results.slice(0, 5);
     }
     
-    // Get a preview of text around the search term
-    function getTextPreview(text, query, maxLength) {
-        const index = text.toLowerCase().indexOf(query.toLowerCase());
-        if (index === -1) return text.substring(0, maxLength) + '...';
+    // Get a preview of text from Hugo page data
+    function getHugoTextPreview(page, query, maxLength) {
+        const text = page.summary || page.content;
+        const lowercaseText = text.toLowerCase();
+        const lowercaseQuery = query.toLowerCase();
         
-        const start = Math.max(0, index - 20);
-        const end = Math.min(text.length, index + query.length + 40);
+        const index = lowercaseText.indexOf(lowercaseQuery);
+        if (index === -1) {
+            // No exact match, return summary or truncated content
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+        
+        const start = Math.max(0, index - 30);
+        const end = Math.min(text.length, index + query.length + 50);
         
         let preview = text.substring(start, end);
         if (start > 0) preview = '...' + preview;
         if (end < text.length) preview = preview + '...';
         
-        // Highlight the search term
+        // Highlight the search term (case-insensitive)
         const regex = new RegExp(`(${query})`, 'gi');
         preview = preview.replace(regex, '<mark>$1</mark>');
         
         return preview;
     }
     
-    // Get title for an element (find nearest heading)
-    function getElementTitle(element) {
-        // If element itself is a heading, use it
-        if (/^H[1-6]$/i.test(element.tagName)) {
-            return element.textContent.substring(0, 50);
-        }
-        
-        // Look for previous heading
-        let current = element;
-        while (current && current.previousElementSibling) {
-            current = current.previousElementSibling;
-            if (/^H[1-6]$/i.test(current.tagName)) {
-                return current.textContent.substring(0, 50);
-            }
-        }
-        
-        // Look for parent heading
-        current = element.parentElement;
-        while (current) {
-            const heading = current.querySelector('h1, h2, h3, h4, h5, h6');
-            if (heading) {
-                return heading.textContent.substring(0, 50);
-            }
-            current = current.parentElement;
-        }
-        
-        return 'Content';
-    }
-    
-    // Calculate search relevance score
-    function calculateRelevance(text, query) {
-        const lowercaseText = text.toLowerCase();
-        const lowercaseQuery = query.toLowerCase();
-        
-        let score = 0;
-        
-        // Exact match bonus
-        if (lowercaseText.includes(lowercaseQuery)) {
-            score += 10;
-        }
-        
-        // Word boundary match bonus
-        const wordBoundaryRegex = new RegExp(`\\b${query}\\b`, 'gi');
-        const wordMatches = lowercaseText.match(wordBoundaryRegex);
-        if (wordMatches) {
-            score += wordMatches.length * 5;
-        }
-        
-        // Heading bonus
-        if (text.length < 100) {
-            score += 3;
-        }
-        
-        return score;
-    }
+
     
     // Display search results dropdown
     function displaySearchResults(results, query) {
@@ -200,12 +196,13 @@
         dropdown.innerHTML = `
             <div class="search-dropdown-header">
                 <span>Search results for "${query}"</span>
-                <a href="/search?q=${encodeURIComponent(query)}" class="view-all">View all</a>
+                <a href="/search/?q=${encodeURIComponent(query)}" class="view-all">View all</a>
             </div>
             <div class="search-dropdown-results">
                 ${results.map(result => `
-                    <div class="search-result-item" data-element-index="${Array.from(document.querySelectorAll('*')).indexOf(result.element)}">
+                    <div class="search-result-item" data-url="${result.url}">
                         <div class="search-result-title">${result.title}</div>
+                        <div class="search-result-meta">${result.section.replace('_', ' ')} • ${result.type}</div>
                         <div class="search-result-preview">${result.preview}</div>
                     </div>
                 `).join('')}
@@ -219,11 +216,9 @@
         // Add click handlers for results
         dropdown.querySelectorAll('.search-result-item').forEach(item => {
             item.addEventListener('click', () => {
-                const elementIndex = parseInt(item.getAttribute('data-element-index'));
-                const element = document.querySelectorAll('*')[elementIndex];
-                if (element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    clearSearch();
+                const url = item.getAttribute('data-url');
+                if (url) {
+                    window.location.href = url;
                 }
             });
         });

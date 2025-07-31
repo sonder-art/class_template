@@ -12,6 +12,15 @@ publishDir = "framework_code/hugo_generated"
 buildDrafts = false
 buildFuture = false
 
+# Output formats - enable JSON for search index
+[outputs]
+home = ["HTML", "JSON"]
+
+[outputFormats.JSON]
+mediaType = "application/json"
+baseName = "search-index"
+isPlainText = true
+
 # Module configuration for content mounts and framework assets
 [module]
 

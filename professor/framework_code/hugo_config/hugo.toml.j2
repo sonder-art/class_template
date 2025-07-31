@@ -12,6 +12,15 @@ publishDir = "{{ hugo.output_dir | default('framework_code/hugo_generated') }}"
 buildDrafts = {{ build.include_draft_content | default('false') | toml_bool }}
 buildFuture = false
 
+# Output formats - enable JSON for search index
+[outputs]
+home = ["HTML", "JSON"]
+
+[outputFormats.JSON]
+mediaType = "application/json"
+baseName = "search-index"
+isPlainText = true
+
 # Module configuration for content mounts and framework assets
 [module]
 {% for source in hugo.content_sources | default(['class_notes', 'framework_tutorials', 'framework_documentation']) %}
