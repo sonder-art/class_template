@@ -18,8 +18,8 @@ Used inside python-lesson container for tutorial content
 
 <style>
 .lesson-explanation {
-  background: var(--card-color);
-  border: 1px solid var(--border-color);
+  background: var(--semantic-card-bg);
+  border: 1px solid var(--semantic-border-color);
   border-radius: 8px;
   padding: 24px;
   height: fit-content;
@@ -29,7 +29,7 @@ Used inside python-lesson container for tutorial content
 .lesson-explanation .explanation-content h3,
 .lesson-explanation .explanation-content h4 {
   margin-top: 0;
-  color: var(--accent-color);
+  color: var(--semantic-accent-secondary);
 }
 
 .lesson-explanation .explanation-content p {
@@ -49,7 +49,7 @@ Used inside python-lesson container for tutorial content
 }
 
 .lesson-explanation .explanation-content code {
-  background: var(--elevated-color);
+  background: var(--semantic-surface-elevated);
   padding: 2px 6px;
   border-radius: 4px;
   font-family: 'JetBrains Mono', monospace;
@@ -57,10 +57,10 @@ Used inside python-lesson container for tutorial content
 }
 
 .lesson-explanation .explanation-content blockquote {
-  border-left: 4px solid var(--accent-color);
+  border-left: 4px solid var(--semantic-accent-secondary);
   padding-left: 16px;
   margin: 16px 0;
-  color: var(--text-secondary);
+  color: var(--semantic-text-secondary);
 }
 
 /* Math rendering support */
@@ -73,8 +73,8 @@ Used inside python-lesson container for tutorial content
   display: flex;
   justify-content: flex-end;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--border-color, #4b5563);
-  background: var(--elevated-color, #374151);
+  border-bottom: 1px solid var(--semantic-border-color, #4b5563);
+  background: var(--semantic-surface-elevated, #374151);
 }
 
 .copy-explanation-button {

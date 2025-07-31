@@ -102,6 +102,10 @@
   --theme-scrollbar-track: #1a0d26; /* Deep purple coding background */
   --theme-scrollbar-thumb-hover: var(--eva-green-hover);
   
+  /* Card & Layout Component Theme Mappings */
+  --theme-card-bg: var(--elevated-color);
+  --theme-border-color: var(--overlay-color);
+  
   /* UI element backgrounds */
   --header-bg: var(--bg-color);
   --sidebar-bg: var(--surface-color);

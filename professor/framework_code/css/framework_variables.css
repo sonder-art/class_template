@@ -144,4 +144,8 @@
   --semantic-scrollbar-thumb: var(--theme-scrollbar-thumb, #007acc);
   --semantic-scrollbar-track: var(--theme-scrollbar-track, #f8f9fa);
   --semantic-scrollbar-thumb-hover: var(--theme-scrollbar-thumb-hover, #005a9a);
+  
+  /* Card & Layout Component Semantics */
+  --semantic-card-bg: var(--theme-card-bg, #ffffff);
+  --semantic-border-color: var(--theme-border-color, #e1e5e9);
 } 
