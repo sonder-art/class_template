@@ -54,8 +54,8 @@
             event.preventDefault();
             const query = event.target.value.trim();
             if (query) {
-                // Navigate to dedicated search page
-                window.location.href = `/search/?q=${encodeURIComponent(query)}`;
+                // Show more results in current dropdown instead of navigating away
+                showExpandedResults(query);
             }
         }
     }
@@ -78,11 +78,32 @@
         }
     }
     
+    // Cache for search results
+    let cachedResults = null;
+    let cachedQuery = null;
+    
     // Perform Hugo-powered content search
     async function performSearch(query) {
         const results = await searchContent(query);
+        cachedResults = results;
+        cachedQuery = query;
         displaySearchResults(results, query);
     }
+    
+    // Show expanded results in dropdown
+    async function showExpandedResults(query) {
+        if (cachedResults && cachedQuery === query) {
+            displaySearchResults(cachedResults, query, true);
+        } else {
+            const results = await searchContent(query);
+            cachedResults = results;
+            cachedQuery = query;
+            displaySearchResults(results, query, true);
+        }
+    }
+    
+    // Make showExpandedResults globally available for onclick
+    window.showExpandedResults = showExpandedResults;
     
     // Hugo search data cache
     let searchData = null;
@@ -155,9 +176,9 @@
             }
         });
         
-        // Sort by relevance and return top 5
+        // Sort by relevance 
         results.sort((a, b) => b.score - a.score);
-        return results.slice(0, 5);
+        return results; // Return all results, limit applied in display function
     }
     
     // Parse section numbering from page data
@@ -233,22 +254,26 @@
 
     
     // Display search results dropdown
-    function displaySearchResults(results, query) {
+    function displaySearchResults(results, query, showAll = false) {
         clearSearchResults();
         
         if (results.length === 0) {
             return;
         }
         
+        const maxResults = showAll ? Math.min(results.length, 15) : 5;
+        const displayResults = results.slice(0, maxResults);
+        const hasMore = results.length > maxResults;
+        
         const dropdown = document.createElement('div');
         dropdown.className = 'search-dropdown';
         dropdown.innerHTML = `
             <div class="search-dropdown-header">
-                <span>Search results for "${query}"</span>
-                <a href="/search/?q=${encodeURIComponent(query)}" class="view-all">View all</a>
+                <span>Search results for "${query}" ${showAll ? `(${results.length} total)` : ''}</span>
+                ${!showAll && hasMore ? `<button class="view-all" onclick="showExpandedResults('${query.replace(/'/g, "\\'")}')">Show all ${results.length}</button>` : ''}
             </div>
             <div class="search-dropdown-results">
-                ${results.map(result => `
+                ${displayResults.map(result => `
                     <div class="search-result-item" data-url="${result.url}">
                         <div class="search-result-header">
                             <div class="search-result-title">${result.title}</div>
