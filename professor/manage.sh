@@ -4,7 +4,7 @@
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MANAGE_SCRIPT="$SCRIPT_DIR/manage.py"
+MANAGE_SCRIPT="$SCRIPT_DIR/framework_code/scripts/manage.py"
 
 # Check if Python script exists
 if [[ ! -f "$MANAGE_SCRIPT" ]]; then
@@ -19,4 +19,4 @@ if ! command -v python3 &> /dev/null; then
 fi
 
 # Run the Python script with all arguments
-exec python3 "$MANAGE_SCRIPT" "$@" 
+exec python3 "$MANAGE_SCRIPT" "$@"

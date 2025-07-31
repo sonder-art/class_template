@@ -1,7 +1,7 @@
 ---
 title: "Initial Setup"
 type: "index"
-date: "2025-07-30"
+date: "2025-07-31"
 author: "Framework (Auto-generated)"
 summary: "Index for Initial Setup chapter"
 ---
