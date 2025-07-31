@@ -60,12 +60,18 @@ function initNavigation() {
         
         navState = state;
         
-        // KEEP the manual override for now to ensure it works
+        // Manual CSS application for reliable behavior
         const sidebar = document.querySelector('.site-sidebar');
+        const mainContent = document.querySelector('.site-main');
+        
         if (state === 'nav-collapsed') {
+            // Collapse sidebar and expand content
             sidebar.style.transform = 'translateX(-100%)';
+            if (mainContent) mainContent.style.marginLeft = '0';
         } else {
+            // Show sidebar and constrain content
             sidebar.style.transform = 'translateX(0)';
+            if (mainContent) mainContent.style.marginLeft = 'var(--sidebar-width)';
         }
         
         // Update toggle button aria-expanded

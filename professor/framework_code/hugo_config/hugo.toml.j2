@@ -122,6 +122,6 @@ buildFuture = false
 {% for source in hugo.content_sources | default(['class_notes', 'framework_tutorials', 'framework_documentation']) %}
   [[menu.main]]
     name = "{{ source.replace('_', ' ').title() }}"
-    url = "/{{ source }}/"
+    url = "/{{ source }}/00_master_index/"
     weight = {{ loop.index + 1 }}0
 {% endfor %} 

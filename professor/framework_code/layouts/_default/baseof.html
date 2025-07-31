@@ -134,6 +134,18 @@
                     <a href="{{ .URL }}" {{ if $.IsMenuCurrent "main" . }}class="active"{{ end }}>{{ .Name }}</a>
                 {{ end }}
             </nav>
+            
+            <!-- Search Bar -->
+            <div class="header-search">
+                <input type="search" 
+                       id="headerSearch" 
+                       placeholder="Search content..." 
+                       aria-label="Search site content"
+                       autocomplete="off">
+                <button type="button" id="searchClear" class="search-clear" title="Clear search">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
         </div>
     </header>
     
@@ -192,6 +204,11 @@
     {{ $sidebarNavigationJS := resources.Get "js/sidebar-navigation.js" }}
     {{ if $sidebarNavigationJS }}
         <script src="{{ $sidebarNavigationJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $headerSearchJS := resources.Get "js/header-search.js" }}
+    {{ if $headerSearchJS }}
+        <script src="{{ $headerSearchJS.RelPermalink }}"></script>
     {{ end }}
 
 </body>

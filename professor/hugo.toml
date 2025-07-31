@@ -130,16 +130,16 @@ buildFuture = false
 
   [[menu.main]]
     name = "Class Notes"
-    url = "/class_notes/"
+    url = "/class_notes/00_master_index/"
     weight = 20
 
   [[menu.main]]
     name = "Framework Tutorials"
-    url = "/framework_tutorials/"
+    url = "/framework_tutorials/00_master_index/"
     weight = 30
 
   [[menu.main]]
     name = "Framework Documentation"
-    url = "/framework_documentation/"
+    url = "/framework_documentation/00_master_index/"
     weight = 40
  
