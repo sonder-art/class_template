@@ -1,12 +1,18 @@
 ---
-title: "What is this Framework?"
-type: "tutorial"
-date: "2024-01-15"
-author: "Framework Team"
-summary: "Introduction to the class template framework and its core principles"
-difficulty: "easy"
+author: Framework Team
+date: '2024-01-15'
+difficulty: easy
 estimated_time: 5
-tags: ["introduction", "overview", "philosophy"]
+slug: 2024-01-15-tutorial-what-is-this-framework
+slug_locked: true
+slug_source: creation_context
+summary: Introduction to the class template framework and its core principles
+tags:
+- introduction
+- overview
+- philosophy
+title: What is this Framework?
+type: tutorial
 ---
 
 

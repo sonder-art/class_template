@@ -1,117 +1,81 @@
 #!/usr/bin/env python3
 """
-GitHub Class Template Framework - Unified Management Script
-Automates the complete workflow for professors and students
+Framework Management Script for GitHub Class Template Framework
 
-Usage Examples:
-  ./manage.py --build          # Full build pipeline
-  ./manage.py --dev            # Start development server  
-  ./manage.py --sync           # Sync updates (students only)
-  ./manage.py --deploy         # Production deployment
-  ./manage.py --publish        # Complete build + deploy
-  ./manage.py --build --dev    # Build and start dev server
-  ./manage.py --build --deploy # Build and deploy (same as --publish)
-  ./manage.py --sync --build   # Sync and build (students)
-  ./manage.py --status         # Show current state
+Central management tool for the entire framework lifecycle including
+validation, generation, building, and deployment.
+
+This script provides a unified interface for all framework operations
+and is the primary entry point for automation tasks.
 """
 
-import argparse
 import os
 import sys
-import subprocess
-import json
-import time
 import shutil
+import time
+import argparse
+import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Any, Optional, List
+import yaml
 
-try:
-    from rich.console import Console
-    from rich.panel import Panel
-    from rich.prompt import Confirm, Prompt
-    from rich.progress import Progress, SpinnerColumn, TextColumn
-    from rich.table import Table
-    from rich.text import Text
-    from rich.syntax import Syntax
-    from rich.layout import Layout
-    from rich import print as rprint
-except ImportError:
-    print("❌ Missing required 'rich' library. Install with: pip install rich")
-    sys.exit(1)
+from rich.console import Console
+from rich.progress import Progress, TaskID
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from rich.prompt import Confirm
+from rich import box
 
+# Initialize rich console
 console = Console()
 
+# Get script directory for relative imports
+SCRIPT_DIR = Path(__file__).parent
+ROOT_DIR = SCRIPT_DIR.parent.parent  # Two levels up from scripts/
+
+# Add the scripts directory to Python path for imports
+sys.path.insert(0, str(SCRIPT_DIR))
+
+# Framework role detection
+if "student" in str(Path.cwd()):
+    ROLE = "Student" 
+    DEFAULT_PORT = 1314
+else:
+    ROLE = "Professor"
+    DEFAULT_PORT = 1313
+
 class FrameworkManager:
-    def __init__(self):
-        self.console = console
-        self.current_dir = Path.cwd()
-        self.role = None  # 'professor' or 'student'
-        self.base_dir = None
-        self.framework_dir = None
-        self.is_valid_setup = False
-        
-        # Message collection system
-        self.messages = {
-            'errors': [],
-            'warnings': [],
-            'info': [],
-            'success': []
-        }
-        self.operation_start_time = None
-        self.current_operation = None
-        self.verbose = False
-        self.operation_stats = {
-            'total_operations': 0,
-            'successful_operations': 0,
-            'failed_operations': 0,
-            'total_duration': 0
-        }
-        
-    def detect_environment(self) -> bool:
-        """Detect if we're in a valid framework directory and determine role"""
-        
-        # Check if we're in professor directory
-        if self.current_dir.name == "professor" and (self.current_dir.parent / "dna.yml").exists():
-            self.role = "professor"
-            self.base_dir = self.current_dir.parent
-            self.framework_dir = self.current_dir / "framework_code"
-            self.is_valid_setup = True
-            return True
-            
-        # Check if we're in a student directory
-        elif (self.current_dir.parent.name == "students" and 
-              (self.current_dir.parent.parent / "dna.yml").exists()):
-            self.role = "student"
-            self.base_dir = self.current_dir.parent.parent
-            self.framework_dir = self.current_dir / "framework_code"
-            self.is_valid_setup = True
-            return True
-            
-        # Check if we're in repository root
-        elif (self.current_dir / "dna.yml").exists():
-            self.console.print("📁 You're in the repository root. Please navigate to:")
-            self.console.print("   Professor: [cyan]cd professor[/cyan]")
-            self.console.print("   Student: [cyan]cd students/[your-username][/cyan]")
-            return False
-            
-        return False
+    """Main framework management class"""
     
-    def add_message(self, message_type: str, title: str, details: str = None, context: str = None, duration: float = None):
-        """Add a message to be shown in the final summary"""
-        if message_type not in self.messages:
-            return
-            
-        message = {
+    def __init__(self):
+        self.current_dir = Path.cwd()
+        self.framework_dir = self.current_dir / "framework_code"
+        self.scripts_dir = self.framework_dir / "scripts"
+        self.console = console
+        
+        # Output management system
+        self.messages = {'success': [], 'warnings': [], 'errors': [], 'info': []}
+        self.operation_stats = {'total_operations': 0, 'successful_operations': 0, 'failed_operations': 0, 'total_duration': 0.0}
+        self.current_operation = None
+        self.operation_start_time = None
+        self.verbose = False  # Will be set by argument parser
+        
+        # Track slugs for discussions
+        self.existing_slugs = set()
+        self.files_with_generated_slugs = []
+    
+    def add_message(self, message_type: str, title: str, details: str = None, error_output: str = None, duration: Optional[float] = None):
+        """Add a message to the collection for final summary"""
+        self.messages[message_type].append({
             'title': title,
             'details': details,
-            'context': context or self.current_operation,
-            'timestamp': time.time(),
+            'error_output': error_output,
             'duration': duration
-        }
-        self.messages[message_type].append(message)
+        })
     
     def start_operation(self, operation_name: str):
-        """Start tracking an operation"""
+        """Start timing an operation"""
         self.current_operation = operation_name
         self.operation_start_time = time.time()
         self.operation_stats['total_operations'] += 1
@@ -122,7 +86,7 @@ class FrameworkManager:
             self.console.print(f"🔄 {operation_name}...")
     
     def end_operation(self, success: bool, message: str = None):
-        """End tracking an operation"""
+        """End timing an operation and log the result"""
         if self.operation_start_time:
             duration = time.time() - self.operation_start_time
             duration_str = f"({duration:.1f}s)"
@@ -130,287 +94,235 @@ class FrameworkManager:
         else:
             duration = None
             duration_str = ""
-            
+        
         if success:
-            icon = "✅"
             self.operation_stats['successful_operations'] += 1
-            if message:
-                self.add_message('success', self.current_operation, message, None, duration)
+            if self.verbose:
+                self.console.print(f"  ✅ [green]{message or self.current_operation + ' completed'}[/green] {duration_str}")
+            self.add_message('success', self.current_operation, message, duration=duration)
         else:
-            icon = "❌"
             self.operation_stats['failed_operations'] += 1
-            if message:
-                self.add_message('errors', self.current_operation, message, None, duration)
-                
-        if self.verbose:
-            if message:
-                self.console.print(f"{icon} {self.current_operation}: {message} {duration_str}")
-            else:
-                self.console.print(f"{icon} {self.current_operation} {duration_str}")
-        else:
-            # Compact output for non-verbose mode
-            status_msg = message if message else ("completed" if success else "failed")
-            self.console.print(f"  {icon} {status_msg} {duration_str}")
-            
+            if self.verbose:
+                self.console.print(f"  ❌ [red]{message or self.current_operation + ' failed'}[/red] {duration_str}")
+            self.add_message('errors', self.current_operation, message, duration=duration)
+        
+        # Reset operation tracking
         self.current_operation = None
         self.operation_start_time = None
-    
-    def validate_environment(self) -> bool:
-        """Validate that all required files and directories exist"""
-        
-        if not self.is_valid_setup:
-            return False
-            
-        required_files = [
-            self.framework_dir / "scripts" / "generate_hugo_config.py",
-            self.framework_dir / "scripts" / "validate_content.py"
-        ]
-        
-        if self.role == "student":
-            required_files.append(self.framework_dir / "scripts" / "sync_student.py")
-            
-        missing_files = [f for f in required_files if not f.exists()]
-        
-        if missing_files:
-            file_list = "\n".join([f"   {file}" for file in missing_files])
-            self.add_message('errors', 'Missing Framework Files', file_list, 'Environment Validation')
-            return False
-            
-        return True
     
     def show_status(self):
         """Show current framework status"""
         
-        # Create status table
-        table = Table(title="Framework Status", show_header=True, header_style="bold magenta")
-        table.add_column("Property", style="cyan", width=20)
-        table.add_column("Value", style="green")
+        self.console.print(Panel.fit(
+            f"🚀 [bold]Framework Manager[/bold]\n"
+            f"Role: [cyan]{ROLE}[/cyan]\n"
+            f"Directory: [cyan]{self.current_dir}[/cyan]",
+            title="Framework Status"
+        ))
         
-        table.add_row("Role", self.role.title())
-        table.add_row("Current Directory", str(self.current_dir))
-        table.add_row("Framework Directory", str(self.framework_dir))
-        table.add_row("Base Repository", str(self.base_dir))
+        # Check key directories and files
+        status_items = [
+            ("Framework Code", self.framework_dir.exists()),
+            ("Scripts Directory", self.scripts_dir.exists()),
+            ("Config File", (self.current_dir / "config.yml").exists()),
+            ("Course File", (self.current_dir / "course.yml").exists()),
+            ("Generated Hugo", (self.current_dir / "hugo.toml").exists()),
+        ]
         
-        # Check if Hugo config exists
-        hugo_config = self.current_dir / "hugo.toml"
-        table.add_row("Hugo Config", "✅ Exists" if hugo_config.exists() else "❌ Missing")
+        table = Table(title="Framework Components", show_header=True, header_style="bold cyan")
+        table.add_column("Component", style="white")
+        table.add_column("Status", justify="center")
         
-        # Check if development server is running
-        try:
-            result = subprocess.run(["pgrep", "-f", "hugo.*server"], 
-                                  capture_output=True, text=True)
-            server_running = "✅ Running" if result.returncode == 0 else "❌ Not running"
-        except:
-            server_running = "❓ Unknown"
-        table.add_row("Hugo Server", server_running)
+        for item, exists in status_items:
+            status = "✅" if exists else "❌"
+            table.add_row(item, status)
         
         self.console.print(table)
         
-        # Show recent content changes
-        self.show_recent_changes()
-    
-    def show_recent_changes(self):
-        """Show recently modified content files"""
+        # Additional status information
+        if (self.framework_dir / "hugo_generated").exists():
+            self.console.print("\n📁 Generated site available")
         
-        content_dirs = ["class_notes", "framework_tutorials", "framework_documentation"]
-        recent_files = []
-        
-        for content_dir in content_dirs:
-            dir_path = self.current_dir / content_dir
-            if dir_path.exists():
-                for file_path in dir_path.rglob("*.md"):
-                    if file_path.stat().st_mtime > time.time() - 86400:  # Last 24 hours
-                        recent_files.append((file_path, file_path.stat().st_mtime))
-        
-        if recent_files:
-            recent_files.sort(key=lambda x: x[1], reverse=True)
-            
-            table = Table(title="Recent Changes (Last 24h)", show_header=True)
-            table.add_column("File", style="cyan")
-            table.add_column("Modified", style="yellow")
-            
-            for file_path, mtime in recent_files[:10]:  # Show last 10
-                rel_path = file_path.relative_to(self.current_dir)
-                mod_time = time.strftime("%H:%M:%S", time.localtime(mtime))
-                table.add_row(str(rel_path), mod_time)
-                
-            self.console.print(table)
-    
-    def run_command(self, command: List[str], description: str, 
-                   capture_output: bool = False, show_progress: bool = None) -> subprocess.CompletedProcess:
-        """Run a command with optional progress indication"""
-        
-        # Default show_progress based on verbose mode
-        if show_progress is None:
-            show_progress = self.verbose
-            
-        if show_progress:
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                console=self.console,
-            ) as progress:
-                task = progress.add_task(description, total=None)
-                
-                try:
-                    result = subprocess.run(
-                        command,
-                        capture_output=capture_output,
-                        text=True,
-                        cwd=self.current_dir
-                    )
-                    
-                    if result.returncode == 0:
-                        progress.update(task, description=f"✅ {description}")
-                    else:
-                        progress.update(task, description=f"❌ {description}")
-                        if result.stderr:
-                            self.add_message('errors', description, result.stderr.strip())
-                        
-                    return result
-                    
-                except Exception as e:
-                    progress.update(task, description=f"❌ {description} - {str(e)}")
-                    self.add_message('errors', description, str(e))
-                    raise
+        if ROLE == "Student":
+            self.console.print(f"\n🎓 Running in [bold cyan]Student[/bold cyan] mode")
+            self.console.print("Available commands: --sync, --dev, --build")
         else:
-            # Silent execution for less verbose operations
-            try:
-                result = subprocess.run(
-                    command,
-                    capture_output=capture_output,
-                    text=True,
-                    cwd=self.current_dir
-                )
-                
-                if result.returncode != 0 and result.stderr:
-                    self.add_message('errors', description, result.stderr.strip())
-                    
-                return result
-                
-            except Exception as e:
-                self.add_message('errors', description, str(e))
-                raise
-    
-    def validate_and_generate(self, force: bool = False) -> bool:
-        """Run validation and generation pipeline"""
+            self.console.print(f"\n👨‍🏫 Running in [bold cyan]Professor[/bold cyan] mode") 
+            self.console.print("Available commands: --build, --dev, --deploy, --sync")
+
+    def run_command(self, cmd: List[str], cwd: Path = None, capture_output: bool = False) -> tuple:
+        """Run a shell command with error handling"""
+        
+        if self.verbose:
+            self.console.print(f"Running: {' '.join(cmd)}")
+        
+        try:
+            result = subprocess.run(
+                cmd,
+                cwd=cwd or self.current_dir,
+                capture_output=capture_output,
+                text=True,
+                check=True
+            )
+            return True, result.stdout if capture_output else ""
+        except subprocess.CalledProcessError as e:
+            error_msg = f"Command failed: {' '.join(cmd)}"
+            if capture_output and e.stderr:
+                error_msg += f"\nError: {e.stderr}"
+            
+            if self.verbose:
+                self.console.print(f"[red]❌ {error_msg}[/red]")
+            
+            return False, error_msg
+        except FileNotFoundError:
+            error_msg = f"Command not found: {cmd[0]}"
+            if self.verbose:
+                self.console.print(f"[red]❌ {error_msg}[/red]")
+            return False, error_msg
+
+    def validate_and_generate(self, force: bool = False):
+        """Run validation and generation scripts"""
         
         self.start_operation("Validation & Generation")
         
-        if not force:
-            if not Confirm.ask("Run validation and regenerate all framework files?"):
-                self.end_operation(False, "Operation cancelled by user")
-                return False
+        scripts = [
+            ("content_metadata.py", "Content validation"),
+            ("generate_hugo_config.py", "Hugo configuration generation")
+        ]
         
-        # Run the main generation script
-        script_path = self.framework_dir / "scripts" / "generate_hugo_config.py"
-        result = self.run_command(
-            ["python3", str(script_path)],
-            "Validating and generating framework files",
-            capture_output=True
-        )
+        overall_success = True
         
-        if result.returncode != 0:
-            self.end_operation(False, "Validation/generation failed")
-            return False
+        for script, description in scripts:
+            script_path = self.scripts_dir / script
             
-        self.end_operation(True, "Framework files validated and generated")
-        return True
-    
+            if not script_path.exists():
+                self.console.print(f"⚠️ Script not found: {script}")
+                continue
+            
+            if self.verbose:
+                self.console.print(f"  Running {description}...")
+            
+            success, output = self.run_command(
+                ["python3", str(script_path)], 
+                capture_output=not self.verbose
+            )
+            
+            if not success:
+                overall_success = False
+                self.add_message('errors', f'{description} Failed', output)
+            
+        if overall_success:
+            self.end_operation(True, "Framework files validated and generated")
+        else:
+            self.end_operation(False, "One or more validation steps failed")
+        
+        return overall_success
+
     def start_development_server(self, port: int = None):
         """Start Hugo development server"""
         
-        # Default ports by role
         if port is None:
-            port = 1313 if self.role == "professor" else 1314
-            
+            port = DEFAULT_PORT
+        
+        self.start_operation("Development Server")
+        
+        # Check if Hugo is installed
+        hugo_check, _ = self.run_command(["hugo", "version"], capture_output=True)
+        if not hugo_check:
+            self.end_operation(False, "Hugo not found - please install Hugo")
+            return False
+        
+        # Ensure hugo.toml exists
         hugo_config = self.current_dir / "hugo.toml"
         if not hugo_config.exists():
-            self.add_message('warnings', 'Missing Hugo Config', 'Hugo config not found. Running generation first...')
-            if not self.validate_and_generate(force=True):
-                return
+            self.console.print("🔧 Generating Hugo configuration...")
+            if not self.validate_and_generate():
+                self.end_operation(False, "Failed to generate Hugo configuration")
+                return False
         
-        self.console.print(f"\n🚀 [bold]Starting Development Server[/bold]")
-        self.console.print(f"Role: {self.role} | Port: {port} | URL: [link]http://localhost:{port}[/link]")
-        self.console.print("\n💡 Press [bold red]Ctrl+C[/bold red] to stop the server")
+        self.console.print(f"\n🌐 [bold]Starting development server on http://localhost:{port}[/bold]")
+        self.console.print("Press [bold red]Ctrl+C[/bold red] to stop the server")
         
-        self.add_message('info', 'Development Server Started', f'Server running on http://localhost:{port}', 'Development')
-        
+        # Start Hugo server
         try:
             subprocess.run([
                 "hugo", "server",
-                "--config", "hugo.toml",
                 "--port", str(port),
-                "--bind", "0.0.0.0"
+                "--bind", "0.0.0.0",
+                "--buildDrafts",
+                "--buildFuture",
+                "--disableFastRender"
             ], cwd=self.current_dir)
-        except KeyboardInterrupt:
-            self.console.print("\n🛑 Server stopped")
-            self.add_message('info', 'Development Server Stopped', 'Server shut down by user', 'Development')
-    
-    def sync_student_updates(self) -> bool:
-        """Sync framework updates for students"""
-        
-        if self.role != "student":
-            self.add_message('errors', 'Sync Not Available', 'Sync is only available for students', 'Permission Check')
-            return False
             
+        except KeyboardInterrupt:
+            self.console.print("\n🛑 Development server stopped")
+            
+        # Don't call end_operation for dev server as it's a continuous process
+        return True
+
+    def sync_student_updates(self):
+        """Sync framework updates (students only)"""
+        
+        if ROLE != "Student":
+            self.console.print("❌ Sync is only available for students")
+            return False
+        
         self.start_operation("Framework Sync")
         
-        # Show what will be synced
-        self.console.print("This will update:")
-        self.console.print("• Framework code and scripts")
-        self.console.print("• New content from professor")
-        self.console.print("• Theme and configuration updates")
-        self.console.print("\n⚠️ Your personal content will be preserved")
-        
-        if not Confirm.ask("Continue with sync?"):
-            self.end_operation(False, "Sync cancelled by user")
+        sync_script = self.scripts_dir / "sync_student.py"
+        if not sync_script.exists():
+            self.end_operation(False, "Sync script not found")
             return False
-            
+        
         # Run sync script
-        sync_script = self.framework_dir / "scripts" / "sync_student.py"
-        result = self.run_command(
+        success, output = self.run_command(
             ["python3", str(sync_script)],
-            "Syncing framework updates"
+            capture_output=not self.verbose
         )
         
-        if result.returncode != 0:
-            self.end_operation(False, "Framework sync failed")
-            return False
+        if success:
+            self.end_operation(True, "Framework updates synced")
+        else:
+            self.end_operation(False, "Sync failed")
+            self.add_message('errors', 'Sync Failed', output)
             
-        self.end_operation(True, "Framework updates synced")
-        
-        # Regenerate after sync
-        return self.validate_and_generate(force=True)
-    
-    def build_production(self) -> bool:
-        """Build production-ready static site"""
+        return success
+
+    def build_production(self):
+        """Build for production deployment"""
         
         self.start_operation("Production Build")
         
-        # Ensure everything is up to date
-        if not self.validate_and_generate(force=True):
-            self.end_operation(False, "Failed during validation phase")
+        # First validate and generate
+        if not self.validate_and_generate():
+            self.end_operation(False, "Pre-build validation failed")
             return False
-            
-        # Build with Hugo
-        output_dir = self.framework_dir / "hugo_generated"
-        result = self.run_command([
-            "hugo",
-            "--destination", str(output_dir),
-            "--config", "hugo.toml"
-        ], "Building static site with Hugo")
         
-        if result.returncode != 0:
-            self.end_operation(False, "Hugo build failed")
+        # Check if Hugo is installed
+        hugo_check, _ = self.run_command(["hugo", "version"], capture_output=True)
+        if not hugo_check:
+            self.end_operation(False, "Hugo not found - please install Hugo")
             return False
+        
+        # Build static site
+        success, output = self.run_command(
+            ["hugo", "--minify"],
+            capture_output=not self.verbose
+        )
+        
+        if success:
+            output_dir = self.framework_dir / "hugo_generated"
+            self.end_operation(True, f"Static site ready in {output_dir}")
+            self.add_message('info', 'Production Build Complete', 
+                           f'Site built in: {output_dir}\nUpload the contents of this directory to your hosting service')
+        else:
+            self.end_operation(False, "Hugo build failed")
+            self.add_message('errors', 'Hugo Build Failed', output)
             
-        self.add_message('info', 'Production Build Complete', f"Site built in: {output_dir}\nUpload the contents of this directory to your hosting service")
-        self.end_operation(True, f"Static site ready in {output_dir}")
-        return True
-    
-    def full_build_pipeline(self, force: bool = False) -> bool:
-        """Run the complete build pipeline"""
+        return success
+
+    def full_build_pipeline(self, force: bool = False):
+        """Run complete build pipeline"""
         
         self.start_operation("Full Build Pipeline")
         
@@ -456,6 +368,104 @@ class FrameworkManager:
                     shutil.rmtree(file)
                 self.console.print(f"🗑️ Removed: {file}")
     
+    def discussions_status(self):
+        """Show discussions configuration and content status"""
+        self.start_operation("Discussions Status")
+        
+        # Check if discussions are configured
+        config_file = self.current_dir / "config.yml"
+        if not config_file.exists():
+            self.console.print("❌ No config.yml found")
+            self.end_operation(False, "Configuration file missing")
+            return
+        
+        # Load and display configuration
+        import yaml
+        try:
+            with open(config_file, 'r') as f:
+                config = yaml.safe_load(f)
+            
+            discussions_config = config.get('discussions', {})
+            
+            # Create status table
+            from rich.table import Table
+            table = Table(title="Discussions Configuration", show_header=True)
+            table.add_column("Setting", style="cyan")
+            table.add_column("Value", style="white")
+            table.add_column("Status", style="white")
+            
+            enabled = discussions_config.get('enabled', False)
+            table.add_row("Enabled", str(enabled), "✅" if enabled else "❌")
+            table.add_row("Provider", discussions_config.get('provider', 'none'), "ℹ️")
+            table.add_row("Repository", discussions_config.get('repository', 'none'), "ℹ️")
+            table.add_row("Category", discussions_config.get('category', 'none'), "ℹ️")
+            
+            auto_types = discussions_config.get('auto_enable_for_types', [])
+            table.add_row("Auto-enabled Types", str(len(auto_types)), "ℹ️")
+            
+            self.console.print(table)
+            
+            if enabled:
+                # Run slug audit
+                try:
+                    from discussion_slugs import SlugManager
+                    slug_manager = SlugManager(self.current_dir)
+                    self.console.print("\n")
+                    slug_manager.audit_slugs()
+                except ImportError:
+                    self.console.print("\n⚠️ Discussion slug manager not available")
+            
+            self.end_operation(True, "Configuration displayed")
+            
+        except Exception as e:
+            self.console.print(f"❌ Error reading configuration: {e}")
+            self.end_operation(False, "Failed to read configuration")
+    
+    def generate_missing_slugs(self, force: bool = False) -> bool:
+        """Generate stable slugs for content missing them"""
+        self.start_operation("Slug Generation")
+        
+        try:
+            from discussion_slugs import SlugManager
+            
+            slug_manager = SlugManager(self.current_dir)
+            success = slug_manager.generate_missing_slugs(force=force)
+            
+            if success:
+                self.end_operation(True, "Slugs generated successfully")
+            else:
+                self.end_operation(False, "Slug generation failed")
+            
+            return success
+            
+        except ImportError:
+            self.console.print("❌ Discussion slug manager not available")
+            self.end_operation(False, "Missing dependency")
+            return False
+        except Exception as e:
+            self.console.print(f"❌ Error: {e}")
+            self.end_operation(False, str(e))
+            return False
+    
+    def discussions_audit(self):
+        """Audit existing content for discussion system readiness"""
+        self.start_operation("Discussions Audit")
+        
+        try:
+            from discussion_slugs import SlugManager
+            
+            slug_manager = SlugManager(self.current_dir)
+            slug_manager.audit_slugs()
+            
+            self.end_operation(True, "Audit completed")
+            
+        except ImportError:
+            self.console.print("❌ Discussion slug manager not available")
+            self.end_operation(False, "Missing dependency")
+        except Exception as e:
+            self.console.print(f"❌ Error: {e}")
+            self.end_operation(False, str(e))
+    
     def show_final_summary(self):
         """Show final summary of all operations with warnings and errors"""
         
@@ -469,122 +479,78 @@ class FrameworkManager:
         # Create summary table
         table = Table(title="Operation Summary", show_header=True, header_style="bold cyan")
         table.add_column("Operation", style="white", width=25)
-        table.add_column("Status", style="white", width=12)
-        table.add_column("Duration", style="dim", width=10)
-        table.add_column("Details", style="dim")
+        table.add_column("Status", justify="center", width=12)
+        table.add_column("Duration", justify="center", width=10)
+        table.add_column("Details", style="dim", width=35)
         
         # Add successful operations
         for success in self.messages['success']:
-            duration_str = f"{success['duration']:.1f}s" if success.get('duration') else "-"
-            details = success['details'][:50] + "..." if success['details'] and len(success['details']) > 50 else success['details'] or ""
+            duration_str = f"{success.get('duration', 0):.1f}s" if success.get('duration') else "-"
             table.add_row(
-                success['title'],
-                "[green]✅ Success[/green]",
+                success['title'], 
+                "✅ Success", 
                 duration_str,
-                details
+                success.get('details', '')[:35] + ('...' if len(success.get('details', '')) > 35 else '')
             )
         
-        # Add errors
+        # Add failed operations  
         for error in self.messages['errors']:
-            duration_str = f"{error['duration']:.1f}s" if error.get('duration') else "-"
-            details = error['details'][:50] + "..." if error['details'] and len(error['details']) > 50 else error['details'] or ""
+            duration_str = f"{error.get('duration', 0):.1f}s" if error.get('duration') else "-"
             table.add_row(
-                error['title'],
-                "[red]❌ Failed[/red]",
+                error['title'], 
+                "❌ Failed", 
                 duration_str,
-                details
-            )
-        
-        # Add warnings
-        for warning in self.messages['warnings']:
-            details = warning['details'][:50] + "..." if warning['details'] and len(warning['details']) > 50 else warning['details'] or ""
-            table.add_row(
-                warning['title'],
-                "[yellow]⚠️ Warning[/yellow]",
-                "-",
-                details
+                error.get('details', '')[:35] + ('...' if len(error.get('details', '')) > 35 else '')
             )
         
         self.console.print(table)
         
-        # Show detailed errors if any exist
-        if self.messages['errors'] and not self.verbose:
-            self.console.print("\n❌ [bold red]Error Details:[/bold red]")
+        # Show detailed errors if any
+        if self.messages['errors']:
+            self.console.print("\n🔴 [bold red]Detailed Error Information:[/bold red]")
             for i, error in enumerate(self.messages['errors'], 1):
-                self.console.print(f"  {i}. [red]{error['title']}[/red]")
-                if error['details']:
-                    # Show first few lines of error details
-                    details_lines = error['details'].split('\n')[:2]
-                    for line in details_lines:
-                        if line.strip():
-                            self.console.print(f"     [dim]{line.strip()}[/dim]")
-                    if len(error['details'].split('\n')) > 2:
-                        self.console.print("     [dim]... (use --verbose for full details)[/dim]")
+                self.console.print(f"\n{i}. [bold]{error['title']}[/bold]")
+                if error.get('details'):
+                    self.console.print(f"   Details: {error['details']}")
+                if error.get('error_output'):
+                    self.console.print(f"   Output: [dim]{error['error_output']}[/dim]")
         
-        # Show verbose details if enabled
-        if self.verbose and (self.messages['errors'] or self.messages['warnings']):
-            if self.messages['errors']:
-                self.console.print("\n❌ [bold red]Full Error Details:[/bold red]")
-                for i, error in enumerate(self.messages['errors'], 1):
-                    self.console.print(f"  {i}. [red]{error['title']}[/red]")
-                    if error['context']:
-                        self.console.print(f"     Context: [dim]{error['context']}[/dim]")
-                    if error['details']:
-                        for line in error['details'].split('\n'):
-                            if line.strip():
-                                self.console.print(f"     {line.strip()}")
-                    self.console.print()
-            
-            if self.messages['warnings']:
-                self.console.print("⚠️ [bold yellow]Full Warning Details:[/bold yellow]")
-                for i, warning in enumerate(self.messages['warnings'], 1):
-                    self.console.print(f"  {i}. [yellow]{warning['title']}[/yellow]")
-                    if warning['context']:
-                        self.console.print(f"     Context: [dim]{warning['context']}[/dim]")
-                    if warning['details']:
-                        self.console.print(f"     {warning['details']}")
-                    self.console.print()
+        # Show warnings if any
+        if self.messages['warnings']:
+            self.console.print("\n🟡 [bold yellow]Warnings:[/bold yellow]")
+            for i, warning in enumerate(self.messages['warnings'], 1):
+                self.console.print(f"{i}. {warning['title']}")
+                if warning.get('details'):
+                    self.console.print(f"   {warning['details']}")
         
-        # Show important info
+        # Show important information if any
         if self.messages['info']:
-            important_info = [info for info in self.messages['info'] if 'server' in info['title'].lower() or 'build' in info['title'].lower()]
-            if important_info:
-                self.console.print("\n📝 [bold blue]Important Information:[/bold blue]")
-                for info in important_info:
-                    self.console.print(f"  • [blue]{info['title']}[/blue]")
-                    if info['details']:
-                        # Handle multi-line details
-                        for line in info['details'].split('\n'):
-                            if line.strip():
-                                self.console.print(f"    {line.strip()}")
+            self.console.print("\n📝 [bold]Important Information:[/bold]")
+            for info in self.messages['info']:
+                self.console.print(f"  • [bold]{info['title']}[/bold]")
+                if info.get('details'):
+                    # Split details into lines for better formatting
+                    for line in info['details'].split('\n'):
+                        if line.strip():
+                            self.console.print(f"    {line}")
         
-        # Show statistics and final status
-        stats_table = Table(show_header=False, box=None)
-        stats_table.add_column("Metric", style="cyan", width=20)
-        stats_table.add_column("Value", style="white")
+        # Summary statistics
+        self.console.print(f"\n [bold]Total Operations:[/bold]     {self.operation_stats['total_operations']}    ")
+        self.console.print(f" [bold]Successful:[/bold]           {self.operation_stats['successful_operations']}    ")
         
-        stats_table.add_row("Total Operations:", str(self.operation_stats['total_operations']))
-        stats_table.add_row("Successful:", f"[green]{self.operation_stats['successful_operations']}[/green]")
         if self.operation_stats['failed_operations'] > 0:
-            stats_table.add_row("Failed:", f"[red]{self.operation_stats['failed_operations']}[/red]")
-        if self.operation_stats['total_duration'] > 0:
-            stats_table.add_row("Total Duration:", f"{self.operation_stats['total_duration']:.1f}s")
+            self.console.print(f" [bold red]Failed:[/bold red]               {self.operation_stats['failed_operations']}    ")
         
-        self.console.print("\n")
-        self.console.print(stats_table)
+        self.console.print(f" [bold]Total Duration:[/bold]       {self.operation_stats['total_duration']:.1f}s ")
+        
+        self.console.print("\n" + "─"*60)
         
         # Final status message
-        self.console.print("\n" + "─"*60)
-        if self.messages['errors']:
-            self.console.print("🛑 [bold red]Operations completed with errors[/bold red]")
-            if not self.verbose:
-                self.console.print("   💡 Use [cyan]--verbose[/cyan] flag for detailed error information")
-        elif self.messages['warnings']:
-            self.console.print("⚠️ [bold yellow]Operations completed with warnings[/bold yellow]")
-            if not self.verbose:
-                self.console.print("   💡 Use [cyan]--verbose[/cyan] flag for detailed warning information")
-        else:
+        if self.operation_stats['failed_operations'] == 0:
             self.console.print("✅ [bold green]All operations completed successfully![/bold green]")
+        else:
+            self.console.print("❌ [bold red]Some operations failed. Check details above.[/bold red]")
+        
         self.console.print("─"*60)
 
 def create_parser() -> argparse.ArgumentParser:
@@ -636,6 +602,14 @@ Advanced:
     parser.add_argument("--clean", action="store_true",
                        help="Clean generated files")
     
+    # Discussion management
+    parser.add_argument("--discussions-status", action="store_true",
+                       help="Show discussions configuration and content status")
+    parser.add_argument("--generate-slugs", action="store_true", 
+                       help="Generate stable slugs for content missing them")
+    parser.add_argument("--discussions-audit", action="store_true",
+                       help="Audit content for discussion system readiness")
+    
     # Options
     parser.add_argument("--port", type=int, metavar="PORT",
                        help="Development server port (default: 1313 for professor, 1314 for student)")
@@ -652,38 +626,12 @@ def main():
     parser = create_parser()
     args = parser.parse_args()
     
-    # Show help if no arguments
-    if len(sys.argv) == 1:
-        parser.print_help()
-        return
-    
+    # Create manager and set verbosity
     manager = FrameworkManager()
     manager.verbose = args.verbose
     
-    # Environment detection and validation
-    if not manager.detect_environment():
-        console.print("❌ Not in a valid framework directory")
-        console.print("Please run this script from:")
-        console.print("• Professor: [cyan]professor/[/cyan] directory")
-        console.print("• Student: [cyan]students/[your-username]/[/cyan] directory")
-        sys.exit(1)
-    
-    if not manager.validate_environment():
-        console.print("❌ Framework environment validation failed")
-        sys.exit(1)
-    
-    # Show welcome message
-    verbose_indicator = " [dim](verbose mode)[/dim]" if manager.verbose else ""
-    console.print(Panel.fit(
-        f"🚀 [bold]Framework Manager[/bold]{verbose_indicator}\n"
-        f"Role: [cyan]{manager.role.title()}[/cyan]\n"
-        f"Directory: [yellow]{manager.current_dir}[/yellow]",
-        border_style="green"
-    ))
-    
-    # Execute commands
     try:
-        # Handle single commands first
+        # Single command operations
         if args.status:
             manager.show_status()
             
@@ -695,6 +643,15 @@ def main():
             
         elif args.clean:
             manager.clean_generated_files()
+            
+        elif args.discussions_status:
+            manager.discussions_status()
+            
+        elif args.generate_slugs:
+            manager.generate_missing_slugs(force=args.force)
+            
+        elif args.discussions_audit:
+            manager.discussions_audit()
             
         # Handle build/deploy combinations
         elif args.publish or (args.build and args.deploy):
@@ -711,13 +668,15 @@ def main():
             else:
                 console.print("❌ Publish pipeline failed")
                 
-        elif args.build and args.dev:
-            # Build and start dev server
-            if manager.full_build_pipeline(force=args.force):
+        # Handle sync combinations
+        elif args.sync and args.build and args.dev:
+            # Sync, build, and start dev server (for students)
+            if manager.sync_student_updates():
+                manager.full_build_pipeline(force=args.force)
                 manager.start_development_server(port=args.port)
                 
         elif args.sync and args.build:
-            # Sync and build (for students)
+            # Sync and build (for students)  
             if manager.sync_student_updates():
                 manager.full_build_pipeline(force=args.force)
                 
@@ -751,4 +710,4 @@ def main():
             manager.show_final_summary()
 
 if __name__ == "__main__":
-    main() 
+    main()

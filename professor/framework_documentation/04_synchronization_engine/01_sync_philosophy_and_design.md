@@ -1,12 +1,19 @@
 ---
-title: "Sync Philosophy and Design"
-type: "documentation"
-date: "2024-01-15"
-author: "Framework Team"
-summary: "How the sync system protects student work while enabling professor updates"
-difficulty: "hard"
+author: Framework Team
+date: '2024-01-15'
+difficulty: hard
 estimated_time: 12
-tags: ["sync", "philosophy", "design", "student-protection"]
+slug: 2024-01-15-documentation-sync-philosophy-and-desig
+slug_locked: true
+slug_source: creation_context
+summary: How the sync system protects student work while enabling professor updates
+tags:
+- sync
+- philosophy
+- design
+- student-protection
+title: Sync Philosophy and Design
+type: documentation
 ---
 
 

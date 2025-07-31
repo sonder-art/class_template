@@ -1,12 +1,20 @@
 ---
-title: "JupyterLite Integration Test"
-type: "documentation"
-date: "2025-01-20"
-author: "Framework Team"
-summary: "Test of JupyterLite integration with natural markdown content"
-difficulty: "medium"
+author: Framework Team
+date: '2025-01-20'
+difficulty: medium
 estimated_time: 5
-tags: ["jupyter", "python", "interactive", "testing", "ux-ui"]
+slug: 2025-01-20-documentation-jupyterlite-integration-t
+slug_locked: true
+slug_source: creation_context
+summary: Test of JupyterLite integration with natural markdown content
+tags:
+- jupyter
+- python
+- interactive
+- testing
+- ux-ui
+title: JupyterLite Integration Test
+type: documentation
 ---
 
 # JupyterLite Integration Test
