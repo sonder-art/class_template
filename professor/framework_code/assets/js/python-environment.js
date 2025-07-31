@@ -304,11 +304,11 @@ window.openJupyterLiteLab = function(root, title) {
     // Show loading state
     container.style.display = 'block';
     container.innerHTML = `
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: var(--elevated-color); border-radius: 8px;">
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #2a2a2a; border-radius: 8px;">
             <div style="font-size: 48px; margin-bottom: 20px;">🧪</div>
-            <h3 style="color: var(--eva-cyan-primary); margin: 0 0 10px 0;">Loading JupyterLite Lab...</h3>
-            <p style="color: var(--text-secondary); margin: 0;">Setting up Python environment with Pyodide...</p>
-            ${root ? `<p style="color: var(--text-muted); margin: 10px 0 0 0; font-size: 14px;">Working Directory: <code>${root}</code></p>` : ''}
+            <h3 style="color: #00d9ff; margin: 0 0 10px 0;">Loading JupyterLite Lab...</h3>
+            <p style="color: #d1d5db; margin: 0;">Setting up Python environment with Pyodide...</p>
+            ${root ? `<p style="color: #9ca3af; margin: 10px 0 0 0; font-size: 14px;">Working Directory: <code>${root}</code></p>` : ''}
         </div>
     `;
     
@@ -344,7 +344,7 @@ window.openJupyterLiteLab = function(root, title) {
             right: 10px;
             z-index: 1000;
             padding: 8px 12px;
-            background: var(--eva-red-primary, #BF616A);
+            background: #dc3545;
             color: white;
             border: none;
             border-radius: 4px;

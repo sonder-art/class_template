@@ -15,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 {left: '\\[', right: '\\]', display: true}
             ],
             throwOnError: false,
-            errorColor: '#cc0000',
             strict: false,
             trust: false,
             macros: {

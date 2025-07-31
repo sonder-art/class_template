@@ -4,12 +4,31 @@
  * Extracted from baseof.html for better modularity and maintainability
  */
 
-// Initialize navigation system when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+
+
+// Clean Navigation System
+console.log('✅ Navigation JS loaded successfully');
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavigation);
+} else {
+    initNavigation();
+}
+
+function initNavigation() {
+    console.log('🔥 Initializing navigation system');
+    
     const navToggle = document.getElementById('navToggle');
     const navOverlay = document.getElementById('navOverlay');
     const siteContainer = document.body;
     const breadcrumbNav = document.getElementById('breadcrumbNav');
+
+    if (!navToggle) {
+        console.error('❌ navToggle element not found');
+        return;
+    }
+
+    console.log('✅ Navigation elements found, setting up listeners');
     
     // Navigation state management - SIMPLE
     let navState = 'nav-full'; // nav-full or nav-collapsed only
@@ -40,6 +59,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         navState = state;
+        
+        // KEEP the manual override for now to ensure it works
+        const sidebar = document.querySelector('.site-sidebar');
+        if (state === 'nav-collapsed') {
+            sidebar.style.transform = 'translateX(-100%)';
+        } else {
+            sidebar.style.transform = 'translateX(0)';
+        }
         
         // Update toggle button aria-expanded
         const isOpen = state !== 'nav-collapsed';
@@ -150,4 +177,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     resetInactivityTimer();
-}); 
+} 

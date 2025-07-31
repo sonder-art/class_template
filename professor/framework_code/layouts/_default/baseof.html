@@ -88,38 +88,14 @@
         <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {{ end }}
     
-    <!-- Framework JavaScript Modules -->
-    {{ $navigationJS := resources.Get "js/navigation.js" }}
-    {{ if $navigationJS }}
-        <script src="{{ $navigationJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $mathRenderingJS := resources.Get "js/math-rendering.js" }}
-    {{ if $mathRenderingJS }}
-        <script src="{{ $mathRenderingJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $pythonEnvJS := resources.Get "js/python-environment.js" }}
-    {{ if $pythonEnvJS }}
-        <script src="{{ $pythonEnvJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $floatingCopyJS := resources.Get "js/floating-copy.js" }}
-    {{ if $floatingCopyJS }}
-        <script src="{{ $floatingCopyJS.RelPermalink }}"></script>
-    {{ end }}
-    
-    {{ $sidebarNavigationJS := resources.Get "js/sidebar-navigation.js" }}
-    {{ if $sidebarNavigationJS }}
-        <script src="{{ $sidebarNavigationJS.RelPermalink }}"></script>
-    {{ end }}
+
     
     <!-- THEME HOOK: Additional theme scripts -->
     {{ block "theme-scripts" . }}
         <!-- Themes can add additional scripts here -->
     {{ end }}
 </head>
-<body class="site-container{{ if .Site.Params.default_font }} font-{{ .Site.Params.default_font }}{{ end }}{{ if .Site.Params.high_contrast }} high-contrast{{ end }}">
+<body class="site-container nav-full{{ if .Site.Params.default_font }} font-{{ .Site.Params.default_font }}{{ end }}{{ if .Site.Params.high_contrast }} high-contrast{{ end }}">
     
     <!-- ============================================================================
          FRAMEWORK SITE STRUCTURE
@@ -190,6 +166,32 @@
     <!-- THEME HOOK: Additional theme body elements -->
     {{ block "theme-body" . }}
         <!-- Themes can add additional body elements here -->
+    {{ end }}
+
+    <!-- Framework JavaScript Modules (loaded at end of body for proper DOM access) -->
+    {{ $navigationJS := resources.Get "js/navigation.js" }}
+    {{ if $navigationJS }}
+        <script src="{{ $navigationJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $mathRenderingJS := resources.Get "js/math-rendering.js" }}
+    {{ if $mathRenderingJS }}
+        <script src="{{ $mathRenderingJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $pythonEnvJS := resources.Get "js/python-environment.js" }}
+    {{ if $pythonEnvJS }}
+        <script src="{{ $pythonEnvJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $floatingCopyJS := resources.Get "js/floating-copy.js" }}
+    {{ if $floatingCopyJS }}
+        <script src="{{ $floatingCopyJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    {{ $sidebarNavigationJS := resources.Get "js/sidebar-navigation.js" }}
+    {{ if $sidebarNavigationJS }}
+        <script src="{{ $sidebarNavigationJS.RelPermalink }}"></script>
     {{ end }}
 
 </body>

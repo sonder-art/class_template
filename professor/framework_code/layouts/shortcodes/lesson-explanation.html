@@ -73,14 +73,14 @@ Used inside python-lesson container for tutorial content
   display: flex;
   justify-content: flex-end;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--semantic-border-color, #4b5563);
-  background: var(--semantic-surface-elevated, #374151);
+  border-bottom: 1px solid var(--semantic-border-color);
+  background: var(--semantic-surface-elevated);
 }
 
 .copy-explanation-button {
-  background: #6b7280;  /* Dark gray */
-  color: white;
-  border: none;
+  background: var(--semantic-button-bg);
+  color: var(--semantic-button-text);
+  border: 1px solid var(--semantic-border-default);
   padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
@@ -93,7 +93,9 @@ Used inside python-lesson container for tutorial content
 }
 
 .copy-explanation-button:hover {
-  background: #4b5563;
+  background: var(--semantic-button-hover-bg);
+  color: var(--semantic-button-hover-text);
+  border-color: var(--semantic-accent-primary);
 }
 
 .copy-icon, .copy-text {

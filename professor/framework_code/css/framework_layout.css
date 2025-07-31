@@ -35,6 +35,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   transition: all var(--transition-normal);
+  transform: translateX(0); /* Default visible state */
   
   /* Scrollbar structure */
   scrollbar-width: thin;

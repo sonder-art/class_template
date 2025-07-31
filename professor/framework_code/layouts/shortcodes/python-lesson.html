@@ -51,8 +51,8 @@ Usage:
   grid-row: 2;
   margin-top: 16px;
   border-radius: 8px;
-  background: var(--elevated-color, #374151);
-  border: 1px solid var(--border-color, #4b5563);
+  background: var(--semantic-surface-elevated);
+  border: 1px solid var(--semantic-border-default);
 }
 
 /* Hide individual output areas completely in lesson layouts */
@@ -68,14 +68,14 @@ Usage:
   font-size: 13px;
   line-height: 1.5;
   white-space: pre-wrap;
-  color: var(--text-secondary, #d1d5db);
+  color: var(--semantic-text-secondary);
   min-height: 50px;
   max-height: 400px;
   overflow-y: auto;
 }
 
 .python-lesson-container > .python-editor-output .output-placeholder {
-  color: var(--text-tertiary, #9ca3af);
+  color: var(--semantic-text-muted);
   font-style: italic;
 }
 
@@ -84,15 +84,15 @@ Usage:
 }
 
 .python-lesson-container > .python-editor-output .success { 
-  color: var(--python-success, #34d399); 
+  color: var(--semantic-success-color); 
 }
 
 .python-lesson-container > .python-editor-output .error { 
-  color: var(--python-error, #f87171); 
+  color: var(--semantic-danger-color); 
 }
 
 .python-lesson-container > .python-editor-output .warning { 
-  color: var(--python-warning, #fbbf24); 
+  color: var(--semantic-warning-color); 
 }
 
 /* Mobile responsive - stack vertically */
