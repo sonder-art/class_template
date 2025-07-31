@@ -231,7 +231,7 @@ pre code {
 
 /* Folder Item Structure */
 .folder-item {
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-4); /* Increased spacing between categories */
 }
 
 .folder-header {
@@ -269,7 +269,7 @@ pre code {
 
 .folder-content {
   display: none;
-  margin-left: var(--space-4);
+  margin-left: var(--space-6); /* Increased indentation for better hierarchy */
   position: relative;
 }
 
@@ -285,7 +285,7 @@ pre code {
 
 /* Chapter Item Structure */
 .chapter-item {
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2); /* Slightly increased spacing between chapters */
   position: relative;
 }
 

@@ -67,7 +67,7 @@ function initNavigation() {
         if (state === 'nav-collapsed') {
             // Collapse sidebar and expand content
             sidebar.style.transform = 'translateX(-100%)';
-            if (mainContent) mainContent.style.marginLeft = '0';
+            if (mainContent) mainContent.style.marginLeft = 'var(--space-8)'; /* Comfortable left spacing */
         } else {
             // Show sidebar and constrain content
             sidebar.style.transform = 'translateX(0)';
