@@ -89,4 +89,59 @@
   --min-touch-target: 44px;
   --focus-outline-width: 2px;
   --focus-outline-offset: 2px;
+
+  /* === SEMANTIC COLOR SYSTEM === */
+  /* Framework components use these semantic names */
+  /* Themes define the actual values via theme-specific variables */
+  
+  /* Surface & Background Semantics */
+  --semantic-bg-primary: var(--theme-bg-primary, #ffffff);
+  --semantic-bg-secondary: var(--theme-bg-secondary, #f5f5f5); 
+  --semantic-surface: var(--theme-surface, #ffffff);
+  --semantic-surface-elevated: var(--theme-surface-elevated, #f8f9fa);
+  
+  /* Text & Content Semantics */
+  --semantic-text-primary: var(--theme-text-primary, #333333);
+  --semantic-text-secondary: var(--theme-text-secondary, #666666);
+  --semantic-text-muted: var(--theme-text-muted, #999999);
+  
+  /* Interactive & Accent Semantics */
+  --semantic-accent-primary: var(--theme-accent-primary, #007acc);
+  --semantic-accent-hover: var(--theme-accent-hover, #005a9a);
+  --semantic-accent-secondary: var(--theme-accent-secondary, #17a2b8);
+  
+  /* Border & UI Element Semantics */
+  --semantic-border-default: var(--theme-border-default, #e1e5e9);
+  --semantic-border-subtle: var(--theme-border-subtle, #f1f3f4);
+  --semantic-focus-color: var(--theme-focus-color, #007acc);
+  
+  /* Button & Interactive Component Semantics */
+  --semantic-button-bg: var(--theme-button-bg, #ffffff);
+  --semantic-button-text: var(--theme-button-text, #333333);
+  --semantic-button-hover-bg: var(--theme-button-hover-bg, #f5f5f5);
+  --semantic-button-hover-text: var(--theme-button-hover-text, #333333);
+  --semantic-button-disabled-bg: var(--theme-button-disabled-bg, #e9ecef);
+  
+  /* Status & Feedback Semantics */
+  --semantic-success-color: var(--theme-success-color, #28a745);
+  --semantic-warning-color: var(--theme-warning-color, #ffc107);
+  --semantic-danger-color: var(--theme-danger-color, #dc3545);
+  --semantic-info-color: var(--theme-info-color, #17a2b8);
+  
+  /* Code & Content Semantics */
+  --semantic-code-bg: var(--theme-code-bg, #f8f9fa);
+  --semantic-code-text: var(--theme-code-text, #e83e8c);
+  
+  /* Python UI Specific Semantics */
+  --semantic-python-header-gradient: var(--theme-python-header-gradient, linear-gradient(135deg, #007acc, #17a2b8));
+  --semantic-python-header-text: var(--theme-python-header-text, #ffffff);
+  --semantic-python-explanation-bg: var(--theme-python-explanation-bg, #f8f9fa);
+  --semantic-python-editor-bg: var(--theme-python-editor-bg, #ffffff);
+  --semantic-python-badge-bg: var(--theme-python-badge-bg, rgba(0, 0, 0, 0.1));
+  
+  /* Interactive Effects Semantics */
+  --semantic-focus-glow: var(--theme-focus-glow, 0 0 8px rgba(0, 122, 204, 0.3));
+  --semantic-scrollbar-thumb: var(--theme-scrollbar-thumb, #007acc);
+  --semantic-scrollbar-track: var(--theme-scrollbar-track, #f8f9fa);
+  --semantic-scrollbar-thumb-hover: var(--theme-scrollbar-thumb-hover, #005a9a);
 } 

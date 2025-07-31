@@ -47,6 +47,60 @@
   --warning-color: var(--eva-orange-accent);
   --error-color: var(--eva-red-accent);
   --info-color: var(--eva-cyan-primary);
+
+  /* === THEME VARIABLE DEFINITIONS === */
+  /* These variables feed into the framework's semantic system */
+  
+  /* Surface & Background Theme Mappings */
+  --theme-bg-primary: var(--bg-color);
+  --theme-bg-secondary: var(--surface-color);
+  --theme-surface: var(--surface-color);
+  --theme-surface-elevated: var(--elevated-color);
+  
+  /* Text & Content Theme Mappings */
+  --theme-text-primary: var(--text-primary);
+  --theme-text-secondary: var(--text-secondary);
+  --theme-text-muted: var(--text-muted);
+  
+  /* Interactive & Accent Theme Mappings */
+  --theme-accent-primary: var(--eva-green-primary);
+  --theme-accent-hover: var(--eva-green-hover);
+  --theme-accent-secondary: var(--eva-cyan-primary);
+  
+  /* Border & UI Element Theme Mappings */
+  --theme-border-default: var(--overlay-color);
+  --theme-border-subtle: var(--elevated-color);
+  --theme-focus-color: var(--eva-green-primary);
+  
+  /* Button & Interactive Component Theme Mappings */
+  --theme-button-bg: var(--bg-color);
+  --theme-button-text: var(--eva-green-primary);
+  --theme-button-hover-bg: var(--surface-color);
+  --theme-button-hover-text: var(--bg-color);
+  --theme-button-disabled-bg: var(--surface-color);
+  
+  /* Status & Feedback Theme Mappings */
+  --theme-success-color: var(--eva-green-primary);
+  --theme-warning-color: var(--eva-orange-accent);
+  --theme-danger-color: var(--eva-red-accent);
+  --theme-info-color: var(--eva-cyan-primary);
+  
+  /* Code & Content Theme Mappings */
+  --theme-code-bg: var(--elevated-color);
+  --theme-code-text: var(--eva-green-primary);
+  
+  /* Python UI Specific Theme Mappings */
+  --theme-python-header-gradient: linear-gradient(135deg, var(--eva-green-primary), var(--eva-cyan-primary));
+  --theme-python-header-text: var(--bg-color);
+  --theme-python-explanation-bg: var(--elevated-color);
+  --theme-python-editor-bg: #1a0d26; /* Deep purple coding background */
+  --theme-python-badge-bg: rgba(255, 255, 255, 0.2);
+  
+  /* Interactive Effects Theme Mappings */
+  --theme-focus-glow: var(--eva-green-glow);
+  --theme-scrollbar-thumb: var(--eva-green-primary);
+  --theme-scrollbar-track: #1a0d26; /* Deep purple coding background */
+  --theme-scrollbar-thumb-hover: var(--eva-green-hover);
   
   /* UI element backgrounds */
   --header-bg: var(--bg-color);

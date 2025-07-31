@@ -10,9 +10,9 @@
 .python-exec-container {
     display: grid;
     gap: 0;
-    border: 2px solid var(--primary-accent);
+    border: 2px solid var(--semantic-accent-primary);
     border-radius: var(--radius-lg);
-    background: var(--elevated-color);
+    background: var(--semantic-surface-elevated);
     margin: var(--space-6) 0;
     box-shadow: var(--shadow-md);
     overflow: hidden;
@@ -50,9 +50,9 @@
     align-items: center !important;
     height: var(--btn-height) !important;
     padding: 0 var(--space-4) !important;
-    background: var(--header-gradient) !important;
-    color: var(--header-text) !important;
-    border-bottom: 1px solid var(--border-default) !important;
+    background: var(--semantic-python-header-gradient) !important;
+    color: var(--semantic-python-header-text) !important;
+    border-bottom: 1px solid var(--semantic-border-default) !important;
     min-height: 50px !important;
 }
 
@@ -72,7 +72,7 @@
 .layout-badge {
     font-size: var(--text-xs);
     padding: var(--space-1) var(--space-2);
-    background: var(--badge-bg);
+    background: var(--semantic-python-badge-bg);
     border-radius: var(--radius-sm);
     margin-left: var(--space-2);
 }
@@ -89,8 +89,8 @@
     padding: var(--space-2) var(--space-3);
     border: none;
     border-radius: var(--radius-sm);
-    background: var(--button-bg);
-    color: var(--button-text);
+    background: var(--semantic-button-bg);
+    color: var(--semantic-button-text);
     font-weight: var(--font-medium);
     font-size: var(--text-xs);
     cursor: pointer;
@@ -99,21 +99,21 @@
 }
 
 .python-exec-button:hover:not(:disabled) {
-    background: var(--button-hover-bg);
+    background: var(--semantic-button-hover-bg);
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
 }
 
 .python-exec-clear:hover {
-    background: var(--danger-color);
-    color: var(--danger-text);
+    background: var(--semantic-danger-color);
+    color: var(--semantic-python-header-text);
     transform: translateY(-1px);
 }
 
 .python-exec-button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
-    background: var(--button-disabled-bg);
+    background: var(--semantic-button-disabled-bg);
 }
 
 .button-icon, .button-text {
@@ -125,8 +125,8 @@
 .python-exec-explanation {
     grid-area: explanation !important;
     padding: var(--space-4) !important;
-    background: var(--explanation-bg) !important;
-    border-right: 1px solid var(--border-default) !important;
+    background: var(--semantic-python-explanation-bg) !important;
+    border-right: 1px solid var(--semantic-border-default) !important;
     font-size: var(--text-sm) !important;
     line-height: var(--leading-relaxed) !important;
     overflow-y: auto !important;
@@ -137,26 +137,26 @@
 }
 
 .explanation-content {
-    color: var(--text-secondary);
+    color: var(--semantic-text-secondary);
 }
 
 .explanation-content h2 {
-    color: var(--heading-color) !important;
+    color: var(--semantic-accent-secondary) !important;
     font-size: var(--text-lg) !important;
     margin: 0 0 var(--space-3) 0 !important;
-    border-bottom: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--semantic-border-subtle);
     padding-bottom: var(--space-2);
 }
 
 .explanation-content h3 {
-    color: var(--text-primary) !important;
+    color: var(--semantic-text-primary) !important;
     font-size: var(--text-base) !important;
     margin: var(--space-4) 0 var(--space-2) 0 !important;
 }
 
 .explanation-content p {
     margin: 0 0 var(--space-3) 0;
-    color: var(--text-secondary);
+    color: var(--semantic-text-secondary);
 }
 
 .explanation-content ul, .explanation-content ol {
@@ -166,19 +166,19 @@
 
 .explanation-content li {
     margin: var(--space-1) 0;
-    color: var(--text-secondary);
+    color: var(--semantic-text-secondary);
 }
 
 .explanation-content code {
-    background: var(--code-bg) !important;
-    color: var(--code-text) !important;
+    background: var(--semantic-code-bg) !important;
+    color: var(--semantic-code-text) !important;
     padding: var(--space-1) var(--space-2) !important;
     border-radius: var(--radius-sm) !important;
     font-size: var(--text-xs) !important;
 }
 
 .explanation-content strong {
-    color: var(--accent-color);
+    color: var(--semantic-accent-secondary);
     font-weight: var(--font-semibold);
 }
 
@@ -199,7 +199,7 @@
 }
 
 .explanation-placeholder h4 {
-    color: var(--accent-color) !important;
+    color: var(--semantic-accent-secondary) !important;
     margin: 0 0 var(--space-3) 0 !important;
     font-size: var(--text-lg) !important;
 }
@@ -214,10 +214,10 @@
     display: inline-block;
     margin: var(--space-2) 0;
     padding: var(--space-2) var(--space-3);
-    background: var(--elevated-color);
-    border: 1px solid var(--border-default);
+    background: var(--semantic-surface-elevated);
+    border: 1px solid var(--semantic-border-default);
     border-radius: var(--radius-sm);
-    color: var(--code-text);
+    color: var(--semantic-code-text);
     font-size: var(--text-xs);
     word-break: break-all;
 }
@@ -274,7 +274,7 @@
     
     /* Scrollbar */
     scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-color: var(--semantic-scrollbar-thumb) var(--semantic-scrollbar-track);
 }
 
 .python-code-input::-webkit-scrollbar {
@@ -283,16 +283,16 @@
 }
 
 .python-code-input::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
+    background: var(--semantic-scrollbar-track);
 }
 
 .python-code-input::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
+    background: var(--semantic-scrollbar-thumb);
     border-radius: var(--radius-sm);
 }
 
 .python-code-input::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
+    background: var(--semantic-scrollbar-thumb-hover);
 }
 
 .python-code-input:focus {
@@ -320,8 +320,8 @@
 
 .python-exec-output {
     grid-area: output;
-    border-top: 1px solid var(--border-default);
-    background: var(--bg-color);
+    border-top: 1px solid var(--semantic-border-default);
+    background: var(--semantic-bg-primary);
 }
 
 .python-exec-output-header {
@@ -329,11 +329,11 @@
     justify-content: space-between;
     align-items: center;
     padding: var(--space-3) var(--space-4);
-    background: var(--surface-color);
-    border-bottom: 1px solid var(--border-default);
+    background: var(--semantic-surface);
+    border-bottom: 1px solid var(--semantic-border-default);
     font-weight: var(--font-medium);
     font-size: var(--text-sm);
-    color: var(--accent-color);
+    color: var(--semantic-accent-secondary);
 }
 
 .output-icon, .output-title {
@@ -349,28 +349,28 @@
 
 .output-copy {
     padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--border-default);
+    border: 1px solid var(--semantic-border-default);
     border-radius: var(--radius-sm);
-    background: var(--elevated-color);
-    color: var(--text-secondary);
+    background: var(--semantic-surface-elevated);
+    color: var(--semantic-text-secondary);
     cursor: pointer;
     transition: all var(--transition-fast);
     font-size: var(--text-xs);
 }
 
 .output-copy:hover {
-    background: var(--primary-accent);
-    color: var(--button-hover-text);
-    border-color: var(--primary-accent);
+    background: var(--semantic-accent-primary);
+    color: var(--semantic-button-hover-text);
+    border-color: var(--semantic-accent-primary);
 }
 
 .python-exec-result {
     margin: 0;
     padding: var(--space-4);
-    background: var(--bg-color);
+    background: var(--semantic-bg-primary);
     border: none;
     border-radius: 0;
-    color: var(--text-primary);
+    color: var(--semantic-text-primary);
     font-family: var(--font-mono);
     font-size: var(--text-sm);
     line-height: var(--leading-relaxed);
@@ -381,7 +381,7 @@
     
     /* Scrollbar */
     scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--bg-color);
+    scrollbar-color: var(--semantic-scrollbar-thumb) var(--semantic-bg-primary);
 }
 
 .python-exec-result::-webkit-scrollbar {
@@ -390,11 +390,11 @@
 }
 
 .python-exec-result::-webkit-scrollbar-track {
-    background: var(--bg-color);
+    background: var(--semantic-bg-primary);
 }
 
 .python-exec-result::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
+    background: var(--semantic-scrollbar-thumb);
     border-radius: var(--radius-sm);
 }
 
@@ -464,12 +464,12 @@
 
 .python-exec-container:hover {
     box-shadow: var(--shadow-lg);
-    border-color: var(--primary-hover);
+    border-color: var(--semantic-accent-hover);
 }
 
 .python-exec-container:focus-within {
-    box-shadow: var(--shadow-lg), var(--focus-glow);
-    border-color: var(--primary-accent);
+    box-shadow: var(--shadow-lg), var(--semantic-focus-glow);
+    border-color: var(--semantic-accent-primary);
 }
 
 /* Loading state */
