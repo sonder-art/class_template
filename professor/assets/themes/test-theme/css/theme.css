@@ -18,22 +18,22 @@
   --text-muted: #9CA3B8;         /* Muted purple-gray for less important text */
   --text-disabled: #6B7280;      /* Disabled state text */
   
-  /* Evangelion accent colors - Softer and more professional */
-  --eva-green-primary: #00D084;   /* Professional teal-green (easier on eyes) */
-  --eva-green-hover: #00B877;     /* Darker green for hover states */
-  --eva-green-soft: #00A86B;      /* Softer green for subtle accents */
-  --eva-green-glow: rgba(0, 208, 132, 0.15); /* Subtle glow effect */
+  /* Test Theme accent colors - Orange/Red theme for testing */
+  --eva-green-primary: #FF6B35;   /* Orange-red primary color */
+  --eva-green-hover: #E55A2B;     /* Darker orange for hover states */
+  --eva-green-soft: #FF8C42;      /* Softer orange for subtle accents */
+  --eva-green-glow: rgba(255, 107, 53, 0.2); /* Orange glow effect */
   
-  /* Evangelion cyan/blue for headings (Eva Unit-00 + AT Field) */
-  --eva-cyan-primary: #00D9FF;    /* Bright cyan for headings */
-  --eva-cyan-hover: #00BCD4;      /* Darker cyan for hover states */
-  --eva-cyan-soft: #4FC3F7;       /* Softer cyan variant */
-  --eva-cyan-glow: rgba(0, 217, 255, 0.2); /* Cyan glow effect */
+  /* Test theme blue accents */
+  --eva-cyan-primary: #3B82F6;    /* Blue for headings */
+  --eva-cyan-hover: #2563EB;      /* Darker blue for hover states */
+  --eva-cyan-soft: #60A5FA;       /* Softer blue variant */
+  --eva-cyan-glow: rgba(59, 130, 246, 0.2); /* Blue glow effect */
   
-  --eva-purple-primary: #7C3AED;  /* Bright purple accent */
-  --eva-purple-hover: #6D28D9;    /* Darker purple hover */
-  --eva-purple-soft: #8B5CF6;     /* Softer purple variant */
-  --eva-purple-glow: rgba(124, 58, 237, 0.3); /* Purple glow effect */
+  --eva-purple-primary: #EC4899;  /* Pink accent */
+  --eva-purple-hover: #DB2777;    /* Darker pink hover */
+  --eva-purple-soft: #F472B6;     /* Softer pink variant */
+  --eva-purple-glow: rgba(236, 72, 153, 0.3); /* Pink glow effect */
   
   /* Unit-02 orange-red for active states */
   --eva-orange-primary: #FF6B35;  /* Unit-02 orange-red for active navigation */
@@ -265,58 +265,23 @@ a:visited {
   color: var(--text-muted);
 }
 
-/* Header and Top Navigation colors */
+/* Navigation colors */
 .header-content h1 a {
   color: var(--eva-cyan-primary);
 }
 
 .main-nav a {
-  color: var(--nav-link-color);
+  color: var(--text-secondary);
 }
 
 .main-nav a:hover {
-  background-color: var(--nav-hover-bg);
-  color: var(--nav-hover-color);
+  background-color: var(--elevated-color);
+  color: var(--eva-cyan-primary);
 }
 
 .main-nav a.active {
-  background-color: var(--nav-active-bg);
-  color: var(--nav-active-color);
-}
-
-/* Sidebar Navigation colors */
-.sidebar-nav {
-  background-color: var(--sidebar-bg);
-}
-
-.nav-profile {
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.profile-avatar {
-  border-color: var(--eva-green-primary);
-  box-shadow: var(--glow-green);
-}
-
-.profile-name {
-  color: var(--text-primary) !important;
-}
-
-.profile-role {
-  color: var(--text-muted) !important;
-}
-
-.utility-btn {
-  background-color: var(--surface-color);
-  color: var(--text-secondary);
-  border-color: var(--border-default);
-}
-
-.utility-btn:hover:not(:disabled) {
-  background-color: var(--eva-green-primary);
+  background-color: var(--eva-cyan-primary);
   color: var(--bg-color);
-  border-color: var(--eva-green-primary);
-  box-shadow: var(--glow-green);
 }
 
 /* Navigation toggle colors */
@@ -346,7 +311,7 @@ a:visited {
   color: var(--eva-cyan-primary);
 }
 
-/* File Tree Navigation Colors */
+/* Component colors */
 .folder-header:hover {
   background-color: var(--elevated-color);
 }

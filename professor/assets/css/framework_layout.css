@@ -1,0 +1,333 @@
+/* Framework Layout - Site Structure and Responsive Design
+ * Contains all layout structure, positioning, and responsive behavior
+ * Themes provide only colors and visual styling for these structures
+ */
+
+/* === GLOBAL LAYOUT STRUCTURE === */
+
+/* Site Container - Main layout framework */
+.site-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: all var(--transition-normal);
+}
+
+/* Navigation States - Framework controls behavior */
+.site-container.nav-full .site-sidebar {
+  transform: translateX(0);
+}
+
+.site-container.nav-collapsed .site-sidebar {
+  transform: translateX(-100%);
+}
+
+/* === SIDEBAR LAYOUT === */
+
+/* Sidebar Base Structure */
+.site-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: var(--sidebar-width);
+  z-index: 999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: all var(--transition-normal);
+  
+  /* Scrollbar structure */
+  scrollbar-width: thin;
+}
+
+/* Sidebar scrollbar structure */
+.site-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* === MAIN CONTENT LAYOUT === */
+
+/* Site Main - Content area structure */
+.site-main {
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-normal);
+  padding: var(--space-8);
+  min-height: calc(100vh - var(--header-height));
+  padding-top: 72px; /* Space for fixed header */
+  
+  /* Research-backed content width optimization */
+  width: 95%; /* Mobile: Optimal thumb reach and visual balance */
+  max-width: none;
+  
+  /* Progressive typography scaling */
+  line-height: clamp(1.6, 1.5 + 0.5vw, 1.7);
+  
+  /* Enhanced spacing for wider layouts */
+  --content-spacing: clamp(1rem, 2vw, 1.5rem);
+}
+
+.site-container.nav-collapsed .site-main {
+  margin-left: 0;
+}
+
+/* === HEADER LAYOUT === */
+
+/* Site Header Structure */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-width);
+  right: 0;
+  height: var(--header-height);
+  z-index: 900;
+  transition: left var(--transition-normal);
+  backdrop-filter: blur(8px);
+  padding: 0;
+}
+
+.site-container.nav-collapsed .site-header {
+  left: 0;
+}
+
+/* Header Content Layout */
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+/* Header Title Structure */
+.header-content h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  border: none !important;
+  padding: 0 !important;
+  line-height: 1.1;
+}
+
+/* Main Navigation Structure */
+.main-nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.main-nav a {
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 16px 20px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  position: relative;
+  border-bottom: none !important;
+  line-height: 1;
+}
+
+/* === FOOTER LAYOUT === */
+
+/* Site Footer Structure */
+.site-footer {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  font-size: var(--text-sm);
+  margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-normal);
+  
+  /* Footer content layout */
+  display: flex;
+  justify-content: center;
+}
+
+.site-footer > * {
+  width: 85%;
+  max-width: var(--content-max-width);
+}
+
+.site-container.nav-collapsed .site-footer {
+  margin-left: 0;
+}
+
+/* === NAVIGATION TOGGLE LAYOUT === */
+
+/* Navigation Toggle Button Structure */
+.nav-toggle-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  width: var(--min-touch-target);
+  height: var(--min-touch-target);
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* Hamburger Icon Structure */
+.nav-toggle-icon {
+  width: 18px;
+  height: 14px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.nav-toggle-line {
+  width: 100%;
+  height: 2px;
+  border-radius: 1px;
+  transition: all var(--transition-normal);
+  transform-origin: center;
+}
+
+/* Hamburger Animation Structure */
+.nav-full .nav-toggle-line:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav-full .nav-toggle-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.nav-full .nav-toggle-line:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* Navigation Overlay Structure */
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all var(--transition-normal);
+}
+
+.nav-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* === BREADCRUMB LAYOUT === */
+
+/* Breadcrumb Navigation Structure */
+.breadcrumb-nav {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.breadcrumb-nav.visible {
+  display: flex;
+}
+
+/* === RESPONSIVE LAYOUT === */
+
+/* Tablet optimization (769px - 1023px) */
+@media (min-width: 769px) {
+  .site-main {
+    width: 90%;
+  }
+  
+  .site-footer > * {
+    width: 90%;
+  }
+}
+
+/* Desktop optimization (≥1024px) */
+@media (min-width: 1024px) {
+  .site-main {
+    width: 85%;
+    max-width: var(--content-max-width);
+  }
+}
+
+/* Mobile Layout (≤768px) */
+@media (max-width: 768px) {
+  /* Mobile container structure */
+  .site-container {
+    flex-direction: column;
+  }
+  
+  /* Mobile header structure */
+  .site-header {
+    position: static;
+    left: 0 !important;
+    right: auto;
+    height: 52px;
+  }
+  
+  .header-content {
+    height: 100%;
+    padding: 0 var(--space-3);
+  }
+  
+  .header-content h1 {
+    font-size: 18px;
+  }
+  
+  .main-nav {
+    gap: 6px;
+  }
+  
+  .main-nav a {
+    font-size: 15px;
+    padding: 14px 16px;
+  }
+  
+  /* Mobile main content structure */
+  .site-main {
+    margin-left: 0 !important;
+    padding: var(--space-3);
+    margin-top: 56px;
+    width: 95%;
+    max-width: none;
+    --content-spacing: 1rem;
+  }
+  
+  /* Mobile sidebar structure */
+  .site-sidebar {
+    transform: translateX(-100%);
+    z-index: 999;
+  }
+  
+  .site-container.nav-open .site-sidebar {
+    transform: translateX(0);
+  }
+  
+  .site-footer > * {
+    width: 95%;
+  }
+}
+
+/* Wide screens (≥1400px) - Always show navigation */
+@media (min-width: 1400px) {
+  .site-container.nav-collapsed .site-sidebar {
+    transform: translateX(0);
+  }
+  
+  .site-container.nav-collapsed .site-main {
+    margin-left: var(--sidebar-width);
+  }
+  
+  .site-container.nav-collapsed .site-header {
+    left: var(--sidebar-width);
+  }
+} 

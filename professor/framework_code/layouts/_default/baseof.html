@@ -22,25 +22,7 @@
         <meta name="description" content="{{ .Site.Params.description }}">
     {{ end }}
     
-    <!-- Framework Core Stylesheets -->
-    {{ $mainCSS := resources.Get "css/main.css" }}
-    {{ if $mainCSS }}
-        <link rel="stylesheet" href="{{ $mainCSS.RelPermalink }}">
-    {{ end }}
-    
-    <!-- Framework Component Stylesheets -->
-    {{ $floatingCopyCSS := resources.Get "css/floating-copy.css" }}
-    {{ if $floatingCopyCSS }}
-        {{ $floatingCopyCSS := $floatingCopyCSS | resources.Minify }}
-        <link rel="stylesheet" href="{{ $floatingCopyCSS.RelPermalink }}">
-    {{ end }}
-    
-    {{ $pythonUIFrameworkCSS := resources.Get "components/python-ui.css" }}
-    {{ if $pythonUIFrameworkCSS }}
-        <link rel="stylesheet" href="{{ $pythonUIFrameworkCSS.RelPermalink }}">
-    {{ end }}
-    
-    <!-- FRAMEWORK CSS: Load framework structure and layout (PRIORITY) -->
+    <!-- FRAMEWORK CSS: Load framework structure and layout (PRIORITY ORDER) -->
     {{ $frameworkVariables := resources.Get "css/framework_variables.css" }}
     {{ if $frameworkVariables }}
         <link rel="stylesheet" href="{{ $frameworkVariables.RelPermalink }}">
@@ -56,17 +38,34 @@
         <link rel="stylesheet" href="{{ $frameworkComponents.RelPermalink }}">
     {{ end }}
     
+    <!-- Framework Component Stylesheets -->
+    {{ $pythonUIFrameworkCSS := resources.Get "components/python-ui.css" }}
+    {{ if $pythonUIFrameworkCSS }}
+        <link rel="stylesheet" href="{{ $pythonUIFrameworkCSS.RelPermalink }}">
+    {{ end }}
+    
     <!-- THEME HOOK: Load theme-specific stylesheets (AFTER framework) -->
     {{ block "theme-styles" . }}
-        <!-- Theme stylesheets will be loaded here -->
+        <!-- Evangelion Theme Core Styles -->
         {{ $themeCSS := resources.Get "theme/theme.css" }}
         {{ if $themeCSS }}
             <link rel="stylesheet" href="{{ $themeCSS.RelPermalink }}">
         {{ end }}
         
+        <!-- Evangelion Theme Component Styles -->
         {{ $pythonUIThemeCSS := resources.Get "theme/components/python-ui.css" }}
         {{ if $pythonUIThemeCSS }}
             <link rel="stylesheet" href="{{ $pythonUIThemeCSS.RelPermalink }}">
+        {{ end }}
+        
+        {{ $pythonEditorThemeCSS := resources.Get "theme/components/python-editor.css" }}
+        {{ if $pythonEditorThemeCSS }}
+            <link rel="stylesheet" href="{{ $pythonEditorThemeCSS.RelPermalink }}">
+        {{ end }}
+        
+        {{ $floatingCopyThemeCSS := resources.Get "theme/components/floating-copy.css" }}
+        {{ if $floatingCopyThemeCSS }}
+            <link rel="stylesheet" href="{{ $floatingCopyThemeCSS.RelPermalink }}">
         {{ end }}
     {{ end }}
     

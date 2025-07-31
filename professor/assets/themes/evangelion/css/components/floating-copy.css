@@ -1,6 +1,7 @@
 /* ============================================================================
-   FLOATING COPY BUTTON STYLES
-   Handles the page-wide content copy functionality
+   FLOATING COPY BUTTON STYLES - EVANGELION THEME
+   Evangelion theme styling for page-wide content copy functionality
+   Framework structure defined in JavaScript, theme provides colors
    ============================================================================ */
 
 .floating-copy-button {
@@ -9,11 +10,11 @@
     right: 24px;
     width: 56px;
     height: 56px;
-    background: #8b5cf6;
-    color: white;
+    background: var(--eva-purple-primary);
+    color: var(--bg-color);
     border: none;
     border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 12px var(--eva-purple-glow);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -25,9 +26,9 @@
 }
 
 .floating-copy-button:hover {
-    background: #7c3aed;
+    background: var(--eva-purple-hover);
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 6px 20px var(--eva-purple-glow);
 }
 
 .floating-copy-button:active {
@@ -35,7 +36,7 @@
 }
 
 .floating-copy-button.copied {
-    background: #10b981;
+    background: var(--eva-green-primary);
     transform: scale(1.2);
 }
 
@@ -61,8 +62,8 @@
     right: 100%;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
+    background: var(--elevated-color);
+    color: var(--text-primary);
     padding: 8px 12px;
     border-radius: 6px;
     font-size: 12px;
@@ -72,9 +73,11 @@
     transition: all 0.3s ease;
     margin-right: 12px;
     pointer-events: none;
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-md);
 }
 
 .floating-copy-button:hover::after {
     opacity: 1;
     visibility: visible;
-} 
+}
