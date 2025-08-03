@@ -1,12 +1,19 @@
 ---
-title: "Running the Setup Script"
-type: "tutorial"
-date: "2025-01-20"
-author: "Framework Team"
-summary: "Focused guide on using the start.sh script for initial student directory setup"
-difficulty: "easy"
+author: Framework Team
+date: '2025-01-20'
+difficulty: easy
 estimated_time: 3
-tags: ["setup", "initialization", "getting-started"]
+slug: 2025-01-20-tutorial-running-the-setup-script
+slug_locked: true
+slug_source: creation_context
+summary: Focused guide on using the start.sh script for initial student directory
+  setup
+tags:
+- setup
+- initialization
+- getting-started
+title: Running the Setup Script
+type: tutorial
 ---
 
 

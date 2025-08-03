@@ -1,12 +1,18 @@
 ---
-title: "DNA.yml Specification"
-type: "documentation"
-date: "2024-01-15"
-author: "Framework Team"
-summary: "Complete specification for dna.yml meta-process configuration file"
-difficulty: "medium"
+author: Framework Team
+date: '2024-01-15'
+difficulty: medium
 estimated_time: 10
-tags: ["configuration", "dna.yml", "meta-process"]
+slug: 2024-01-15-documentation-dnayml-specification
+slug_locked: true
+slug_source: creation_context
+summary: Complete specification for dna.yml meta-process configuration file
+tags:
+- configuration
+- dna.yml
+- meta-process
+title: DNA.yml Specification
+type: documentation
 ---
 
 

@@ -56,4 +56,7 @@
         <a href="{{ .NextInSection.Permalink }}" class="nav-next">{{ .NextInSection.Title }} →</a>
     {{ end }}
 </nav>
+
+<!-- Giscus Discussions Integration -->
+{{ partial "giscus-discussions.html" . }}
 {{ end }} 

@@ -129,6 +129,23 @@ isPlainText = true
   show_difficulty_badges = true
   show_estimated_time = true
   homework_highlight = true
+  
+  # Discussion system settings
+  [params.discussions]
+  enabled = true
+  provider = "giscus"
+  repository = "sonder-art/class_template"
+  repository_id = "R_kgDOPEniVg"
+  category = "Q&A"
+  category_id = "DIC_kwDOPEniVs4CtpQs"
+  theme = "purple_dark"
+  input_position = "top"
+  reactions_enabled = true
+  emit_metadata = true
+  loading = "lazy"
+  auto_enable_for_types = ["tutorial", "note", "homework", "project", "documentation"]
+  exclude_types = ["master-index", "reference"]
+  slug_in_url = true
 
 # Menu configuration (auto-generated from content structure)
 [menu]

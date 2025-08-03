@@ -1,12 +1,18 @@
 ---
-title: "Configuration Merging Logic"
-type: "documentation"
-date: "2024-01-15"
-author: "Framework Team"
-summary: "How generate_hugo_config.py merges course.yml and config.yml into hugo.toml"
-difficulty: "medium"
+author: Framework Team
+date: '2024-01-15'
+difficulty: medium
 estimated_time: 8
-tags: ["configuration", "hugo", "merging"]
+slug: 2024-01-15-documentation-configuration-merging-log
+slug_locked: true
+slug_source: creation_context
+summary: How generate_hugo_config.py merges course.yml and config.yml into hugo.toml
+tags:
+- configuration
+- hugo
+- merging
+title: Configuration Merging Logic
+type: documentation
 ---
 
 

@@ -1,9 +1,12 @@
 ---
-title: "LaTeX Math Rendering Test"
-type: "documentation"
-date: "2025-01-20"
-author: "Framework Team"
-summary: "Testing mathematical formula rendering with KaTeX"
+author: Framework Team
+date: '2025-01-20'
+slug: 2025-01-20-documentation-latex-math-rendering-test
+slug_locked: true
+slug_source: creation_context
+summary: Testing mathematical formula rendering with KaTeX
+title: LaTeX Math Rendering Test
+type: documentation
 ---
 
 # LaTeX Math Rendering Test

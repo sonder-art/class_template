@@ -121,6 +121,23 @@ isPlainText = true
   show_difficulty_badges = {{ content.show_difficulty_badges | default('true') | toml_bool }}
   show_estimated_time = {{ content.show_estimated_time | default('true') | toml_bool }}
   homework_highlight = {{ content.homework_highlight | default('true') | toml_bool }}
+  
+  # Discussion system settings
+  [params.discussions]
+  enabled = {{ discussions.enabled | default('false') | toml_bool }}
+  provider = "{{ discussions.provider | default('giscus') }}"
+  repository = "{{ discussions.repository }}"
+  repository_id = "{{ discussions.repository_id }}"
+  category = "{{ discussions.category }}"
+  category_id = "{{ discussions.category_id }}"
+  theme = "{{ discussions.theme | default('purple_dark') }}"
+  input_position = "{{ discussions.input_position | default('top') }}"
+  reactions_enabled = {{ discussions.reactions_enabled | default('true') | toml_bool }}
+  emit_metadata = {{ discussions.emit_metadata | default('true') | toml_bool }}
+  loading = "{{ discussions.loading | default('lazy') }}"
+  auto_enable_for_types = {{ discussions.auto_enable_for_types | default(['tutorial', 'note', 'homework', 'project', 'documentation']) | tojson }}
+  exclude_types = {{ discussions.exclude_types | default(['master-index', 'reference']) | tojson }}
+  slug_in_url = {{ discussions.slug_in_url | default('true') | toml_bool }}
 
 # Menu configuration (auto-generated from content structure)
 [menu]

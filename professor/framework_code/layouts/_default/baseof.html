@@ -38,6 +38,12 @@
         <link rel="stylesheet" href="{{ $frameworkComponents.RelPermalink }}">
     {{ end }}
     
+    <!-- Giscus Discussions Stylesheet -->
+    {{ $giscusCSS := resources.Get "css/giscus-discussions.css" }}
+    {{ if $giscusCSS }}
+        <link rel="stylesheet" href="{{ $giscusCSS.RelPermalink }}">
+    {{ end }}
+    
     <!-- Framework Component Stylesheets -->
     {{ $pythonUIFrameworkCSS := resources.Get "components/python-ui.css" }}
     {{ if $pythonUIFrameworkCSS }}

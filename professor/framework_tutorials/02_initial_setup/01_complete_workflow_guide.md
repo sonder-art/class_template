@@ -1,12 +1,21 @@
 ---
-title: "Complete Workflow Guide: From Fork to First Site"
-type: "tutorial"
-date: "2025-01-20"
-author: "Framework Team"
-summary: "Complete step-by-step guide for students and professors from forking the repository to publishing your first site"
-difficulty: "easy"
+author: Framework Team
+date: '2025-01-20'
+difficulty: easy
 estimated_time: 15
-tags: ["setup", "workflow", "git", "hugo", "beginners"]
+slug: 2025-01-20-tutorial-complete-workflow-guide-f
+slug_locked: true
+slug_source: creation_context
+summary: Complete step-by-step guide for students and professors from forking the
+  repository to publishing your first site
+tags:
+- setup
+- workflow
+- git
+- hugo
+- beginners
+title: 'Complete Workflow Guide: From Fork to First Site'
+type: tutorial
 ---
 
 
