@@ -99,10 +99,10 @@ jobs:
           # Install framework dependencies for the build scripts
           python -m pip install --upgrade pip
           
-          # Install required packages for the framework scripts
-          pip install rich pyyaml jinja2
+          # Install from requirements.txt for reproducible builds
+          pip install -r requirements.txt
           
-          echo "✅ Python dependencies installed"
+          echo "✅ Python dependencies installed from requirements.txt"
 
       - name: Validate framework setup
         run: |
