@@ -49,6 +49,7 @@ class FrameworkManager:
         self.message_orchestrator = MessageOrchestrator(self.console)
         self.ux = UserExperience(self.console)
         self.operation_sequencer = OperationSequencer(self.console)
+        self.command_router = CommandRouter()
         
         # Set up dependencies for operation sequencer
         self.operation_sequencer.set_dependencies(
@@ -254,6 +255,7 @@ from manage_modules.subprocess_runner import SubprocessRunner
 from manage_modules.message_orchestrator import MessageOrchestrator
 from manage_modules.user_experience import UserExperience
 from manage_modules.operation_sequencer import OperationSequencer
+from manage_modules.command_router import CommandRouter
 
 def main():
     """Main entry point"""
@@ -289,59 +291,12 @@ def main():
     
     # Execute commands
     try:
-        # Handle single commands first
-        if args.status:
-            manager.show_status()
-            
-        elif args.validate:
-            manager.validate_and_generate(force=args.force)
-            
-        elif args.sync:
-            manager.sync_student_updates()
-            
-        elif args.clean:
-            manager.clean_generated_files()
-            
-        # Handle build/deploy combinations
-        elif args.publish or (args.build and args.deploy):
-            # Complete publish pipeline: build + deploy
-            manager.ux.show_pipeline_preview("Complete Publish Pipeline", ["build", "validate", "deploy"])
-            
-            if not manager.ux.get_user_confirmation("Continue with complete publish?", args.force):
-                return
-                
-            success = manager.full_build_pipeline(force=True)
-            if success:
-                manager.ux.show_operation_success("Complete publish pipeline completed successfully!")
-            else:
-                manager.ux.show_operation_failure("Publish pipeline failed")
-                
-        elif args.build and args.dev:
-            # Build and start dev server
-            if manager.full_build_pipeline(force=args.force):
-                manager.start_development_server(port=args.port)
-                
-        elif args.sync and args.build:
-            # Sync and build (for students)
-            if manager.sync_student_updates():
-                manager.full_build_pipeline(force=args.force)
-                
-        elif args.sync and args.dev:
-            # Sync and start dev server (for students)
-            if manager.sync_student_updates():
-                manager.start_development_server(port=args.port)
-                
-        elif args.build:
-            manager.full_build_pipeline(force=args.force)
-            
-        elif args.deploy:
-            manager.build_production()
-            
-        elif args.dev:
-            manager.start_development_server(port=args.port)
-            
-        else:
-            parser.print_help()
+        # Route and execute commands
+        flow_key = manager.command_router.route_commands(args)
+        success = manager.command_router.execute_command_flow(flow_key, args, manager)
+        
+        if not success and flow_key != 'help':
+            console.print(f"❌ Command execution failed")
             
     except KeyboardInterrupt:
         console.print("\n🛑 Operation cancelled by user")
@@ -352,7 +307,8 @@ def main():
         
     finally:
         # Always show summary at the end (except for dev server and status)
-        if not (args.dev or args.status):
+        flow_key = manager.command_router.route_commands(args)
+        if manager.command_router.should_show_summary(flow_key):
             manager.show_final_summary()
 
 if __name__ == "__main__":
