@@ -46,6 +46,16 @@ class FrameworkManager:
         self.console = console
         self.env_manager = EnvironmentManager(self.console)
         self.subprocess_runner = SubprocessRunner(self.console)
+        self.message_orchestrator = MessageOrchestrator(self.console)
+        self.ux = UserExperience(self.console)
+        self.operation_sequencer = OperationSequencer(self.console)
+        
+        # Set up dependencies for operation sequencer
+        self.operation_sequencer.set_dependencies(
+            self.subprocess_runner,
+            self.message_orchestrator,
+            self.ux
+        )
         
         # Environment properties (populated by detect_environment)
         self.current_dir = Path.cwd()
@@ -54,22 +64,28 @@ class FrameworkManager:
         self.framework_dir = None
         self.is_valid_setup = False
         
-        # Message collection system
-        self.messages = {
-            'errors': [],
-            'warnings': [],
-            'info': [],
-            'success': []
-        }
-        self.operation_start_time = None
-        self.current_operation = None
+        # Backward compatibility properties (delegate to message orchestrator)
         self.verbose = False
-        self.operation_stats = {
-            'total_operations': 0,
-            'successful_operations': 0,
-            'failed_operations': 0,
-            'total_duration': 0
-        }
+    
+    @property
+    def messages(self):
+        """Backward compatibility: access to message orchestrator messages"""
+        return self.message_orchestrator.messages
+    
+    @property
+    def operation_stats(self):
+        """Backward compatibility: access to operation statistics"""
+        return self.message_orchestrator.operation_stats
+    
+    @property
+    def current_operation(self):
+        """Backward compatibility: access to current operation"""
+        return self.message_orchestrator.current_operation
+    
+    @property
+    def operation_start_time(self):
+        """Backward compatibility: access to operation start time"""
+        return self.message_orchestrator.operation_start_time
         
     def detect_environment(self) -> bool:
         """Detect if we're in a valid framework directory and determine role"""
@@ -84,66 +100,27 @@ class FrameworkManager:
             self.framework_dir = context.framework_dir
             self.is_valid_setup = context.is_valid_setup
             
+            # Set environment context for operation sequencer
+            self.operation_sequencer.set_environment_context(
+                self.current_dir,
+                self.framework_dir,
+                self.role
+            )
+            
         return success
     
     def add_message(self, message_type: str, title: str, details: str = None, context: str = None, duration: float = None):
         """Add a message to be shown in the final summary"""
-        if message_type not in self.messages:
-            return
-            
-        message = {
-            'title': title,
-            'details': details,
-            'context': context or self.current_operation,
-            'timestamp': time.time(),
-            'duration': duration
-        }
-        self.messages[message_type].append(message)
+        return self.message_orchestrator.add_message(message_type, title, details, context, duration)
     
     def start_operation(self, operation_name: str):
         """Start tracking an operation"""
-        self.current_operation = operation_name
-        self.operation_start_time = time.time()
-        self.operation_stats['total_operations'] += 1
-        
-        if self.verbose:
-            self.console.print(f"\n🔄 [bold]{operation_name}[/bold]")
-        else:
-            self.console.print(f"🔄 {operation_name}...")
+        self.message_orchestrator.set_verbose(self.verbose)
+        return self.message_orchestrator.start_operation(operation_name)
     
     def end_operation(self, success: bool, message: str = None):
         """End tracking an operation"""
-        if self.operation_start_time:
-            duration = time.time() - self.operation_start_time
-            duration_str = f"({duration:.1f}s)"
-            self.operation_stats['total_duration'] += duration
-        else:
-            duration = None
-            duration_str = ""
-            
-        if success:
-            icon = "✅"
-            self.operation_stats['successful_operations'] += 1
-            if message:
-                self.add_message('success', self.current_operation, message, None, duration)
-        else:
-            icon = "❌"
-            self.operation_stats['failed_operations'] += 1
-            if message:
-                self.add_message('errors', self.current_operation, message, None, duration)
-                
-        if self.verbose:
-            if message:
-                self.console.print(f"{icon} {self.current_operation}: {message} {duration_str}")
-            else:
-                self.console.print(f"{icon} {self.current_operation} {duration_str}")
-        else:
-            # Compact output for non-verbose mode
-            status_msg = message if message else ("completed" if success else "failed")
-            self.console.print(f"  {icon} {status_msg} {duration_str}")
-            
-        self.current_operation = None
-        self.operation_start_time = None
+        return self.message_orchestrator.end_operation(success, message)
     
     def validate_environment(self) -> bool:
         """Validate that all required files and directories exist"""
@@ -243,303 +220,40 @@ class FrameworkManager:
     
     def validate_and_generate(self, force: bool = False) -> bool:
         """Run validation and generation pipeline"""
-        
-        self.start_operation("Validation & Generation")
-        
-        if not force:
-            if not Confirm.ask("Run validation and regenerate all framework files?"):
-                self.end_operation(False, "Operation cancelled by user")
-                return False
-        
-        # Run the main generation script
-        script_path = self.framework_dir / "scripts" / "generate_hugo_config.py"
-        result = self.run_command(
-            ["python3", str(script_path)],
-            "Validating and generating framework files",
-            capture_output=True
-        )
-        
-        if result.returncode != 0:
-            self.end_operation(False, "Validation/generation failed")
-            return False
-            
-        self.end_operation(True, "Framework files validated and generated")
-        return True
+        return self.operation_sequencer.validate_and_generate(force)
     
     def start_development_server(self, port: int = None):
         """Start Hugo development server"""
-        
-        # Default ports by role
-        if port is None:
-            port = 1313 if self.role == "professor" else 1314
-            
-        hugo_config = self.current_dir / "hugo.toml"
-        if not hugo_config.exists():
-            self.add_message('warnings', 'Missing Hugo Config', 'Hugo config not found. Running generation first...')
-            if not self.validate_and_generate(force=True):
-                return
-        
-        self.console.print(f"\n🚀 [bold]Starting Development Server[/bold]")
-        self.console.print(f"Role: {self.role} | Port: {port} | URL: [link]http://localhost:{port}[/link]")
-        self.console.print("\n💡 Press [bold red]Ctrl+C[/bold red] to stop the server")
-        
-        self.add_message('info', 'Development Server Started', f'Server running on http://localhost:{port}', 'Development')
-        
-        try:
-            subprocess.run([
-                "hugo", "server",
-                "--config", "hugo.toml",
-                "--port", str(port),
-                "--bind", "0.0.0.0"
-            ], cwd=self.current_dir)
-        except KeyboardInterrupt:
-            self.console.print("\n🛑 Server stopped")
-            self.add_message('info', 'Development Server Stopped', 'Server shut down by user', 'Development')
+        return self.operation_sequencer.start_development_server(port)
     
     def sync_student_updates(self) -> bool:
         """Sync framework updates for students"""
-        
-        if self.role != "student":
-            self.add_message('errors', 'Sync Not Available', 'Sync is only available for students', 'Permission Check')
-            return False
-            
-        self.start_operation("Framework Sync")
-        
-        # Show what will be synced
-        self.console.print("This will update:")
-        self.console.print("• Framework code and scripts")
-        self.console.print("• New content from professor")
-        self.console.print("• Theme and configuration updates")
-        self.console.print("\n⚠️ Your personal content will be preserved")
-        
-        if not Confirm.ask("Continue with sync?"):
-            self.end_operation(False, "Sync cancelled by user")
-            return False
-            
-        # Run sync script
-        sync_script = self.framework_dir / "scripts" / "sync_student.py"
-        result = self.run_command(
-            ["python3", str(sync_script)],
-            "Syncing framework updates"
-        )
-        
-        if result.returncode != 0:
-            self.end_operation(False, "Framework sync failed")
-            return False
-            
-        self.end_operation(True, "Framework updates synced")
-        
-        # Regenerate after sync
-        return self.validate_and_generate(force=True)
+        return self.operation_sequencer.sync_student_updates()
     
     def build_production(self) -> bool:
         """Build production-ready static site"""
-        
-        self.start_operation("Production Build")
-        
-        # Ensure everything is up to date
-        if not self.validate_and_generate(force=True):
-            self.end_operation(False, "Failed during validation phase")
-            return False
-            
-        # Build with Hugo
-        output_dir = self.framework_dir / "hugo_generated"
-        result = self.run_command([
-            "hugo",
-            "--destination", str(output_dir),
-            "--config", "hugo.toml"
-        ], "Building static site with Hugo")
-        
-        if result.returncode != 0:
-            self.end_operation(False, "Hugo build failed")
-            return False
-            
-        self.add_message('info', 'Production Build Complete', f"Site built in: {output_dir}\nUpload the contents of this directory to your hosting service")
-        self.end_operation(True, f"Static site ready in {output_dir}")
-        return True
+        return self.operation_sequencer.build_production()
     
     def full_build_pipeline(self, force: bool = False) -> bool:
         """Run the complete build pipeline"""
-        
-        self.start_operation("Full Build Pipeline")
-        
-        if not force:
-            self.console.print("This will run: Validation → Generation → Hugo Build")
-            if not Confirm.ask("Continue with full build?"):
-                self.end_operation(False, "Pipeline cancelled by user")
-                return False
-        
-        # Build production (which includes validation)
-        if not self.build_production():
-            self.end_operation(False, "Pipeline failed during build")
-            return False
-                
-        self.end_operation(True, "Complete build pipeline finished")
-        return True
+        return self.operation_sequencer.full_build_pipeline(force)
     
     def clean_generated_files(self):
         """Clean generated files"""
-        
-        self.console.print("\n🧹 [bold]Cleaning Generated Files[/bold]")
-        
-        files_to_clean = [
-            self.current_dir / "hugo.toml",
-            self.framework_dir / "hugo_generated"
-        ]
-        
-        existing_files = [f for f in files_to_clean if f.exists()]
-        
-        if not existing_files:
-            self.console.print("✅ No generated files to clean")
-            return
-            
-        self.console.print("Files to be removed:")
-        for file in existing_files:
-            self.console.print(f"• {file}")
-            
-        if Confirm.ask("Remove these files?"):
-            for file in existing_files:
-                if file.is_file():
-                    file.unlink()
-                elif file.is_dir():
-                    shutil.rmtree(file)
-                self.console.print(f"🗑️ Removed: {file}")
+        return self.operation_sequencer.clean_generated_files()
     
     def show_final_summary(self):
         """Show final summary of all operations with warnings and errors"""
-        
-        if not any(self.messages.values()):
-            return
-            
-        self.console.print("\n" + "="*60)
-        self.console.print("📊 [bold]Operation Summary[/bold]")
-        self.console.print("="*60)
-        
-        # Create summary table
-        table = Table(title="Operation Summary", show_header=True, header_style="bold cyan")
-        table.add_column("Operation", style="white", width=25)
-        table.add_column("Status", style="white", width=12)
-        table.add_column("Duration", style="dim", width=10)
-        table.add_column("Details", style="dim")
-        
-        # Add successful operations
-        for success in self.messages['success']:
-            duration_str = f"{success['duration']:.1f}s" if success.get('duration') else "-"
-            details = success['details'][:50] + "..." if success['details'] and len(success['details']) > 50 else success['details'] or ""
-            table.add_row(
-                success['title'],
-                "[green]✅ Success[/green]",
-                duration_str,
-                details
-            )
-        
-        # Add errors
-        for error in self.messages['errors']:
-            duration_str = f"{error['duration']:.1f}s" if error.get('duration') else "-"
-            details = error['details'][:50] + "..." if error['details'] and len(error['details']) > 50 else error['details'] or ""
-            table.add_row(
-                error['title'],
-                "[red]❌ Failed[/red]",
-                duration_str,
-                details
-            )
-        
-        # Add warnings
-        for warning in self.messages['warnings']:
-            details = warning['details'][:50] + "..." if warning['details'] and len(warning['details']) > 50 else warning['details'] or ""
-            table.add_row(
-                warning['title'],
-                "[yellow]⚠️ Warning[/yellow]",
-                "-",
-                details
-            )
-        
-        self.console.print(table)
-        
-        # Show detailed errors if any exist
-        if self.messages['errors'] and not self.verbose:
-            self.console.print("\n❌ [bold red]Error Details:[/bold red]")
-            for i, error in enumerate(self.messages['errors'], 1):
-                self.console.print(f"  {i}. [red]{error['title']}[/red]")
-                if error['details']:
-                    # Show first few lines of error details
-                    details_lines = error['details'].split('\n')[:2]
-                    for line in details_lines:
-                        if line.strip():
-                            self.console.print(f"     [dim]{line.strip()}[/dim]")
-                    if len(error['details'].split('\n')) > 2:
-                        self.console.print("     [dim]... (use --verbose for full details)[/dim]")
-        
-        # Show verbose details if enabled
-        if self.verbose and (self.messages['errors'] or self.messages['warnings']):
-            if self.messages['errors']:
-                self.console.print("\n❌ [bold red]Full Error Details:[/bold red]")
-                for i, error in enumerate(self.messages['errors'], 1):
-                    self.console.print(f"  {i}. [red]{error['title']}[/red]")
-                    if error['context']:
-                        self.console.print(f"     Context: [dim]{error['context']}[/dim]")
-                    if error['details']:
-                        for line in error['details'].split('\n'):
-                            if line.strip():
-                                self.console.print(f"     {line.strip()}")
-                    self.console.print()
-            
-            if self.messages['warnings']:
-                self.console.print("⚠️ [bold yellow]Full Warning Details:[/bold yellow]")
-                for i, warning in enumerate(self.messages['warnings'], 1):
-                    self.console.print(f"  {i}. [yellow]{warning['title']}[/yellow]")
-                    if warning['context']:
-                        self.console.print(f"     Context: [dim]{warning['context']}[/dim]")
-                    if warning['details']:
-                        self.console.print(f"     {warning['details']}")
-                    self.console.print()
-        
-        # Show important info
-        if self.messages['info']:
-            important_info = [info for info in self.messages['info'] if 'server' in info['title'].lower() or 'build' in info['title'].lower()]
-            if important_info:
-                self.console.print("\n📝 [bold blue]Important Information:[/bold blue]")
-                for info in important_info:
-                    self.console.print(f"  • [blue]{info['title']}[/blue]")
-                    if info['details']:
-                        # Handle multi-line details
-                        for line in info['details'].split('\n'):
-                            if line.strip():
-                                self.console.print(f"    {line.strip()}")
-        
-        # Show statistics and final status
-        stats_table = Table(show_header=False, box=None)
-        stats_table.add_column("Metric", style="cyan", width=20)
-        stats_table.add_column("Value", style="white")
-        
-        stats_table.add_row("Total Operations:", str(self.operation_stats['total_operations']))
-        stats_table.add_row("Successful:", f"[green]{self.operation_stats['successful_operations']}[/green]")
-        if self.operation_stats['failed_operations'] > 0:
-            stats_table.add_row("Failed:", f"[red]{self.operation_stats['failed_operations']}[/red]")
-        if self.operation_stats['total_duration'] > 0:
-            stats_table.add_row("Total Duration:", f"{self.operation_stats['total_duration']:.1f}s")
-        
-        self.console.print("\n")
-        self.console.print(stats_table)
-        
-        # Final status message
-        self.console.print("\n" + "─"*60)
-        if self.messages['errors']:
-            self.console.print("🛑 [bold red]Operations completed with errors[/bold red]")
-            if not self.verbose:
-                self.console.print("   💡 Use [cyan]--verbose[/cyan] flag for detailed error information")
-        elif self.messages['warnings']:
-            self.console.print("⚠️ [bold yellow]Operations completed with warnings[/bold yellow]")
-            if not self.verbose:
-                self.console.print("   💡 Use [cyan]--verbose[/cyan] flag for detailed warning information")
-        else:
-            self.console.print("✅ [bold green]All operations completed successfully![/bold green]")
-        self.console.print("─"*60)
+        self.message_orchestrator.set_verbose(self.verbose)
+        return self.message_orchestrator.show_final_summary()
 
 # Modular components
 from manage_modules.cli_definitions import create_parser
 from manage_modules.environment_manager import EnvironmentManager, EnvironmentContext
 from manage_modules.subprocess_runner import SubprocessRunner
+from manage_modules.message_orchestrator import MessageOrchestrator
+from manage_modules.user_experience import UserExperience
+from manage_modules.operation_sequencer import OperationSequencer
 
 def main():
     """Main entry point"""
@@ -554,13 +268,11 @@ def main():
     
     manager = FrameworkManager()
     manager.verbose = args.verbose
+    manager.message_orchestrator.set_verbose(args.verbose)
     
     # Environment detection and validation
     if not manager.detect_environment():
-        console.print("❌ Not in a valid framework directory")
-        console.print("Please run this script from:")
-        console.print("• Professor: [cyan]professor/[/cyan] directory")
-        console.print("• Student: [cyan]students/[your-username]/[/cyan] directory")
+        manager.ux.show_environment_guidance()
         sys.exit(1)
     
     if not manager.validate_environment():
@@ -568,13 +280,12 @@ def main():
         sys.exit(1)
     
     # Show welcome message
-    verbose_indicator = " [dim](verbose mode)[/dim]" if manager.verbose else ""
-    console.print(Panel.fit(
-        f"🚀 [bold]Framework Manager[/bold]{verbose_indicator}\n"
-        f"Role: [cyan]{manager.role.title()}[/cyan]\n"
-        f"Directory: [yellow]{manager.current_dir}[/yellow]",
-        border_style="green"
-    ))
+    framework_info = {
+        'role': manager.role,
+        'current_dir': manager.current_dir,
+        'verbose': manager.verbose
+    }
+    manager.ux.show_welcome_panel(framework_info)
     
     # Execute commands
     try:
@@ -594,17 +305,16 @@ def main():
         # Handle build/deploy combinations
         elif args.publish or (args.build and args.deploy):
             # Complete publish pipeline: build + deploy
-            console.print("\n🚀 [bold]Complete Publish Pipeline[/bold]")
-            console.print("This will: build + validate + deploy")
+            manager.ux.show_pipeline_preview("Complete Publish Pipeline", ["build", "validate", "deploy"])
             
-            if not args.force and not Confirm.ask("Continue with complete publish?"):
+            if not manager.ux.get_user_confirmation("Continue with complete publish?", args.force):
                 return
                 
             success = manager.full_build_pipeline(force=True)
             if success:
-                console.print("🎉 Complete publish pipeline completed successfully!")
+                manager.ux.show_operation_success("Complete publish pipeline completed successfully!")
             else:
-                console.print("❌ Publish pipeline failed")
+                manager.ux.show_operation_failure("Publish pipeline failed")
                 
         elif args.build and args.dev:
             # Build and start dev server
