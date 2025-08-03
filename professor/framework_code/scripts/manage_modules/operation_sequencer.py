@@ -197,7 +197,8 @@ class OperationSequencer:
             command=[
                 "hugo",
                 "--destination", str(output_dir),
-                "--config", "hugo.toml"
+                "--config", "hugo.toml",
+                "--environment", "production"
             ],
             description="Building static site with Hugo",
             working_directory=self.current_dir,
