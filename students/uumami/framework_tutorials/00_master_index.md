@@ -1,7 +1,7 @@
 ---
 title: "Framework Tutorials"
 type: "master-index"
-date: "2025-07-22"
+date: "2025-08-03"
 author: "Framework (Auto-generated)"
 summary: "Master index for Framework Tutorials content"
 ---
@@ -16,8 +16,8 @@ Step-by-step guides for using the framework. Start here if you're new to the sys
 
 ## 📊 Content Statistics
 
-- **2** chapters
-- **3** content files
+- **3** chapters
+- **6** content files
 
 ## 📚 Chapters
 
@@ -31,12 +31,24 @@ Step-by-step guides for using the framework. Start here if you're new to the sys
 - [How the Framework Works](01_understanding_the_framework/02_how_it_works_overview.md) 🟢
 
 ### [Initial Setup](02_initial_setup/00_index.md)
-*Chapter covering step-by-step guide to using start.sh for initial student directory setup*
+*Chapter covering complete step-by-step guide for students and professors from forking the repository to publishing your first site*
+
+📊 3 content files
+
+**Content:**
+- [Complete Workflow Guide: From Fork to First Site](02_initial_setup/01_complete_workflow_guide.md) 🟢
+- [Running the Setup Script](02_initial_setup/05_running_the_setup_script.md) 🟢
+- [Quick Reference Cheat Sheet](02_initial_setup/A_quick_reference_cheat_sheet.md) 🟢
+
+## 📎 Appendices
+
+### [Github Hugo Terminal Commands](A_github_hugo_terminal_commands/00_index.md)
+*Chapter covering quick reference for common github and hugo command-line flags and options*
 
 📊 1 content files
 
 **Content:**
-- [Running the Setup Script](02_initial_setup/05_running_the_setup_script.md) 🟢
+- [Terminal Flags Quick Reference](A_github_hugo_terminal_commands/01_terminal_flags_quick_reference.md) 🟢
 
 ---
 

@@ -44,6 +44,22 @@ except ImportError:
         REQUIRED_FIELDS, OPTIONAL_FIELDS, CONTENT_TYPES
     )
 
+# Import additional functions for discussions
+try:
+    from content_metadata import (
+        generate_creation_based_slug, get_all_slugs_from_files, should_have_discussions,
+        DISCUSSION_ENABLED_TYPES
+    )
+except ImportError:
+    # Functions not available in this context
+    def generate_creation_based_slug(*args, **kwargs):
+        return None
+    def get_all_slugs_from_files(*args, **kwargs):
+        return set()
+    def should_have_discussions(*args, **kwargs):
+        return False
+    DISCUSSION_ENABLED_TYPES = []
+
 console = Console()
 
 class ContentValidator:
@@ -66,6 +82,10 @@ class ContentValidator:
         
         # Detailed results for reporting
         self.results = []
+        
+        # Track slugs for discussions
+        self.existing_slugs = set()
+        self.files_with_generated_slugs = []
     
     def validate_all_content(self) -> bool:
         """

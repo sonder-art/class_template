@@ -12,6 +12,15 @@ publishDir = "framework_code/hugo_generated"
 buildDrafts = false
 buildFuture = false
 
+# Output formats - enable JSON for search index
+[outputs]
+home = ["HTML", "JSON"]
+
+[outputFormats.JSON]
+mediaType = "application/json"
+baseName = "search-index"
+isPlainText = true
+
 # Module configuration for content mounts and framework assets
 [module]
 
@@ -37,16 +46,40 @@ buildFuture = false
     source = "framework_code/assets"
     target = "assets"
   
+  # Static assets (images, etc.) served directly
+  [[module.mounts]]
+    source = "framework_code/assets"
+    target = "static/assets"
+  
+  # Notebook files for JupyterLite
+  [[module.mounts]]
+    source = "framework_code/assets/notebooks"
+    target = "static/notebooks"
+  
   [[module.mounts]]
     source = "framework_code/css"
     target = "assets/css"
+  
+  [[module.mounts]]
+    source = "framework_code/components"
+    target = "assets/components"
   
   # Theme assets mount - no duplication
   [[module.mounts]]
     source = "framework_code/themes/evangelion/css"
     target = "assets/theme"
   
-  # Theme layouts mount - direct from framework_code
+  # Theme components mount - preserve directory structure  
+  [[module.mounts]]
+    source = "framework_code/themes/evangelion/css/components"
+    target = "assets/theme/components"
+  
+  # Framework layouts mount - PRIORITY (loaded first)
+  [[module.mounts]]
+    source = "framework_code/layouts"
+    target = "layouts"
+  
+  # Theme layouts mount - OVERRIDES (loaded second, can override framework)
   [[module.mounts]]
     source = "framework_code/themes/evangelion/layouts"
     target = "layouts"
@@ -56,6 +89,12 @@ buildFuture = false
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.passthrough]
+        enable = true
+        [markup.goldmark.extensions.passthrough.delimiters]
+          inline = [['$', '$'], ['\\(', '\\)']]
+          block = [['$$', '$$'], ['\\[', '\\]']]
   [markup.highlight]
     style = "github"
     lineNos = true
@@ -70,6 +109,9 @@ buildFuture = false
   professor_name = "Template Instructor"
   professor_email = "instructor@example.edu"
   contact_policy = "Email within 24 hours for questions."
+  
+  # Profile settings from config.yml
+  profile_image = "/assets/images/profile-placeholder.svg"
   
   # Accessibility settings from config.yml
   default_font = "normal"
@@ -87,6 +129,23 @@ buildFuture = false
   show_difficulty_badges = true
   show_estimated_time = true
   homework_highlight = true
+  
+  # Discussion system settings
+  [params.discussions]
+  enabled = true
+  provider = "giscus"
+  repository = "sonder-art/class_template"
+  repository_id = "R_kgDOPEniVg"
+  category = "Q&A"
+  category_id = "DIC_kwDOPEniVs4CtpQs"
+  theme = "purple_dark"
+  input_position = "top"
+  reactions_enabled = true
+  emit_metadata = true
+  loading = "lazy"
+  auto_enable_for_types = ["tutorial", "note", "homework", "project", "documentation"]
+  exclude_types = ["master-index", "reference"]
+  slug_in_url = true
 
 # Menu configuration (auto-generated from content structure)
 [menu]
@@ -97,16 +156,16 @@ buildFuture = false
 
   [[menu.main]]
     name = "Class Notes"
-    url = "/class_notes/"
+    url = "/class_notes/00_master_index/"
     weight = 20
 
   [[menu.main]]
     name = "Framework Tutorials"
-    url = "/framework_tutorials/"
+    url = "/framework_tutorials/00_master_index/"
     weight = 30
 
   [[menu.main]]
     name = "Framework Documentation"
-    url = "/framework_documentation/"
+    url = "/framework_documentation/00_master_index/"
     weight = 40
  

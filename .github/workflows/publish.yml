@@ -1,8 +1,8 @@
-# This is a GitHub Action that will automatically build and deploy your
-# Quarto website to GitHub Pages when you push to the 'main' branch.
-# This workflow is based on the official Quarto documentation.
+# GitHub Class Template Framework - Hugo Publishing Workflow
+# Automatically builds and deploys the Hugo-based class framework to GitHub Pages
+# Uses the framework's manage.sh entry point and respects dna.yml configuration
 
-name: Publish to GitHub Pages
+name: Build and Deploy Framework
 
 # Run this workflow when a push is made to the main branch
 on:
@@ -25,50 +25,202 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      auto_deploy: ${{ steps.read_config.outputs.auto_deploy }}
+      target_dir: ${{ steps.read_config.outputs.target_dir }}
+      professor_profile: ${{ steps.read_config.outputs.professor_profile }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Quarto
-        uses: quarto-dev/quarto-actions/setup@v2
-      
-      # Since your project uses Python, we need to set it up.
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
-      
-      - name: Identify Render Target
-        id: identify_target
-        run: |
-          if [[ -d "students/${{ github.actor }}" ]]; then
-            echo "TARGET_DIR=students/${{ github.actor }}" >> $GITHUB_ENV
-            echo "Student directory 'students/${{ github.actor }}' found. Rendering it."
-          else
-            echo "TARGET_DIR=uumami" >> $GITHUB_ENV
-            echo "No student directory found. Rendering default 'uumami' project."
-          fi
-      
-      - name: Install Python dependencies
-        run: pip install -r ${{ env.TARGET_DIR }}/requirements.txt
-
-      - name: Render Quarto Website
-        uses: quarto-dev/quarto-actions/render@v2
+          
+      - name: Set up Hugo
+        uses: peaceiris/actions-hugo@v3
         with:
-          path: ${{ env.TARGET_DIR }}
+          hugo-version: 'latest'
+          extended: true
 
-      - name: List files for debugging
-        run: ls -R
+      - name: Read framework configuration and determine render target
+        id: read_config
+        run: |
+          # Read professor profile from dna.yml
+          if [[ -f "dna.yml" ]]; then
+            PROFESSOR_PROFILE=$(grep "professor_profile:" dna.yml | cut -d' ' -f2)
+            echo "Found professor profile: $PROFESSOR_PROFILE"
+            
+            # Check if auto_deploy is enabled
+            AUTO_DEPLOY=$(grep "auto_deploy:" dna.yml | cut -d' ' -f2)
+            echo "Auto deploy setting: $AUTO_DEPLOY"
+          else
+            echo "No dna.yml found, using defaults"
+            PROFESSOR_PROFILE="professor"
+            AUTO_DEPLOY="true"
+          fi
+          
+          # Set job outputs (for use in other jobs)
+          echo "auto_deploy=$AUTO_DEPLOY" >> $GITHUB_OUTPUT
+          echo "professor_profile=$PROFESSOR_PROFILE" >> $GITHUB_OUTPUT
+          
+          # Set environment variables (for use in this job)
+          echo "PROFESSOR_PROFILE=$PROFESSOR_PROFILE" >> $GITHUB_ENV
+          echo "AUTO_DEPLOY=$AUTO_DEPLOY" >> $GITHUB_ENV
+          
+          # Determine which directory to build based on GitHub actor and framework logic
+          GITHUB_ACTOR="${{ github.actor }}"
+          echo "GitHub actor: $GITHUB_ACTOR"
+          
+          # Check if actor is the professor
+          if [[ "$GITHUB_ACTOR" == "$PROFESSOR_PROFILE" ]]; then
+            # Professor pushes: always build professor directory
+            TARGET_DIR="professor"
+            echo "🎓 Professor detected - building professor directory"
+          elif [[ -d "students/$GITHUB_ACTOR" ]]; then
+            # Student pushes: build their student directory if it exists
+            TARGET_DIR="students/$GITHUB_ACTOR"
+            echo "🎒 Student detected - building student directory: $TARGET_DIR"
+          else
+            # Fallback: build professor directory (template/demo mode)
+            TARGET_DIR="professor"
+            echo "📚 No specific directory found - building professor directory as fallback"
+          fi
+          
+          # Set outputs and environment variables
+          echo "target_dir=$TARGET_DIR" >> $GITHUB_OUTPUT
+          echo "TARGET_DIR=$TARGET_DIR" >> $GITHUB_ENV
+          echo "Final build target: $TARGET_DIR"
 
-      - name: Upload artifact
+      - name: Install Python dependencies
+        run: |
+          # Install framework dependencies for the build scripts
+          python -m pip install --upgrade pip
+          
+          # Install required packages for the framework scripts
+          pip install rich pyyaml jinja2
+          
+          echo "✅ Python dependencies installed"
+
+      - name: Validate framework setup
+        run: |
+          # Verify the target directory exists
+          if [[ ! -d "$TARGET_DIR" ]]; then
+            echo "❌ Target directory not found: $TARGET_DIR"
+            exit 1
+          fi
+          
+          # For professor directory, verify framework structure
+          if [[ "$TARGET_DIR" == "professor" ]]; then
+            if [[ ! -f "professor/manage.sh" ]]; then
+              echo "❌ Missing professor/manage.sh entry point"
+              exit 1
+            fi
+            
+            if [[ ! -f "professor/framework_code/scripts/manage.py" ]]; then
+              echo "❌ Missing framework management script"
+              exit 1
+            fi
+            
+            # Make manage.sh executable
+            chmod +x professor/manage.sh
+          fi
+          
+          # For student directories, verify complete framework structure
+          if [[ "$TARGET_DIR" =~ ^students/ ]]; then
+            echo "🔍 Validating student directory: $TARGET_DIR"
+            
+            # Check basic files
+            if [[ ! -f "$TARGET_DIR/manage.sh" ]]; then
+              echo "❌ Missing $TARGET_DIR/manage.sh entry point"
+              echo "Student directories should be created using students/start.sh"
+              exit 1
+            fi
+            
+            if [[ ! -f "$TARGET_DIR/config.yml" ]] || [[ ! -f "$TARGET_DIR/course.yml" ]]; then
+              echo "❌ Missing required config files in $TARGET_DIR"
+              exit 1
+            fi
+            
+            # Check modular framework exists (the issues we encountered!)
+            if [[ ! -f "$TARGET_DIR/framework_code/scripts/manage.py" ]]; then
+              echo "❌ Missing modular framework: $TARGET_DIR/framework_code/scripts/manage.py"
+              echo "Run sync_student.py to update your framework to the latest version"
+              exit 1
+            fi
+            
+            if [[ ! -d "$TARGET_DIR/framework_code/scripts/manage_modules" ]]; then
+              echo "❌ Missing modular framework: $TARGET_DIR/framework_code/scripts/manage_modules/"
+              echo "Run sync_student.py to update your framework to the latest version"
+              exit 1
+            fi
+            
+            # Check config.yml has required fields (warn but don't fail)
+            if ! grep -q "profile:" "$TARGET_DIR/config.yml"; then
+              echo "⚠️  Warning: config.yml may be outdated (missing 'profile' section)"
+              echo "💡 If build fails, copy the latest config.yml from professor directory"
+              echo "🔄 Note: We preserve your config.yml customizations - this is intentional"
+            fi
+            
+            # Make manage.sh executable
+            chmod +x "$TARGET_DIR/manage.sh"
+            
+            echo "✅ Student directory validation passed"
+          fi
+          
+          echo "✅ Framework structure validated for $TARGET_DIR"
+
+      - name: Build framework site
+        run: |
+          cd "$TARGET_DIR"
+          
+          echo "🚀 Building framework site from $TARGET_DIR..."
+          
+          # Use the framework's build system for production deployment
+          if ./manage.sh --deploy --force --verbose; then
+            echo "✅ Framework build completed for $TARGET_DIR"
+          else
+            echo "❌ Build failed for $TARGET_DIR"
+            echo ""
+            echo "🔧 Common solutions for build failures:"
+            echo "• Check if config.yml has all required fields"
+            echo "• Copy latest config.yml from professor directory"
+            echo "• Run sync_student.py to update framework"
+            echo "• Verify your customizations are valid YAML"
+            exit 1
+          fi
+
+      - name: Verify build output
+        run: |
+          # Check that Hugo generated the expected output
+          HUGO_OUTPUT_DIR="$TARGET_DIR/framework_code/hugo_generated"
+          
+          if [[ ! -d "$HUGO_OUTPUT_DIR" ]]; then
+            echo "❌ Hugo build output not found: $HUGO_OUTPUT_DIR"
+            exit 1
+          fi
+          
+          if [[ ! -f "$HUGO_OUTPUT_DIR/index.html" ]]; then
+            echo "❌ Hugo index.html not generated in $HUGO_OUTPUT_DIR"
+            exit 1
+          fi
+          
+          echo "📁 Build output structure for $TARGET_DIR:"
+          ls -la "$HUGO_OUTPUT_DIR/"
+          
+          echo "✅ Build output verified for $TARGET_DIR"
+
+      - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ env.TARGET_DIR }}/_site
+          path: ${{ steps.read_config.outputs.target_dir }}/framework_code/hugo_generated
 
   # Deployment job
   deploy:
-    # This job requires the build job to have completed successfully
+    # Only deploy if auto_deploy is enabled in dna.yml
+    if: needs.build.outputs.auto_deploy == 'true'
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -80,3 +232,10 @@ jobs:
         uses: actions/deploy-pages@v4
         # This action will deploy the artifact from the build job
 
+      - name: Display deployment info
+        run: |
+          echo "🚀 Framework deployed successfully!"
+          echo "📍 Site URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "👨‍🏫 Professor Profile: ${{ needs.build.outputs.professor_profile }}"
+          echo "📂 Built from directory: ${{ needs.build.outputs.target_dir }}"
+          echo "👤 GitHub Actor: ${{ github.actor }}"

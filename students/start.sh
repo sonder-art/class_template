@@ -59,10 +59,14 @@ cd "$STUDENT_NAME"
 
 echo -e "${YELLOW}📋 Setting up self-contained workspace...${NC}"
 
-# Copy course and config files for self-contained operation
+# Copy all files needed for self-contained operation
 cp "../../professor/course.yml" .
 cp "../../professor/config.yml" .
 cp "../../professor/home.md" .
+cp "../../professor/manage.sh" .
+
+# Make manage.sh executable
+chmod +x manage.sh
 
 # Create student-specific directories
 mkdir -p "class_notes"
@@ -84,6 +88,11 @@ This is your personal workspace within the class template framework.
 
 2. **Generate your site**: Build your personal website
    ```bash
+   ./manage.sh --build
+   ```
+   
+   Or manually:
+   ```bash
    python3 framework_code/scripts/generate_hugo_config.py
    hugo
    ```
@@ -96,13 +105,15 @@ This is your personal workspace within the class template framework.
 - `homework/` - Homework assignments and solutions  
 - `personal_projects/` - Your own projects and experiments
 - `framework_code/` - Framework tools (synced from instructor)
-- `course.yml` - Class metadata (synced from instructor)
+- `manage.sh` - Main build tool (same as instructor)
+- `course.yml` - Class metadata (customize for your workspace)
 - `config.yml` - Your personal rendering preferences
 
 ## 📝 Customization
 
 You can:
 - Modify `config.yml` for personal preferences (theme, colors, etc.)
+- Modify `course.yml` to customize course metadata for your workspace
 - Add your own content in any directory
 - Create your own themes by copying from `framework_code/themes/`
 
@@ -132,24 +143,25 @@ echo -e "$STUDENT_NAME\ny" | python3 professor/framework_code/scripts/sync_stude
 # Go back to student directory
 cd "students/$STUDENT_NAME"
 
-echo -e "${YELLOW}🔧 Generating Hugo configuration...${NC}"
+echo -e "${YELLOW}🔧 Running initial build...${NC}"
 
-# Generate Hugo configuration for self-contained operation
-python3 framework_code/scripts/generate_hugo_config.py
+# Run initial build using the framework's build system
+./manage.sh --validate --force
 
 echo -e "${GREEN}✅ Student workspace initialized successfully!${NC}"
 echo ""
 echo -e "${BLUE}📋 What was created:${NC}"
 echo "• Self-contained directory: students/$STUDENT_NAME/"
+echo "• Complete framework tools (manage.sh, framework_code/)"
 echo "• Personal configuration files (course.yml, config.yml)"
-echo "• Framework tools (synced from instructor)"
 echo "• Basic directory structure for your work"
-echo "• Generated Hugo configuration"
+echo "• Initial framework validation completed"
 echo ""
 echo -e "${PURPLE}🚀 Next steps:${NC}"
-echo "1. Customize your config.yml preferences"
+echo "1. Customize your config.yml and course.yml preferences"
 echo "2. Start adding content to class_notes/ and homework/"
-echo "3. Run 'hugo' to build your personal website"
-echo "4. Use the sync script regularly to get instructor updates"
+echo "3. Run './manage.sh --build' to build your personal website"
+echo "4. Run './manage.sh --dev' to start development server"
+echo "5. Use the sync script regularly to get instructor updates"
 echo ""
 echo -e "${GREEN}🎉 Happy learning!${NC}" 

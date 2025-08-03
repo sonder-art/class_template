@@ -1,7 +1,7 @@
 ---
 title: "Framework Documentation"
 type: "master-index"
-date: "2025-07-22"
+date: "2025-08-03"
 author: "Framework (Auto-generated)"
 summary: "Master index for Framework Documentation content"
 ---
@@ -16,8 +16,8 @@ Technical documentation for framework internals. Useful for contributors and adv
 
 ## 📊 Content Statistics
 
-- **2** chapters
-- **3** content files
+- **3** chapters
+- **5** content files
 
 ## 📚 Chapters
 
@@ -37,6 +37,17 @@ Technical documentation for framework internals. Useful for contributors and adv
 
 **Content:**
 - [Sync Philosophy and Design](04_synchronization_engine/01_sync_philosophy_and_design.md) 🔴
+
+## 📎 Appendices
+
+### [Tests](Z_Tests/00_index.md)
+*Chapter covering testing mathematical formula rendering with katex*
+
+📊 2 content files
+
+**Content:**
+- [LaTeX Math Rendering Test](Z_Tests/01_latex_rendering_test.md)
+- [JupyterLite Integration Test](Z_Tests/02_jupyterlite_integration_test.md) 🟡
 
 ---
 

@@ -1,0 +1,77 @@
+/**
+ * Python Execution UI Components - Evangelion Theme
+ * Color mappings and visual styling for the Evangelion theme
+ * Framework structure defined in framework_code/components/python-ui.css
+ */
+
+/* === EVANGELION THEME COLOR MAPPINGS === */
+
+:root {
+    /* Python UI Primary Colors */
+    --primary-accent: var(--eva-green-primary);
+    --primary-hover: var(--eva-green-hover);
+    --accent-color: var(--eva-cyan-primary);
+    
+    /* Header Styling */
+    --header-gradient: linear-gradient(135deg, var(--eva-green-primary), var(--eva-cyan-primary));
+    --header-text: var(--bg-color);
+    
+    /* Button Styling */
+    --button-bg: var(--bg-color);
+    --button-text: var(--eva-green-primary);
+    --button-hover-bg: var(--surface-color);
+    --button-hover-text: var(--bg-color);
+    --button-disabled-bg: var(--surface-color);
+    
+    /* Badge Styling */
+    --badge-bg: rgba(255, 255, 255, 0.2);
+    
+    /* Editor Colors - Evangelion Purple Coding Theme */
+    --editor-bg: #1a0d26; /* Deep purple coding background */
+    --editor-text: #e8e3f0; /* Light purple-white for general text */
+    --editor-caret: #00ff41; /* Bright green cursor */
+    --editor-border: #4a2c5a;
+    --editor-shadow: inset 0 0 0 1px rgba(0, 217, 255, 0.1);
+    --editor-focus-border: var(--eva-green-primary);
+    --editor-focus-shadow: inset 0 0 0 2px var(--eva-green-primary), 0 0 8px var(--eva-green-glow);
+    --editor-placeholder: #9CA3B8; /* Muted purple-gray */
+    --editor-selection-bg: var(--eva-green-primary);
+    --editor-selection-text: var(--bg-color);
+    
+    /* Explanation Area */
+    --explanation-bg: var(--elevated-color);
+    --heading-color: var(--eva-cyan-primary);
+    
+    /* Code Highlighting */
+    --code-text: var(--eva-green-primary);
+    
+    /* Scrollbar Colors */
+    --scrollbar-thumb: var(--eva-green-primary);
+    --scrollbar-track: var(--editor-bg);
+    --scrollbar-thumb-hover: var(--eva-green-hover);
+    
+    /* Interactive Effects */
+    --focus-glow: var(--glow-green);
+    
+    /* Error States */
+    --danger-color: var(--eva-red-accent);
+    --danger-text: white;
+    --error-gradient: linear-gradient(135deg, var(--eva-red-accent), var(--eva-orange-accent));
+}
+
+/* === EVANGELION-SPECIFIC VISUAL ENHANCEMENTS === */
+
+/* Enhanced Visual Effects */
+.python-exec-container:hover {
+    border-color: var(--eva-green-hover);
+}
+
+.python-exec-container:focus-within {
+    box-shadow: var(--shadow-lg), var(--eva-green-glow);
+    border-color: var(--eva-green-primary);
+}
+
+/* KaTeX Math Rendering Support */
+.explanation-content .katex {
+    font-size: 1em !important;
+} 

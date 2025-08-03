@@ -32,17 +32,33 @@ OPTIONAL_FIELDS = {
     'prerequisites': list,
     'estimated_time': int,  # minutes
     'tags': list,
-    'agent': bool
+    'agent': bool,
+    
+    # Discussion system fields
+    'slug': str,                    # Auto-generated stable identifier
+    'slug_locked': bool,           # Prevent modifications (auto-set to True)
+    'slug_source': str,            # 'creation_context' | 'manual'
+    'discussions_enabled': bool,    # Per-content override
+    'discussion_category': str,     # Override default Giscus category
+    'discussion_theme': str,       # Override default Giscus theme
 }
 
 # Valid content types for type field validation
 CONTENT_TYPES = [
     'tutorial', 'documentation', 'overview', 'note', 
-    'homework', 'project', 'reference', 'test'
+    'homework', 'project', 'reference', 'test', 'master-index'
+]
+
+# Content types that get discussions enabled by default
+DISCUSSION_ENABLED_TYPES = [
+    'tutorial', 'note', 'homework', 'project', 'documentation'
 ]
 
 # Date format pattern (YYYY-MM-DD)
 DATE_PATTERN = re.compile(r'^\d{4}-\d{2}-\d{2}$')
+
+# Slug format pattern (URL-safe)
+SLUG_PATTERN = re.compile(r'^[a-z0-9-]+$')
 
 class MetadataError(Exception):
     """Custom exception for metadata validation errors"""
@@ -162,6 +178,20 @@ class MetadataParser:
                     self.errors.append(
                         f"Field '{field}' must be {validation.__name__}, got {type(value).__name__}"
                     )
+                    
+            # Special validation for discussion fields
+            if field == 'slug' and value:
+                if not validate_slug_format(value):
+                    self.errors.append(
+                        f"Slug '{value}' must contain only lowercase letters, numbers, and hyphens"
+                    )
+                    
+            elif field == 'slug_source' and value:
+                valid_sources = ['creation_context', 'manual']
+                if value not in valid_sources:
+                    self.errors.append(
+                        f"Invalid slug_source '{value}'. Must be one of: {', '.join(valid_sources)}"
+                    )
         
         # Check for unknown fields (warnings only)
         all_known_fields = set(REQUIRED_FIELDS.keys()) | set(OPTIONAL_FIELDS.keys())
@@ -228,6 +258,10 @@ def validate_file_naming(file_path: Path) -> List[str]:
         # Homework file - check pattern hw_NN
         if not re.match(r'^hw_\d+$', name_without_ext):
             errors.append("Homework files must follow pattern 'hw_NN.md' (e.g., hw_01.md)")
+    elif re.match(r'^[A-Z]_', name_without_ext):
+        # Appendix file - check pattern A_descriptive_name (capital letter prefix)
+        if not re.match(r'^[A-Z]_[a-z0-9_]+$', name_without_ext):
+            errors.append("Appendix files must follow pattern 'A_descriptive_name.md' with capital letter prefix")
     elif re.match(r'^\d+_', name_without_ext):
         # Primary content file - check pattern NN_descriptive_name
         if not re.match(r'^\d{2}_[a-z0-9_]+$', name_without_ext):
@@ -238,6 +272,101 @@ def validate_file_naming(file_path: Path) -> List[str]:
             errors.append("File names should use lowercase letters, numbers, and underscores only")
     
     return errors
+
+def generate_creation_based_slug(metadata: Dict[str, Any], existing_slugs: set) -> str:
+    """
+    Generate stable slug from creation context - NEVER changes after first generation.
+    
+    Uses: date + type + sanitized_title + counter_if_needed
+    Example: "2024-01-15-tutorial-python-classes"
+    
+    Args:
+        metadata: Content metadata containing date, type, title
+        existing_slugs: Set of already used slugs to avoid conflicts
+        
+    Returns:
+        Stable slug string
+    """
+    date = metadata['date']  # Required field: YYYY-MM-DD
+    content_type = metadata['type']  # Required field
+    title = metadata['title']  # Required field
+    
+    # Sanitize title to max 25 chars, URL-safe
+    title_part = re.sub(r'[^\w\s-]', '', title.lower())
+    title_part = re.sub(r'[-\s]+', '-', title_part).strip('-')[:25]
+    
+    # Remove trailing hyphens that might result from truncation
+    title_part = title_part.rstrip('-')
+    
+    base_slug = f"{date}-{content_type}-{title_part}"
+    
+    # Handle conflicts with simple counter
+    counter = 1
+    slug = base_slug
+    while slug in existing_slugs:
+        counter += 1
+        slug = f"{base_slug}-{counter:02d}"
+    
+    return slug
+
+def validate_slug_format(slug: str) -> bool:
+    """
+    Validate that slug follows URL-safe format.
+    
+    Args:
+        slug: Slug string to validate
+        
+    Returns:
+        True if valid, False otherwise
+    """
+    if not slug:
+        return False
+    
+    # Check pattern: lowercase letters, numbers, hyphens only
+    return bool(SLUG_PATTERN.match(slug))
+
+def get_all_slugs_from_files(content_files: List[Path]) -> set:
+    """
+    Extract all existing slugs from content files.
+    
+    Args:
+        content_files: List of markdown files to scan
+        
+    Returns:
+        Set of existing slugs
+    """
+    existing_slugs = set()
+    parser = MetadataParser()
+    
+    for file_path in content_files:
+        try:
+            metadata, errors, warnings = parser.parse_frontmatter(file_path)
+            if 'slug' in metadata and isinstance(metadata['slug'], str):
+                existing_slugs.add(metadata['slug'])
+        except Exception:
+            # Skip files that can't be parsed
+            continue
+    
+    return existing_slugs
+
+def should_have_discussions(metadata: Dict[str, Any]) -> bool:
+    """
+    Determine if content should have discussions enabled by default.
+    
+    Args:
+        metadata: Content metadata
+        
+    Returns:
+        True if content type should have discussions
+    """
+    content_type = metadata.get('type', '')
+    
+    # Check explicit setting first
+    if 'discussions_enabled' in metadata:
+        return bool(metadata['discussions_enabled'])
+    
+    # Default based on content type
+    return content_type in DISCUSSION_ENABLED_TYPES
 
 if __name__ == "__main__":
     # Simple test when run directly

@@ -1,7 +1,7 @@
 ---
 title: "Synchronization Engine"
 type: "index"
-date: "2025-07-22"
+date: "2025-08-03"
 author: "Framework (Auto-generated)"
 summary: "Index for Synchronization Engine chapter"
 ---
@@ -21,6 +21,7 @@ summary: "Index for Synchronization Engine chapter"
 
 ← [Previous: Configuration System](../03_configuration_system/00_index.md)
 ↑ [Back to Framework Documentation](../00_master_index.md)
+[Next: Tests](../Z_Tests/00_index.md) →
 
 ---
 
