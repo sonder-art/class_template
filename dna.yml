@@ -1,0 +1,21 @@
+# DNA Configuration - Framework Metadata & Meta-Process Control
+# This file controls repository-wide automation and framework behavior
+# NEVER contains rendering preferences - those belong in config.yml
+
+# REQUIRED: Professor identification for directory handling
+professor_profile: uumami
+
+# Framework meta-process settings
+sync_mode: additive
+authoring_tools: ["agent"]
+license: CC-BY-4.0
+
+# Build and CI/CD automation settings
+hugo_auto_config: true
+accessibility_enabled: true
+index_generation: true
+
+# Advanced meta-process options
+strict_validation: false
+content_validation: true
+auto_deploy: true 

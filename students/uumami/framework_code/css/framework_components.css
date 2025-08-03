@@ -1,0 +1,632 @@
+/* Framework Components - UI Component Structure
+ * Contains structure and layout for all UI components
+ * Themes provide only colors and visual styling for these components
+ */
+
+/* === CSS RESET & BASE === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+}
+
+/* === ACCESSIBILITY UTILITIES === */
+.font-normal {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.font-opendyslexic {
+  font-family: 'OpenDyslexic', monospace;
+}
+
+.high-contrast {
+  --semantic-bg-primary: #000000;
+  --semantic-text-primary: #ffffff;
+  --semantic-accent-primary: #ffff00;
+  --semantic-border-default: #ffffff;
+}
+
+.reduced-motion {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* === UTILITY CLASSES === */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* === GLOBAL STYLES === */
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === TYPOGRAPHY STRUCTURE === */
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.025em;
+}
+
+h1 {
+  font-size: var(--text-4xl);
+  font-weight: 900;
+  margin: var(--space-8) 0;
+  padding: var(--space-6) 0;
+  text-align: center;
+  border: none !important;
+  background: none !important;
+  position: relative;
+}
+
+h2 {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  margin: var(--space-8) 0 var(--space-6) 0;
+  padding: var(--space-4) 0;
+  background: none !important;
+  border: none !important;
+  position: relative;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+}
+
+h3 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin: var(--space-6) 0 var(--space-4) 0;
+  padding: var(--space-2) 0;
+  background: none !important;
+  border: none !important;
+}
+
+h4 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin: var(--space-5) 0 var(--space-3) 0;
+  padding: var(--space-2) 0;
+  background: none !important;
+  border: none !important;
+}
+
+h5 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin: var(--space-4) 0 var(--space-2) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+h6 {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin: var(--space-3) 0 var(--space-2) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Content area typography overrides */
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6,
+article h1,
+article h2,
+article h3,
+article h4,
+article h5,
+article h6 {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.content h1 {
+  font-size: var(--text-4xl) !important;
+  font-weight: 900 !important;
+}
+
+.content h2 {
+  font-size: var(--text-3xl) !important;
+  font-weight: 800 !important;
+}
+
+.content h3 {
+  font-size: var(--text-2xl) !important;
+  font-weight: var(--font-bold) !important;
+}
+
+.content h4 {
+  font-size: var(--text-xl) !important;
+  font-weight: var(--font-bold) !important;
+}
+
+p {
+  margin-bottom: var(--space-4);
+  line-height: var(--leading-relaxed);
+  font-size: var(--text-base);
+}
+
+/* === CODE STRUCTURE === */
+
+code {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+pre {
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  margin: var(--space-6) 0;
+}
+
+pre code {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0;
+}
+
+/* === NAVIGATION COMPONENTS === */
+
+/* Sidebar Navigation Structure */
+.sidebar-nav {
+  padding: var(--space-2) 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  font-size: var(--text-sm) !important;
+  font-family: var(--font-mono) !important;
+}
+
+/* File Tree Structure */
+.file-tree {
+  padding: 0;
+}
+
+/* Folder Item Structure */
+.folder-item {
+  margin-bottom: var(--space-4); /* Increased spacing between categories */
+}
+
+.folder-header {
+  display: flex;
+  align-items: center;
+  padding: 4px var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.folder-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  margin-right: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+}
+
+.folder-name-link {
+  flex: 1;
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background-color var(--transition-fast);
+}
+
+.folder-name {
+  font-weight: var(--font-medium);
+}
+
+.folder-content {
+  display: none;
+  margin-left: var(--space-6); /* Increased indentation for better hierarchy */
+  position: relative;
+}
+
+.folder-content::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 30px;
+  width: 1px;
+  opacity: 0.8;
+}
+
+/* Chapter Item Structure */
+.chapter-item {
+  margin-bottom: var(--space-2); /* Slightly increased spacing between chapters */
+  position: relative;
+}
+
+.chapter-item::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 20px;
+  width: 10px;
+  height: 1px;
+  opacity: 0.8;
+}
+
+.chapter-header {
+  display: flex;
+  align-items: center;
+  padding: 4px var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.chapter-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  margin-right: var(--space-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all var(--transition-fast);
+}
+
+.chapter-name-link {
+  flex: 1;
+  text-decoration: none;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background-color var(--transition-fast);
+}
+
+.chapter-name {
+  font-weight: var(--font-normal);
+}
+
+.chapter-content {
+  display: none;
+  margin-left: var(--space-4);
+  position: relative;
+}
+
+.chapter-content::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 20px;
+  width: 1px;
+  opacity: 0.7;
+}
+
+/* File Item Structure */
+.file-item {
+  margin-bottom: 1px;
+  position: relative;
+}
+
+.file-item::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 18px;
+  width: 10px;
+  height: 1px;
+  opacity: 0.7;
+}
+
+.chapter-item:last-child::after {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 20px;
+  width: 1px;
+  height: 20px;
+  opacity: 0.6;
+}
+
+.file-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.file-name {
+  flex: 1;
+  font-size: var(--text-sm);
+}
+
+.file-time {
+  font-size: var(--text-xs);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-medium);
+  border: 1px solid;
+}
+
+/* Profile Section Structure */
+.nav-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.profile-image {
+  flex-shrink: 0;
+}
+
+.profile-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: var(--text-base) !important;
+  font-weight: var(--font-bold) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.3 !important;
+  background: none !important;
+  border: none !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.profile-role {
+  font-size: var(--text-sm) !important;
+  margin: var(--space-1) 0 0 0 !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Utility Icons Structure */
+.nav-utilities {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.utility-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: var(--text-sm);
+}
+
+.utility-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.utility-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* === CONTENT COMPONENTS === */
+
+/* Enhanced content spacing */
+.site-main p {
+  margin-bottom: var(--content-spacing);
+}
+
+.site-main h1,
+.site-main h2,
+.site-main h3,
+.site-main h4,
+.site-main h5,
+.site-main h6 {
+  margin-top: calc(var(--content-spacing) * 1.5);
+  margin-bottom: calc(var(--content-spacing) * 0.5);
+}
+
+.site-main ul,
+.site-main ol {
+  margin-bottom: var(--content-spacing);
+}
+
+.site-main li {
+  margin-bottom: calc(var(--content-spacing) * 0.3);
+}
+
+.site-main blockquote {
+  margin: calc(var(--content-spacing) * 1.2) 0;
+  padding-left: calc(var(--content-spacing) * 0.8);
+}
+
+/* Component width constraints */
+.site-main pre,
+.site-main .highlight,
+.site-main .code-block {
+  max-width: 850px;
+  overflow-x: auto;
+  margin: var(--content-spacing) 0;
+}
+
+.site-main table {
+  max-width: 100%;
+  margin: var(--content-spacing) 0;
+}
+
+.site-main img,
+.site-main figure,
+.site-main .image-content {
+  max-width: min(1200px, 100%);
+  height: auto;
+  margin: var(--content-spacing) 0;
+}
+
+/* === FORM COMPONENTS === */
+
+input, textarea, select {
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  transition: all var(--transition-fast);
+  min-height: var(--min-touch-target);
+  border: 2px solid;
+}
+
+/* === BUTTON COMPONENTS === */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--btn-height);
+  padding: 0 var(--btn-padding-x);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--text-base);
+  font-weight: var(--btn-font-weight);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 2px solid transparent;
+  white-space: nowrap;
+}
+
+/* === TABLE COMPONENTS === */
+
+table {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin: var(--space-6) 0;
+  border: 1px solid;
+}
+
+th {
+  font-weight: var(--font-semibold);
+  text-align: left;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 2px solid;
+}
+
+td {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid;
+}
+
+/* === CARD COMPONENTS === */
+
+.card {
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+  border: 1px solid;
+}
+
+blockquote {
+  border-left: 4px solid;
+  border-radius: var(--radius-md);
+  padding: var(--space-5) var(--space-6);
+  margin: var(--space-6) 0;
+  font-style: italic;
+}
+
+/* === BROWSER FEATURES === */
+
+/* Scrollbar structure */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  /* Theme provides background */
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-md);
+}
+
+/* Selection structure */
+::selection {
+  /* Theme provides colors */
+}
+
+::-moz-selection {
+  /* Theme provides colors */
+}
+
+/* Focus indicators structure */
+*:focus {
+  outline: var(--focus-outline-width) solid;
+  outline-offset: var(--focus-outline-offset);
+} 

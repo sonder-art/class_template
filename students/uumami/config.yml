@@ -1,0 +1,84 @@
+# Site Configuration - Visual & UX Preferences
+# Human-editable file for per-class visual and experience options
+# Separate from dna.yml (framework switches) and course.yml (metadata)
+# THIS FILE CONTAINS ALL RENDERING PREFERENCES - SELF-CONTAINED
+
+# Theme selection (rendering preference)
+theme:
+  name: "evangelion"
+  path: "framework_code/themes"
+
+# Profile settings
+profile:
+  image: "/assets/images/profile-placeholder.svg"  # Path to profile image
+
+# Accessibility options
+accessibility:
+  default_font: "normal"  # normal | opendyslexic
+  high_contrast: false
+  reduced_motion: false
+
+# Navigation preferences  
+navigation:
+  sidebar_style: "tree"   # tree | flat
+  show_breadcrumbs: true
+  mini_toc: true
+  prev_next_arrows: true
+
+# Theme customization
+appearance:
+  layout: "sidebar"       # sidebar | topnav
+  color_scheme: "auto"    # auto | light | dark
+  code_highlighting: "github"
+
+# Content display
+content:
+  show_difficulty_badges: true
+  show_estimated_time: true
+  homework_highlight: true
+  student_solutions_visible: false
+
+# Hugo configuration - all rendering settings
+hugo:
+  content_sources:
+    - "class_notes"
+    - "framework_tutorials"
+    - "framework_documentation"
+  homepage_source: "home.md"
+  output_dir: "framework_code/hugo_generated"
+  theme_path: "framework_code/themes"
+  assets_path: "framework_code/assets"
+  search_mode: "simple"
+
+# Advanced build options
+build:
+  auto_index_generation: true
+  strict_validation: false
+  include_draft_content: false
+
+# Discussion system configuration
+discussions:
+  enabled: true
+  provider: "giscus"
+  
+  # Giscus repository settings
+  repository: "sonder-art/class_template"
+  repository_id: "R_kgDOPEniVg"
+  category: "Q&A"
+  category_id: "DIC_kwDOPEniVs4CtpQs"
+  
+  # Appearance settings
+  theme: "purple_dark"          # Will auto-adapt to site theme
+  input_position: "top"         # "top" | "bottom"
+  reactions_enabled: true
+  emit_metadata: true
+  loading: "lazy"
+  
+  # Framework integration settings
+  auto_enable_for_types: ["tutorial", "note", "homework", "project", "documentation"]
+  exclude_types: ["master-index", "reference"]
+  slug_in_url: true            # Use slug in pathname for Giscus mapping
+  
+  # Student customization allowed
+  student_theme_override: true
+  student_category_override: false  # Keep discussions centralized

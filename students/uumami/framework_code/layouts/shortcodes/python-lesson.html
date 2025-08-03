@@ -1,0 +1,120 @@
+{{/*
+Python Lesson Container - Two-Column Layout
+Usage: 
+  {{< python-lesson >}}
+    {{< lesson-explanation >}}...{{< /lesson-explanation >}}
+    {{< python-editor layout="constrained" >}}...{{< /python-editor >}}
+  {{< /python-lesson >}}
+*/}}
+
+<div class="python-lesson-container" data-lesson-id="{{ .Ordinal }}">
+  {{ .Inner }}
+  
+  <!-- Shared output area that spans both columns -->
+  <div class="python-editor-output" id="lesson-output-{{ .Ordinal }}">
+    <div class="output-placeholder">
+      Output will appear here when you run the Python code...
+    </div>
+  </div>
+</div>
+
+<style>
+.python-lesson-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 24px;
+  margin: 32px 0;
+}
+
+/* Content area with equal heights */
+.python-lesson-content-area {
+  display: contents;
+}
+
+.python-lesson-container .lesson-explanation {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 300px;
+}
+
+.python-lesson-container .python-editor-wrapper {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 300px;
+  height: 100%;
+}
+
+/* Output spans both columns and appears below */
+.python-lesson-container .python-editor-output {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 16px;
+  border-radius: 8px;
+  background: var(--semantic-surface-elevated);
+  border: 1px solid var(--semantic-border-default);
+}
+
+/* Hide individual output areas completely in lesson layouts */
+.python-lesson-container .python-editor-wrapper .python-editor-output,
+.python-lesson-container .python-editor-container .python-editor-output {
+  display: none !important;
+}
+
+/* Shared output area styling */
+.python-lesson-container > .python-editor-output {
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--semantic-text-secondary);
+  min-height: 50px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.python-lesson-container > .python-editor-output .output-placeholder {
+  color: var(--semantic-text-muted);
+  font-style: italic;
+}
+
+.python-lesson-container > .python-editor-output:not(:empty) .output-placeholder {
+  display: none;
+}
+
+.python-lesson-container > .python-editor-output .success { 
+  color: var(--semantic-success-color); 
+}
+
+.python-lesson-container > .python-editor-output .error { 
+  color: var(--semantic-danger-color); 
+}
+
+.python-lesson-container > .python-editor-output .warning { 
+  color: var(--semantic-warning-color); 
+}
+
+/* Mobile responsive - stack vertically */
+@media (max-width: 768px) {
+  .python-lesson-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  
+  .python-lesson-container .lesson-explanation {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  
+  .python-lesson-container .python-editor-wrapper {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  
+  .python-lesson-container .python-editor-output {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
+</style> 
