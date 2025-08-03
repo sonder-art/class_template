@@ -1,0 +1,7 @@
+# GitHub Class Template Framework - Python Dependencies
+# Required packages for framework scripts and GitHub Actions workflow
+
+# Core framework dependencies
+rich>=13.0.0          # Rich UI components for manage.py and scripts
+pyyaml>=6.0           # YAML configuration file parsing
+jinja2>=3.0.0         # Hugo template generation
