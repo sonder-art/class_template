@@ -44,10 +44,6 @@ console = Console()
 class FrameworkManager:
     def __init__(self):
         self.console = console
-        self.env_manager = EnvironmentManager(self.console)
-        self.subprocess_runner = SubprocessRunner(self.console)
-        
-        # Environment properties (populated by detect_environment)
         self.current_dir = Path.cwd()
         self.role = None  # 'professor' or 'student'
         self.base_dir = None
@@ -74,17 +70,31 @@ class FrameworkManager:
     def detect_environment(self) -> bool:
         """Detect if we're in a valid framework directory and determine role"""
         
-        success, context = self.env_manager.detect_environment()
-        
-        if success:
-            # Update instance variables to maintain backward compatibility
-            self.current_dir = context.current_dir
-            self.role = context.role
-            self.base_dir = context.base_dir
-            self.framework_dir = context.framework_dir
-            self.is_valid_setup = context.is_valid_setup
+        # Check if we're in professor directory
+        if self.current_dir.name == "professor" and (self.current_dir.parent / "dna.yml").exists():
+            self.role = "professor"
+            self.base_dir = self.current_dir.parent
+            self.framework_dir = self.current_dir / "framework_code"
+            self.is_valid_setup = True
+            return True
             
-        return success
+        # Check if we're in a student directory
+        elif (self.current_dir.parent.name == "students" and 
+              (self.current_dir.parent.parent / "dna.yml").exists()):
+            self.role = "student"
+            self.base_dir = self.current_dir.parent.parent
+            self.framework_dir = self.current_dir / "framework_code"
+            self.is_valid_setup = True
+            return True
+            
+        # Check if we're in repository root
+        elif (self.current_dir / "dna.yml").exists():
+            self.console.print("📁 You're in the repository root. Please navigate to:")
+            self.console.print("   Professor: [cyan]cd professor[/cyan]")
+            self.console.print("   Student: [cyan]cd students/[your-username][/cyan]")
+            return False
+            
+        return False
     
     def add_message(self, message_type: str, title: str, details: str = None, context: str = None, duration: float = None):
         """Add a message to be shown in the final summary"""
@@ -148,17 +158,20 @@ class FrameworkManager:
     def validate_environment(self) -> bool:
         """Validate that all required files and directories exist"""
         
-        # Create context from current instance variables
-        context = EnvironmentContext()
-        context.current_dir = self.current_dir
-        context.role = self.role
-        context.base_dir = self.base_dir
-        context.framework_dir = self.framework_dir
-        context.is_valid_setup = self.is_valid_setup
+        if not self.is_valid_setup:
+            return False
+            
+        required_files = [
+            self.framework_dir / "scripts" / "generate_hugo_config.py",
+            self.framework_dir / "scripts" / "validate_content.py"
+        ]
         
-        is_valid, missing_files = self.env_manager.validate_environment(context)
+        if self.role == "student":
+            required_files.append(self.framework_dir / "scripts" / "sync_student.py")
+            
+        missing_files = [f for f in required_files if not f.exists()]
         
-        if not is_valid:
+        if missing_files:
             file_list = "\n".join([f"   {file}" for file in missing_files])
             self.add_message('errors', 'Missing Framework Files', file_list, 'Environment Validation')
             return False
@@ -227,19 +240,57 @@ class FrameworkManager:
                    capture_output: bool = False, show_progress: bool = None) -> subprocess.CompletedProcess:
         """Run a command with optional progress indication"""
         
-        # Create error callback to maintain backward compatibility with message system
-        def error_callback(desc: str, error_text: str):
-            self.add_message('errors', desc, error_text)
-        
-        return self.subprocess_runner.run_command(
-            command=command,
-            description=description,
-            working_directory=self.current_dir,
-            capture_output=capture_output,
-            show_progress=show_progress,
-            verbose=self.verbose,
-            error_callback=error_callback
-        )
+        # Default show_progress based on verbose mode
+        if show_progress is None:
+            show_progress = self.verbose
+            
+        if show_progress:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=self.console,
+            ) as progress:
+                task = progress.add_task(description, total=None)
+                
+                try:
+                    result = subprocess.run(
+                        command,
+                        capture_output=capture_output,
+                        text=True,
+                        cwd=self.current_dir
+                    )
+                    
+                    if result.returncode == 0:
+                        progress.update(task, description=f"✅ {description}")
+                    else:
+                        progress.update(task, description=f"❌ {description}")
+                        if result.stderr:
+                            self.add_message('errors', description, result.stderr.strip())
+                        
+                    return result
+                    
+                except Exception as e:
+                    progress.update(task, description=f"❌ {description} - {str(e)}")
+                    self.add_message('errors', description, str(e))
+                    raise
+        else:
+            # Silent execution for less verbose operations
+            try:
+                result = subprocess.run(
+                    command,
+                    capture_output=capture_output,
+                    text=True,
+                    cwd=self.current_dir
+                )
+                
+                if result.returncode != 0 and result.stderr:
+                    self.add_message('errors', description, result.stderr.strip())
+                    
+                return result
+                
+            except Exception as e:
+                self.add_message('errors', description, str(e))
+                raise
     
     def validate_and_generate(self, force: bool = False) -> bool:
         """Run validation and generation pipeline"""
@@ -536,10 +587,64 @@ class FrameworkManager:
             self.console.print("✅ [bold green]All operations completed successfully![/bold green]")
         self.console.print("─"*60)
 
-# Modular components
-from manage_modules.cli_definitions import create_parser
-from manage_modules.environment_manager import EnvironmentManager, EnvironmentContext
-from manage_modules.subprocess_runner import SubprocessRunner
+def create_parser() -> argparse.ArgumentParser:
+    """Create command line parser"""
+    
+    parser = argparse.ArgumentParser(
+        description="GitHub Class Template Framework - Unified Management Tool",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  ./manage.py --status          Show current framework status
+  ./manage.py --build           Full build pipeline (validate + generate + hugo build)
+  ./manage.py --dev             Start development server
+  ./manage.py --sync            Sync framework updates (students only)
+  ./manage.py --deploy          Build for production deployment
+  ./manage.py --publish         Complete build + deploy pipeline
+  
+Command Combinations:
+  ./manage.py --build --dev     Build and start development server
+  ./manage.py --build --deploy  Build and deploy (same as --publish)
+  ./manage.py --sync --build    Sync updates and build (students)
+  ./manage.py --sync --dev      Sync updates and start dev server (students)
+  
+Advanced:
+  ./manage.py --validate        Run validation only
+  ./manage.py --dev --port 8080 Custom development server port
+  ./manage.py --build --force   Skip confirmation prompts
+  ./manage.py --clean           Remove generated files
+        """
+    )
+    
+    # Common operations
+    parser.add_argument("--status", "-s", action="store_true",
+                       help="Show current framework status")
+    parser.add_argument("--build", "-b", action="store_true",
+                       help="Full build pipeline (validate + generate + build)")
+    parser.add_argument("--dev", "-d", action="store_true",
+                       help="Start development server")
+    parser.add_argument("--sync", action="store_true",
+                       help="Sync framework updates (students only)")
+    parser.add_argument("--deploy", action="store_true",
+                       help="Build for production deployment")
+    parser.add_argument("--publish", action="store_true",
+                       help="Complete build and deploy pipeline (alias for --deploy)")
+    
+    # Advanced operations
+    parser.add_argument("--validate", action="store_true",
+                       help="Run validation and generation only")
+    parser.add_argument("--clean", action="store_true",
+                       help="Clean generated files")
+    
+    # Options
+    parser.add_argument("--port", type=int, metavar="PORT",
+                       help="Development server port (default: 1313 for professor, 1314 for student)")
+    parser.add_argument("--force", "-f", action="store_true",
+                       help="Skip confirmation prompts")
+    parser.add_argument("--verbose", "-v", action="store_true",
+                       help="Show detailed output and full error messages")
+    
+    return parser
 
 def main():
     """Main entry point"""
