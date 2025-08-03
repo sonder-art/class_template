@@ -24,7 +24,7 @@ contact_policy: "Email within 24 hours for questions."
 site:
   title: "Class Template Framework"
   description: "A foundational template for educational repositories"
-  baseurl: ""
+  baseurl: "https://sonder-art.github.io/class_template/"
 
 # Future extensibility - components read this automatically
 branding:
