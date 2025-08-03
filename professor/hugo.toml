@@ -3,7 +3,7 @@
 # Variables are filled from course.yml and config.yml ONLY
 # NO dependency on root dna.yml for rendering
 
-baseURL = "https://sonder-art.github.io/class_template/"
+baseURL = "https://www.sonder.art/class_template/"
 languageCode = "en-us"
 title = "Class Template Framework"
 
