@@ -41,6 +41,20 @@ isPlainText = true
     source = "home.md"
     target = "content/_index.md"
   
+  # Framework auth pages mount
+  [[module.mounts]]
+    source = "framework_code/auth"
+    target = "content/auth"
+  
+  # Framework protected pages mounts
+  [[module.mounts]]
+    source = "framework_code/protected_pages/dashboard"
+    target = "content/dashboard"
+  
+  [[module.mounts]]
+    source = "framework_code/protected_pages/upload"
+    target = "content/upload"
+  
   # Framework assets mounts - direct from framework_code
   [[module.mounts]]
     source = "framework_code/assets"
@@ -146,6 +160,19 @@ isPlainText = true
   auto_enable_for_types = ["tutorial", "note", "homework", "project", "documentation"]
   exclude_types = ["master-index", "reference"]
   slug_in_url = true
+
+  # Authentication system settings
+  [params.authentication]
+  enabled = true
+  provider = "supabase"
+  supabase_url = "https://levybxqsltedfjtnkntm.supabase.co"
+  supabase_anon_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxldnlieHFzbHRlZGZqdG5rbnRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNTM1NDUsImV4cCI6MjA2OTgyOTU0NX0.EWH71vjTpOHYIaJfYX19xyM08zTL5AN1IBzJhY8Gx9g"
+  login_redirect = "/auth/callback/"
+  logout_redirect = "/"
+  protected_redirect = "/dashboard/"
+  show_in_sidebar = true
+  login_icon = "🔐"
+  logout_icon = "🚪"
 
 # Menu configuration (auto-generated from content structure)
 [menu]

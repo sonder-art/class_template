@@ -36,6 +36,11 @@ Theme only provides CSS styling for visual appearance.
         <button class="utility-btn" title="Font Settings (Coming Soon)" disabled>
             <span class="utility-icon">🔤</span>
         </button>
+        {{ if .Site.Params.authentication.enabled }}
+        <button class="utility-btn auth-btn" id="authButton" title="Authentication">
+            <span class="utility-icon auth-icon" id="authIcon">{{ .Site.Params.authentication.login_icon }}</span>
+        </button>
+        {{ end }}
     </div>
     
     <!-- Framework File Tree Generation -->
