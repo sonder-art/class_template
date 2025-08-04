@@ -1,0 +1,493 @@
+/**
+ * Python Execution UI Components - Framework Base
+ * Theme-agnostic structure, layout, and functionality
+ * Colors and visual styling defined in theme CSS files
+ */
+
+/* === PYTHON EXECUTION CONTAINER STRUCTURE === */
+
+/* Container with CSS Grid Layout System */
+.python-exec-container {
+    display: grid;
+    gap: 0;
+    border: 2px solid var(--semantic-accent-primary);
+    border-radius: var(--radius-lg);
+    background: var(--semantic-surface-elevated);
+    margin: var(--space-6) 0;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    min-height: 200px;
+}
+
+/* Pure Code Layout (Default) */
+.python-exec-container:not(.two-column) {
+    grid-template-areas: 
+        "header"
+        "editor" 
+        "output";
+    grid-template-rows: auto 1fr auto;
+}
+
+/* Two-Column Layout */
+.python-exec-container.two-column {
+    display: grid !important;
+    grid-template-areas:
+        "explanation header"
+        "explanation editor" 
+        "output output" !important;
+    grid-template-columns: 1.2fr 1fr !important;
+    grid-template-rows: auto 1fr auto !important;
+    min-height: 500px !important;
+}
+
+/* === HEADER SECTION === */
+
+.python-exec-header {
+    grid-area: header !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    height: var(--btn-height) !important;
+    padding: 0 var(--space-4) !important;
+    background: var(--semantic-python-header-gradient) !important;
+    color: var(--semantic-python-header-text) !important;
+    border-bottom: 1px solid var(--semantic-border-default) !important;
+    min-height: 50px !important;
+}
+
+.python-exec-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+}
+
+.python-icon {
+    font-size: var(--text-lg);
+    line-height: 1;
+}
+
+.layout-badge {
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
+    background: var(--semantic-python-badge-bg);
+    border-radius: var(--radius-sm);
+    margin-left: var(--space-2);
+}
+
+.python-exec-controls {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.python-exec-button, .python-exec-clear {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--semantic-button-bg);
+    color: var(--semantic-button-text);
+    font-weight: var(--font-medium);
+    font-size: var(--text-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    min-height: 32px;
+}
+
+.python-exec-button:hover:not(:disabled) {
+    background: var(--semantic-button-hover-bg);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.python-exec-clear:hover {
+    background: var(--semantic-danger-color);
+    color: var(--semantic-python-header-text);
+    transform: translateY(-1px);
+}
+
+.python-exec-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: var(--semantic-button-disabled-bg);
+}
+
+.button-icon, .button-text {
+    line-height: 1;
+}
+
+/* === EXPLANATION AREA === */
+
+.python-exec-explanation {
+    grid-area: explanation !important;
+    padding: var(--space-4) !important;
+    background: var(--semantic-python-explanation-bg) !important;
+    border-right: 1px solid var(--semantic-border-default) !important;
+    font-size: var(--text-sm) !important;
+    line-height: var(--leading-relaxed) !important;
+    overflow-y: auto !important;
+    max-height: 60vh !important;
+    min-height: 400px !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.explanation-content {
+    color: var(--semantic-text-secondary);
+}
+
+.explanation-content h2 {
+    color: var(--semantic-accent-secondary) !important;
+    font-size: var(--text-lg) !important;
+    margin: 0 0 var(--space-3) 0 !important;
+    border-bottom: 1px solid var(--semantic-border-subtle);
+    padding-bottom: var(--space-2);
+}
+
+.explanation-content h3 {
+    color: var(--semantic-text-primary) !important;
+    font-size: var(--text-base) !important;
+    margin: var(--space-4) 0 var(--space-2) 0 !important;
+}
+
+.explanation-content p {
+    margin: 0 0 var(--space-3) 0;
+    color: var(--semantic-text-secondary);
+}
+
+.explanation-content ul, .explanation-content ol {
+    margin: var(--space-2) 0;
+    padding-left: var(--space-4);
+}
+
+.explanation-content li {
+    margin: var(--space-1) 0;
+    color: var(--semantic-text-secondary);
+}
+
+.explanation-content code {
+    background: var(--semantic-code-bg) !important;
+    color: var(--semantic-code-text) !important;
+    padding: var(--space-1) var(--space-2) !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: var(--text-xs) !important;
+}
+
+.explanation-content strong {
+    color: var(--semantic-accent-secondary);
+    font-weight: var(--font-semibold);
+}
+
+.explanation-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 250px;
+    text-align: center;
+    padding: var(--space-4);
+}
+
+.placeholder-icon {
+    font-size: 48px;
+    margin-bottom: var(--space-3);
+    opacity: 0.7;
+}
+
+.explanation-placeholder h4 {
+    color: var(--semantic-accent-secondary) !important;
+    margin: 0 0 var(--space-3) 0 !important;
+    font-size: var(--text-lg) !important;
+}
+
+.explanation-placeholder p {
+    color: var(--semantic-text-secondary);
+    margin: 0 0 var(--space-2) 0;
+    font-size: var(--text-sm);
+}
+
+.explanation-placeholder code {
+    display: inline-block;
+    margin: var(--space-2) 0;
+    padding: var(--space-2) var(--space-3);
+    background: var(--semantic-surface-elevated);
+    border: 1px solid var(--semantic-border-default);
+    border-radius: var(--radius-sm);
+    color: var(--semantic-code-text);
+    font-size: var(--text-xs);
+    word-break: break-all;
+}
+
+.placeholder-note {
+    font-size: var(--text-xs) !important;
+    color: var(--semantic-text-muted) !important;
+    font-style: italic;
+}
+
+/* === CODE EDITOR SECTION === */
+
+.python-exec-editor {
+    grid-area: editor !important;
+    position: relative !important;
+    min-height: calc(var(--leading-normal) * var(--text-sm) * 8) !important;
+    max-height: 60vh !important;
+    background: var(--editor-bg) !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.python-code-input {
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    max-height: inherit;
+    border: none;
+    outline: none;
+    resize: vertical;
+    padding: var(--space-4);
+    margin: 0;
+    
+    /* Typography */
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    letter-spacing: 0.025em;
+    
+    /* Colors - defined by theme */
+    background: var(--editor-bg);
+    color: var(--editor-text);
+    caret-color: var(--editor-caret);
+    
+    /* Code styling */
+    white-space: pre;
+    word-wrap: normal;
+    tab-size: 4;
+    overflow: auto;
+    
+    /* Visual styling */
+    border: 1px solid var(--editor-border);
+    box-shadow: var(--editor-shadow);
+    
+    /* Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--semantic-scrollbar-thumb) var(--semantic-scrollbar-track);
+}
+
+.python-code-input::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.python-code-input::-webkit-scrollbar-track {
+    background: var(--semantic-scrollbar-track);
+}
+
+.python-code-input::-webkit-scrollbar-thumb {
+    background: var(--semantic-scrollbar-thumb);
+    border-radius: var(--radius-sm);
+}
+
+.python-code-input::-webkit-scrollbar-thumb:hover {
+    background: var(--semantic-scrollbar-thumb-hover);
+}
+
+.python-code-input:focus {
+    box-shadow: var(--editor-focus-shadow);
+    border-color: var(--editor-focus-border);
+}
+
+.python-code-input::placeholder {
+    color: var(--editor-placeholder);
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.python-code-input::selection {
+    background: var(--editor-selection-bg);
+    color: var(--editor-selection-text);
+}
+
+.python-code-input::-moz-selection {
+    background: var(--editor-selection-bg);
+    color: var(--editor-selection-text);
+}
+
+/* === OUTPUT SECTION === */
+
+.python-exec-output {
+    grid-area: output;
+    border-top: 1px solid var(--semantic-border-default);
+    background: var(--semantic-bg-primary);
+}
+
+.python-exec-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    background: var(--semantic-surface);
+    border-bottom: 1px solid var(--semantic-border-default);
+    font-weight: var(--font-medium);
+    font-size: var(--text-sm);
+    color: var(--semantic-accent-secondary);
+}
+
+.output-icon, .output-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.output-controls {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.output-copy {
+    padding: var(--space-1) var(--space-2);
+    border: 1px solid var(--semantic-border-default);
+    border-radius: var(--radius-sm);
+    background: var(--semantic-surface-elevated);
+    color: var(--semantic-text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: var(--text-xs);
+}
+
+.output-copy:hover {
+    background: var(--semantic-accent-primary);
+    color: var(--semantic-button-hover-text);
+    border-color: var(--semantic-accent-primary);
+}
+
+.python-exec-result {
+    margin: 0;
+    padding: var(--space-4);
+    background: var(--semantic-bg-primary);
+    border: none;
+    border-radius: 0;
+    color: var(--semantic-text-primary);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    white-space: pre-wrap;
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+    
+    /* Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--semantic-scrollbar-thumb) var(--semantic-bg-primary);
+}
+
+.python-exec-result::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.python-exec-result::-webkit-scrollbar-track {
+    background: var(--semantic-bg-primary);
+}
+
+.python-exec-result::-webkit-scrollbar-thumb {
+    background: var(--semantic-scrollbar-thumb);
+    border-radius: var(--radius-sm);
+}
+
+/* === RESPONSIVE DESIGN === */
+
+/* Mobile: Stack vertically */
+@media (max-width: 768px) {
+    .python-exec-container.two-column {
+        grid-template-areas:
+            "header"
+            "editor"
+            "explanation"
+            "output";
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .python-exec-explanation {
+        border-right: none;
+        border-top: 1px solid var(--semantic-border-default);
+        min-height: auto;
+        max-height: 300px;
+    }
+    
+    .explanation-placeholder {
+        min-height: 100px;
+        padding: var(--space-3);
+    }
+    
+    .python-exec-header {
+        padding: 0 var(--space-3);
+    }
+    
+    .python-exec-controls {
+        gap: var(--space-1);
+    }
+    
+    .python-exec-button, .python-exec-clear {
+        padding: var(--space-1) var(--space-2);
+        font-size: var(--text-xs);
+    }
+    
+    .button-text {
+        display: none; /* Show only icons on mobile */
+    }
+}
+
+/* Tablet: Adjusted proportions */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .python-exec-container.two-column {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Large screens: Optimal proportions */
+@media (min-width: 1200px) {
+    .python-exec-container.two-column {
+        grid-template-columns: 1.3fr 1fr;
+    }
+    
+    .python-exec-editor {
+        min-height: calc(var(--leading-normal) * var(--text-sm) * 10);
+    }
+}
+
+/* === INTERACTIVE STATES === */
+
+.python-exec-container:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--semantic-accent-hover);
+}
+
+.python-exec-container:focus-within {
+    box-shadow: var(--shadow-lg), var(--semantic-focus-glow);
+    border-color: var(--semantic-accent-primary);
+}
+
+/* Loading state */
+.python-exec-container.loading .python-exec-button {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.python-exec-container.loading .python-code-input {
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+/* Error state */
+.python-exec-container.error {
+    border-color: var(--semantic-danger-color);
+}
+
+.python-exec-container.error .python-exec-header {
+    background: var(--error-gradient);
+} 

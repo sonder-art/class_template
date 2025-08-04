@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Testing on Class Template Framework</title>
+    <link>https://www.sonder.art/class_template/tags/testing/</link>
+    <description>Recent content in Testing on Class Template Framework</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 20 Jan 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://www.sonder.art/class_template/tags/testing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JupyterLite Integration Test</title>
+      <link>https://www.sonder.art/class_template/framework_documentation/z_tests/2025-01-20-documentation-jupyterlite-integration-t/</link>
+      <pubDate>Mon, 20 Jan 2025 00:00:00 +0000</pubDate>
+      <guid>https://www.sonder.art/class_template/framework_documentation/z_tests/2025-01-20-documentation-jupyterlite-integration-t/</guid>
+      <description>Test of JupyterLite integration with natural markdown content</description>
+    </item>
+  </channel>
+</rss>

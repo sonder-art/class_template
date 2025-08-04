@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Class_notes on Class Template Framework</title>
+    <link>https://www.sonder.art/class_template/class_notes/</link>
+    <description>Recent content in Class_notes on Class Template Framework</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 16 Jan 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://www.sonder.art/class_template/class_notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Class Notes</title>
+      <link>https://www.sonder.art/class_template/class_notes/00_master_index/</link>
+      <pubDate>Thu, 16 Jan 2025 00:00:00 +0000</pubDate>
+      <guid>https://www.sonder.art/class_template/class_notes/00_master_index/</guid>
+      <description>Master index for Class Notes content</description>
+    </item>
+  </channel>
+</rss>
