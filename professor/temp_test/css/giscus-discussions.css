@@ -1,0 +1,71 @@
+/* === GISCUS DISCUSSIONS COMPONENT === */
+.giscus-discussions {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--semantic-border-subtle);
+}
+
+.discussions-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.discussions-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--semantic-text-primary);
+}
+
+.discussions-subtitle {
+  color: var(--semantic-text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.giscus-container {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Giscus iframe styling */
+.giscus {
+  width: 100% !important;
+}
+
+.giscus iframe {
+  border-radius: 8px;
+  border: 1px solid var(--semantic-border-default);
+}
+
+/* Debug info (development only) */
+.discussions-debug {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--semantic-bg-secondary);
+  border: 1px solid var(--semantic-border-default);
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.discussions-debug ul {
+  list-style: none;
+  padding: 0;
+}
+
+.discussions-debug li {
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .giscus-discussions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+  
+  .discussions-header h3 {
+    font-size: 1.3rem;
+  }
+}

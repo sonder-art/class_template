@@ -27,7 +27,7 @@ Theme only provides CSS styling for visual appearance.
     
     <!-- Framework Utility Icons -->
     <div class="nav-utilities">
-        <a href="{{ $.Site.BaseURL }}" class="utility-btn" title="Home">
+        <a href="{{ relURL "/" }}" class="utility-btn" title="Home">
             <span class="utility-icon">🏠</span>
         </a>
         <button class="utility-btn" title="Search (Coming Soon)" disabled>
@@ -54,7 +54,7 @@ Theme only provides CSS styling for visual appearance.
                 <div class="folder-item" data-category="{{ $categoryName }}">
                     <div class="folder-header" data-target="category-{{ $categoryName }}">
                         <span class="folder-icon">▶</span>
-                        <a href="{{ $.Site.BaseURL }}{{ $categoryName }}/00_master_index/" class="folder-name-link {{ if and (eq $.Section $categoryName) (eq $.File.BaseFileName "00_master_index") }}active{{ end }}">
+                        <a href="{{ relURL (printf "%s/00_master_index/" $categoryName) }}" class="folder-name-link {{ if and (eq $.Section $categoryName) (eq $.File.BaseFileName "00_master_index") }}active{{ end }}">
                             <span class="folder-name">{{ $categoryTitle }}</span>
                         </a>
                     </div>
@@ -122,7 +122,7 @@ Theme only provides CSS styling for visual appearance.
                                 <div class="chapter-header" data-target="chapter-{{ $categoryName }}-{{ $chapterName }}">
                                     <span class="chapter-icon">▶</span>
                                     {{ $isChapterIndex := and (eq $.Section $categoryName) (eq (path.Base (path.Dir $.File.Path)) $chapterName) (eq $.File.BaseFileName "00_index") }}
-                                    <a href="{{ $.Site.BaseURL }}{{ $categoryName }}/{{ $chapterName | lower }}/00_index/" class="chapter-name-link {{ if $isChapterIndex }}active{{ end }}">
+                                    <a href="{{ relURL (printf "%s/%s/00_index/" $categoryName ($chapterName | lower)) }}" class="chapter-name-link {{ if $isChapterIndex }}active{{ end }}">
                                         <span class="chapter-name">{{ $chapterTitle }}</span>
                                     </a>
                                 </div>
