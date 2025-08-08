@@ -257,6 +257,10 @@
 {{ end }}
 
     {{ if .Site.Params.authentication.enabled }}
+    {{ $authUtilsJS := resources.Get "js/auth-utils.js" }}
+    {{ if $authUtilsJS }}
+        <script src="{{ $authUtilsJS.RelPermalink }}"></script>
+    {{ end }}
     {{ $supabaseAuthJS := resources.Get "js/supabase-auth.js" }}
     {{ if $supabaseAuthJS }}
         <script src="{{ $supabaseAuthJS.RelPermalink }}"></script>

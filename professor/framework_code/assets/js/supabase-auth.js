@@ -4,6 +4,11 @@
  * Integrates with Hugo site parameters and framework components
  */
 
+// Ensure auth utilities are loaded
+if (!window.AuthUtils) {
+    console.error('AuthUtils not loaded. Authentication may not work correctly.');
+}
+
 // Global authentication state
 window.authState = {
     client: null,
@@ -12,6 +17,58 @@ window.authState = {
     isAuthenticated: false,
     isLoading: false
 };
+
+/**
+ * Compute the site base path from the configured BaseURL.
+ * Returns a path that always starts and ends with '/'.
+ */
+function getSiteBasePath() {
+    const configuredBaseUrl = (window.authConfig && window.authConfig.base_url) ? String(window.authConfig.base_url) : '';
+
+    // 1) Try path from configured BaseURL
+    const pathFromConfig = (function() {
+        if (!configuredBaseUrl) return '';
+        try {
+            const url = new URL(configuredBaseUrl);
+            return url.pathname || '/';
+        } catch (_) {
+            // configuredBaseUrl might be a path-only value
+            const p = configuredBaseUrl.startsWith('/') ? configuredBaseUrl : '/' + configuredBaseUrl;
+            return p;
+        }
+    })();
+    if (pathFromConfig && pathFromConfig !== '/') {
+        return pathFromConfig.endsWith('/') ? pathFromConfig : pathFromConfig + '/';
+    }
+
+    // 2) Infer from current script src (prefix before /assets/)
+    try {
+        const currentScript = document.currentScript;
+        if (currentScript && currentScript.src) {
+            const pathname = new URL(currentScript.src).pathname;
+            const idx = pathname.indexOf('/assets/');
+            if (idx > 0) {
+                const prefix = pathname.substring(0, idx + 1);
+                return prefix.endsWith('/') ? prefix : prefix + '/';
+            }
+        }
+    } catch (_) { /* no-op */ }
+
+    // 3) Fallback to root
+    return '/';
+}
+
+/**
+ * Build a fully-qualified URL using the current origin + site base path + given path.
+ * The provided path can be absolute (starts with '/') or relative.
+ */
+function buildSiteUrl(pathname) {
+    const origin = window.location.origin;
+    const basePath = getSiteBasePath();
+    const normalizedPath = pathname && pathname.startsWith('/') ? pathname : `/${pathname || ''}`;
+    // Use URL to safely join and preserve any existing query/hash in pathname
+    return new URL(normalizedPath, origin + basePath).toString();
+}
 
 /**
  * Initialize Supabase client with PKCE flow
@@ -159,10 +216,33 @@ async function handleLogin() {
     setLoadingState(true);
 
     try {
+        // Store the current page path to return to after authentication
+        const currentPath = window.location.pathname + window.location.search + window.location.hash;
+        
+        // Use AuthUtils if available, fallback to basic logic
+        let callbackUrl;
+        if (window.AuthUtils) {
+            callbackUrl = new URL(window.AuthUtils.getCallbackUrl());
+            
+            // Validate and add redirect parameter
+            const validatedPath = window.AuthUtils.validateRedirectPath(currentPath);
+            if (validatedPath && validatedPath !== '/auth/callback/') {
+                callbackUrl.searchParams.set('redirect', validatedPath);
+            }
+        } else {
+            // Fallback to original logic
+            callbackUrl = new URL(window.authConfig.login_redirect || '/auth/callback/', window.location.origin);
+            if (currentPath && currentPath !== '/auth/callback/') {
+                callbackUrl.searchParams.set('redirect', currentPath);
+            }
+        }
+
+        console.log('Auth: Initiating login, will return to:', currentPath);
+
         const { data, error } = await window.authState.client.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: window.authConfig.base_url + window.authConfig.login_redirect
+                redirectTo: callbackUrl.toString()
             }
         });
 
@@ -198,8 +278,8 @@ async function handleLogout() {
             console.error('❌ Logout error:', error);
         } else {
             console.log('✅ Logged out successfully');
-            // Redirect to logout page
-            window.location.href = window.authConfig.logout_redirect;
+            // Stay on the current page after logout (just reload to update UI)
+            window.location.reload();
         }
     } catch (error) {
         console.error('❌ Logout failed:', error);

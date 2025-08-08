@@ -5,7 +5,7 @@ sitemap_ignore: true
 robots: "noindex, nofollow"
 ---
 
-# 🚨 UPDATED VERSION 4.0 - PROCESSING AUTHENTICATION 🚨
+# Processing Authentication
 
 <div id="authStatus" class="auth-status">
     <div class="auth-loading">
@@ -81,26 +81,12 @@ robots: "noindex, nofollow"
 </style>
 
 <script>
-alert('🚨 JAVASCRIPT IS RUNNING - VERSION 4.0! 🚨');
-try {
-    console.log('🚨🚨🚨 JAVASCRIPT EXECUTING - v4.0 🚨🚨🚨');
-    console.warn('🚨 WARNING MESSAGE TEST 🚨');
-    console.error('🚨 ERROR MESSAGE TEST 🚨');
-} catch(e) {
-    alert('Console.log failed: ' + e.message);
-}
-
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚨🚨🚨 DOM LOADED - LATEST VERSION LOADED - PKCE DEBUG v3.0 🚨🚨🚨');
-    console.log('🔍 window.authConfig exists:', !!window.authConfig);
-    console.log('🔍 window.supabase exists:', !!window.supabase);
-    
-    // Try direct call to new function
-    console.log('🔄 Starting NEW auth callback DIRECTLY...');
-    handleAuthCallbackNEW();
+    console.log('Auth callback: Processing authentication...');
+    handleAuthCallback();
 });
 
-async function handleAuthCallbackNEW() {
+async function handleAuthCallback() {
     const authStatusEl = document.getElementById('authStatus');
     const authErrorEl = document.getElementById('authError');
     const authSuccessEl = document.getElementById('authSuccess');
@@ -108,79 +94,71 @@ async function handleAuthCallbackNEW() {
     const retryButtonEl = document.getElementById('retryButton');
 
     try {
-        console.warn('🔥 STARTING handleAuthCallbackNEW 🔥');
-        
-        // Check what's available
-        console.warn('🔍 window.authState:', !!window.authState);
-        console.warn('🔍 window.authState type:', typeof window.authState);
-        console.warn('🔍 window.authState keys:', window.authState ? Object.keys(window.authState) : 'null');
-        console.warn('🔍 window.authState.client:', !!window.authState?.client);
-        console.warn('🔍 window.authConfig:', !!window.authConfig);
-        console.warn('🔍 window.supabase:', !!window.supabase);
-        
-        // Check localStorage
-        const authKeys = Object.keys(localStorage).filter(key => key.includes('supabase') || key.includes('auth'));
-        console.warn('🔍 Auth localStorage keys:', authKeys);
-        
-        // Check specific localStorage values
-        authKeys.forEach(key => {
-            const value = localStorage.getItem(key);
-            console.warn(`🔍 ${key}:`, value ? 'EXISTS' : 'NULL');
-        });
-        
-        // Check URL
+        // Check URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const authCode = urlParams.get('code');
-        console.warn('🔍 Auth code from URL:', authCode);
+        const redirectPath = urlParams.get('redirect');
+        
+        console.log('Auth callback: Code present:', !!authCode);
+        console.log('Auth callback: Return path:', redirectPath || 'none');
 
         // Check if we actually have an auth code (real callback scenario)
         if (!authCode) {
             throw new Error('No auth code in URL - not a real OAuth callback');
         }
 
-        console.warn('🔄 Waiting for automatic framework authentication...');
+        // Wait for framework to process authentication automatically
+        console.log('Auth callback: Waiting for framework authentication...');
         
-        // Wait and check if framework already processed the authentication
         for (let attempt = 0; attempt < 20; attempt++) {
-            await new Promise(resolve => setTimeout(resolve, 250)); // Wait 250ms
+            await new Promise(resolve => setTimeout(resolve, 250));
             
-            // Check if we now have a session (framework processed it)
             const currentSession = localStorage.getItem('sb-levybxqsltedfjtnkntm-auth-token');
-            console.warn(`🔍 Attempt ${attempt + 1}: Session exists:`, !!currentSession);
             
             if (currentSession) {
-                console.warn('✅ Framework automatically completed authentication!');
                 const sessionData = JSON.parse(currentSession);
                 
                 if (sessionData.access_token) {
-                    console.warn('🎉 Authentication successful! Access token found.');
+                    console.log('Auth callback: Authentication successful');
                     
                     // Show success and redirect
                     authStatusEl.style.display = 'none';
                     authSuccessEl.style.display = 'block';
                     
                     setTimeout(() => {
-                        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 
-                                          window.authConfig.protected_redirect || 
-                                          '/';
-                        console.warn('🔄 Redirecting to:', redirectUrl);
-                        window.location.href = redirectUrl;
-                    }, 2000);
+                        // Determine where to redirect
+                        let targetPath = redirectPath;
+                        
+                        // Validate the redirect path for security
+                        if (!targetPath || !targetPath.startsWith('/') || targetPath.startsWith('//')) {
+                            // If no valid redirect path, use the homepage
+                            targetPath = '/';
+                        }
+                        
+                        // Get the base path for the site
+                        const basePath = window.location.pathname.replace('/auth/callback/', '');
+                        const baseUrl = window.location.origin + basePath;
+                        
+                        // Build the final redirect URL
+                        const finalUrl = new URL(targetPath, baseUrl).toString();
+                        
+                        console.log('Auth callback: Redirecting to original page:', finalUrl);
+                        window.location.href = finalUrl;
+                    }, 1500);
                     
                     return; // Exit function - no manual processing needed
                 }
             }
         }
         
-        console.warn('⚠️ Framework did not complete authentication, trying manual processing...');
+        // Fallback: Try manual processing if framework didn't complete
+        console.log('Auth callback: Attempting manual authentication...');
         
-        // Fallback: Try manual processing (but this might fail due to consumed code)
         let supabaseClient;
         if (window.authState && window.authState.client) {
-            console.warn('🔄 Using existing framework client...');
             supabaseClient = window.authState.client;
         } else {
-            console.warn('⚠️ Creating fallback client...');
+            // Create fallback client
             supabaseClient = supabase.createClient(
                 window.authConfig.supabase_url,
                 window.authConfig.supabase_anon_key,
@@ -196,7 +174,6 @@ async function handleAuthCallbackNEW() {
             );
         }
 
-        console.warn('🔄 Manual exchangeCodeForSession...');
         const { data, error } = await supabaseClient.auth.exchangeCodeForSession(window.location.href);
         
         if (error) {
@@ -210,14 +187,22 @@ async function handleAuthCallbackNEW() {
             authStatusEl.style.display = 'none';
             authSuccessEl.style.display = 'block';
             
-            // Redirect after a short delay
+            // Redirect to original page
             setTimeout(() => {
-                const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 
-                                  window.authConfig.protected_redirect || 
-                                  '/';
-                console.log('🔄 Redirecting to:', redirectUrl);
-                window.location.href = redirectUrl;
-            }, 2000);
+                let targetPath = redirectPath;
+                
+                // Validate redirect path
+                if (!targetPath || !targetPath.startsWith('/') || targetPath.startsWith('//')) {
+                    targetPath = '/';
+                }
+                
+                const basePath = window.location.pathname.replace('/auth/callback/', '');
+                const baseUrl = window.location.origin + basePath;
+                const finalUrl = new URL(targetPath, baseUrl).toString();
+                
+                console.log('Auth callback: Redirecting to:', finalUrl);
+                window.location.href = finalUrl;
+            }, 1500);
         } else {
             throw new Error('No session received');
         }
