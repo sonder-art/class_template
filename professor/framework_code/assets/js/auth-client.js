@@ -136,6 +136,33 @@ window.AuthClient = (function() {
     }
 
     /**
+     * Generate enrollment token for a class (professors only)
+     */
+    async function generateToken(classSlug, options = {}) {
+        if (!classSlug) {
+            throw new Error('Class slug is required');
+        }
+        
+        const { expiresInDays = 30, maxUses = 0 } = options;
+        
+        try {
+            const result = await callEndpoint('/generate-token', {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    class_slug: classSlug, 
+                    expires_in_days: expiresInDays,
+                    max_uses: maxUses
+                })
+            });
+            console.log('🔗 Token generated successfully:', { ...result, token: '***' });
+            return result;
+        } catch (error) {
+            console.error('❌ Token generation failed:', error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Check if the API is available (basic connectivity test)
      */
     async function healthCheck() {
@@ -152,6 +179,7 @@ window.AuthClient = (function() {
     return {
         getMe,
         enroll,
+        generateToken,
         getCurrentClassSlug,
         healthCheck,
         

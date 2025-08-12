@@ -3,21 +3,22 @@ title: "Authentication Setup Guide"
 type: documentation
 date: 2025-08-12
 author: "Framework Team"
-summary: "Complete authentication setup with profiles, RLS, and Edge Functions"
+summary: "Complete authentication setup with profiles, RLS, Edge Functions, and enrollment system"
 difficulty: medium
-estimated_time: 45
+estimated_time: 60
 tags:
 - authentication
 - setup
 - supabase
+- enrollment
 - implementation-complete
 ---
 
 # Authentication Setup Guide
 
-**Status: IMPLEMENTATION COMPLETE ✅**
+**Status: IMPLEMENTATION COMPLETE ✅ - INCLUDING ENROLLMENT SYSTEM**
 
-This guide walks through setting up authentication for your class instance using Supabase, including database schema, RLS policies, and Edge Functions.
+This guide walks through setting up the complete authentication system for your class instance using Supabase, including database schema, RLS policies, Edge Functions, and the token-based enrollment system.
 
 ## Prerequisites
 
@@ -137,25 +138,55 @@ supabase login
 supabase link --project-ref YOUR_PROJECT_REF
 ```
 
-4. Deploy functions from the professor/framework_code/supabase directory:
+4. Deploy all authentication functions from the professor/framework_code/supabase directory:
 ```bash
 cd professor/framework_code
-supabase functions deploy me --project-ref YOUR_PROJECT_REF
-# Future: supabase functions deploy enroll --project-ref YOUR_PROJECT_REF
+supabase functions deploy me --no-verify-jwt
+supabase functions deploy enroll --no-verify-jwt
+supabase functions deploy generate-token --no-verify-jwt
 ```
 
-## Step 8: Test Authentication
+**Note:** The `--no-verify-jwt` flag is used because JWT verification is handled within the functions.
 
-1. Start development server:
-```bash
-./manage.sh --dev
-```
+## Step 8: Initial Professor Setup
 
+Before testing, set up the first professor for your class:
+
+1. **Login via GitHub OAuth** on your development site
+2. **Get your user ID** from Supabase Dashboard → Authentication → Users
+3. **Add professor role** in SQL Editor:
+   ```sql
+   INSERT INTO class_members (class_id, user_id, role)
+   VALUES (
+     (SELECT id FROM classes WHERE slug = 'class_template'),
+     'your-user-id-from-auth-users-table',
+     'professor'
+   );
+   ```
+4. **Refresh your dashboard** to see Professor Tools
+
+## Step 9: Test Complete System
+
+### Test Authentication:
+1. Start development server: `./manage.sh --dev`
 2. Visit http://localhost:1313
-3. Click login button
-4. Authenticate with GitHub
-5. Verify return to same page
-6. Check dashboard shows user info
+3. Click login button → GitHub OAuth flow
+4. Verify return to same page
+5. Check dashboard shows user info and professor tools
+
+### Test Enrollment System:
+
+**As Professor:**
+1. Navigate to `/dashboard/`
+2. Click "Generate Enrollment Token" in Professor Tools
+3. Copy generated token (format: ABCD-1234-EFGH-5678)
+
+**As Student (different browser/incognito):**
+1. Login via GitHub OAuth
+2. Navigate to `/dashboard/`
+3. See prominent orange "Join Class" enrollment section
+4. Enter enrollment token and click "Join Class"
+5. Verify dashboard updates with Student Tools
 
 ## Troubleshooting
 

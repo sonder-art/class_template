@@ -1,6 +1,6 @@
 # Authentication Setup Guide
 
-**Status: IMPLEMENTATION COMPLETE ✅**
+**Status: IMPLEMENTATION COMPLETE ✅ - INCLUDING ENROLLMENT SYSTEM**
 
 ## Overview
 This framework uses Supabase for authentication with GitHub OAuth. The implementation supports:
@@ -10,6 +10,8 @@ This framework uses Supabase for authentication with GitHub OAuth. The implement
 - Row Level Security (RLS) with automatic profile creation
 - Edge Functions for authentication API
 - PKCE flow for enhanced security
+- **Token-based enrollment system** with professor/student role management
+- **Dashboard integration** with role-based UI and prominent enrollment interface
 
 ## Supabase Configuration
 
@@ -69,9 +71,13 @@ Run these SQL files in Supabase SQL Editor (in order):
 
 ### 2. Deploy Edge Functions
 ```bash
-# Deploy the /me endpoint
-npx supabase functions deploy me --project-ref YOUR_PROJECT_ID
+# Deploy all authentication Edge Functions
+npx supabase functions deploy me --no-verify-jwt
+npx supabase functions deploy enroll --no-verify-jwt  
+npx supabase functions deploy generate-token --no-verify-jwt
 ```
+
+**Note**: The `--no-verify-jwt` flag is used because JWT verification is handled within the functions.
 
 ## Framework Configuration
 
@@ -117,6 +123,33 @@ site:
 2. Session is cleared
 3. Page reloads to update UI (stays on same page)
 
+## Enrollment System
+
+### Overview:
+The framework includes a complete token-based enrollment system that allows:
+- **Professors**: Generate enrollment tokens with expiration dates and usage limits
+- **Students**: Use tokens to join classes through a prominent dashboard interface
+- **Automatic Role Assignment**: Users are assigned appropriate roles upon enrollment
+
+### Professor Workflow:
+1. **Access Dashboard**: Login and navigate to dashboard
+2. **Generate Token**: Click "Generate Enrollment Token" in Professor Tools section
+3. **Configure Settings**: Set expiration (default 30 days) and max uses (default unlimited)
+4. **Share Token**: Copy the generated token (format: ABCD-1234-EFGH-5678) and share with students
+
+### Student Enrollment:
+1. **Login Required**: Students must be logged in via GitHub OAuth
+2. **Dashboard Access**: Navigate to `/dashboard/` page
+3. **Enrollment Interface**: Non-enrolled students see a prominent orange "Join Class" button
+4. **Token Entry**: Enter enrollment token provided by professor
+5. **Automatic Assignment**: Upon successful enrollment, student role is assigned and dashboard updates
+
+### Technical Implementation:
+- **Token Security**: SHA-256 hashing using crypto.subtle.digest() for Deno Edge Functions compatibility
+- **Database Integration**: Enrollment tokens stored with expiration, usage tracking, and audit trails
+- **UI Integration**: Role-based dashboard with prominent enrollment section for non-members
+- **API Endpoints**: `/generate-token` and `/enroll` Edge Functions handle backend operations
+
 ## Security Features
 
 ### Implemented:
@@ -149,6 +182,9 @@ site:
 
 ### Issue: User stays logged in across different class repositories
 **Solution**: This is expected behavior. Sessions are stored per-domain. Users can manually logout if needed.
+
+### Issue: Token generation fails with "Worker is not defined"
+**Solution**: This was resolved by replacing bcrypt with crypto.subtle.digest() for Deno Edge Functions compatibility.
 
 ## Testing Authentication
 

@@ -287,8 +287,34 @@ async function handleLogout() {
             console.error('❌ Logout error:', error);
         } else {
             console.log('✅ Logged out successfully');
-            // Stay on the current page after logout (just reload to update UI)
-            window.location.reload();
+            
+            // Reset loading state immediately
+            setLoadingState(false);
+            
+            // Instead of reloading, which might cause redirect issues,
+            // manually update the auth state and trigger UI updates
+            window.authState.user = null;
+            window.authState.session = null;
+            window.authState.isAuthenticated = false;
+            window.authState.userContext = null;
+            window.authState.isLoading = false;  // Ensure loading is false
+            
+            // Trigger auth state change event
+            window.dispatchEvent(new CustomEvent('authStateChanged', {
+                detail: { user: null, session: null }
+            }));
+            
+            // If we're on a protected page, redirect to home using proper base URL
+            const currentPath = window.location.pathname;
+            const protectedPages = ['/dashboard/', '/upload/', '/admin/'];
+            const isProtectedPage = protectedPages.some(page => currentPath.includes(page));
+            
+            if (isProtectedPage) {
+                const baseUrl = window.authConfig?.base_url || '';
+                const homeUrl = new URL('./', window.location.origin + baseUrl).toString();
+                window.location.href = homeUrl;
+                return; // Don't execute the final setLoadingState(false) since we're redirecting
+            }
         }
     } catch (error) {
         console.error('❌ Logout failed:', error);
@@ -302,15 +328,27 @@ async function handleLogout() {
  */
 function setLoadingState(isLoading) {
     window.authState.isLoading = isLoading;
-    const authButton = document.getElementById('authButton');
+    
+    // Support both old and new auth buttons
+    const oldAuthButton = document.getElementById('authButton');
+    const newAuthButton = document.getElementById('navAuthToggleBtn');
+    
+    const authButton = newAuthButton || oldAuthButton;
     
     if (authButton) {
         if (isLoading) {
             authButton.classList.add('loading');
             authButton.title = 'Loading...';
+            authButton.disabled = true;
         } else {
             authButton.classList.remove('loading');
+            authButton.disabled = false;
             updateAuthUI();
+            
+            // Also trigger the new navigation update if it exists
+            if (typeof updateSidebarAuthNavigation === 'function') {
+                updateSidebarAuthNavigation();
+            }
         }
     }
 }

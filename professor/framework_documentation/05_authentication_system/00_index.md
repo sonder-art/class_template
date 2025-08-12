@@ -13,9 +13,9 @@ summary: "Index for Authentication System chapter"
 ## 📚 Chapter Content
 
 ### [Authentication Setup Guide](01_setup_guide.md)
-*Step-by-step guide to setting up authentication with Supabase*
+*Complete authentication setup with profiles, RLS, and Edge Functions*
 
-🟡 **Medium** | ⏱️ **30 min** | 📋 **Documentation**
+🟡 **Medium** | ⏱️ **45 min** | 📋 **Documentation**
 
 ## 🧭 Navigation
 

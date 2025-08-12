@@ -36,12 +36,33 @@ Theme only provides CSS styling for visual appearance.
         <button class="utility-btn" title="Font Settings (Coming Soon)" disabled>
             <span class="utility-icon">🔤</span>
         </button>
-        {{ if .Site.Params.authentication.enabled }}
-        <button class="utility-btn auth-btn" id="authButton" title="Authentication">
-            <span class="utility-icon auth-icon" id="authIcon">{{ .Site.Params.authentication.login_icon }}</span>
-        </button>
-        {{ end }}
     </div>
+    
+    <!-- Authentication & Navigation Section -->
+    {{ if .Site.Params.authentication.enabled }}
+    <div class="nav-auth-section">
+        <!-- User Status Display -->
+        <div class="nav-user-status" id="navUserStatus">
+            <span id="userStatusText">🔄 Checking...</span>
+        </div>
+        
+        <!-- Dashboard Button (visible to authenticated users) -->
+        <a href="{{ .Site.BaseURL }}dashboard/" 
+           class="nav-auth-btn dashboard-btn" 
+           id="navDashboardBtn"
+           style="display: none;"
+           title="Go to Dashboard">
+            📊 Dashboard
+        </a>
+        
+        <!-- Login/Logout Button -->
+        <button class="nav-auth-btn auth-btn" 
+                id="navAuthToggleBtn"
+                title="Login to access features">
+            Login
+        </button>
+    </div>
+    {{ end }}
     
     <!-- Framework File Tree Generation -->
     {{/* Define content categories from framework configuration */}}

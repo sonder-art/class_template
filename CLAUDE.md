@@ -202,6 +202,9 @@ summary: "Brief description for indices and search"
 - Protected pages: dashboard, upload areas
 - JWT-based session management
 - Frontend auth state management in JavaScript
+- **Token-based enrollment system** with professor/student role management
+- **Role-based dashboard UI** with prominent enrollment interface
+- **Secure token hashing** using SHA-256 (Deno Edge Functions compatible)
 
 **Content Features:**
 - LaTeX math rendering via MathJax/KaTeX
