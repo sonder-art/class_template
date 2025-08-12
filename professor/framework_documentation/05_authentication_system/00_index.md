@@ -13,9 +13,9 @@ summary: "Index for Authentication System chapter"
 ## 📚 Chapter Content
 
 ### [Authentication Setup Guide](01_setup_guide.md)
-*Complete authentication setup with profiles, RLS, and Edge Functions*
+*Complete authentication setup with profiles, RLS, Edge Functions, and enrollment system*
 
-🟡 **Medium** | ⏱️ **45 min** | 📋 **Documentation**
+🟡 **Medium** | ⏱️ **60 min** | 📋 **Documentation**
 
 ## 🧭 Navigation
 

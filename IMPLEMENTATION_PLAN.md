@@ -315,23 +315,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 **Goal:** Allow token-based enrollment
 
-**Status:** ✅ Completed - Full enrollment system with dashboard integration
+**Status:** ✅ Completed - Full enrollment system with advanced management features
 - Created `professor/framework_code/supabase/functions/enroll/index.ts` - Edge Function for enrollment
 - Created `professor/framework_code/supabase/functions/generate-token/index.ts` - Edge Function for token generation
+- Created `professor/framework_code/supabase/functions/class-roster/index.ts` - Edge Function for roster viewing
+- Created `professor/framework_code/supabase/functions/manage-tokens/index.ts` - Edge Function for token management
 - Enhanced dashboard with prominent enrollment section and role-based tools
 - Implemented SHA-256 token hashing using crypto.subtle (Deno Edge Functions compatible)
 - Added enrollment token management with expiration and usage limits
 - Created large orange enrollment button with animations and visual feedback
 - Integrated JavaScript enrollment handlers in dashboard
 - Professor tools for generating and managing enrollment tokens
-- **Technical Note**: Replaced bcrypt with crypto.subtle.digest() for Deno Edge Functions compatibility
+- **Advanced Features Added (Framework Enhancement)**:
+  - **Class Roster Viewing**: Complete roster display with member profiles, roles, and enrollment dates
+  - **Token Management Interface**: Full token lifecycle management with status tracking and deactivation
+  - **Empty State Handling**: Professional empty states for both rosters and token management
+  - **Database Compatibility**: Fixed SQL join issues for flexible database schemas
+  - **Error Resilience**: Graceful fallbacks and helpful error messages
+- **Technical Notes**: 
+  - Replaced bcrypt with crypto.subtle.digest() for Deno Edge Functions compatibility
+  - Fixed database join issues by separating profile queries from membership queries
+  - Implemented optional profile data fetching with comprehensive error handling
 
 **Files Created/Modified:**
-- `professor/framework_code/supabase/functions/enroll/index.ts`
-- `professor/framework_code/supabase/functions/generate-token/index.ts`  
-- `professor/framework_code/protected_pages/dashboard/index.md`
-- `professor/framework_code/themes/evangelion/css/components/dashboard.css`
-- `professor/framework_code/assets/js/auth-client.js`
+- `professor/framework_code/supabase/functions/enroll/index.ts` - Student enrollment processing
+- `professor/framework_code/supabase/functions/generate-token/index.ts` - Enrollment token generation
+- `professor/framework_code/supabase/functions/class-roster/index.ts` - Class roster viewing (with database compatibility fixes)
+- `professor/framework_code/supabase/functions/manage-tokens/index.ts` - Token management and deactivation
+- `professor/framework_code/protected_pages/dashboard/index.md` - Enhanced dashboard with roster and token management
+- `professor/framework_code/themes/evangelion/css/components/dashboard.css` - Complete styling for all management interfaces
+- `professor/framework_code/assets/js/auth-client.js` - Enhanced API client with roster and token management methods
 
 **Enrollment page (_index.md):**
 ```markdown

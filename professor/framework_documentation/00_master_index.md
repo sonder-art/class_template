@@ -39,7 +39,7 @@ Technical documentation for framework internals. Useful for contributors and adv
 - [Sync Philosophy and Design](04_synchronization_engine/01_sync_philosophy_and_design.md) 🔴
 
 ### [Authentication System](05_authentication_system/00_index.md)
-*Chapter covering complete authentication setup with profiles, rls, and edge functions*
+*Chapter covering complete authentication setup with profiles, rls, edge functions, and enrollment system*
 
 📊 1 content files
 

@@ -60,7 +60,7 @@ serve(async (req: Request) => {
   }
 
   try {
-    console.log('🔗 /generate-token endpoint called')
+    console.log('🔗 /generate-token-v2 endpoint called')
     
     // Only allow POST method
     if (req.method !== 'POST') {
@@ -248,7 +248,7 @@ serve(async (req: Request) => {
     )
 
   } catch (error) {
-    console.error('❌ Unexpected error in /generate-token:', error)
+    console.error('❌ Unexpected error in /generate-token-v2:', error)
     return new Response(
       JSON.stringify({ 
         success: false,

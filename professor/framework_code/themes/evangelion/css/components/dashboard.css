@@ -532,3 +532,460 @@
     background-color: #dc2626 !important;
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
+
+/* === CLASS ROSTER STYLING === */
+.roster-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.roster-header h5 {
+    color: var(--eva-cyan-primary) !important;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px var(--eva-cyan-glow);
+}
+
+.roster-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    background-color: var(--surface-color) !important;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--eva-cyan-primary) !important;
+    color: var(--eva-cyan-primary) !important;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Empty roster state */
+.roster-empty {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-state {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: var(--elevated-color) !important;
+    border: 2px solid var(--eva-orange-primary) !important;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(255, 138, 76, 0.2);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.7;
+}
+
+.empty-state h6 {
+    color: var(--eva-orange-primary) !important;
+    font-size: 18px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-shadow: 0 0 8px var(--eva-orange-glow);
+}
+
+.empty-state p {
+    color: var(--text-secondary) !important;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.empty-actions {
+    margin-top: 20px;
+}
+
+.empty-actions .btn-primary {
+    background-color: var(--eva-orange-primary) !important;
+    color: var(--bg-color) !important;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(255, 138, 76, 0.3);
+}
+
+.empty-actions .btn-primary:hover:not(:disabled) {
+    background-color: var(--eva-orange-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 138, 76, 0.4);
+}
+
+/* === TOKEN MANAGEMENT STYLING === */
+.tokens-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.tokens-header h5 {
+    color: var(--eva-purple-primary) !important;
+    font-size: 18px;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px var(--eva-purple-glow);
+}
+
+.tokens-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.tokens-stats .stat-item {
+    background-color: var(--surface-color) !important;
+    padding: 6px 12px;
+    border-radius: 15px;
+    border: 1px solid var(--border-default) !important;
+    color: var(--text-secondary) !important;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.tokens-stats .stat-active {
+    border-color: var(--eva-green-primary) !important;
+    color: var(--eva-green-primary) !important;
+}
+
+.tokens-stats .stat-expired {
+    border-color: var(--eva-orange-primary) !important;
+    color: var(--eva-orange-primary) !important;
+}
+
+.tokens-stats .stat-disabled {
+    border-color: var(--eva-red-primary) !important;
+    color: var(--eva-red-primary) !important;
+}
+
+.tokens-stats .stat-exhausted {
+    border-color: var(--eva-purple-primary) !important;
+    color: var(--eva-purple-primary) !important;
+}
+
+.tokens-table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    border: 2px solid var(--border-default) !important;
+    background-color: var(--elevated-color) !important;
+}
+
+.tokens-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tokens-table th {
+    background-color: var(--surface-color) !important;
+    color: var(--eva-purple-primary) !important;
+    padding: 12px 8px;
+    text-align: left;
+    font-weight: bold;
+    border-bottom: 2px solid var(--border-default) !important;
+    font-size: 13px;
+}
+
+.tokens-table td {
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border-light) !important;
+    vertical-align: middle;
+}
+
+.token-row:hover {
+    background-color: var(--surface-color) !important;
+}
+
+.token-id {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
+    font-weight: bold;
+    color: var(--eva-purple-primary) !important;
+    font-size: 13px;
+}
+
+.token-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.token-status-active {
+    background-color: rgba(136, 192, 208, 0.2) !important;
+    color: var(--eva-green-primary) !important;
+    border: 1px solid var(--eva-green-primary) !important;
+}
+
+.token-status-expired {
+    background-color: rgba(255, 138, 76, 0.2) !important;
+    color: var(--eva-orange-primary) !important;
+    border: 1px solid var(--eva-orange-primary) !important;
+}
+
+.token-status-disabled {
+    background-color: rgba(217, 0, 0, 0.2) !important;
+    color: var(--eva-red-primary) !important;
+    border: 1px solid var(--eva-red-primary) !important;
+}
+
+.token-status-exhausted {
+    background-color: rgba(180, 142, 173, 0.2) !important;
+    color: var(--eva-purple-primary) !important;
+    border: 1px solid var(--eva-purple-primary) !important;
+}
+
+.token-uses {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace !important;
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+.expires-date, .created-date {
+    color: var(--text-secondary) !important;
+    font-size: 13px;
+}
+
+.btn-deactivate {
+    background-color: var(--eva-red-primary) !important;
+    color: var(--bg-color) !important;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-deactivate:hover:not(:disabled) {
+    background-color: var(--eva-red-hover) !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(217, 0, 0, 0.3);
+}
+
+.action-disabled {
+    color: var(--text-muted) !important;
+    font-size: 14px;
+}
+
+.tokens-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid var(--border-default) !important;
+}
+
+.tokens-note {
+    color: var(--text-secondary) !important;
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.token-actions {
+    margin-top: 15px;
+}
+
+.token-actions .btn-primary {
+    background-color: var(--eva-purple-primary) !important;
+    color: var(--bg-color) !important;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(180, 142, 173, 0.3);
+}
+
+.token-actions .btn-primary:hover:not(:disabled) {
+    background-color: var(--eva-purple-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(180, 142, 173, 0.4);
+}
+
+/* Empty tokens state */
+.tokens-empty {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.roster-table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    border: 2px solid var(--border-default) !important;
+    background-color: var(--elevated-color) !important;
+}
+
+.roster-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.roster-table thead {
+    background-color: var(--surface-color) !important;
+    border-bottom: 2px solid var(--eva-cyan-primary) !important;
+}
+
+.roster-table th {
+    padding: 12px 10px;
+    text-align: left;
+    color: var(--eva-cyan-primary) !important;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.roster-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+    vertical-align: middle;
+}
+
+.member-row:hover {
+    background-color: rgba(0, 217, 255, 0.05) !important;
+}
+
+.member-row.role-professor {
+    background-color: rgba(0, 217, 255, 0.03) !important;
+}
+
+.member-row.role-student {
+    background-color: rgba(0, 208, 132, 0.03) !important;
+}
+
+.avatar-cell {
+    width: 50px;
+    text-align: center;
+}
+
+.member-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border-default) !important;
+    object-fit: cover;
+}
+
+.name-cell strong {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+.member-email {
+    color: var(--text-secondary) !important;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+}
+
+.github-cell a {
+    color: var(--eva-green-primary) !important;
+    text-decoration: none;
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+}
+
+.github-cell a:hover {
+    color: var(--eva-green-hover) !important;
+    text-decoration: underline;
+}
+
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.role-badge.role-professor {
+    background-color: rgba(0, 217, 255, 0.2) !important;
+    color: var(--eva-cyan-primary) !important;
+    border: 1px solid var(--eva-cyan-primary) !important;
+}
+
+.role-badge.role-student {
+    background-color: rgba(0, 208, 132, 0.2) !important;
+    color: var(--eva-green-primary) !important;
+    border: 1px solid var(--eva-green-primary) !important;
+}
+
+.enrolled-date {
+    color: var(--text-secondary) !important;
+    font-size: 12px;
+}
+
+.roster-footer {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.roster-note {
+    color: var(--text-secondary) !important;
+    font-size: 13px;
+    font-style: italic;
+    background-color: rgba(0, 217, 255, 0.05) !important;
+    padding: 10px 15px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 217, 255, 0.2) !important;
+}
+
+.roster-error {
+    text-align: center;
+    padding: 20px;
+    color: var(--eva-red-accent) !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border-radius: 8px;
+    border: 1px solid var(--eva-red-accent) !important;
+}
+
+.roster-error h5 {
+    color: var(--eva-red-accent) !important;
+    margin-bottom: 10px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .roster-stats {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .roster-table {
+        font-size: 12px;
+    }
+    
+    .roster-table th,
+    .roster-table td {
+        padding: 8px 6px;
+    }
+    
+    .member-avatar {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .github-cell,
+    .enrolled-cell {
+        display: none;
+    }
+}

@@ -71,10 +71,12 @@ Run these SQL files in Supabase SQL Editor (in order):
 
 ### 2. Deploy Edge Functions
 ```bash
-# Deploy all authentication Edge Functions
+# Deploy all authentication and management Edge Functions
 npx supabase functions deploy me --no-verify-jwt
 npx supabase functions deploy enroll --no-verify-jwt  
 npx supabase functions deploy generate-token --no-verify-jwt
+npx supabase functions deploy class-roster --no-verify-jwt
+npx supabase functions deploy manage-tokens --no-verify-jwt
 ```
 
 **Note**: The `--no-verify-jwt` flag is used because JWT verification is handled within the functions.
@@ -148,7 +150,30 @@ The framework includes a complete token-based enrollment system that allows:
 - **Token Security**: SHA-256 hashing using crypto.subtle.digest() for Deno Edge Functions compatibility
 - **Database Integration**: Enrollment tokens stored with expiration, usage tracking, and audit trails
 - **UI Integration**: Role-based dashboard with prominent enrollment section for non-members
-- **API Endpoints**: `/generate-token` and `/enroll` Edge Functions handle backend operations
+- **API Endpoints**: `/generate-token`, `/enroll`, `/class-roster`, and `/manage-tokens` Edge Functions handle backend operations
+
+## Advanced Management Features
+
+### Class Roster Management:
+**Professors can view comprehensive class membership information:**
+1. **Access**: Click "View Class Roster" in professor dashboard
+2. **Information Displayed**: Member profiles, roles, enrollment dates, GitHub usernames, email addresses
+3. **Empty State**: Professional message when no students are enrolled with direct action to generate tokens
+4. **Error Resilience**: Gracefully handles missing profile data and database compatibility issues
+
+### Token Management Interface:
+**Professors have full control over enrollment tokens:**
+1. **View All Tokens**: Comprehensive table showing token status, usage statistics, and expiration dates
+2. **Token Status Tracking**: Active, Expired, Disabled, and Exhausted states with color-coded badges
+3. **Deactivation**: One-click token deactivation with confirmation dialogs
+4. **Usage Statistics**: Visual dashboard showing total, active, expired, disabled, and exhausted token counts
+5. **Empty State Handling**: Helpful interface when no tokens exist with direct action to create first token
+
+### Database Compatibility:
+- **Flexible Schema Support**: Works with or without profiles table
+- **Optional Profile Data**: Roster functionality works even if user profiles don't exist
+- **Separate Query Strategy**: Fixed SQL join issues by separating membership and profile queries
+- **Error Handling**: Comprehensive error handling prevents system crashes on missing relationships
 
 ## Security Features
 

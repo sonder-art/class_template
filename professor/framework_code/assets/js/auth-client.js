@@ -17,6 +17,11 @@ window.AuthClient = (function() {
      */
     async function callEndpoint(endpoint, options = {}) {
         const token = window.authState?.session?.access_token;
+        console.log('🔍 DEBUG: callEndpoint called with:', endpoint);
+        console.log('🔍 DEBUG: Token exists:', !!token);
+        console.log('🔍 DEBUG: Token length:', token?.length);
+        console.log('🔍 DEBUG: Request options:', options);
+        
         if (!token) {
             throw new Error('Not authenticated - no access token available');
         }
@@ -38,29 +43,39 @@ window.AuthClient = (function() {
         requestOptions.signal = controller.signal;
 
         try {
+            const fullUrl = `${CONFIG.baseUrl}${endpoint}`;
             console.log(`🔗 API Call: ${endpoint}`);
+            console.log(`🔗 Full URL: ${fullUrl}`);
+            console.log(`🔗 Request headers:`, requestOptions.headers);
             
-            const response = await fetch(`${CONFIG.baseUrl}${endpoint}`, requestOptions);
+            const response = await fetch(fullUrl, requestOptions);
             
             clearTimeout(timeoutId);
 
             // Log response status
             console.log(`📡 Response: ${response.status} ${response.statusText}`);
+            console.log(`📡 Response headers:`, Object.fromEntries(response.headers.entries()));
 
             if (!response.ok) {
                 // Try to get error details from response body
                 let errorMessage = `API Error: ${response.status}`;
+                let errorData = null;
                 try {
-                    const errorData = await response.json();
+                    const responseText = await response.text();
+                    console.log('📡 Error response body:', responseText);
+                    errorData = JSON.parse(responseText);
                     errorMessage = errorData.error?.message || errorData.error || errorMessage;
                 } catch (e) {
+                    console.log('📡 Could not parse error response as JSON:', e);
                     // If we can't parse error as JSON, use status text
                     errorMessage = `${errorMessage} ${response.statusText}`;
                 }
                 throw new Error(errorMessage);
             }
 
-            return await response.json();
+            const responseData = await response.json();
+            console.log('📡 Success response:', responseData);
+            return responseData;
 
         } catch (error) {
             clearTimeout(timeoutId);
@@ -71,6 +86,11 @@ window.AuthClient = (function() {
             
             // Re-throw with context
             console.error(`❌ API Error on ${endpoint}:`, error);
+            console.error(`❌ Error details:`, {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
             throw error;
         }
     }
@@ -163,6 +183,75 @@ window.AuthClient = (function() {
     }
 
     /**
+     * Get class roster (professors only)
+     */
+    async function getRoster(classSlug) {
+        if (!classSlug) {
+            throw new Error('Class slug is required');
+        }
+        
+        console.log('🔍 DEBUG: getRoster called with classSlug:', classSlug);
+        console.log('🔍 DEBUG: Current auth state:', window.authState?.isAuthenticated);
+        console.log('🔍 DEBUG: Access token available:', !!window.authState?.session?.access_token);
+        
+        try {
+            const endpoint = `/class-roster?class_slug=${encodeURIComponent(classSlug)}`;
+            console.log('🔍 DEBUG: Calling endpoint:', endpoint);
+            
+            const result = await callEndpoint(endpoint);
+            console.log('👥 Roster loaded successfully:', result);
+            return result;
+        } catch (error) {
+            console.error('❌ Roster loading failed - Full error:', error);
+            console.error('❌ Error message:', error.message);
+            console.error('❌ Error stack:', error.stack);
+            throw error;
+        }
+    }
+
+    /**
+     * Get enrollment tokens for a class (professors only)
+     */
+    async function getTokens(classSlug) {
+        if (!classSlug) {
+            throw new Error('Class slug is required');
+        }
+        
+        try {
+            const result = await callEndpoint(`/manage-tokens?class_slug=${encodeURIComponent(classSlug)}`);
+            console.log('🔧 Tokens loaded successfully:', result.stats);
+            return result;
+        } catch (error) {
+            console.error('❌ Token loading failed:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Deactivate an enrollment token (professors only)
+     */
+    async function deactivateToken(classSlug, tokenId) {
+        if (!classSlug || !tokenId) {
+            throw new Error('Class slug and token ID are required');
+        }
+        
+        try {
+            const result = await callEndpoint(`/manage-tokens?class_slug=${encodeURIComponent(classSlug)}`, {
+                method: 'PUT',
+                body: JSON.stringify({ 
+                    class_slug: classSlug,
+                    token_id: tokenId
+                })
+            });
+            console.log('🔒 Token deactivated successfully');
+            return result;
+        } catch (error) {
+            console.error('❌ Token deactivation failed:', error.message);
+            throw error;
+        }
+    }
+
+    /**
      * Check if the API is available (basic connectivity test)
      */
     async function healthCheck() {
@@ -180,6 +269,9 @@ window.AuthClient = (function() {
         getMe,
         enroll,
         generateToken,
+        getRoster,
+        getTokens,
+        deactivateToken,
         getCurrentClassSlug,
         healthCheck,
         
