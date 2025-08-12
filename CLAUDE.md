@@ -24,6 +24,31 @@ This is a GitHub Class Template Framework - a Hugo-based educational platform th
 - Automated index generation based on file naming conventions
 - Content preservation using `<!-- KEEP:START -->` / `<!-- KEEP:END -->` blocks
 
+## CRITICAL: Framework Architecture Understanding
+
+**Static Site Generation Model:**
+- This is a STATIC SITE framework - Hugo builds HTML/CSS/JS files only
+- NO server-side execution after build - everything runs in the browser
+- Python scripts are PRE-BUILD processors (config generation, validation, sync)
+- Backend interactions happen via JavaScript calling external APIs (Supabase)
+
+**File Organization Principles:**
+- `framework_code/sql/` - Database schemas and migrations
+- `framework_code/supabase/` - Supabase Edge Functions and backend configurations
+- `framework_code/scripts/` - Python pre-build processors
+- `framework_code/assets/js/` - Frontend JavaScript (runtime code)
+- `framework_code/css/` - Framework styles
+- `framework_code/themes/*/` - Theme-specific overrides
+- `framework_code/protected_pages/` - Protected content pages
+- `framework_code/auth/` - Authentication flow pages
+- `framework_code/hugo_generated/` - Hugo output (never edit)
+
+**Content Documentation Structure:**
+- `framework_documentation/` - Technical docs about framework internals
+- `framework_tutorials/` - How-to guides for using the framework
+- `class_notes/` - Course content from professor
+- Follow naming: `01_chapter/01_section.md` with frontmatter metadata
+
 ## Development Commands
 
 **Main Management Script:**
@@ -192,3 +217,9 @@ summary: "Brief description for indices and search"
 - Screen reader optimization
 
 This framework emphasizes automation, consistency, and safe collaboration between professors and students while maintaining flexibility for customization.
+
+## Related Documents
+
+- `IMPLEMENTATION_PLAN.md` - Current authentication implementation roadmap
+- `AUTHENTICATION_SETUP.md` - Authentication configuration guide
+- `DESIGN.md` - Complete authentication system design specification

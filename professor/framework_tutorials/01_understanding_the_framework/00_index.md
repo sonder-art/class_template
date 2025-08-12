@@ -1,7 +1,7 @@
 ---
 title: "Understanding The Framework"
 type: "index"
-date: "2025-08-07"
+date: "2025-08-12"
 author: "Framework (Auto-generated)"
 summary: "Index for Understanding The Framework chapter"
 ---

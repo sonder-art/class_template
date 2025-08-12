@@ -1,10 +1,14 @@
 # Authentication Setup Guide
 
+**Status: IMPLEMENTATION COMPLETE ✅**
+
 ## Overview
 This framework uses Supabase for authentication with GitHub OAuth. The implementation supports:
 - Multiple repository deployments (e.g., /class_template/, /another_class/)
-- Development and production environments
-- Staying on the same page after login/logout
+- Development and production environments  
+- User profiles and class membership management
+- Row Level Security (RLS) with automatic profile creation
+- Edge Functions for authentication API
 - PKCE flow for enhanced security
 
 ## Supabase Configuration
@@ -45,6 +49,29 @@ https://yourdomain.com/[repo-name]/auth/callback/
    - **Homepage URL**: https://yourdomain.com/class_template/
    - **Authorization callback URL**: https://yourdomain.com/class_template/auth/callback/
 3. Copy the Client ID and Client Secret to Supabase
+
+## Database Setup
+
+### 1. Deploy Database Schema
+Run these SQL files in Supabase SQL Editor (in order):
+
+```sql
+-- File: professor/framework_code/sql/001_basic_auth.sql
+-- Creates profiles, classes, class_members, enrollment_tokens tables
+-- Includes automatic profile creation trigger
+```
+
+```sql  
+-- File: professor/framework_code/sql/002_auth_policies.sql
+-- Sets up Row Level Security policies for all tables
+-- Enables profile creation and proper access controls
+```
+
+### 2. Deploy Edge Functions
+```bash
+# Deploy the /me endpoint
+npx supabase functions deploy me --project-ref YOUR_PROJECT_ID
+```
 
 ## Framework Configuration
 
@@ -132,7 +159,7 @@ site:
 4. After GitHub auth, should return to the same page
 
 ### Production:
-1. Deploy with `./manage.sh --deploy`
+1. Deploy with `./manage.sh --professor/framework_documentationdeploy`
 2. Navigate to your production URL
 3. Test login/logout on different pages
 4. Verify you return to the same page after auth

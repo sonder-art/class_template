@@ -1,7 +1,7 @@
 ---
 title: "Framework Documentation"
 type: "master-index"
-date: "2025-08-07"
+date: "2025-08-12"
 author: "Framework (Auto-generated)"
 summary: "Master index for Framework Documentation content"
 ---
@@ -16,8 +16,8 @@ Technical documentation for framework internals. Useful for contributors and adv
 
 ## 📊 Content Statistics
 
-- **3** chapters
-- **5** content files
+- **4** chapters
+- **6** content files
 
 ## 📚 Chapters
 
@@ -37,6 +37,14 @@ Technical documentation for framework internals. Useful for contributors and adv
 
 **Content:**
 - [Sync Philosophy and Design](04_synchronization_engine/01_sync_philosophy_and_design.md) 🔴
+
+### [Authentication System](05_authentication_system/00_index.md)
+*Chapter covering step-by-step guide to setting up authentication with supabase*
+
+📊 1 content files
+
+**Content:**
+- [Authentication Setup Guide](05_authentication_system/01_setup_guide.md) 🟡
 
 ## 📎 Appendices
 

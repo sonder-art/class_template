@@ -169,12 +169,21 @@ function updateAuthState(user, session) {
     // Update UI
     updateAuthUI();
     
+    // Fetch user context if authenticated and AuthClient is available
+    if (user && session && window.AuthClient) {
+        fetchUserContext();
+    } else if (!user) {
+        // Clear user context when logged out
+        window.authState.userContext = null;
+    }
+    
     // Dispatch custom event for other components
     window.dispatchEvent(new CustomEvent('authStateChanged', {
         detail: {
             user: user,
             session: session,
-            isAuthenticated: !!user
+            isAuthenticated: !!user,
+            userContext: window.authState.userContext
         }
     }));
 }
@@ -302,6 +311,63 @@ function setLoadingState(isLoading) {
         } else {
             authButton.classList.remove('loading');
             updateAuthUI();
+        }
+    }
+}
+
+/**
+ * Fetch user context from the API
+ */
+async function fetchUserContext() {
+    try {
+        console.log('🔄 Fetching user context...');
+        console.log('📋 Auth State Check:');
+        console.log('  - isAuthenticated:', window.authState.isAuthenticated);
+        console.log('  - has session:', !!window.authState.session);
+        console.log('  - has access_token:', !!window.authState.session?.access_token);
+        console.log('  - AuthClient available:', !!window.AuthClient);
+        
+        if (!window.AuthClient) {
+            throw new Error('AuthClient not available');
+        }
+        
+        // Get the current class slug
+        const classSlug = window.AuthClient.getCurrentClassSlug();
+        console.log('📍 Using class slug:', classSlug);
+        
+        // Call the /me endpoint
+        console.log('🌐 Calling /me endpoint...');
+        const context = await window.AuthClient.getMe(classSlug);
+        
+        // Store in global auth state
+        window.authState.userContext = context;
+        
+        console.log('✅ User context loaded successfully:');
+        console.log('  - User ID:', context.user_id);
+        console.log('  - Email:', context.email);
+        console.log('  - Role:', context.role || 'none');
+        console.log('  - Is Member:', context.is_member);
+        console.log('  - Class:', context.class_slug);
+        
+        // Dispatch updated auth state event
+        window.dispatchEvent(new CustomEvent('userContextLoaded', {
+            detail: { userContext: context }
+        }));
+        
+    } catch (error) {
+        console.warn('⚠️ Could not fetch user context:', error.message);
+        console.log('🔍 Error details:', error);
+        
+        // Store null context but don't throw - authentication still works
+        window.authState.userContext = null;
+        
+        // Check for specific error types
+        if (error.message.includes('404') || error.message.includes('Not Found')) {
+            console.log('📝 Note: /me endpoint not yet deployed (this is expected in Module 2)');
+        } else if (error.message.includes('403') || error.message.includes('401')) {
+            console.log('🔒 Note: Authentication issue - check token and permissions');
+        } else {
+            console.log('🚨 Unexpected error - check network and endpoint');
         }
     }
 }

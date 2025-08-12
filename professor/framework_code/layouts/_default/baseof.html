@@ -261,6 +261,10 @@
     {{ if $authUtilsJS }}
         <script src="{{ $authUtilsJS.RelPermalink }}"></script>
     {{ end }}
+    {{ $authClientJS := resources.Get "js/auth-client.js" }}
+    {{ if $authClientJS }}
+        <script src="{{ $authClientJS.RelPermalink }}"></script>
+    {{ end }}
     {{ $supabaseAuthJS := resources.Get "js/supabase-auth.js" }}
     {{ if $supabaseAuthJS }}
         <script src="{{ $supabaseAuthJS.RelPermalink }}"></script>
