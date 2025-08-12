@@ -73,6 +73,16 @@
         {{ if $floatingCopyThemeCSS }}
             <link rel="stylesheet" href="{{ $floatingCopyThemeCSS.RelPermalink }}">
         {{ end }}
+        
+        {{ $dashboardThemeCSS := resources.Get "theme/components/dashboard.css" }}
+        {{ if $dashboardThemeCSS }}
+            <link rel="stylesheet" href="{{ $dashboardThemeCSS.RelPermalink }}">
+        {{ end }}
+        
+        {{ $enrollmentThemeCSS := resources.Get "theme/components/enrollment.css" }}
+        {{ if $enrollmentThemeCSS }}
+            <link rel="stylesheet" href="{{ $enrollmentThemeCSS.RelPermalink }}">
+        {{ end }}
     {{ end }}
     
     <!-- External Libraries (Framework Dependencies) -->
@@ -87,6 +97,26 @@
     <!-- Prism.js for Syntax Highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Supabase for Authentication -->
+    {{ if .Site.Params.authentication.enabled }}
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Make auth config available to JavaScript
+        window.authConfig = {
+            enabled: {{ .Site.Params.authentication.enabled }},
+            provider: "{{ .Site.Params.authentication.provider }}",
+            supabase_url: "{{ .Site.Params.authentication.supabase_url }}",
+            supabase_anon_key: "{{ .Site.Params.authentication.supabase_anon_key }}",
+            login_redirect: "{{ .Site.Params.authentication.login_redirect }}",
+            logout_redirect: "{{ .Site.Params.authentication.logout_redirect }}",
+            protected_redirect: "{{ .Site.Params.authentication.protected_redirect }}",
+            login_icon: "{{ .Site.Params.authentication.login_icon }}",
+            logout_icon: "{{ .Site.Params.authentication.logout_icon }}",
+            base_url: "{{ .Site.BaseURL | strings.TrimSuffix "/" }}"
+        };
+    </script>
+    {{ end }}
     
     <!-- THEME HOOK: Load theme-specific fonts and external resources -->
     {{ block "theme-fonts" . }}
@@ -235,6 +265,166 @@
 {{ if $tocJS }}
     <script src="{{ $tocJS.RelPermalink }}"></script>
 {{ end }}
+
+    {{ if .Site.Params.authentication.enabled }}
+    {{ $authUtilsJS := resources.Get "js/auth-utils.js" }}
+    {{ if $authUtilsJS }}
+        <script src="{{ $authUtilsJS.RelPermalink }}"></script>
+    {{ end }}
+    {{ $authClientJS := resources.Get "js/auth-client.js" }}
+    {{ if $authClientJS }}
+        <script src="{{ $authClientJS.RelPermalink }}"></script>
+    {{ end }}
+    {{ $supabaseAuthJS := resources.Get "js/supabase-auth.js" }}
+    {{ if $supabaseAuthJS }}
+        <script src="{{ $supabaseAuthJS.RelPermalink }}"></script>
+    {{ end }}
+    
+    <script>
+    // Auth Navigation Management
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔗 Sidebar Auth Navigation initialized');
+        
+        // Get navigation elements (updated IDs for sidebar)
+        const authToggleBtn = document.getElementById('navAuthToggleBtn');
+        const dashboardBtn = document.getElementById('navDashboardBtn');
+        
+        if (!authToggleBtn) {
+            console.warn('⚠️ Auth navigation buttons not found');
+            return;
+        }
+        
+        // Setup auth toggle button handler
+        authToggleBtn.addEventListener('click', function() {
+            if (window.authState?.isAuthenticated) {
+                // Logout
+                if (window.supabaseAuth && window.supabaseAuth.logout) {
+                    window.supabaseAuth.logout();
+                }
+            } else {
+                // Login
+                if (window.supabaseAuth && window.supabaseAuth.login) {
+                    window.supabaseAuth.login();
+                }
+            }
+        });
+        
+        // Listen for auth state changes
+        window.addEventListener('authStateChanged', function(event) {
+            console.log('🎯 Auth state changed event received:', event.detail);
+            setTimeout(updateSidebarAuthNavigation, 100);
+        });
+        
+        // Initial setup when page loads - multiple attempts for reliability
+        setTimeout(updateSidebarAuthNavigation, 500);
+        setTimeout(updateSidebarAuthNavigation, 1000);
+        setTimeout(updateSidebarAuthNavigation, 2000);
+        
+        // Also listen for general auth events that might not trigger our custom event
+        if (window.authState?.client) {
+            window.authState.client.auth.onAuthStateChange((event, session) => {
+                console.log('🔒 Supabase auth state change:', event, session ? 'session exists' : 'no session');
+                setTimeout(updateSidebarAuthNavigation, 200);
+            });
+        } else {
+            // If client isn't ready yet, check again later
+            setTimeout(() => {
+                if (window.authState?.client) {
+                    window.authState.client.auth.onAuthStateChange((event, session) => {
+                        console.log('🔒 Supabase auth state change (delayed):', event, session ? 'session exists' : 'no session');
+                        setTimeout(updateSidebarAuthNavigation, 200);
+                    });
+                }
+            }, 3000);
+        }
+    });
+    
+    /**
+     * Update sidebar navigation based on current auth state
+     */
+    function updateSidebarAuthNavigation() {
+        const authToggleBtn = document.getElementById('navAuthToggleBtn');
+        const dashboardBtn = document.getElementById('navDashboardBtn');
+        const userStatusText = document.getElementById('userStatusText');
+        
+        if (!authToggleBtn) {
+            console.warn('⚠️ Navigation auth button not found');
+            return;
+        }
+        
+        const user = window.authState?.user;
+        const userContext = window.authState?.userContext;
+        const isAuthenticated = window.authState?.isAuthenticated;
+        const isLoading = window.authState?.isLoading || false;
+        
+        console.log('🔄 Updating sidebar auth navigation:', { 
+            user: !!user, 
+            userContext: userContext, 
+            isAuthenticated, 
+            isLoading,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Update user status display with better error handling
+        if (userStatusText) {
+            try {
+                if (isLoading) {
+                    userStatusText.textContent = '🔄 Loading...';
+                } else if (isAuthenticated && user) {
+                    const email = user.email || 'Unknown';
+                    const role = userContext?.role || 'Member';
+                    const isMember = userContext?.is_member === true;
+                    const status = isMember ? '✅' : '❌';
+                    userStatusText.textContent = `${status} ${email} (${role})`;
+                } else {
+                    userStatusText.textContent = '❌ Not logged in';
+                }
+            } catch (error) {
+                console.error('Error updating user status:', error);
+                userStatusText.textContent = '⚠️ Status error';
+            }
+        }
+        
+        // Update auth toggle button
+        try {
+            if (isLoading) {
+                authToggleBtn.textContent = 'Loading...';
+                authToggleBtn.title = 'Please wait...';
+                authToggleBtn.disabled = true;
+            } else if (isAuthenticated && user) {
+                // User is logged in
+                authToggleBtn.textContent = 'Logout';
+                authToggleBtn.title = 'Logout';
+                authToggleBtn.disabled = false;
+            } else {
+                // User is not logged in
+                authToggleBtn.textContent = 'Login';
+                authToggleBtn.title = 'Login to access features';
+                authToggleBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error('Error updating auth button:', error);
+        }
+        
+        // Update navigation buttons - simplified without enroll button
+        try {
+            if (isAuthenticated && user && !isLoading) {
+                // Always show dashboard for authenticated users
+                if (dashboardBtn) {
+                    dashboardBtn.style.display = 'block';
+                }
+            } else {
+                // User is not authenticated or still loading - hide dashboard
+                if (dashboardBtn) {
+                    dashboardBtn.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            console.error('Error updating navigation buttons:', error);
+        }
+    }
+    </script>
+    {{ end }}
 
 </body>
 </html> 

@@ -1,7 +1,7 @@
 ---
 title: "Tests"
 type: "index"
-date: "2025-08-03"
+date: "2025-08-12"
 author: "Framework (Auto-generated)"
 summary: "Index for Tests chapter"
 ---
@@ -24,7 +24,7 @@ summary: "Index for Tests chapter"
 
 ## 🧭 Navigation
 
-← [Previous: Synchronization Engine](../04_synchronization_engine/00_index.md)
+← [Previous: Authentication System](../05_authentication_system/00_index.md)
 ↑ [Back to Framework Documentation](../00_master_index.md)
 
 ---

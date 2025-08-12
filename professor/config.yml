@@ -37,6 +37,7 @@ content:
   show_estimated_time: true
   homework_highlight: true
   student_solutions_visible: false
+  protected_sections: ["dashboard", "upload"]
 
 # Hugo configuration - all rendering settings
 hugo:
@@ -82,3 +83,19 @@ discussions:
   # Student customization allowed
   student_theme_override: true
   student_category_override: false  # Keep discussions centralized
+
+# Authentication configuration
+authentication:
+  enabled: true
+  provider: "supabase"
+  supabase:
+    url: "https://levybxqsltedfjtnkntm.supabase.co"
+    anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxldnlieHFzbHRlZGZqdG5rbnRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNTM1NDUsImV4cCI6MjA2OTgyOTU0NX0.EWH71vjTpOHYIaJfYX19xyM08zTL5AN1IBzJhY8Gx9g"
+  flows:
+    login_redirect: "/auth/callback/"
+    logout_redirect: "/"
+    protected_redirect: "/dashboard/"
+  ui:
+    show_in_sidebar: true
+    login_icon: "🔐"
+    logout_icon: "🚪"

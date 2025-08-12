@@ -1,0 +1,192 @@
+/* Enrollment Component - Evangelion Theme
+ * Enrollment page styling using evangelion theme colors
+ */
+
+/* === ENROLLMENT CARDS === */
+.enrollment-card, .status-card {
+    background-color: var(--elevated-color) !important;
+    border: 2px solid var(--eva-green-primary) !important;
+    border-radius: 8px;
+    padding: 25px;
+    margin: 20px 0;
+    box-shadow: var(--glow-green);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.enrollment-card h3, .status-card h3 {
+    color: var(--eva-green-primary) !important;
+    font-weight: bold;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-shadow: 0 0 8px var(--eva-green-glow);
+}
+
+.status-card.success {
+    border-color: var(--eva-green-primary) !important;
+    box-shadow: var(--glow-green);
+}
+
+.status-card.success h3 {
+    color: var(--eva-green-primary) !important;
+}
+
+.status-card.error {
+    border-color: var(--eva-red-accent) !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+.status-card.error h3 {
+    color: var(--eva-red-accent) !important;
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.enrollment-card p, .status-card p {
+    color: var(--text-secondary) !important;
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+/* === FORM STYLING === */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: var(--text-primary) !important;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--surface-color) !important;
+    border: 2px solid var(--border-default) !important;
+    border-radius: 6px;
+    color: var(--text-primary) !important;
+    font-size: 16px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--eva-green-primary) !important;
+    box-shadow: var(--glow-green);
+    outline: none;
+}
+
+.form-group input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* === BUTTON STYLING === */
+.form-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.form-actions button, .form-actions .btn-primary, .form-actions .btn-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 16px;
+    margin: 0 8px;
+}
+
+.form-actions button, .form-actions .btn-primary {
+    background-color: var(--eva-green-primary) !important;
+    color: var(--bg-color) !important;
+}
+
+.form-actions button:hover:not(:disabled), .form-actions .btn-primary:hover {
+    background-color: var(--eva-green-hover) !important;
+    box-shadow: var(--glow-green);
+    transform: translateY(-2px);
+}
+
+.form-actions button:disabled {
+    background-color: var(--text-muted) !important;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.form-actions .btn-secondary {
+    background-color: var(--surface-color) !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--border-default) !important;
+}
+
+.form-actions .btn-secondary:hover {
+    background-color: var(--elevated-color) !important;
+    border-color: var(--eva-cyan-primary) !important;
+    color: var(--eva-cyan-primary) !important;
+    box-shadow: var(--glow-cyan);
+}
+
+/* === MESSAGE STYLING === */
+.message {
+    margin: 15px 0;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.message.success {
+    background-color: rgba(0, 208, 132, 0.1) !important;
+    border: 2px solid var(--eva-green-primary) !important;
+    color: var(--eva-green-primary) !important;
+    box-shadow: var(--glow-green);
+}
+
+.message.error {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    border: 2px solid var(--eva-red-accent) !important;
+    color: var(--eva-red-accent) !important;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+.message.info {
+    background-color: rgba(0, 217, 255, 0.1) !important;
+    border: 2px solid var(--eva-cyan-primary) !important;
+    color: var(--eva-cyan-primary) !important;
+    box-shadow: var(--glow-cyan);
+}
+
+/* === LOADING STATES === */
+#enrollBtnSpinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 600px) {
+    .enrollment-card, .status-card {
+        margin: 15px;
+        padding: 20px;
+    }
+    
+    .form-group input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .form-actions button, .form-actions .btn-primary, .form-actions .btn-secondary {
+        padding: 14px 20px;
+        font-size: 16px;
+        width: 100%;
+        margin: 5px 0;
+    }
+}

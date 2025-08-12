@@ -38,6 +38,32 @@ Theme only provides CSS styling for visual appearance.
         </button>
     </div>
     
+    <!-- Authentication & Navigation Section -->
+    {{ if .Site.Params.authentication.enabled }}
+    <div class="nav-auth-section">
+        <!-- User Status Display -->
+        <div class="nav-user-status" id="navUserStatus">
+            <span id="userStatusText">🔄 Checking...</span>
+        </div>
+        
+        <!-- Dashboard Button (visible to authenticated users) -->
+        <a href="{{ .Site.BaseURL }}dashboard/" 
+           class="nav-auth-btn dashboard-btn" 
+           id="navDashboardBtn"
+           style="display: none;"
+           title="Go to Dashboard">
+            📊 Dashboard
+        </a>
+        
+        <!-- Login/Logout Button -->
+        <button class="nav-auth-btn auth-btn" 
+                id="navAuthToggleBtn"
+                title="Login to access features">
+            Login
+        </button>
+    </div>
+    {{ end }}
+    
     <!-- Framework File Tree Generation -->
     {{/* Define content categories from framework configuration */}}
     {{ $categories := slice "class_notes" "framework_tutorials" "framework_documentation" }}

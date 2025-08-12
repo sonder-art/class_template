@@ -1,7 +1,7 @@
 ---
 title: "Class Notes"
 type: "master-index"
-date: "2025-01-16"
+date: "2025-08-03"
 author: "Framework (Auto-generated)"
 summary: "Master index for Class Notes content"
 ---
@@ -12,17 +12,23 @@ summary: "Master index for Class Notes content"
 
 ## 📖 Overview
 
-Main instructional content for the class. This is where course materials, lectures, and learning resources are organized.
+Course content and instructional materials organized by topic.
 
 ## 📊 Content Statistics
 
-- **0** chapters
-- **0** content files
+- **1** chapters
+- **1** content files
 
 ## 📚 Chapters
 
-*No chapters available yet. Create numbered chapter directories (01_introduction/, 02_basics/, etc.) to see them listed here.*
+### [Auth](auth/00_index.md)
+*Chapter 999: Auth*
+
+📊 1 content files
+
+**Content:**
+- [Authentication Callback](auth/callback.md)
 
 ---
 
-*This master index was automatically generated. Do not edit manually.* 
+*This master index was automatically generated. Do not edit manually.*

@@ -33,6 +33,24 @@ isPlainText = true
     source = "{{ hugo.homepage_source | default('home.md') }}"
     target = "content/_index.md"
   
+  # Framework auth pages mount
+  [[module.mounts]]
+    source = "framework_code/auth"
+    target = "content/auth"
+  
+  # Framework protected pages mounts
+  [[module.mounts]]
+    source = "framework_code/protected_pages/dashboard"
+    target = "content/dashboard"
+  
+  [[module.mounts]]
+    source = "framework_code/protected_pages/enroll"
+    target = "content/enroll"
+  
+  [[module.mounts]]
+    source = "framework_code/protected_pages/upload"
+    target = "content/upload"
+  
   # Framework assets mounts - direct from framework_code
   [[module.mounts]]
     source = "{{ hugo.assets_path | default('framework_code/assets') }}"
@@ -138,6 +156,19 @@ isPlainText = true
   auto_enable_for_types = {{ discussions.auto_enable_for_types | default(['tutorial', 'note', 'homework', 'project', 'documentation']) | tojson }}
   exclude_types = {{ discussions.exclude_types | default(['master-index', 'reference']) | tojson }}
   slug_in_url = {{ discussions.slug_in_url | default('true') | toml_bool }}
+
+  # Authentication system settings
+  [params.authentication]
+  enabled = {{ authentication.enabled | default('false') | toml_bool }}
+  provider = "{{ authentication.provider | default('none') }}"
+  supabase_url = "{{ authentication.supabase.url | default('') }}"
+  supabase_anon_key = "{{ authentication.supabase.anon_key | default('') }}"
+  login_redirect = "{{ authentication.flows.login_redirect | default('/auth/callback/') }}"
+  logout_redirect = "{{ authentication.flows.logout_redirect | default('/') }}"
+  protected_redirect = "{{ authentication.flows.protected_redirect | default('/dashboard/') }}"
+  show_in_sidebar = {{ authentication.ui.show_in_sidebar | default('true') | toml_bool }}
+  login_icon = "{{ authentication.ui.login_icon | default('🔐') }}"
+  logout_icon = "{{ authentication.ui.logout_icon | default('🚪') }}"
 
 # Menu configuration (auto-generated from content structure)
 [menu]
