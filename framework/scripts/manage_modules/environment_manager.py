@@ -43,12 +43,6 @@ class EnvironmentManager:
         build_target_dir = os.environ.get('BUILD_TARGET_DIR')
         build_target = os.environ.get('BUILD_TARGET')
         
-        # Debug output for GitHub Actions
-        if os.environ.get('GITHUB_ACTIONS') == 'true':
-            self.console.print(f"🔍 Environment detection - BUILD_TARGET_DIR: {build_target_dir}")
-            self.console.print(f"🔍 Environment detection - BUILD_TARGET: {build_target}")
-            self.console.print(f"🔍 Environment detection - Current dir: {Path.cwd()}")
-        
         if build_target_dir and build_target:
             # Use the target directory provided by manage.sh
             target_dir = Path(build_target_dir)
@@ -95,24 +89,10 @@ class EnvironmentManager:
             
         # Check if we're in repository root
         elif (current_dir / "dna.yml").exists():
-            # Special case: running from repo root in CI/CD or automation context
-            # Try to infer the target based on available directories
-            import os
-            if os.environ.get('GITHUB_ACTIONS') == 'true':
-                # We're in GitHub Actions - default to professor mode from repo root
-                self.console.print("🤖 GitHub Actions detected - using professor mode from repo root")
-                self.context.role = "professor"
-                self.context.base_dir = current_dir
-                self.context.framework_dir = current_dir / "framework"
-                self.context.is_valid_setup = True
-                self.context.current_dir = current_dir / "professor"  # Point to professor content
-                return True, self.context
-            else:
-                # Interactive mode - show guidance
-                self.console.print("📁 You're in the repository root. Please navigate to:")
-                self.console.print("   Professor: [cyan]cd professor[/cyan]")
-                self.console.print("   Student: [cyan]cd students/[your-username][/cyan]")
-                return False, self.context
+            self.console.print("📁 You're in the repository root. Please navigate to:")
+            self.console.print("   Professor: [cyan]cd professor[/cyan]")
+            self.console.print("   Student: [cyan]cd students/[your-username][/cyan]")
+            return False, self.context
             
         return False, self.context
     
