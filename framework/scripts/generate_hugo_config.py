@@ -79,7 +79,9 @@ def merge_config_data(base_dir):
     """Merge configuration data from rendering-related YAML files only."""
     
     # Load only rendering configuration files - NO dna.yml dependency
-    course_path = base_dir / "course.yml"
+    # NEW: course.yml is now in class_template directory
+    repo_root = Path(__file__).parent.parent.parent  # framework/scripts/ -> repo root
+    course_path = repo_root / "class_template" / "course.yml"
     config_path = base_dir / "config.yml"
     
     course_data = load_yaml_file(course_path)
@@ -117,9 +119,14 @@ def bool_to_toml(value):
 def generate_hugo_config(base_dir):
     """Generate hugo.toml from template and configuration data."""
     
-    # Paths - all relative to the current directory (self-contained)
-    template_path = base_dir / "framework_code" / "hugo_config" / "hugo.toml.j2"
-    output_path = base_dir / "hugo.toml"
+    # NEW: Generate to root-level hugo_generated/ directory
+    repo_root = Path(__file__).parent.parent.parent  # framework/scripts/ -> repo root
+    template_path = repo_root / "framework" / "hugo_config" / "hugo.toml.j2"
+    
+    # Output to root-level hugo_generated directory (single build target)
+    hugo_generated_dir = repo_root / "hugo_generated"
+    hugo_generated_dir.mkdir(exist_ok=True)
+    output_path = hugo_generated_dir / "hugo.toml"
     
     # Load template
     try:
@@ -132,10 +139,16 @@ def generate_hugo_config(base_dir):
     # Merge configuration data (self-contained)
     config_data = merge_config_data(base_dir)
     
-    # Add computed values for framework structure
-    if 'framework_code' not in config_data:
-        config_data['framework_code'] = {}
-    config_data['framework_code']['hugo_generated'] = 'framework_code/hugo_generated'
+    # Add computed values for framework structure - NEW: Use correct root-level paths
+    # These values provide defaults for the template variables to ensure consistent paths
+    if 'hugo' not in config_data:
+        config_data['hugo'] = {}
+    if 'theme' not in config_data:
+        config_data['theme'] = {}
+    
+    # Ensure template defaults point to new framework location
+    config_data['hugo']['assets_path'] = '../framework/assets'
+    config_data['theme']['path'] = '../framework/themes'
     
     # Create Jinja2 environment with custom filters
     env = Environment(loader=BaseLoader())
@@ -302,34 +315,33 @@ def run_item_parsing(base_dir):
         parsed_files = parser.parse_all_content()
         
         if parsed_files:
-            # Generate configuration file to output directory
-            output_dir = base_dir / "framework_code" / "hugo_generated" / "data"
+            # Generate configuration file to root-level hugo_generated directory
+            repo_root = Path(__file__).parent.parent.parent  # framework/scripts/ -> repo root
+            hugo_generated_dir = repo_root / "hugo_generated"
+            output_dir = hugo_generated_dir / "data"
+            output_dir.mkdir(parents=True, exist_ok=True)
             output_file = output_dir / "items.json"
             parser.generate_items_config(str(output_file))
             
-            # Copy to source data directory for Hugo template access
-            source_data_dir = base_dir / "data"
-            source_data_dir.mkdir(exist_ok=True)
-            source_data_file = source_data_dir / "items.json"
-            
-            import shutil
-            shutil.copy2(str(output_file), str(source_data_file))
+            # Items.json is already in the correct location for Hugo access
+            print(f"📋 Generated {len(parsed_files)} item files to hugo_generated/data/")
             
             total_items = sum(len(pf.items) for pf in parsed_files)
             print(f"✅ Item parsing completed: {total_items} items from {len(parsed_files)} files")
-            print(f"📋 Data file copied to source directory for Hugo access")
             
             # Copy constituents and modules YAML files for Hugo data access
-            constituents_source = base_dir / "constituents.yml"
-            modules_source = base_dir / "modules.yml"
+            # NEW: These are now in class_template/ directory
+            repo_root = Path(__file__).parent.parent.parent  # framework/scripts/ -> repo root
+            constituents_source = repo_root / "class_template" / "constituents.yml"
+            modules_source = repo_root / "class_template" / "modules.yml"
             
             if constituents_source.exists():
-                constituents_dest = source_data_dir / "constituents.yml"
+                constituents_dest = output_dir / "constituents.yml"
                 shutil.copy2(str(constituents_source), str(constituents_dest))
                 print(f"📋 Copied constituents data for Hugo access")
             
             if modules_source.exists():
-                modules_dest = source_data_dir / "modules.yml"
+                modules_dest = output_dir / "modules.yml"
                 shutil.copy2(str(modules_source), str(modules_dest))
                 print(f"📚 Copied modules data for Hugo access")
         else:
@@ -349,7 +361,9 @@ def run_homework_processing(base_dir: Path) -> bool:
     try:
         # Import the homework processing module
         import sys
-        scripts_dir = base_dir / "framework_code" / "scripts"
+        # NEW: Scripts are now in framework directory
+        repo_root = Path(__file__).parent.parent.parent  # framework/scripts/ -> repo root  
+        scripts_dir = repo_root / "framework" / "scripts"
         sys.path.insert(0, str(scripts_dir))
         
         from process_homework_content import HomeworkContentProcessor
@@ -380,11 +394,13 @@ def main():
     # Verify we have the required files for self-contained operation
     course_file = base_dir / "course.yml"
     config_file = base_dir / "config.yml"
-    template_file = base_dir / "framework_code" / "hugo_config" / "hugo.toml.j2"
+    # NEW: Template is now in framework directory
+    repo_root = Path.cwd().parent if Path.cwd().name in ['professor', 'students'] else Path.cwd()
+    template_file = repo_root / "framework" / "hugo_config" / "hugo.toml.j2"
     
     if not template_file.exists():
         print(f"Error: Not in a valid project directory. Missing {template_file}")
-        print("This script must be run from a directory with framework_code/")
+        print("This script must be run from a directory with access to framework/")
         sys.exit(1)
     
     print(f"🔧 Generating self-contained Hugo configuration from {base_dir}")

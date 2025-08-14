@@ -43,7 +43,8 @@ class EnvironmentManager:
         if current_dir.name == "professor" and (current_dir.parent / "dna.yml").exists():
             self.context.role = "professor"
             self.context.base_dir = current_dir.parent
-            self.context.framework_dir = current_dir / "framework_code"
+            # NEW: Framework is now at root level
+            self.context.framework_dir = current_dir.parent / "framework"
             self.context.is_valid_setup = True
             self.context.current_dir = current_dir
             return True, self.context
@@ -53,7 +54,8 @@ class EnvironmentManager:
               (current_dir.parent.parent / "dna.yml").exists()):
             self.context.role = "student"
             self.context.base_dir = current_dir.parent.parent
-            self.context.framework_dir = current_dir / "framework_code"
+            # NEW: Framework is now at root level
+            self.context.framework_dir = current_dir.parent.parent / "framework"
             self.context.is_valid_setup = True
             self.context.current_dir = current_dir
             return True, self.context

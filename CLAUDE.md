@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚧 MIGRATION NOTICE
+
+**Framework Architecture Migration In Progress**
+
+The framework is undergoing a major architectural refactoring to separate framework logic from course content. See `MIGRATION_PLAN.md` for complete details.
+
+**Current Status**: Planning phase complete. Current directory structure remains valid and functional.
+
+**Core Principles Unchanged**: All fundamental framework concepts (Hugo static generation, authentication, grading system, sync logic) remain the same - only the file organization is changing.
+
+**Impact**: File paths and directory structure will change, but core functionality and development commands remain identical.
+
 ## Repository Overview
 
 This is a GitHub Class Template Framework - a Hugo-based educational platform that creates self-contained class websites with authentication, grading, and content management. It supports both professors and students with automated synchronization and deployment.
@@ -32,20 +44,19 @@ This is a GitHub Class Template Framework - a Hugo-based educational platform th
 - Python scripts are PRE-BUILD processors (config generation, validation, sync)
 - Backend interactions happen via JavaScript calling external APIs (Supabase)
 
-**File Organization Principles:**
-- `framework_code/sql/` - Database schemas and migrations
-- `framework_code/supabase/` - Supabase Edge Functions and backend configurations
-- `framework_code/scripts/` - Python pre-build processors
-- `framework_code/assets/js/` - Frontend JavaScript (runtime code)
-- `framework_code/css/` - Framework styles
-- `framework_code/themes/*/` - Theme-specific overrides
-- `framework_code/protected_pages/` - Protected content pages
-- `framework_code/auth/` - Authentication flow pages
-- `framework_code/hugo_generated/` - Hugo output (never edit)
+**File Organization Principles (POST-MIGRATION):**
+- `framework/sql/` - Database schemas and migrations
+- `framework/supabase/` - Supabase Edge Functions and backend configurations
+- `framework/scripts/` - Python pre-build processors
+- `framework/assets/js/` - Frontend JavaScript (runtime code)
+- `framework/css/` - Framework styles
+- `framework/themes/*/` - Theme-specific overrides
+- `framework/auth/` - Authentication flow pages
+- `framework_code/hugo_generated/` - Hugo output (never edit) [TEMPORARY LOCATION]
 
-**Content Documentation Structure:**
-- `framework_documentation/` - Technical docs about framework internals
-- `framework_tutorials/` - How-to guides for using the framework
+**Content Documentation Structure (POST-MIGRATION):**
+- `framework_wiki/framework_documentation/` - Technical docs about framework internals
+- `framework_wiki/framework_tutorials/` - How-to guides for using the framework
 - `class_notes/` - Course content from professor
 - Follow naming: `01_chapter/01_section.md` with frontmatter metadata
 

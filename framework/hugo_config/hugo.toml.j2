@@ -7,8 +7,8 @@ baseURL = "{{ site.baseurl | default('') }}"
 languageCode = "en-us"
 title = "{{ site.title | default('Class Template') }}"
 
-# Content and build settings
-publishDir = "{{ hugo.output_dir | default('framework_code/hugo_generated') }}"
+# Content and build settings - NEW: Output to root-level hugo_generated/public
+publishDir = "{{ hugo.output_dir | default('../hugo_generated/public') }}"
 buildDrafts = {{ build.include_draft_content | default('false') | toml_bool }}
 buildFuture = false
 
@@ -23,75 +23,83 @@ isPlainText = true
 
 # Module configuration for content mounts and framework assets
 [module]
-{% for source in hugo.content_sources | default(['class_notes', 'modules', 'framework_tutorials', 'framework_documentation']) %}
+{% for source in hugo.content_sources | default(['class_notes', 'modules']) %}
   [[module.mounts]]
     source = "{{ source }}"
     target = "content/{{ source }}"
 {% endfor %}
+  # Framework wiki content mounts - NEW: Mount from root-level framework_wiki/
+  [[module.mounts]]
+    source = "../framework_wiki/framework_tutorials"
+    target = "content/framework_tutorials"
+  
+  [[module.mounts]]
+    source = "../framework_wiki/framework_documentation"
+    target = "content/framework_documentation"
   # Homepage mount
   [[module.mounts]]
     source = "{{ hugo.homepage_source | default('home.md') }}"
     target = "content/_index.md"
   
-  # Framework auth pages mount
+  # Framework auth pages mount - NEW: Use relative path to root-level framework
   [[module.mounts]]
-    source = "framework_code/auth"
+    source = "../framework/auth"
     target = "content/auth"
   
-  # Framework protected pages mounts
+  # Framework protected pages mounts - NEW: Use relative path to root-level framework
   [[module.mounts]]
-    source = "framework_code/protected_pages/dashboard"
+    source = "../framework/protected_pages/dashboard"
     target = "content/dashboard"
   
   [[module.mounts]]
-    source = "framework_code/protected_pages/enroll"
+    source = "../framework/protected_pages/enroll"
     target = "content/enroll"
   
   [[module.mounts]]
-    source = "framework_code/protected_pages/upload"
+    source = "../framework/protected_pages/upload"
     target = "content/upload"
   
-  # Framework assets mounts - direct from framework_code
+  # Framework assets mounts - NEW: Use relative path to root-level framework
   [[module.mounts]]
-    source = "{{ hugo.assets_path | default('framework_code/assets') }}"
+    source = "{{ hugo.assets_path | default('../framework/assets') }}"
     target = "assets"
   
   # Static assets (images, etc.) served directly
   [[module.mounts]]
-    source = "{{ hugo.assets_path | default('framework_code/assets') }}"
+    source = "{{ hugo.assets_path | default('../framework/assets') }}"
     target = "static/assets"
   
   # Notebook files for JupyterLite
   [[module.mounts]]
-    source = "framework_code/assets/notebooks"
+    source = "../framework/assets/notebooks"
     target = "static/notebooks"
   
   [[module.mounts]]
-    source = "framework_code/css"
+    source = "../framework/css"
     target = "assets/css"
   
   [[module.mounts]]
-    source = "framework_code/components"
+    source = "../framework/css/components"
     target = "assets/components"
   
-  # Theme assets mount - no duplication
+  # Theme assets mount - NEW: Use relative path to root-level framework
   [[module.mounts]]
-    source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/css"
+    source = "{{ theme.path | default('../framework/themes') }}/{{ theme.name | default('evangelion') }}/css"
     target = "assets/theme"
   
   # Theme components mount - preserve directory structure  
   [[module.mounts]]
-    source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/css/components"
+    source = "{{ theme.path | default('../framework/themes') }}/{{ theme.name | default('evangelion') }}/css/components"
     target = "assets/theme/components"
   
-  # Framework layouts mount - PRIORITY (loaded first)
+  # Framework layouts mount - PRIORITY (loaded first) - NEW: Use relative path to root-level framework
   [[module.mounts]]
-    source = "framework_code/layouts"
+    source = "../framework/layouts"
     target = "layouts"
   
   # Theme layouts mount - OVERRIDES (loaded second, can override framework)
   [[module.mounts]]
-    source = "{{ theme.path | default('framework_code/themes') }}/{{ theme.name | default('evangelion') }}/layouts"
+    source = "{{ theme.path | default('../framework/themes') }}/{{ theme.name | default('evangelion') }}/layouts"
     target = "layouts"
 
 # Markup configuration

@@ -156,8 +156,11 @@ class FrameworkManager:
         table.add_row("Framework Directory", str(self.framework_dir))
         table.add_row("Base Repository", str(self.base_dir))
         
-        # Check if Hugo config exists
-        hugo_config = self.current_dir / "hugo.toml"
+        # Check if Hugo config exists - NEW: Hugo config is now in root-level hugo_generated/
+        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
+        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
+            repo_root = repo_root.parent
+        hugo_config = repo_root / "hugo_generated" / "hugo.toml"
         table.add_row("Hugo Config", "✅ Exists" if hugo_config.exists() else "❌ Missing")
         
         # Check if development server is running

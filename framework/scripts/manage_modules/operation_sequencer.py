@@ -107,7 +107,11 @@ class OperationSequencer:
         if port is None:
             port = 1313 if self.role == "professor" else 1314
             
-        hugo_config = self.current_dir / "hugo.toml"
+        # NEW: Hugo config is now in root-level hugo_generated/
+        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
+        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
+            repo_root = repo_root.parent
+        hugo_config = repo_root / "hugo_generated" / "hugo.toml"
         if not hugo_config.exists():
             self.message_orchestrator.add_message('warnings', 'Missing Hugo Config', 'Hugo config not found. Running generation first...')
             if not self.validate_and_generate(force=True):
@@ -120,7 +124,7 @@ class OperationSequencer:
         try:
             subprocess.run([
                 "hugo", "server",
-                "--config", "hugo.toml",
+                "--config", str(hugo_config),
                 "--port", str(port),
                 "--bind", "0.0.0.0"
             ], cwd=self.current_dir)
@@ -186,8 +190,12 @@ class OperationSequencer:
             self.message_orchestrator.end_operation(False, "Failed during validation phase")
             return False
             
-        # Build with Hugo
-        output_dir = self.framework_dir / "hugo_generated"
+        # Build with Hugo - NEW: Use root-level hugo_generated/
+        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
+        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
+            repo_root = repo_root.parent
+        output_dir = repo_root / "hugo_generated" / "public"
+        hugo_config = repo_root / "hugo_generated" / "hugo.toml"
         
         # Create error callback for subprocess runner
         def error_callback(desc: str, error_text: str):
@@ -197,7 +205,7 @@ class OperationSequencer:
             command=[
                 "hugo",
                 "--destination", str(output_dir),
-                "--config", "hugo.toml",
+                "--config", str(hugo_config),
                 "--environment", "production"
             ],
             description="Building static site with Hugo",
@@ -245,9 +253,12 @@ class OperationSequencer:
         
         self.ux.announce_cleaning_operation()
         
+        # NEW: Clean files from root-level hugo_generated/
+        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
+        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
+            repo_root = repo_root.parent
         files_to_clean = [
-            self.current_dir / "hugo.toml",
-            self.framework_dir / "hugo_generated"
+            repo_root / "hugo_generated"
         ]
         
         existing_files = [f for f in files_to_clean if f.exists()]

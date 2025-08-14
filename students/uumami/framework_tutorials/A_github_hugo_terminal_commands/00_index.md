@@ -1,7 +1,7 @@
 ---
 title: "Github Hugo Terminal Commands"
 type: "index"
-date: "2025-08-03"
+date: "2025-08-14"
 author: "Framework (Auto-generated)"
 summary: "Index for Github Hugo Terminal Commands chapter"
 ---

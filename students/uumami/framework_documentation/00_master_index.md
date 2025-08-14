@@ -1,7 +1,7 @@
 ---
 title: "Framework Documentation"
 type: "master-index"
-date: "2025-08-03"
+date: "2025-08-14"
 author: "Framework (Auto-generated)"
 summary: "Master index for Framework Documentation content"
 ---
