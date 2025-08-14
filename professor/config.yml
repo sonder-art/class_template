@@ -43,6 +43,7 @@ content:
 hugo:
   content_sources:
     - "class_notes"
+    - "modules"
     - "framework_tutorials"
     - "framework_documentation"
   homepage_source: "home.md"

@@ -23,7 +23,7 @@ isPlainText = true
 
 # Module configuration for content mounts and framework assets
 [module]
-{% for source in hugo.content_sources | default(['class_notes', 'framework_tutorials', 'framework_documentation']) %}
+{% for source in hugo.content_sources | default(['class_notes', 'modules', 'framework_tutorials', 'framework_documentation']) %}
   [[module.mounts]]
     source = "{{ source }}"
     target = "content/{{ source }}"
@@ -176,9 +176,9 @@ isPlainText = true
     name = "Home"
     url = "/"
     weight = 10
-{% for source in hugo.content_sources | default(['class_notes', 'framework_tutorials', 'framework_documentation']) %}
+{% for source in hugo.content_sources | default(['class_notes', 'modules', 'framework_tutorials', 'framework_documentation']) %}
   [[menu.main]]
     name = "{{ source.replace('_', ' ').title() }}"
-    url = "/{{ source }}/00_master_index/"
+    url = "/{{ source }}/{% if source == 'modules' %}00_index{% else %}00_master_index{% endif %}/"
     weight = {{ loop.index + 1 }}0
 {% endfor %} 

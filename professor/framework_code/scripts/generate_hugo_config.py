@@ -46,6 +46,23 @@ except ImportError:
     except ImportError:
         INDEX_GENERATION_AVAILABLE = False
 
+# Import item parsing system (optional, handle different execution contexts)
+try:
+    from parse_items import ItemParser
+    ITEM_PARSING_AVAILABLE = True
+except ImportError:
+    try:
+        # Try relative import for different execution contexts
+        import sys
+        from pathlib import Path
+        script_dir = Path(__file__).parent
+        if str(script_dir) not in sys.path:
+            sys.path.insert(0, str(script_dir))
+        from parse_items import ItemParser
+        ITEM_PARSING_AVAILABLE = True
+    except ImportError:
+        ITEM_PARSING_AVAILABLE = False
+
 def load_yaml_file(file_path):
     """Load and parse a YAML file, return empty dict if file doesn't exist."""
     try:
@@ -240,6 +257,118 @@ def run_index_generation(base_dir: Path) -> bool:
         # Don't fail build on index generation errors (graceful degradation)
         return True
 
+def run_item_parsing(base_dir):
+    """Run graded item parsing from class_notes markdown files."""
+    
+    if not ITEM_PARSING_AVAILABLE:
+        print("📝 Item parsing system not available")
+        return True
+    
+    # Check if homework parsing is enabled in dna.yml
+    dna_paths = [
+        base_dir / 'dna.yml',  # Same directory
+        base_dir / '../dna.yml',  # Parent directory (for student directories)
+        base_dir / '../../dna.yml'  # Repository root (for nested student directories)
+    ]
+    
+    config = {'homework_parsing': True}  # Default enabled for grading system
+    
+    for dna_path in dna_paths:
+        if dna_path.exists():
+            try:
+                with open(dna_path, 'r') as f:
+                    dna_config = yaml.safe_load(f) or {}
+                if 'homework_parsing' in dna_config:
+                    config['homework_parsing'] = bool(dna_config['homework_parsing'])
+                break  # Use the first found dna.yml
+            except Exception as e:
+                print(f"⚠️  Could not read {dna_path}: {e}")
+                continue
+    
+    if not config.get('homework_parsing', True):
+        print("📝 Homework parsing disabled in configuration")
+        return True
+    
+    # Check if class_notes directory exists
+    class_notes_dir = base_dir / "class_notes"
+    if not class_notes_dir.exists():
+        print("📝 No class_notes directory found, skipping homework parsing")
+        return True
+    
+    print("📝 Parsing graded items from class_notes...")
+    
+    try:
+        parser = ItemParser(str(class_notes_dir))
+        parsed_files = parser.parse_all_content()
+        
+        if parsed_files:
+            # Generate configuration file to output directory
+            output_dir = base_dir / "framework_code" / "hugo_generated" / "data"
+            output_file = output_dir / "items.json"
+            parser.generate_items_config(str(output_file))
+            
+            # Copy to source data directory for Hugo template access
+            source_data_dir = base_dir / "data"
+            source_data_dir.mkdir(exist_ok=True)
+            source_data_file = source_data_dir / "items.json"
+            
+            import shutil
+            shutil.copy2(str(output_file), str(source_data_file))
+            
+            total_items = sum(len(pf.items) for pf in parsed_files)
+            print(f"✅ Item parsing completed: {total_items} items from {len(parsed_files)} files")
+            print(f"📋 Data file copied to source directory for Hugo access")
+            
+            # Copy constituents and modules YAML files for Hugo data access
+            constituents_source = base_dir / "constituents.yml"
+            modules_source = base_dir / "modules.yml"
+            
+            if constituents_source.exists():
+                constituents_dest = source_data_dir / "constituents.yml"
+                shutil.copy2(str(constituents_source), str(constituents_dest))
+                print(f"📋 Copied constituents data for Hugo access")
+            
+            if modules_source.exists():
+                modules_dest = source_data_dir / "modules.yml"
+                shutil.copy2(str(modules_source), str(modules_dest))
+                print(f"📚 Copied modules data for Hugo access")
+        else:
+            print("📝 No graded items found in class_notes")
+        
+        return True
+        
+    except Exception as e:
+        print(f"⚠️  Item parsing error: {e}")
+        # Don't fail build on item parsing errors (graceful degradation)
+        return True
+
+def run_homework_processing(base_dir: Path) -> bool:
+    """Run homework content processing to generate beautiful UI from simple YAML"""
+    print("🎨 Processing homework content with automatic UI generation...")
+    
+    try:
+        # Import the homework processing module
+        import sys
+        scripts_dir = base_dir / "framework_code" / "scripts"
+        sys.path.insert(0, str(scripts_dir))
+        
+        from process_homework_content import HomeworkContentProcessor
+        
+        processor = HomeworkContentProcessor(str(base_dir))
+        processed_count = processor.process_all_homework_files()
+        
+        if processed_count > 0:
+            print(f"✅ Processed {processed_count} homework files with beautiful UI")
+        else:
+            print("📝 No homework files needed processing")
+        
+        return True
+        
+    except Exception as e:
+        print(f"⚠️  Homework processing error: {e}")
+        # Don't fail build on processing errors (graceful degradation)
+        return True
+
 def main():
     """Main entry point - works from any self-contained directory."""
     # Work from current directory (self-contained approach)
@@ -265,7 +394,16 @@ def main():
         print("❌ Build aborted due to index generation failures")
         sys.exit(1)
     
-    # Run content validation after index generation
+    # Run homework parsing after index generation
+    if not run_item_parsing(base_dir):
+        print("❌ Build aborted due to homework parsing failures")
+        sys.exit(1)
+    
+    # Skip homework content processing - keep source files clean
+    # Beautiful UI is generated by CSS and Hugo templates at render time
+    # run_homework_processing(base_dir)
+    
+    # Run content validation after homework parsing
     if not run_content_validation(base_dir):
         print("❌ Build aborted due to content validation failures")
         sys.exit(1)

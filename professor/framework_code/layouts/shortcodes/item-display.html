@@ -1,0 +1,15 @@
+{{/*
+ITEM DISPLAY SHORTCODE
+Simple shortcode that just shows page info - no mass item rendering
+Items should be individually placed where needed
+*/}}
+
+{{ $currentPage := .Page }}
+
+{{/* Simple page info display */}}
+<div style="margin: 1rem 0; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; background: #f8f9fa; color: #333; font-size: 0.9rem;">
+  <strong>📄 {{ $currentPage.Title }}</strong>
+  {{ if $currentPage.Params.type }} | Type: {{ $currentPage.Params.type | title }}{{ end }}
+  {{ if $currentPage.Date }} | {{ $currentPage.Date.Format "Jan 2, 2006" }}{{ end }}
+  {{ if $currentPage.Params.author }} | {{ $currentPage.Params.author }}{{ end }}
+</div>

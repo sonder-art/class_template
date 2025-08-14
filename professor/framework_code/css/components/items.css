@@ -1,0 +1,552 @@
+/* ==========================================================================
+   Graded Items Component - Base Framework Styles
+   Theme-agnostic structure and layout for graded items display and page metadata
+   Colors and visual styling are handled by themes
+   ========================================================================== */
+
+/* PAGE METADATA COMPONENT */
+.page-metadata-component {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  background: var(--metadata-bg, #f9f9f9);
+}
+
+.metadata-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.metadata-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--metadata-title-color, #333);
+}
+
+.metadata-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.type-badge, .date-badge, .author-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: var(--badge-bg, #e0e0e0);
+  color: var(--badge-text, #333);
+}
+
+.metadata-summary {
+  margin-bottom: 1rem;
+  font-style: italic;
+  color: var(--summary-text, #666);
+  line-height: 1.5;
+}
+
+.metadata-summary p {
+  margin: 0;
+}
+
+.metadata-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tags-label {
+  font-weight: 500;
+  color: var(--label-text, #666);
+  margin-right: 0.25rem;
+}
+
+.tag {
+  padding: 0.125rem 0.5rem;
+  background: var(--tag-bg, #f0f0f0);
+  color: var(--tag-text, #555);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+/* RESPONSIVE METADATA */
+@media (min-width: 768px) {
+  .metadata-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .metadata-title {
+    margin-bottom: 0;
+  }
+}
+
+/* Base graded item container */
+.graded-item {
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Important items get special treatment */
+.graded-item.important-item {
+  position: relative;
+}
+
+/* Item header containing title and metadata */
+.item-header {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .item-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+}
+
+/* Title section */
+.item-title-section {
+  flex: 1;
+}
+
+.item-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.important-badge {
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
+/* Constituent badge */
+.item-constituent {
+  margin-bottom: 0.25rem;
+}
+
+.constituent-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid var(--constituent-color, #ccc);
+  color: var(--constituent-color, #666);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+/* Metadata section */
+.item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 767px) {
+  .item-meta {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 80px;
+}
+
+.meta-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+}
+
+.meta-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Points styling */
+.points-value {
+  font-size: 1.1em;
+  font-weight: 700;
+}
+
+/* Due date status styling */
+.due-date-value.due-urgent {
+  font-weight: 700;
+}
+
+.due-date-value.due-soon {
+  font-weight: 600;
+}
+
+.due-date-value.due-ok {
+  font-weight: 500;
+}
+
+/* Delivery type badges */
+.delivery-type-badge {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border: 1px solid currentColor;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+/* Item instructions */
+.item-instructions {
+  padding: 0 1.25rem 1.25rem 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.item-instructions p {
+  margin-bottom: 0.75rem;
+}
+
+.item-instructions p:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .graded-item {
+    margin: 1rem 0;
+  }
+  
+  .item-header {
+    padding: 1rem;
+  }
+  
+  .item-title {
+    font-size: 1.1rem;
+  }
+  
+  .item-meta {
+    gap: 0.75rem;
+  }
+  
+  .meta-item {
+    min-width: 70px;
+  }
+  
+  .item-instructions {
+    padding: 0 1rem 1rem 1rem;
+  }
+}
+
+/* Important items special treatment */
+.graded-item.important-item {
+  position: relative;
+}
+
+.graded-item.important-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  border-radius: 8px 8px 0 0;
+}
+
+.important-badge {
+  font-size: 1.2em;
+  animation: sparkle 1.5s infinite alternate;
+}
+
+@keyframes sparkle {
+  0% { transform: scale(1) rotate(0deg); }
+  100% { transform: scale(1.1) rotate(5deg); }
+}
+
+/* Item title section */
+.item-title-section {
+  flex: 1;
+}
+
+.item-constituent {
+  margin-top: 0.5rem;
+}
+
+.constituent-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid var(--constituent-color, #ccc);
+}
+
+/* Due date status indicators */
+.due-date-value.due-urgent {
+  font-weight: 800;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.due-date-value.due-soon {
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+}
+
+.due-date-value.due-ok {
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: 16px;
+}
+
+/* Important Dates Display Structure */
+.important-dates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.important-date-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  border: 3px solid;
+}
+
+.important-date-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+.important-date-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.important-date-header {
+  padding: 1.5rem 2rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date-urgency {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.urgency-badge {
+  font-size: 2rem;
+  animation: sparkle 1.5s infinite alternate;
+}
+
+.date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.due-date-main {
+  font-size: 1.3rem;
+  font-weight: 800;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.days-remaining {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.item-points {
+  text-align: center;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.points-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.points-label {
+  font-size: 0.7rem;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.important-date-content {
+  padding: 2rem;
+}
+
+.item-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.module-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  color: white;
+}
+
+.item-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.delivery-badge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: white;
+}
+
+.source-link {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.important-dates-summary {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.empty-important-dates {
+  text-align: center;
+  padding: 3rem 2rem;
+  border: 2px dashed;
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+.empty-important-dates h3 {
+  margin-bottom: 1rem;
+}
+
+.empty-important-dates code {
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-weight: 600;
+}
+
+/* Alert styling for empty states */
+.alert {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border-left: 4px solid;
+}
+
+.alert.alert-info {
+  background: rgba(74, 144, 226, 0.1);
+  border-left-color: #4a90e2;
+  color: #2c5aa0;
+}
+
+.alert strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.alert p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Responsive design for important dates */
+@media (max-width: 768px) {
+  .important-dates-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .important-date-header {
+    padding: 1.25rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .important-date-content {
+    padding: 1.5rem;
+  }
+  
+  .item-context {
+    flex-direction: column;
+  }
+  
+  .item-meta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

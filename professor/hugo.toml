@@ -29,6 +29,10 @@ isPlainText = true
     target = "content/class_notes"
 
   [[module.mounts]]
+    source = "modules"
+    target = "content/modules"
+
+  [[module.mounts]]
     source = "framework_tutorials"
     target = "content/framework_tutorials"
 
@@ -191,12 +195,17 @@ isPlainText = true
     weight = 20
 
   [[menu.main]]
+    name = "Modules"
+    url = "/modules/00_index/"
+    weight = 30
+
+  [[menu.main]]
     name = "Framework Tutorials"
     url = "/framework_tutorials/00_master_index/"
-    weight = 30
+    weight = 40
 
   [[menu.main]]
     name = "Framework Documentation"
     url = "/framework_documentation/00_master_index/"
-    weight = 40
+    weight = 50
  

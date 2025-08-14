@@ -1,0 +1,130 @@
+# Constituents Configuration  
+# This file defines the specific grading constituents within each module
+# Constituents are referenced by homework items via constituent_slug
+
+constituents:
+  # Authentication System Implementation Module
+  auth_setup:
+    id: "auth_setup"
+    slug: "auth-setup"
+    name: "Authentication Setup"
+    description: "Initial authentication system configuration and testing"
+    module_id: "auth_implementation" 
+    weight: 30.0  # Weight within the module
+    type: "implementation"
+    max_attempts: 3
+    
+  auth_integration:
+    id: "auth_integration"
+    slug: "auth-integration"
+    name: "Authentication Integration"
+    description: "Integration of authentication with existing framework components"
+    module_id: "auth_implementation"
+    weight: 40.0
+    type: "implementation"
+    max_attempts: 2
+    
+  auth_testing:
+    id: "auth_testing" 
+    slug: "auth-testing"
+    name: "Authentication Testing"
+    description: "Comprehensive testing of authentication flows and edge cases"
+    module_id: "auth_implementation"
+    weight: 30.0
+    type: "testing"
+    max_attempts: 5
+    
+  # Framework Understanding & Setup Module
+  framework_concepts:
+    id: "framework_concepts"
+    slug: "framework-concepts"
+    name: "Framework Concepts"
+    description: "Understanding of core framework architecture and principles"
+    module_id: "framework_basics"
+    weight: 40.0
+    type: "theory"
+    max_attempts: 2
+    
+  initial_setup:
+    id: "initial_setup"
+    slug: "initial-setup" 
+    name: "Initial Setup"
+    description: "Successful completion of framework setup and configuration"
+    module_id: "framework_basics"
+    weight: 35.0
+    type: "implementation"
+    max_attempts: 3
+    
+  build_validation:
+    id: "build_validation"
+    slug: "build-validation"
+    name: "Build Validation"
+    description: "Successful build and deployment of framework instance"
+    module_id: "framework_basics"
+    weight: 25.0
+    type: "implementation" 
+    max_attempts: 5
+    
+  # Content Creation & Management Module
+  content_organization:
+    id: "content_organization"
+    slug: "content-organization"
+    name: "Content Organization"
+    description: "Proper organization and naming of course content"
+    module_id: "content_management"
+    weight: 50.0
+    type: "implementation"
+    max_attempts: 3
+    
+  documentation_quality:
+    id: "documentation_quality"
+    slug: "documentation-quality"
+    name: "Documentation Quality" 
+    description: "Quality and completeness of content documentation"
+    module_id: "content_management"
+    weight: 50.0
+    type: "quality"
+    max_attempts: 2
+
+# Constituent type definitions
+constituent_types:
+  implementation:
+    name: "Implementation"
+    description: "Hands-on coding and setup tasks"
+    icon: "💻"
+    color: "#ff6b35"
+    
+  theory:
+    name: "Theory & Concepts"
+    description: "Understanding and explanation of concepts"
+    icon: "🧠"
+    color: "#4a90e2"
+    
+  testing:
+    name: "Testing & Validation"
+    description: "Testing, debugging, and validation tasks"
+    icon: "🧪" 
+    color: "#7ed321"
+    
+  quality:
+    name: "Quality & Documentation"
+    description: "Code quality, documentation, and best practices"
+    icon: "📋"
+    color: "#9013fe"
+
+# Settings for constituent management
+settings:
+  # Default values
+  default_max_attempts: 3
+  
+  # Grade calculation
+  round_grades_to: 1  # Decimal places
+  
+  # Submission policies
+  allow_late_submissions: true
+  late_penalty_per_day: 5.0  # Percentage points
+  max_late_days: 7
+  
+  # Student visibility (inherits from modules.yml but can be overridden)
+  student_can_see_constituent_weights: true
+  student_can_see_max_attempts: true

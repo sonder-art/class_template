@@ -1,0 +1,136 @@
+{{/*
+INDIVIDUAL ITEM SHORTCODE
+Displays a single graded item with all metadata inline where it's called
+Usage: {{< item "constituent_slug" "item_id" >}}
+*/}}
+
+{{ $itemData := .Site.Data.items }}
+{{ $constituentsData := .Site.Data.constituents }}
+{{ $modulesData := .Site.Data.modules }}
+
+{{ $constituentSlug := .Get 0 }}
+{{ $itemId := .Get 1 }}
+
+{{ if and $itemData $constituentSlug $itemId }}
+  {{/* Find the specific item */}}
+  {{ range $itemData.items }}
+    {{ if and (eq .constituent_slug $constituentSlug) (eq .item_id $itemId) }}
+      
+      {{/* Get constituent and module information */}}
+      {{ $constituent := dict }}
+      {{ range $key, $value := $constituentsData.constituents }}
+        {{ if eq $value.slug .constituent_slug }}
+          {{ $constituent = $value }}
+        {{ end }}
+      {{ end }}
+      {{ $module := index $modulesData.modules ($constituent.module_id | default "unknown") }}
+      
+      {{ $constituentType := $constituent.type }}
+      {{ $constituentIcon := "📋" }}
+      {{ $constituentColor := "#4a90e2" }}
+      {{ $moduleColor := "#666666" }}
+      
+      {{ if $constituent }}
+        {{ if $constituentsData.constituent_types }}
+          {{ $typeInfo := index $constituentsData.constituent_types $constituentType }}
+          {{ if $typeInfo }}
+            {{ $constituentIcon = $typeInfo.icon }}
+            {{ $constituentColor = $typeInfo.color }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+      
+      {{ if $module }}
+        {{ $moduleColor = $module.color }}
+      {{ end }}
+      
+      {{/* Get delivery type icon */}}
+      {{ $deliveryIcon := "📋" }}
+      {{ if eq .delivery_type "url" }}{{ $deliveryIcon = "🔗" }}{{ end }}
+      {{ if eq .delivery_type "upload" }}{{ $deliveryIcon = "📎" }}{{ end }}
+      {{ if eq .delivery_type "code" }}{{ $deliveryIcon = "💻" }}{{ end }}
+      {{ if eq .delivery_type "presentation" }}{{ $deliveryIcon = "🎤" }}{{ end }}
+      {{ if eq .delivery_type "video" }}{{ $deliveryIcon = "📹" }}{{ end }}
+      {{ if eq .delivery_type "text" }}{{ $deliveryIcon = "📝" }}{{ end }}
+      
+      {{/* Calculate due date status */}}
+      {{ $dueDateClass := "due-ok" }}
+      {{ $dueDateFormatted := .due_date }}
+      {{ if .due_date }}
+        {{ $parsedDate := time .due_date }}
+        {{ $now := now }}
+        {{ $daysDiff := div ($parsedDate.Sub $now).Hours 24 }}
+        {{ if lt $daysDiff 0 }}{{ $dueDateClass = "overdue" }}{{ end }}
+        {{ if and (ge $daysDiff 0) (lt $daysDiff 2) }}{{ $dueDateClass = "due-urgent" }}{{ end }}
+        {{ if and (ge $daysDiff 2) (lt $daysDiff 7) }}{{ $dueDateClass = "due-soon" }}{{ end }}
+        
+        {{/* Format date with time if it includes time */}}
+        {{ if (strings.Contains .due_date "T") }}
+          {{ $dueDateFormatted = $parsedDate.Format "Jan 2, 2006 3:04 PM MST" }}
+        {{ else }}
+          {{ $dueDateFormatted = $parsedDate.Format "Jan 2, 2006" }}
+        {{ end }}
+      {{ end }}
+      
+      <div class="graded-item {{ if .important }}important-item{{ end }}" 
+           data-constituent="{{ .constituent_slug }}"
+           data-item-id="{{ .item_id }}"
+           data-delivery-type="{{ .delivery_type }}"
+           style="--constituent-color: {{ $constituentColor }}; --module-color: {{ $moduleColor }};">
+        
+        <div class="item-header">
+          <div class="item-title-section">
+            <div class="item-context">
+              {{ if $module }}
+              <div class="module-badge" style="--module-color: {{ $moduleColor }}">
+                {{ $module.icon | default "📚" }} {{ $module.name | default "Unknown Module" }}
+              </div>
+              {{ end }}
+              <div class="constituent-badge" style="--constituent-color: {{ $constituentColor }}">
+                {{ $constituentIcon }} {{ $constituent.name | default .constituent_slug }}
+              </div>
+            </div>
+            <h3 class="item-title">
+              {{ .title | default (.item_id | humanize | title) }}
+              {{ if .important }}<span class="important-badge">⭐</span>{{ end }}
+            </h3>
+          </div>
+          
+          <div class="item-meta">
+            <div class="meta-item">
+              <div class="meta-label">Points</div>
+              <div class="meta-value points-value">{{ .points | int }}</div>
+            </div>
+            
+            {{ if .due_date }}
+            <div class="meta-item">
+              <div class="meta-label">Due Date</div>
+              <div class="meta-value due-date-value {{ $dueDateClass }}">{{ $dueDateFormatted }}</div>
+            </div>
+            {{ end }}
+            
+            <div class="meta-item">
+              <div class="meta-label">Delivery</div>
+              <div class="meta-value">
+                <span class="delivery-type-badge">{{ $deliveryIcon }} {{ .delivery_type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {{ if .instructions }}
+        <div class="item-instructions">
+          {{ .instructions | markdownify }}
+        </div>
+        {{ end }}
+      </div>
+      
+    {{ end }}
+  {{ end }}
+  
+{{ else }}
+  <div class="alert alert-info">
+    <strong>📋 Item data loading...</strong>
+    <p>Individual item data will appear after the build process generates metadata.</p>
+  </div>
+{{ end }}

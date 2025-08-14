@@ -1,0 +1,119 @@
+{{/*
+INLINE ITEM SHORTCODE
+Displays a graded item with all values passed as parameters directly from markdown
+Usage: {{< item-inline constituent_slug="auth-setup" item_id="setup_task" points="25" due_date="2025-08-20T23:59:59-05:00" title="Task Title" delivery_type="url" important="true" >}}
+*/}}
+
+{{ $constituentsData := .Site.Data.constituents }}
+{{ $modulesData := .Site.Data.modules }}
+
+{{ $constituentSlug := .Get "constituent_slug" }}
+{{ $itemId := .Get "item_id" }}
+{{ $points := .Get "points" }}
+{{ $dueDate := .Get "due_date" }}
+{{ $title := .Get "title" }}
+{{ $deliveryType := .Get "delivery_type" }}
+{{ $important := eq (.Get "important") "true" }}
+
+{{/* Get constituent and module information */}}
+{{ $constituent := dict }}
+{{ range $key, $value := $constituentsData.constituents }}
+  {{ if eq $value.slug $constituentSlug }}
+    {{ $constituent = $value }}
+  {{ end }}
+{{ end }}
+{{ $module := index $modulesData.modules ($constituent.module_id | default "unknown") }}
+
+{{ $constituentType := $constituent.type }}
+{{ $constituentIcon := "📋" }}
+{{ $constituentColor := "#4a90e2" }}
+{{ $moduleColor := "#666666" }}
+
+{{ if $constituent }}
+  {{ if $constituentsData.constituent_types }}
+    {{ $typeInfo := index $constituentsData.constituent_types $constituentType }}
+    {{ if $typeInfo }}
+      {{ $constituentIcon = $typeInfo.icon }}
+      {{ $constituentColor = $typeInfo.color }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ if $module }}
+  {{ $moduleColor = $module.color }}
+{{ end }}
+
+{{/* Get delivery type icon */}}
+{{ $deliveryIcon := "📋" }}
+{{ if eq $deliveryType "url" }}{{ $deliveryIcon = "🔗" }}{{ end }}
+{{ if eq $deliveryType "upload" }}{{ $deliveryIcon = "📎" }}{{ end }}
+{{ if eq $deliveryType "code" }}{{ $deliveryIcon = "💻" }}{{ end }}
+{{ if eq $deliveryType "presentation" }}{{ $deliveryIcon = "🎤" }}{{ end }}
+{{ if eq $deliveryType "video" }}{{ $deliveryIcon = "📹" }}{{ end }}
+{{ if eq $deliveryType "text" }}{{ $deliveryIcon = "📝" }}{{ end }}
+
+{{/* Calculate due date status */}}
+{{ $dueDateClass := "due-ok" }}
+{{ $dueDateFormatted := $dueDate }}
+{{ if $dueDate }}
+  {{ $parsedDate := time $dueDate }}
+  {{ $now := now }}
+  {{ $daysDiff := div ($parsedDate.Sub $now).Hours 24 }}
+  {{ if lt $daysDiff 0 }}{{ $dueDateClass = "overdue" }}{{ end }}
+  {{ if and (ge $daysDiff 0) (lt $daysDiff 2) }}{{ $dueDateClass = "due-urgent" }}{{ end }}
+  {{ if and (ge $daysDiff 2) (lt $daysDiff 7) }}{{ $dueDateClass = "due-soon" }}{{ end }}
+  
+  {{/* Format date with time if it includes time */}}
+  {{ if (strings.Contains $dueDate "T") }}
+    {{ $dueDateFormatted = $parsedDate.Format "Jan 2, 2006 3:04 PM MST" }}
+  {{ else }}
+    {{ $dueDateFormatted = $parsedDate.Format "Jan 2, 2006" }}
+  {{ end }}
+{{ end }}
+
+<div class="graded-item {{ if $important }}important-item{{ end }}" 
+     data-constituent="{{ $constituentSlug }}"
+     data-item-id="{{ $itemId }}"
+     data-delivery-type="{{ $deliveryType }}"
+     style="--constituent-color: {{ $constituentColor }}; --module-color: {{ $moduleColor }};">
+  
+  <div class="item-header">
+    <div class="item-title-section">
+      <div class="item-context">
+        {{ if $module }}
+        <div class="module-badge" style="--module-color: {{ $moduleColor }}">
+          {{ $module.icon | default "📚" }} {{ $module.name | default "Unknown Module" }}
+        </div>
+        {{ end }}
+        <div class="constituent-badge" style="--constituent-color: {{ $constituentColor }}">
+          {{ $constituentIcon }} {{ $constituent.name | default $constituentSlug }}
+        </div>
+      </div>
+      <h3 class="item-title">
+        {{ $title | default ($itemId | humanize | title) }}
+        {{ if $important }}<span class="important-badge">⭐</span>{{ end }}
+      </h3>
+    </div>
+    
+    <div class="item-meta">
+      <div class="meta-item">
+        <div class="meta-label">Points</div>
+        <div class="meta-value points-value">{{ $points }}</div>
+      </div>
+      
+      {{ if $dueDate }}
+      <div class="meta-item">
+        <div class="meta-label">Due Date</div>
+        <div class="meta-value due-date-value {{ $dueDateClass }}">{{ $dueDateFormatted }}</div>
+      </div>
+      {{ end }}
+      
+      <div class="meta-item">
+        <div class="meta-label">Delivery</div>
+        <div class="meta-value">
+          <span class="delivery-type-badge">{{ $deliveryIcon }} {{ $deliveryType | title }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

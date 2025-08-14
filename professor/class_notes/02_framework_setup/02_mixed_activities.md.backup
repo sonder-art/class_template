@@ -1,0 +1,254 @@
+---
+title: "Framework Mastery - Mixed Learning Activities"
+type: "mixed"
+date: "2025-08-13"
+author: "Professor"
+summary: "Combination of different activity types to reinforce framework understanding"
+tags: ["framework", "mixed", "practice", "assessment"]
+---
+
+# Framework Mastery: Mixed Learning Activities
+
+This lesson combines multiple types of learning activities to reinforce your understanding of the GitHub Class Template Framework through varied approaches and assessment methods.
+
+## Learning Activities
+
+{{< item-display >}}
+
+### Quick Knowledge Check
+
+<!-- ITEM_START
+constituent_slug: framework-concepts
+item_id: framework_concepts_quiz
+points: 10
+due_date: 2025-08-15T09:00:00-05:00
+delivery_type: text
+title: Framework Concepts Quick Quiz
+ITEM_END -->
+
+Answer these short questions to verify your basic framework understanding:
+
+1. **Architecture Question:** What's the difference between `framework_code/` and `framework_code/themes/`?
+2. **Build Process:** Name the three main phases of the framework build pipeline
+3. **Content Organization:** How does the framework automatically generate navigation indices?
+4. **Configuration:** Which file controls theme selection, and which controls operational settings?
+
+**Format:** Short paragraph answers (2-3 sentences each)
+
+### Hands-On Configuration
+
+<!-- ITEM_START
+constituent_slug: initial-setup
+item_id: config_customization_lab
+points: 30
+due_date: 2025-08-17T14:00:00-05:00
+delivery_type: upload
+title: Custom Configuration Implementation
+important: true
+ITEM_END -->
+
+Customize your framework instance with personal branding and configuration:
+
+**Part A: Course Configuration**
+- Update `course.yml` with your personal course information
+- Create custom course description and learning objectives  
+- Set up instructor profile with photo and contact information
+- Configure semester dates and academic calendar integration
+
+**Part B: Theme Customization**
+- Modify the Evangelion theme's color variables
+- Create at least 3 custom CSS overrides
+- Add a personal logo or branding element
+- Test responsiveness on mobile devices
+
+**Part C: Content Structure**
+- Create a new chapter directory following naming conventions
+- Add 2-3 content files with proper frontmatter
+- Include code examples with syntax highlighting
+- Test that navigation generates correctly
+
+**Deliverables:** ZIP file with all modified configuration files and screenshots of your customized site
+
+### Video Demonstration
+
+<!-- ITEM_START
+constituent_slug: build-validation
+item_id: build_process_demo
+points: 20
+due_date: 2025-08-18T16:30:00-05:00
+delivery_type: video
+title: Framework Build Process Walkthrough
+ITEM_END -->
+
+Create a tutorial video demonstrating the framework build process:
+
+**Video Requirements:**
+- **Duration:** 8-12 minutes
+- **Resolution:** 1080p minimum
+- **Audio:** Clear narration explaining each step
+
+**Content to Cover:**
+1. Starting from a fresh clone of the repository
+2. Explaining the directory structure and key files
+3. Running `./manage.sh --validate` and interpreting output
+4. Using `./manage.sh --build` and showing generated files
+5. Starting the dev server and demonstrating live reload
+6. Making a content change and showing the rebuild process
+7. Explaining the difference between dev and production builds
+
+**Bonus Points:** Include troubleshooting a common error and showing how to fix it
+
+### Research & Analysis
+
+<!-- ITEM_START
+constituent_slug: framework-concepts
+item_id: static_site_analysis
+points: 25
+due_date: 2025-08-19T23:59:59-05:00
+delivery_type: presentation
+title: Static Site Generators Comparison Study
+ITEM_END -->
+
+Research and compare different static site generators to understand why Hugo was chosen for this framework:
+
+**Research Requirements:**
+Compare Hugo against at least 3 other static site generators:
+- **Performance:** Build speed, site loading performance
+- **Features:** Templating, content management, plugin ecosystems  
+- **Developer Experience:** Learning curve, documentation quality, community support
+- **Educational Use Cases:** Specific advantages for educational content
+
+**Analysis Framework:**
+1. **Technical Comparison Matrix** - Feature-by-feature comparison
+2. **Performance Benchmarks** - Build times, bundle sizes, Core Web Vitals
+3. **Ecosystem Analysis** - Themes, plugins, integrations available
+4. **Educational Suitability** - Specific advantages for course content
+
+**Presentation Format:**
+- 15-minute presentation with slides
+- Include live demos of at least 2 different generators
+- Conclude with recommendations for different use cases
+- Prepare to answer technical questions from classmates
+
+### Collaborative Code Review
+
+<!-- ITEM_START
+constituent_slug: documentation-quality
+item_id: peer_code_review
+points: 15
+due_date: 2025-08-20T12:00:00-05:00
+delivery_type: code
+title: Peer Framework Enhancement Review
+important: true
+ITEM_END -->
+
+Participate in collaborative code review to improve framework components:
+
+**Your Tasks:**
+1. **Choose a Framework Component** to enhance (shortcode, CSS component, Python script, etc.)
+2. **Implement Improvement** - bug fix, feature addition, or optimization
+3. **Create Pull Request** with detailed description and testing instructions
+4. **Review 2 Peer Submissions** providing constructive feedback
+5. **Incorporate Feedback** and update your submission based on peer reviews
+
+**Code Quality Requirements:**
+- Follow existing code style and patterns
+- Include comprehensive comments
+- Add test cases or validation where appropriate
+- Update documentation to reflect changes
+
+**Review Quality Requirements:**
+- Test the submitted code thoroughly
+- Provide specific, actionable feedback
+- Suggest improvements or alternative approaches
+- Be constructive and professional in tone
+
+**Submission:** Links to your pull request and the two reviews you provided
+
+### Creative Challenge
+
+<!-- ITEM_START
+constituent_slug: documentation-quality
+item_id: framework_creative_extension
+points: 35
+due_date: 2025-08-22T20:00:00-05:00
+delivery_type: presentation
+title: Creative Framework Extension Project
+important: true
+ITEM_END -->
+
+Design and implement a creative extension to the framework that showcases innovation:
+
+**Project Ideas (or propose your own):**
+
+1. **Interactive Learning Widgets**
+   - Embedded coding sandboxes (CodePen, JSFiddle integration)
+   - Interactive diagrams with clickable explanations
+   - Progress tracking with visual completion indicators
+
+2. **Advanced Content Features**
+   - Collaborative annotation system for course materials
+   - AI-powered content summarization
+   - Automatic glossary generation with hover definitions
+
+3. **Student Engagement Tools**
+   - Gamification elements (badges, achievements, leaderboards)
+   - Discussion system with threaded comments
+   - Peer voting and content curation features
+
+4. **Instructor Productivity Tools**
+   - Automated assignment distribution via Git branches
+   - Grade export to common LMS formats
+   - Content analytics and engagement tracking
+
+**Technical Requirements:**
+- Must integrate cleanly with existing framework architecture
+- Should follow framework conventions and patterns
+- Include comprehensive documentation and examples
+- Demonstrate with real content, not just placeholder text
+
+**Presentation Requirements:**
+- 20-minute demo showing your extension in action
+- Explain design decisions and technical challenges overcome
+- Show before/after comparisons demonstrating value added
+- Include brief code walkthrough of key implementation details
+- Prepare installation instructions for classmates to try your extension
+
+---
+
+## Assessment Philosophy
+
+This mixed activities approach recognizes that students learn differently and excel in various formats:
+
+- **Quick Quiz** - Tests foundational knowledge retention
+- **Hands-On Lab** - Develops practical configuration skills
+- **Video Demo** - Builds communication and tutorial creation abilities
+- **Research Project** - Encourages critical thinking and technology evaluation
+- **Code Review** - Develops collaborative development practices
+- **Creative Challenge** - Fosters innovation and problem-solving creativity
+
+## Resources & Support
+
+### Getting Help
+- **Office Hours:** Tuesday/Thursday 2-4 PM
+- **Discussion Forum:** Post questions for peer and instructor help
+- **Study Groups:** Self-organized collaborative learning sessions
+- **Technical Support:** Framework-specific troubleshooting assistance
+
+### Additional Resources
+- [Hugo Documentation](https://gohugo.io/documentation/)
+- [Framework Architecture Deep Dive](../../framework_documentation/01_core_concepts/)
+- [Video Tutorials Playlist](https://youtube.com/playlist/framework-tutorials)
+- [Community Examples Repository](https://github.com/framework-examples/)
+
+### Assessment Timeline
+
+```
+Week 1: Quiz + Config Lab Due
+Week 2: Video Demo + Research Presentation
+Week 3: Code Review + Creative Challenge
+```
+
+**Pro Tip:** Start the creative challenge early - it's the most time-intensive but also the most rewarding activity! 🎯
+
+Good luck, and remember: the goal is deep understanding, not just completion. Focus on learning through doing, and don't hesitate to experiment and break things along the way!

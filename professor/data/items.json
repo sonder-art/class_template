@@ -1,0 +1,528 @@
+{
+  "generated_at": "2025-08-13T18:46:06.624671",
+  "total_items": 22,
+  "total_files": 5,
+  "items": [
+    {
+      "constituent_slug": "framework-concepts",
+      "item_id": "framework_concepts_quiz",
+      "points": 10.0,
+      "due_date": "2025-08-15T09:00:00-05:00",
+      "title": "Framework Concepts Quick Quiz",
+      "delivery_type": "text",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/02_mixed_activities.md",
+      "file_title": "Framework Mastery - Mixed Learning Activities"
+    },
+    {
+      "constituent_slug": "initial-setup",
+      "item_id": "config_customization_lab",
+      "points": 30.0,
+      "due_date": "2025-08-17T14:00:00-05:00",
+      "title": "Custom Configuration Implementation",
+      "delivery_type": "upload",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/02_mixed_activities.md",
+      "file_title": "Framework Mastery - Mixed Learning Activities"
+    },
+    {
+      "constituent_slug": "build-validation",
+      "item_id": "build_process_demo",
+      "points": 20.0,
+      "due_date": "2025-08-18T16:30:00-05:00",
+      "title": "Framework Build Process Walkthrough",
+      "delivery_type": "video",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/02_mixed_activities.md",
+      "file_title": "Framework Mastery - Mixed Learning Activities"
+    },
+    {
+      "constituent_slug": "framework-concepts",
+      "item_id": "static_site_analysis",
+      "points": 25.0,
+      "due_date": "2025-08-19T23:59:59-05:00",
+      "title": "Static Site Generators Comparison Study",
+      "delivery_type": "presentation",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/02_mixed_activities.md",
+      "file_title": "Framework Mastery - Mixed Learning Activities"
+    },
+    {
+      "constituent_slug": "documentation-quality",
+      "item_id": "peer_code_review",
+      "points": 15.0,
+      "due_date": "2025-08-20T12:00:00-05:00",
+      "title": "Peer Framework Enhancement Review",
+      "delivery_type": "code",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/02_mixed_activities.md",
+      "file_title": "Framework Mastery - Mixed Learning Activities"
+    },
+    {
+      "constituent_slug": "documentation-quality",
+      "item_id": "framework_creative_extension",
+      "points": 35.0,
+      "due_date": "2025-08-22T20:00:00-05:00",
+      "title": "Creative Framework Extension Project",
+      "delivery_type": "presentation",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/02_mixed_activities.md",
+      "file_title": "Framework Mastery - Mixed Learning Activities"
+    },
+    {
+      "constituent_slug": "initial-setup",
+      "item_id": "repo_fork_and_config",
+      "points": 30.0,
+      "due_date": "2025-08-16T10:00:00-05:00",
+      "title": "Fork, Configure & Deploy Framework",
+      "delivery_type": "url",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/01_lab_initial_setup.md",
+      "file_title": "Framework Setup Lab - Hands-On Practice"
+    },
+    {
+      "constituent_slug": "framework-concepts",
+      "item_id": "theme_customization_lab",
+      "points": 25.0,
+      "due_date": "2025-08-17T15:30:00-05:00",
+      "title": "Custom Theme Development",
+      "delivery_type": "presentation",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/01_lab_initial_setup.md",
+      "file_title": "Framework Setup Lab - Hands-On Practice"
+    },
+    {
+      "constituent_slug": "build-validation",
+      "item_id": "hugo_advanced_features",
+      "points": 35.0,
+      "due_date": "2025-08-19T13:00:00-05:00",
+      "title": "Custom Shortcodes & Data Processing",
+      "delivery_type": "code",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/01_lab_initial_setup.md",
+      "file_title": "Framework Setup Lab - Hands-On Practice"
+    },
+    {
+      "constituent_slug": "build-validation",
+      "item_id": "integration_testing_suite",
+      "points": 20.0,
+      "due_date": "2025-08-20T17:00:00-05:00",
+      "title": "Comprehensive Testing Demo",
+      "delivery_type": "video",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/02_framework_setup/01_lab_initial_setup.md",
+      "file_title": "Framework Setup Lab - Hands-On Practice"
+    },
+    {
+      "constituent_slug": "framework-concepts",
+      "item_id": "oauth_flow_quiz",
+      "points": 15.0,
+      "due_date": "2025-08-18T14:00:00-05:00",
+      "title": "OAuth Flow Diagram & Explanation",
+      "delivery_type": "text",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/01_authentication_basics/02_quiz_knowledge_check.md",
+      "file_title": "Authentication Knowledge Quiz"
+    },
+    {
+      "constituent_slug": "auth-setup",
+      "item_id": "jwt_analysis_exercise",
+      "points": 20.0,
+      "due_date": "2025-08-19T16:30:00-05:00",
+      "title": "JWT Token Decoding Challenge",
+      "delivery_type": "code",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/01_authentication_basics/02_quiz_knowledge_check.md",
+      "file_title": "Authentication Knowledge Quiz"
+    },
+    {
+      "constituent_slug": "auth-testing",
+      "item_id": "rls_policy_design",
+      "points": 25.0,
+      "due_date": "2025-08-21T11:45:00-05:00",
+      "title": "Row Level Security Policy Workshop",
+      "delivery_type": "upload",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/01_authentication_basics/02_quiz_knowledge_check.md",
+      "file_title": "Authentication Knowledge Quiz"
+    },
+    {
+      "constituent_slug": "auth-setup",
+      "item_id": "supabase_project_setup",
+      "points": 25.0,
+      "due_date": "2025-08-20T23:59:59-05:00",
+      "title": "Supabase Project Setup",
+      "delivery_type": "url",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/01_authentication_basics/01_homework_auth_setup.md",
+      "file_title": "Authentication System Setup - Homework 1"
+    },
+    {
+      "constituent_slug": "auth-setup",
+      "item_id": "github_oauth_setup",
+      "points": 20.0,
+      "due_date": "2025-08-20T17:00:00-05:00",
+      "title": "GitHub OAuth Configuration",
+      "delivery_type": "upload",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/01_authentication_basics/01_homework_auth_setup.md",
+      "file_title": "Authentication System Setup - Homework 1"
+    },
+    {
+      "constituent_slug": "auth-integration",
+      "item_id": "edge_functions_deployment",
+      "points": 30.0,
+      "due_date": "2025-08-22",
+      "title": "Edge Functions Deployment",
+      "delivery_type": "code",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/01_authentication_basics/01_homework_auth_setup.md",
+      "file_title": "Authentication System Setup - Homework 1"
+    },
+    {
+      "constituent_slug": "auth-testing",
+      "item_id": "comprehensive_auth_testing",
+      "points": 25.0,
+      "due_date": "2025-08-25",
+      "title": "Authentication Testing",
+      "delivery_type": "text",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/01_authentication_basics/01_homework_auth_setup.md",
+      "file_title": "Authentication System Setup - Homework 1"
+    },
+    {
+      "constituent_slug": "content-organization",
+      "item_id": "project_proposal_design",
+      "points": 50.0,
+      "due_date": "2025-08-24T23:59:59-05:00",
+      "title": "Project Proposal Presentation",
+      "delivery_type": "presentation",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/03_advanced_features/01_project_final_implementation.md",
+      "file_title": "Final Project - Advanced Educational Platform"
+    },
+    {
+      "constituent_slug": "documentation-quality",
+      "item_id": "core_platform_development",
+      "points": 100.0,
+      "due_date": "2025-09-05T18:00:00-05:00",
+      "title": "Core Platform MVP Development",
+      "delivery_type": "code",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/03_advanced_features/01_project_final_implementation.md",
+      "file_title": "Final Project - Advanced Educational Platform"
+    },
+    {
+      "constituent_slug": "documentation-quality",
+      "item_id": "advanced_features_implementation",
+      "points": 75.0,
+      "due_date": "2025-09-15T20:30:00-05:00",
+      "title": "Advanced Features Demo & Innovation Showcase",
+      "delivery_type": "video",
+      "important": true,
+      "instructions": null,
+      "file_path": "class_notes/03_advanced_features/01_project_final_implementation.md",
+      "file_title": "Final Project - Advanced Educational Platform"
+    },
+    {
+      "constituent_slug": "content-organization",
+      "item_id": "production_deployment_docs",
+      "points": 40.0,
+      "due_date": "2025-09-20T23:59:59-05:00",
+      "title": "Production Platform & Complete Documentation",
+      "delivery_type": "url",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/03_advanced_features/01_project_final_implementation.md",
+      "file_title": "Final Project - Advanced Educational Platform"
+    },
+    {
+      "constituent_slug": "documentation-quality",
+      "item_id": "open_source_community_building",
+      "points": 25.0,
+      "due_date": "2025-09-25T17:00:00-05:00",
+      "title": "Community Building & Open Source Strategy",
+      "delivery_type": "presentation",
+      "important": false,
+      "instructions": null,
+      "file_path": "class_notes/03_advanced_features/01_project_final_implementation.md",
+      "file_title": "Final Project - Advanced Educational Platform"
+    }
+  ],
+  "files": [
+    {
+      "file_path": "class_notes/02_framework_setup/02_mixed_activities.md",
+      "title": "Framework Mastery - Mixed Learning Activities",
+      "parsed_at": "2025-08-13T18:46:06.619996",
+      "items": [
+        {
+          "constituent_slug": "framework-concepts",
+          "item_id": "framework_concepts_quiz",
+          "points": 10.0,
+          "due_date": "2025-08-15T09:00:00-05:00",
+          "title": "Framework Concepts Quick Quiz",
+          "delivery_type": "text",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "initial-setup",
+          "item_id": "config_customization_lab",
+          "points": 30.0,
+          "due_date": "2025-08-17T14:00:00-05:00",
+          "title": "Custom Configuration Implementation",
+          "delivery_type": "upload",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "build-validation",
+          "item_id": "build_process_demo",
+          "points": 20.0,
+          "due_date": "2025-08-18T16:30:00-05:00",
+          "title": "Framework Build Process Walkthrough",
+          "delivery_type": "video",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "framework-concepts",
+          "item_id": "static_site_analysis",
+          "points": 25.0,
+          "due_date": "2025-08-19T23:59:59-05:00",
+          "title": "Static Site Generators Comparison Study",
+          "delivery_type": "presentation",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "documentation-quality",
+          "item_id": "peer_code_review",
+          "points": 15.0,
+          "due_date": "2025-08-20T12:00:00-05:00",
+          "title": "Peer Framework Enhancement Review",
+          "delivery_type": "code",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "documentation-quality",
+          "item_id": "framework_creative_extension",
+          "points": 35.0,
+          "due_date": "2025-08-22T20:00:00-05:00",
+          "title": "Creative Framework Extension Project",
+          "delivery_type": "presentation",
+          "important": true,
+          "instructions": null
+        }
+      ]
+    },
+    {
+      "file_path": "class_notes/02_framework_setup/01_lab_initial_setup.md",
+      "title": "Framework Setup Lab - Hands-On Practice",
+      "parsed_at": "2025-08-13T18:46:06.621231",
+      "items": [
+        {
+          "constituent_slug": "initial-setup",
+          "item_id": "repo_fork_and_config",
+          "points": 30.0,
+          "due_date": "2025-08-16T10:00:00-05:00",
+          "title": "Fork, Configure & Deploy Framework",
+          "delivery_type": "url",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "framework-concepts",
+          "item_id": "theme_customization_lab",
+          "points": 25.0,
+          "due_date": "2025-08-17T15:30:00-05:00",
+          "title": "Custom Theme Development",
+          "delivery_type": "presentation",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "build-validation",
+          "item_id": "hugo_advanced_features",
+          "points": 35.0,
+          "due_date": "2025-08-19T13:00:00-05:00",
+          "title": "Custom Shortcodes & Data Processing",
+          "delivery_type": "code",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "build-validation",
+          "item_id": "integration_testing_suite",
+          "points": 20.0,
+          "due_date": "2025-08-20T17:00:00-05:00",
+          "title": "Comprehensive Testing Demo",
+          "delivery_type": "video",
+          "important": true,
+          "instructions": null
+        }
+      ]
+    },
+    {
+      "file_path": "class_notes/01_authentication_basics/02_quiz_knowledge_check.md",
+      "title": "Authentication Knowledge Quiz",
+      "parsed_at": "2025-08-13T18:46:06.622250",
+      "items": [
+        {
+          "constituent_slug": "framework-concepts",
+          "item_id": "oauth_flow_quiz",
+          "points": 15.0,
+          "due_date": "2025-08-18T14:00:00-05:00",
+          "title": "OAuth Flow Diagram & Explanation",
+          "delivery_type": "text",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "auth-setup",
+          "item_id": "jwt_analysis_exercise",
+          "points": 20.0,
+          "due_date": "2025-08-19T16:30:00-05:00",
+          "title": "JWT Token Decoding Challenge",
+          "delivery_type": "code",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "auth-testing",
+          "item_id": "rls_policy_design",
+          "points": 25.0,
+          "due_date": "2025-08-21T11:45:00-05:00",
+          "title": "Row Level Security Policy Workshop",
+          "delivery_type": "upload",
+          "important": true,
+          "instructions": null
+        }
+      ]
+    },
+    {
+      "file_path": "class_notes/01_authentication_basics/01_homework_auth_setup.md",
+      "title": "Authentication System Setup - Homework 1",
+      "parsed_at": "2025-08-13T18:46:06.623247",
+      "items": [
+        {
+          "constituent_slug": "auth-setup",
+          "item_id": "supabase_project_setup",
+          "points": 25.0,
+          "due_date": "2025-08-20T23:59:59-05:00",
+          "title": "Supabase Project Setup",
+          "delivery_type": "url",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "auth-setup",
+          "item_id": "github_oauth_setup",
+          "points": 20.0,
+          "due_date": "2025-08-20T17:00:00-05:00",
+          "title": "GitHub OAuth Configuration",
+          "delivery_type": "upload",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "auth-integration",
+          "item_id": "edge_functions_deployment",
+          "points": 30.0,
+          "due_date": "2025-08-22",
+          "title": "Edge Functions Deployment",
+          "delivery_type": "code",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "auth-testing",
+          "item_id": "comprehensive_auth_testing",
+          "points": 25.0,
+          "due_date": "2025-08-25",
+          "title": "Authentication Testing",
+          "delivery_type": "text",
+          "important": true,
+          "instructions": null
+        }
+      ]
+    },
+    {
+      "file_path": "class_notes/03_advanced_features/01_project_final_implementation.md",
+      "title": "Final Project - Advanced Educational Platform",
+      "parsed_at": "2025-08-13T18:46:06.624514",
+      "items": [
+        {
+          "constituent_slug": "content-organization",
+          "item_id": "project_proposal_design",
+          "points": 50.0,
+          "due_date": "2025-08-24T23:59:59-05:00",
+          "title": "Project Proposal Presentation",
+          "delivery_type": "presentation",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "documentation-quality",
+          "item_id": "core_platform_development",
+          "points": 100.0,
+          "due_date": "2025-09-05T18:00:00-05:00",
+          "title": "Core Platform MVP Development",
+          "delivery_type": "code",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "documentation-quality",
+          "item_id": "advanced_features_implementation",
+          "points": 75.0,
+          "due_date": "2025-09-15T20:30:00-05:00",
+          "title": "Advanced Features Demo & Innovation Showcase",
+          "delivery_type": "video",
+          "important": true,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "content-organization",
+          "item_id": "production_deployment_docs",
+          "points": 40.0,
+          "due_date": "2025-09-20T23:59:59-05:00",
+          "title": "Production Platform & Complete Documentation",
+          "delivery_type": "url",
+          "important": false,
+          "instructions": null
+        },
+        {
+          "constituent_slug": "documentation-quality",
+          "item_id": "open_source_community_building",
+          "points": 25.0,
+          "due_date": "2025-09-25T17:00:00-05:00",
+          "title": "Community Building & Open Source Strategy",
+          "delivery_type": "presentation",
+          "important": false,
+          "instructions": null
+        }
+      ]
+    }
+  ]
+}
