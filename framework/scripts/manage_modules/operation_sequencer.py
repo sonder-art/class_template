@@ -56,6 +56,21 @@ class OperationSequencer:
         self.framework_dir = framework_dir
         self.role = role
     
+    def _get_repo_root(self) -> Path:
+        """Get repository root directory consistently across all operations"""
+        repo_root = self.current_dir
+        if self.current_dir.name in ['professor', 'students']:
+            # Traditional execution - we're in content directory
+            repo_root = self.current_dir.parent
+        elif (self.current_dir / "dna.yml").exists():
+            # New execution - we're already at repo root
+            repo_root = self.current_dir
+        else:
+            # Find repo root by looking for dna.yml
+            while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
+                repo_root = repo_root.parent
+        return repo_root
+    
     def validate_and_generate(self, force: bool = False) -> bool:
         """Run validation and generation pipeline
         
@@ -108,9 +123,7 @@ class OperationSequencer:
             port = 1313 if self.role == "professor" else 1314
             
         # NEW: Hugo config is now in root-level hugo_generated/
-        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
-        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
-            repo_root = repo_root.parent
+        repo_root = self._get_repo_root()
         hugo_config = repo_root / "hugo_generated" / "hugo.toml"
         if not hugo_config.exists():
             self.message_orchestrator.add_message('warnings', 'Missing Hugo Config', 'Hugo config not found. Running generation first...')
@@ -137,11 +150,9 @@ class OperationSequencer:
         # Try to get from build.yml first  
         try:
             import yaml
-            repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
-            while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
-                repo_root = repo_root.parent
+            repo_root = self._get_repo_root()
                 
-            build_yml_path = self.current_dir / "build.yml"
+            build_yml_path = repo_root / "build.yml"
             if build_yml_path.exists():
                 with open(build_yml_path, 'r') as f:
                     build_config = yaml.safe_load(f)
@@ -187,9 +198,7 @@ class OperationSequencer:
         professor_dir = self._get_professor_directory()
         
         # Determine student directory (relative to repo root)
-        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
-        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
-            repo_root = repo_root.parent
+        repo_root = self._get_repo_root()
             
         if self.current_dir.parent.name == 'students':
             # We're in a student directory
@@ -236,9 +245,7 @@ class OperationSequencer:
             return False
             
         # Build with Hugo - NEW: Use root-level hugo_generated/
-        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
-        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
-            repo_root = repo_root.parent
+        repo_root = self._get_repo_root()
         output_dir = repo_root / "hugo_generated" / "public"
         hugo_config = repo_root / "hugo_generated" / "hugo.toml"
         
@@ -299,9 +306,7 @@ class OperationSequencer:
         self.ux.announce_cleaning_operation()
         
         # NEW: Clean files from root-level hugo_generated/
-        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
-        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
-            repo_root = repo_root.parent
+        repo_root = self._get_repo_root()
         files_to_clean = [
             repo_root / "hugo_generated"
         ]

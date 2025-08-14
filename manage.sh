@@ -237,13 +237,17 @@ main() {
     echo ""
     
     # Execute framework orchestrator with context
-    # Set working directory to the build target and call framework script
-    cd "$build_target_dir"
-    
-    # Pass dev port if --dev is requested
+    # Only change directory for dev server operations that need local context
+    # Keep repo root for build/deploy operations so paths resolve correctly
     if [[ " $* " =~ " --dev " ]]; then
+        # Dev server needs to run from content directory
+        cd "$build_target_dir"
         exec python3 "$MANAGE_SCRIPT" --port="$dev_port" "$@"
     else
+        # Build/deploy operations run from repo root for correct path resolution
+        # Pass target directory info via environment variables
+        export BUILD_TARGET_DIR="$build_target_dir"
+        export BUILD_TARGET="$build_target"
         exec python3 "$MANAGE_SCRIPT" "$@"
     fi
 }
