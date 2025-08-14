@@ -245,10 +245,9 @@ main() {
         exec python3 "$MANAGE_SCRIPT" --port="$dev_port" "$@"
     else
         # Build/deploy operations run from repo root for correct path resolution
-        # Pass target directory info via environment variables
-        export BUILD_TARGET_DIR="$build_target_dir"
-        export BUILD_TARGET="$build_target"
-        exec python3 "$MANAGE_SCRIPT" "$@"
+        # Pass target directory info via environment variables inline with exec
+        BUILD_TARGET_DIR="$build_target_dir" BUILD_TARGET="$build_target" \
+            exec python3 "$MANAGE_SCRIPT" "$@"
     fi
 }
 

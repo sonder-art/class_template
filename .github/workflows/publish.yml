@@ -198,8 +198,12 @@ jobs:
           
           # Use the root-level manage.sh with new architecture
           echo "🔍 Running build command with full output capture:"
+          echo "🔍 Environment variables:"
+          env | grep -E "TARGET|GITHUB" | sort
+          echo ""
+          
           set -x  # Enable command tracing
-          if ./manage.sh --deploy --force --verbose 2>&1; then
+          if ./manage.sh --deploy --force --verbose; then
             set +x  # Disable command tracing
             echo "✅ Framework build command completed"
             
