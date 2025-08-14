@@ -132,6 +132,37 @@ class OperationSequencer:
             self.console.print("\n🛑 Server stopped")
             self.message_orchestrator.add_message('info', 'Development Server Stopped', 'Server shut down by user', 'Development')
     
+    def _get_professor_directory(self) -> str:
+        """Get professor directory name from configuration."""
+        # Try to get from build.yml first  
+        try:
+            import yaml
+            repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
+            while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
+                repo_root = repo_root.parent
+                
+            build_yml_path = self.current_dir / "build.yml"
+            if build_yml_path.exists():
+                with open(build_yml_path, 'r') as f:
+                    build_config = yaml.safe_load(f)
+                    prof_dir = build_config.get('structure', {}).get('professor_directory')
+                    if prof_dir:
+                        return prof_dir
+            
+            # Try class_template/course.yml
+            course_yml_path = repo_root / "class_template" / "course.yml"
+            if course_yml_path.exists():
+                with open(course_yml_path, 'r') as f:
+                    course_config = yaml.safe_load(f)
+                    prof_dir = course_config.get('structure', {}).get('professor_directory')
+                    if prof_dir:
+                        return prof_dir
+        except Exception:
+            pass
+            
+        # Default fallback
+        return "professor"
+        
     def sync_student_updates(self) -> bool:
         """Sync framework updates for students
         
@@ -152,7 +183,21 @@ class OperationSequencer:
             self.message_orchestrator.end_operation(False, "Sync cancelled by user")
             return False
             
-        # Run sync script
+        # Get professor directory from configuration
+        professor_dir = self._get_professor_directory()
+        
+        # Determine student directory (relative to repo root)
+        repo_root = self.current_dir.parent if self.current_dir.name in ['professor', 'students'] else self.current_dir
+        while repo_root.name != repo_root.parent.name and not (repo_root / "dna.yml").exists():
+            repo_root = repo_root.parent
+            
+        if self.current_dir.parent.name == 'students':
+            # We're in a student directory
+            student_dir = f"students/{self.current_dir.name}"
+        else:
+            student_dir = f"students/{self.context.github_user or 'unknown'}"
+        
+        # Run sync script from repo root with correct parameters
         sync_script = self.framework_dir / "scripts" / "sync_student.py"
         
         # Create error callback for subprocess runner
@@ -160,9 +205,9 @@ class OperationSequencer:
             self.message_orchestrator.add_message('errors', desc, error_text)
         
         result = self.subprocess_runner.run_command(
-            command=["python3", str(sync_script)],
+            command=["python3", str(sync_script), professor_dir, student_dir],
             description="Syncing framework updates",
-            working_directory=self.current_dir,
+            working_directory=repo_root,  # Run from repo root
             verbose=self.message_orchestrator.verbose,
             error_callback=error_callback
         )

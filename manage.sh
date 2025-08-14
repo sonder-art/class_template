@@ -14,7 +14,6 @@ NC='\033[0m' # No Color
 # Get repository root
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 FRAMEWORK_DIR="$REPO_ROOT/framework"
-CLASS_TEMPLATE_DIR="$REPO_ROOT/class_template"
 
 # Framework orchestrator script
 MANAGE_SCRIPT="$FRAMEWORK_DIR/scripts/manage.py"
@@ -89,15 +88,54 @@ get_github_user() {
     git config user.name 2>/dev/null || echo "unknown"
 }
 
+# Function to get professor directory name from configuration
+get_professor_directory() {
+    # Try to get from local build.yml first
+    local prof_dir
+    prof_dir=$(get_build_config "structure.professor_directory" "")
+    
+    if [[ -n "$prof_dir" ]]; then
+        echo "$prof_dir"
+        return
+    fi
+    
+    # Try to get from class_template/course.yml
+    if [[ -f "$REPO_ROOT/class_template/course.yml" ]]; then
+        local course_prof_dir
+        course_prof_dir=$(grep -E "^[[:space:]]*professor_directory:" "$REPO_ROOT/class_template/course.yml" | cut -d':' -f2- | xargs)
+        if [[ -n "$course_prof_dir" && "$course_prof_dir" != "\"\"" && "$course_prof_dir" != "''" ]]; then
+            echo "$course_prof_dir"
+            return
+        fi
+    fi
+    
+    # Default fallback
+    echo "professor"
+}
+
 # Function to detect build target
 detect_build_target() {
+    # First, check if we're running from a student directory
+    local current_dir="$(pwd)"
+    local current_basename="$(basename "$current_dir")"
+    local parent_basename="$(basename "$(dirname "$current_dir")")"
+    
+    if [[ "$parent_basename" == "students" ]]; then
+        # We're in a student directory (e.g., students/username/)
+        echo "student:$current_basename"
+        return
+    fi
+    
     # Check if target_directory is explicitly set in build.yml
     local target_dir
-    target_dir=$(get_build_config "target_directory" "")
+    target_dir=$(get_build_config "build.target_directory" "")
     
     if [[ -n "$target_dir" ]]; then
         # Use explicit configuration
-        if [[ "$target_dir" == "professor" ]]; then
+        local prof_dir
+        prof_dir=$(get_professor_directory)
+        
+        if [[ "$target_dir" == "$prof_dir" ]]; then
             echo "professor"
         elif [[ "$target_dir" =~ ^students/ ]]; then
             local username
@@ -145,7 +183,9 @@ get_dev_port() {
 get_build_target_dir() {
     local build_target="$1"
     if [[ "$build_target" == professor ]]; then
-        echo "$REPO_ROOT/professor"
+        local prof_dir
+        prof_dir=$(get_professor_directory)
+        echo "$REPO_ROOT/$prof_dir"
     else
         local username="${build_target#student:}"
         echo "$REPO_ROOT/students/$username"
@@ -181,8 +221,10 @@ main() {
     
     # Show build info
     if [[ "$build_target" == professor ]]; then
+        local prof_dir
+        prof_dir=$(get_professor_directory)
         echo -e "${BLUE}🎓 Building Professor Site${NC}"
-        echo -e "${BLUE}📁 Content: professor/${NC}"
+        echo -e "${BLUE}📁 Content: $prof_dir/${NC}"
     else
         local username="${build_target#student:}"
         echo -e "${GREEN}👨‍🎓 Building Student Site${NC}"
@@ -217,7 +259,9 @@ if [[ $# -eq 0 ]]; then
     
     build_target=$(detect_build_target)
     if [[ "$build_target" == professor ]]; then
-        echo -e "   ${BLUE}→ Professor site (default)${NC}"
+        local prof_dir
+        prof_dir=$(get_professor_directory)
+        echo -e "   ${BLUE}→ Professor site ($prof_dir/)${NC}"
     else
         username="${build_target#student:}"
         echo -e "   ${GREEN}→ Student site for: $username${NC}"

@@ -4,47 +4,75 @@ This is your personal workspace within the class template framework.
 
 ## 🚀 Getting Started
 
-1. **Keep synchronized**: Run the sync script regularly to get updates
+**All commands are run from the repository root (../../ from this directory):**
+
+1. **Navigate to repository root**:
    ```bash
-   python3 framework_code/scripts/sync_student.py
+   cd ../../
    ```
 
-2. **Generate your site**: Build your personal website
+2. **Keep synchronized**: Run sync regularly to get class content updates
    ```bash
-   python3 framework_code/scripts/generate_hugo_config.py
-   hugo
+   ./manage.sh --sync
    ```
 
-3. **View your site**: Open `framework_code/hugo_generated/index.html`
+3. **Generate your site**: Build your personal website
+   ```bash
+   ./manage.sh --build
+   ```
+
+4. **View your site**: Open `hugo_generated/public/index.html` in repository root
+
+5. **Development server**: Start live development server
+   ```bash
+   ./manage.sh --dev
+   ```
 
 ## 📁 Directory Structure
 
-- `class_notes/` - Your personal notes and solutions
-- `homework/` - Homework assignments and solutions  
+- `class_notes/` - Your personal notes and solutions (synced from professor)
 - `personal_projects/` - Your own projects and experiments
-- `framework_code/` - Framework tools (synced from instructor)
-- `course.yml` - Class metadata (synced from instructor)
-- `config.yml` - Your personal rendering preferences
+- `config.yml` - Your personal rendering preferences (copied for customization)
+- `home.md` - Your homepage content
+- `README.md` - This file with instructions
 
 ## 📝 Customization
 
 You can:
 - Modify `config.yml` for personal preferences (theme, colors, etc.)
-- Add your own content in any directory
-- Create your own themes by copying from `framework_code/themes/`
+- Edit `home.md` to customize your homepage
+- Add your own content in `class_notes/` and `personal_projects/`
+- Framework themes are shared at `../../framework/themes/`
+- All builds use the shared framework at `../../framework/`
 
 ## 🔄 Staying Updated
 
+**Important**: Always run commands from the repository root (../../)
+
+```bash
+cd ../../
+./manage.sh --sync
+```
+
 The sync script will:
-- ✅ Add new content from the instructor
-- ✅ Update unchanged files you haven't modified
-- ❌ **Never overwrite** your personal work
+- ✅ Add new class content from the instructor  
+- ✅ Update class_notes that haven't been modified
+- ❌ **Never overwrite** your personal work (config.yml, home.md, personal content)
 - ✅ Preserve content in `<!-- KEEP -->` blocks
+- 🎯 **Only syncs class content** (not framework - that's shared)
 
-## 🚫 Important Rules
+## 🏗️ Framework Architecture
 
-- **Never modify** files in `framework_code/` directly
-- **Only work** within your student directory
-- **Use the sync script** for all updates
+- **Build Configuration**: Root-level `build.yml` (configured for your workspace)
+- **Framework**: Shared at repository root (`../../framework/`)
+- **Build Output**: Shared at repository root (`../../hugo_generated/`)
+- **Your Content**: Lives in this directory
+- **Command Execution**: All commands run from repository root
+
+## 🚨 Important Notes
+
+- **Never run commands from this directory** - always use the repository root
+- Your `build.yml` is at the repository root and configured for your workspace
+- Personal files (`config.yml`, `home.md`) stay in your directory for customization
 
 Happy learning! 🎉

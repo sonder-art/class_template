@@ -6,7 +6,7 @@
 # Theme selection (rendering preference)
 theme:
   name: "evangelion"
-  path: "framework_code/themes"
+  path: "../framework/themes"
 
 # Profile settings
 profile:
@@ -37,17 +37,19 @@ content:
   show_estimated_time: true
   homework_highlight: true
   student_solutions_visible: false
+  protected_sections: ["dashboard", "upload"]
 
 # Hugo configuration - all rendering settings
 hugo:
   content_sources:
     - "class_notes"
+    - "modules"
     - "framework_tutorials"
     - "framework_documentation"
   homepage_source: "home.md"
-  output_dir: "framework_code/hugo_generated"
-  theme_path: "framework_code/themes"
-  assets_path: "framework_code/assets"
+  output_dir: "../hugo_generated/public"
+  theme_path: "../framework/themes"
+  assets_path: "../framework/assets"
   search_mode: "simple"
 
 # Advanced build options
@@ -82,3 +84,19 @@ discussions:
   # Student customization allowed
   student_theme_override: true
   student_category_override: false  # Keep discussions centralized
+
+# Authentication configuration
+authentication:
+  enabled: true
+  provider: "supabase"
+  supabase:
+    url: "https://levybxqsltedfjtnkntm.supabase.co"
+    anon_key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxldnlieHFzbHRlZGZqdG5rbnRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQyNTM1NDUsImV4cCI6MjA2OTgyOTU0NX0.EWH71vjTpOHYIaJfYX19xyM08zTL5AN1IBzJhY8Gx9g"
+  flows:
+    login_redirect: "/auth/callback/"
+    logout_redirect: "/"
+    protected_redirect: "/dashboard/"
+  ui:
+    show_in_sidebar: true
+    login_icon: "🔐"
+    logout_icon: "🚪"

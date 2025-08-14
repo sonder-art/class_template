@@ -24,43 +24,31 @@ import yaml
 
 console = Console()
 
-# Smart exclusion patterns
+# Content sync includes only these directories
+CONTENT_DIRECTORIES = [
+    'class_notes'
+]
+
+# Exclusion patterns for content sync
 SYNC_EXCLUSIONS = {
-    'framework_generated': [
-        'framework_code/hugo_generated/',
-        'framework_code/hugo_generated/**',
-        'hugo.toml',
+    'generated_content': [
         '**/00_index.md',
-        '**/00_master_index.md'
+        '**/00_master_index.md',
+        '*.backup'
     ],
-    'build_cache': [
+    'build_artifacts': [
         '__pycache__/',
         '__pycache__/**',
         '*.pyc', '*.pyo', '*.pyd',
         '.hugo_build.lock',
-        'resources/_gen/',
-        'resources/_gen/**',
-        'node_modules/',
-        'node_modules/**',
-        '.quarto/',
-        '.quarto/**',
-        '_site/',
-        '_site/**',
-        '.venv/', 'venv/',
-        '.venv/**', 'venv/**'
+        '*.log', '*.tmp', '*.temp'
     ],
-    'personal_dev': [
+    'personal_files': [
         '.vscode/', '.idea/',
         '.vscode/**', '.idea/**',
         '*.swp', '*.swo', '*~',
         '.DS_Store', 'Thumbs.db', 'desktop.ini',
-        '*.log', '*.tmp', '*.temp',
         '.env', '.env.local', '.env.*'
-    ],
-    'version_control': [
-        '.git/',
-        '.git/**',
-        '.gitignore'
     ]
 }
 
@@ -146,7 +134,7 @@ def detect_student_directory():
     return student_name.strip()
 
 def scan_directory_changes(professor_dir, student_dir):
-    """Scan for files that need to be synced with smart exclusions."""
+    """Scan for content files that need to be synced."""
     changes = {
         'new_files': [],
         'updated_files': [],
@@ -162,30 +150,39 @@ def scan_directory_changes(professor_dir, student_dir):
     # Ensure student directory exists
     student_path.mkdir(parents=True, exist_ok=True)
     
-    # Scan professor files
-    for prof_file in professor_path.rglob('*'):
-        if prof_file.is_file():
-            # Calculate relative path
-            rel_path = prof_file.relative_to(professor_path)
+    # Only scan content directories in professor
+    for content_dir in CONTENT_DIRECTORIES:
+        content_path = professor_path / content_dir
+        if not content_path.exists():
+            continue
             
-            # Check exclusions first
-            should_sync, reason = should_sync_file(rel_path, exclusion_patterns)
-            if not should_sync:
-                changes['excluded_files'].append((rel_path, reason))
-                continue
-            
-            student_file = student_path / rel_path
-            
-            if not student_file.exists():
-                changes['new_files'].append(rel_path)
-            elif student_file.stat().st_mtime < prof_file.stat().st_mtime:
-                changes['updated_files'].append(rel_path)
-            else:
-                changes['unchanged_files'].append(rel_path)
+        for prof_file in content_path.rglob('*'):
+            if prof_file.is_file():
+                # Calculate relative path from professor root
+                rel_path = prof_file.relative_to(professor_path)
+                
+                # Check exclusions
+                should_sync, reason = should_sync_file(rel_path, exclusion_patterns)
+                if not should_sync:
+                    changes['excluded_files'].append((rel_path, reason))
+                    continue
+                
+                student_file = student_path / rel_path
+                
+                if not student_file.exists():
+                    changes['new_files'].append(rel_path)
+                elif student_file.stat().st_mtime < prof_file.stat().st_mtime:
+                    changes['updated_files'].append(rel_path)
+                else:
+                    changes['unchanged_files'].append(rel_path)
     
-    # Find student-only files (excluding generated content)
-    if student_path.exists():
-        for student_file in student_path.rglob('*'):
+    # Find student-only content files
+    for content_dir in CONTENT_DIRECTORIES:
+        student_content_path = student_path / content_dir
+        if not student_content_path.exists():
+            continue
+            
+        for student_file in student_content_path.rglob('*'):
             if student_file.is_file():
                 rel_path = student_file.relative_to(student_path)
                 prof_file = professor_path / rel_path
@@ -345,33 +342,41 @@ def show_sync_summary(student_name, changes, results):
         
         console.print(tree)
 
-def main():
+def main(professor_dir=None, student_dir=None):
     """Main sync process."""
     console.print(Panel(
-        "[bold blue]🔄 Student Directory Sync Tool[/bold blue]\n\n"
-        "Framework-level synchronization: professor/ → students/<username>/\n"
-        "• Copies new files from instructor\n"
-        "• Updates unchanged files you haven't modified\n"
-        "• [bold]Force-updates framework code[/bold] (scripts, themes, components)\n"
+        "[bold blue]📚 Student Content Sync Tool[/bold blue]\n\n"
+        "Class content synchronization: <professor_dir>/ → students/<username>/\n"
+        "• Copies new class content from instructor\n"
+        "• Updates class content you haven't modified\n"
+        "• [bold]Only syncs class_notes content[/bold] (framework shared at root)\n"
         "• Protects your personal work (non-destructive)\n"
-        "• Preserves KEEP blocks during forced updates\n"
-        "• Smart exclusions for auto-generated content",
-        title="🎓 Framework Tool",
+        "• Preserves KEEP blocks during updates\n"
+        "• Smart exclusions for generated content",
+        title="🎓 Content Sync",
         border_style="blue"
     ))
     
-    # Load configuration
-    dna_config = load_dna_config()
-    professor_profile = dna_config.get('professor_profile', 'professor')
+    # Use provided parameters or detect/load from config
+    if professor_dir is None:
+        # Try to get professor directory from class_template/course.yml
+        try:
+            with open("class_template/course.yml", 'r') as f:
+                course_config = yaml.safe_load(f)
+                professor_dir = course_config.get('structure', {}).get('professor_directory', 'professor')
+        except (FileNotFoundError, yaml.YAMLError):
+            professor_dir = 'professor'  # Default fallback
     
-    # Detect student directory
-    student_name = detect_student_directory()
+    if student_dir is None:
+        # Detect student directory
+        student_name = detect_student_directory()
+        student_dir = f"students/{student_name}"
+    else:
+        # Extract student name from directory path
+        student_name = Path(student_dir).name
     if not student_name:
         console.print("[red]❌ No student directory specified[/red]")
         sys.exit(1)
-    
-    professor_dir = "professor"
-    student_dir = f"students/{student_name}"
     
     console.print(f"[blue]📍 Syncing:[/blue] {professor_dir}/ → {student_dir}/")
     
@@ -434,4 +439,18 @@ def main():
     ))
 
 if __name__ == "__main__":
-    main() 
+    console.print("\n[bold blue]🎓 GitHub Class Template - Student Content Sync[/bold blue]")
+    console.print("[dim]Syncs class content from professor to student directories (framework shared at root)[/dim]")
+    
+    try:
+        # Check for command line arguments
+        professor_dir = sys.argv[1] if len(sys.argv) > 1 else None
+        student_dir = sys.argv[2] if len(sys.argv) > 2 else None
+        
+        main(professor_dir, student_dir)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]⚠️  Sync cancelled by user[/yellow]")
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"\n[red]❌ Sync failed: {e}[/red]")
+        sys.exit(1) 
