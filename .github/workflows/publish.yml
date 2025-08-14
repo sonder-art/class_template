@@ -186,16 +186,44 @@ jobs:
         run: |
           echo "🚀 Building framework site for target: $TARGET_DIR..."
           
+          # Debug: Show build configuration
+          echo "🔍 Contents of build.yml:"
+          cat build.yml
+          echo ""
+          
+          # Debug: Check manage.sh behavior
+          echo "🔍 Testing manage.sh detection:"
+          ./manage.sh --help || echo "manage.sh --help failed"
+          echo ""
+          
           # Use the root-level manage.sh with new architecture
-          if ./manage.sh --deploy --force --verbose; then
-            echo "✅ Framework build completed for $TARGET_DIR"
+          echo "🔍 Running build command with full output capture:"
+          set -x  # Enable command tracing
+          if ./manage.sh --deploy --force --verbose 2>&1; then
+            set +x  # Disable command tracing
+            echo "✅ Framework build command completed"
+            
+            # Check what was actually created
+            echo "🔍 Post-build directory contents:"
+            ls -la
+            echo ""
+            echo "🔍 Looking for any generated directories:"
+            find . -name "*generated*" -o -name "public" -o -name "*hugo*" -type d 2>/dev/null || echo "No generated directories found"
+            echo ""
+            echo "🔍 Looking for HTML files:"
+            find . -name "*.html" 2>/dev/null | head -10 || echo "No HTML files found"
           else
+            set +x  # Disable command tracing
             echo "❌ Build failed for $TARGET_DIR"
             echo ""
-            echo "🔧 Common solutions for build failures:"
-            echo "• Check if config.yml has all required fields"
-            echo "• Verify your customizations are valid YAML"
-            echo "• Check build.yml configuration"
+            echo "🔍 Post-failure directory contents:"
+            ls -la
+            echo ""
+            echo "🔧 Build failure - checking logs and configuration:"
+            echo "• build.yml content shown above"
+            echo "• Check if target directory exists: $TARGET_DIR"
+            echo "• Check framework structure"
+            ls -la framework/ framework/scripts/ 2>/dev/null || echo "Framework structure issue"
             exit 1
           fi
 
