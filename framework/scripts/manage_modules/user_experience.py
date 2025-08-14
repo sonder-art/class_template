@@ -46,18 +46,7 @@ class UserExperience:
     def show_environment_guidance(self):
         """Show guidance for running from correct directory"""
         
-        import os
-        from pathlib import Path
-        
         self.console.print("❌ Not in a valid framework directory")
-        
-        # Show additional debug info in GitHub Actions
-        if os.environ.get('GITHUB_ACTIONS') == 'true':
-            self.console.print(f"🔍 DEBUG - Current directory: {Path.cwd()}")
-            self.console.print(f"🔍 DEBUG - BUILD_TARGET_DIR: {os.environ.get('BUILD_TARGET_DIR', 'Not set')}")
-            self.console.print(f"🔍 DEBUG - BUILD_TARGET: {os.environ.get('BUILD_TARGET', 'Not set')}")
-            self.console.print(f"🔍 DEBUG - Directory contents: {list(Path.cwd().iterdir())[:10]}")
-        
         self.console.print("Please run this script from:")
         self.console.print("• Professor: [cyan]professor/[/cyan] directory")
         self.console.print("• Student: [cyan]students/[your-username]/[/cyan] directory")

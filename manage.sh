@@ -115,7 +115,7 @@ get_professor_directory() {
 
 # Function to detect build target
 detect_build_target() {
-    # First, check if we're running from a student directory
+    # First, check if we're running from a student directory (highest priority for local runs)
     local current_dir="$(pwd)"
     local current_basename="$(basename "$current_dir")"
     local parent_basename="$(basename "$(dirname "$current_dir")")"
@@ -126,12 +126,12 @@ detect_build_target() {
         return
     fi
     
-    # Check if target_directory is explicitly set in build.yml
+    # Check if target_directory is explicitly set in build.yml (CI/CD context)
     local target_dir
-    target_dir=$(get_build_config "build.target_directory" "")
+    target_dir=$(get_build_config "target_directory" "")
     
     if [[ -n "$target_dir" ]]; then
-        # Use explicit configuration
+        # Use explicit configuration from build.yml
         local prof_dir
         prof_dir=$(get_professor_directory)
         
@@ -144,18 +144,31 @@ detect_build_target() {
         else
             echo "professor"  # Default fallback
         fi
+        return
+    fi
+    
+    # Auto-detect based on GitHub user with professor priority
+    local github_user
+    github_user=$(get_github_user)
+    
+    # Check if this user is the professor (from dna.yml)
+    local professor_profile=""
+    if [[ -f "$REPO_ROOT/dna.yml" ]]; then
+        professor_profile=$(grep "^professor_profile:" "$REPO_ROOT/dna.yml" | cut -d':' -f2 | xargs)
+    fi
+    
+    # PROFESSOR PRIORITY: If user matches professor_profile, always build professor
+    if [[ -n "$professor_profile" && "$github_user" == "$professor_profile" ]]; then
+        echo "professor"
+        return
+    fi
+    
+    # For non-professors, check if they have a student directory
+    local student_dir="$REPO_ROOT/students/$github_user"
+    if [[ -d "$student_dir" ]]; then
+        echo "student:$github_user"
     else
-        # Auto-detect based on GitHub user (legacy behavior)
-        local github_user
-        github_user=$(get_github_user)
-        
-        local student_dir="$REPO_ROOT/students/$github_user"
-        
-        if [[ -d "$student_dir" ]]; then
-            echo "student:$github_user"
-        else
-            echo "professor"
-        fi
+        echo "professor"  # Fallback for other users (demo mode)
     fi
 }
 
