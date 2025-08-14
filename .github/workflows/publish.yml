@@ -201,28 +201,57 @@ jobs:
 
       - name: Verify build output
         run: |
-          # Check that Hugo generated the expected output (NEW ARCHITECTURE)
-          HUGO_OUTPUT_DIR="hugo_generated/public"
+          # Debug: Check current directory and Hugo-related files
+          echo "🔍 Current working directory: $(pwd)"
+          echo "🔍 Contents of repository root:"
+          ls -la
           
-          if [[ ! -d "$HUGO_OUTPUT_DIR" ]]; then
-            echo "❌ Hugo build output not found: $HUGO_OUTPUT_DIR"
+          echo "🔍 Contents of hugo_generated directory (if exists):"
+          if [[ -d "hugo_generated" ]]; then
+            ls -la hugo_generated/
+          else
+            echo "❌ hugo_generated directory does not exist"
+          fi
+          
+          # Check possible output locations
+          echo "🔍 Checking for possible Hugo output locations:"
+          POSSIBLE_DIRS=(
+            "hugo_generated/public"
+            "public"
+            "dist"
+            "framework_code/hugo_generated/public"
+            "$TARGET_DIR/framework_code/hugo_generated/public"
+          )
+          
+          FOUND_OUTPUT=""
+          for dir in "${POSSIBLE_DIRS[@]}"; do
+            if [[ -d "$dir" ]] && [[ -f "$dir/index.html" ]]; then
+              echo "✅ Found Hugo output at: $dir"
+              FOUND_OUTPUT="$dir"
+              break
+            elif [[ -d "$dir" ]]; then
+              echo "📁 Directory exists but no index.html: $dir"
+              ls -la "$dir/" 2>/dev/null || echo "   (cannot list contents)"
+            else
+              echo "❌ Not found: $dir"
+            fi
+          done
+          
+          if [[ -z "$FOUND_OUTPUT" ]]; then
+            echo "❌ Could not find Hugo build output in any expected location"
+            echo "🔍 Full directory tree from root:"
+            find . -name "index.html" -o -name "public" -type d 2>/dev/null | head -20
             exit 1
           fi
           
-          if [[ ! -f "$HUGO_OUTPUT_DIR/index.html" ]]; then
-            echo "❌ Hugo index.html not generated in $HUGO_OUTPUT_DIR"
-            exit 1
-          fi
-          
-          echo "📁 Build output structure for $TARGET_DIR:"
-          ls -la "$HUGO_OUTPUT_DIR/"
-          
-          echo "✅ Build output verified for $TARGET_DIR (new architecture)"
+          echo "✅ Build output verified at: $FOUND_OUTPUT"
+          # Update the output directory for upload step
+          echo "HUGO_OUTPUT_DIR=$FOUND_OUTPUT" >> $GITHUB_ENV
 
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: hugo_generated/public
+          path: ${{ env.HUGO_OUTPUT_DIR }}
 
   # Deployment job
   deploy:
