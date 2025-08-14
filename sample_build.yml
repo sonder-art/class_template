@@ -1,0 +1,57 @@
+# Build Configuration Template
+# Copy this file to 'build.yml' and customize for your setup
+# build.yml is gitignored so your personal settings won't be committed
+
+# Build target configuration
+build:
+  # Directory to build (relative to repository root)
+  # Options: "professor" or "students/your_username"
+  target_directory: "professor"
+  
+  # Build mode
+  # Options: "professor" or "student"
+  mode: "professor"
+  
+  # Development server settings
+  dev_server:
+    # Port for development server
+    # Default: 1313 for professor, 1314 for student
+    port: 1313
+    
+    # Auto-open browser when starting dev server
+    open_browser: false
+    
+    # Watch for changes and auto-reload
+    live_reload: true
+
+# Build options
+options:
+  # Skip confirmation prompts
+  force_build: false
+  
+  # Enable verbose output for debugging
+  verbose: false
+  
+  # Clean hugo_generated before building
+  clean_before_build: true
+
+# User identification (for automatic detection)
+user:
+  # Your GitHub username (used for student directory detection)
+  github_username: ""
+  
+  # Your role in this repository
+  # Options: "professor", "student", "auto"
+  role: "auto"
+
+# Hugo configuration
+hugo:
+  # Hugo command to use
+  command: "hugo"
+  
+  # Additional Hugo flags
+  flags: []
+  
+  # Environment variables for Hugo build
+  environment:
+    HUGO_ENV: "development"

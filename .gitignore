@@ -244,3 +244,8 @@ students/**/*.ipynb         # Optionally ignore Jupyter notebooks if you only wa
 _site/
 /.luarc.json
 **/hugo_generated/
+hugo.toml
+*.hugo.toml
+.hugo_build.lock
+build.yml
+build copy.yml

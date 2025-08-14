@@ -1,0 +1,166 @@
+# Grading Policy: Authentication Implementation Module
+# This file defines the complex grading algorithm for the authentication module
+# These policies are processed by SQL functions for efficient computation
+
+policy_metadata:
+  name: "Authentication Implementation Grading Policy"
+  module_id: "auth_implementation" 
+  version: "1.0"
+  created: "2025-08-13"
+  description: "Complex 5-rule grading algorithm for authentication module"
+
+# The 5-rule algorithm as discussed in architectural design
+grading_rules:
+  # Rule 1: Base Score Calculation
+  base_score:
+    description: "Calculate weighted average of all constituent scores"
+    type: "weighted_average"
+    weight_source: "constituent.weight"
+    apply_to: "all_constituents"
+    sql_expression: |
+      SUM(item_score * constituent_weight) / SUM(constituent_weight)
+    
+  # Rule 2: Completion Bonus
+  completion_bonus:
+    description: "5% bonus if all items submitted on time"
+    type: "conditional_bonus"
+    condition: "all_items_on_time"
+    bonus_percentage: 5.0
+    sql_condition: |
+      (SELECT COUNT(*) FROM student_submissions s 
+       JOIN homework_items i ON s.item_id = i.id 
+       WHERE s.student_id = target_student_id 
+       AND i.module_id = 'auth_implementation'
+       AND s.submitted_at <= i.due_date) = 
+      (SELECT COUNT(*) FROM homework_items 
+       WHERE module_id = 'auth_implementation')
+    
+  # Rule 3: Attempt Penalty
+  attempt_penalty:
+    description: "2% penalty per extra attempt beyond the first for each item"
+    type: "attempt_penalty" 
+    penalty_per_attempt: 2.0
+    free_attempts: 1
+    sql_expression: |
+      GREATEST(0, base_score - (
+        SELECT SUM(GREATEST(0, (attempt_count - 1) * 2.0))
+        FROM student_submission_stats 
+        WHERE student_id = target_student_id 
+        AND module_id = 'auth_implementation'
+      ))
+    
+  # Rule 4: Late Submission Penalty
+  late_penalty:
+    description: "5% penalty per day late, max 7 days"
+    type: "time_penalty"
+    penalty_per_day: 5.0
+    max_late_days: 7
+    grace_period_hours: 2
+    sql_expression: |
+      base_score - (
+        SELECT SUM(
+          LEAST(35.0, -- Max 7 days * 5% = 35%
+            GREATEST(0, 
+              EXTRACT(epoch FROM (submitted_at - due_date - interval '2 hours')) / 86400
+            ) * 5.0
+          )
+        ) FROM student_submissions s
+        JOIN homework_items i ON s.item_id = i.id
+        WHERE s.student_id = target_student_id
+        AND i.module_id = 'auth_implementation'
+        AND s.submitted_at > i.due_date + interval '2 hours'
+      )
+    
+  # Rule 5: Quality Multiplier
+  quality_multiplier:
+    description: "Multiply final score by quality factor based on testing constituent performance"
+    type: "quality_multiplier"
+    base_constituent: "auth_testing"
+    multiplier_ranges:
+      excellent: 
+        threshold: 95.0
+        multiplier: 1.05  # 5% bonus
+      good:
+        threshold: 85.0  
+        multiplier: 1.0   # No change
+      acceptable:
+        threshold: 70.0
+        multiplier: 0.98  # 2% reduction
+      needs_improvement:
+        threshold: 0.0
+        multiplier: 0.95  # 5% reduction
+    sql_expression: |
+      adjusted_score * (
+        CASE 
+          WHEN testing_score >= 95.0 THEN 1.05
+          WHEN testing_score >= 85.0 THEN 1.0  
+          WHEN testing_score >= 70.0 THEN 0.98
+          ELSE 0.95
+        END
+      )
+    sql_variables: |
+      testing_score AS (
+        SELECT AVG(final_score) 
+        FROM student_item_grades sig
+        JOIN homework_items hi ON sig.item_id = hi.id
+        JOIN constituents c ON hi.constituent_slug = c.slug
+        WHERE sig.student_id = target_student_id 
+        AND c.id = 'auth_testing'
+      )
+
+# Rule execution order (critical for dependent calculations)
+execution_order:
+  1: "base_score"
+  2: "attempt_penalty" 
+  3: "late_penalty"
+  4: "completion_bonus"
+  5: "quality_multiplier"
+
+# SQL generation settings
+sql_settings:
+  # Function name that will be generated
+  function_name: "calculate_auth_implementation_grade"
+  
+  # Input parameters for the SQL function
+  input_parameters:
+    - "target_student_id UUID"
+    - "calculation_date TIMESTAMP DEFAULT NOW()"
+    
+  # Return type
+  return_type: "JSONB"
+  
+  # Return structure
+  return_fields:
+    final_score: "NUMERIC(5,2)"
+    base_score: "NUMERIC(5,2)" 
+    completion_bonus: "NUMERIC(5,2)"
+    attempt_penalty: "NUMERIC(5,2)"
+    late_penalty: "NUMERIC(5,2)"
+    quality_multiplier: "NUMERIC(4,3)"
+    grade_letter: "TEXT"
+    breakdown: "JSONB"
+    
+  # Performance optimizations
+  use_materialized_views: true
+  cache_duration_minutes: 30
+  
+  # Security settings
+  row_level_security: true
+  allowed_roles:
+    - "professor"
+    - "student_own_grades"
+
+# Grade boundaries for letter grades
+grade_scale:
+  A: 95.0
+  "A-": 90.0
+  "B+": 87.0  
+  B: 83.0
+  "B-": 80.0
+  "C+": 77.0
+  C: 73.0
+  "C-": 70.0
+  "D+": 67.0
+  D: 63.0
+  "D-": 60.0
+  F: 0.0

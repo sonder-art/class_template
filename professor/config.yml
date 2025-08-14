@@ -6,7 +6,7 @@
 # Theme selection (rendering preference)
 theme:
   name: "evangelion"
-  path: "framework_code/themes"
+  path: "../framework/themes"
 
 # Profile settings
 profile:
@@ -43,12 +43,13 @@ content:
 hugo:
   content_sources:
     - "class_notes"
+    - "modules"
     - "framework_tutorials"
     - "framework_documentation"
   homepage_source: "home.md"
-  output_dir: "framework_code/hugo_generated"
-  theme_path: "framework_code/themes"
-  assets_path: "framework_code/assets"
+  output_dir: "../hugo_generated/public"
+  theme_path: "../framework/themes"
+  assets_path: "../framework/assets"
   search_mode: "simple"
 
 # Advanced build options

@@ -1,0 +1,166 @@
+{{/*
+IMPORTANT DATES DISPLAY SHORTCODE
+Displays all items marked as "important: true" across all modules and constituents
+*/}}
+
+{{ $itemData := .Site.Data.items }}
+{{ $constituentsData := .Site.Data.constituents }}
+{{ $modulesData := .Site.Data.modules }}
+
+{{ if $itemData }}
+  {{ $importantItems := slice }}
+  
+  {{/* Collect all important items */}}
+  {{ range $itemData.items }}
+    {{ if .important }}
+      {{ $importantItems = $importantItems | append . }}
+    {{ end }}
+  {{ end }}
+  
+  {{ if $importantItems }}
+    <div class="important-dates-grid">
+      {{ range sort $importantItems "due_date" }}
+        
+        {{/* Get constituent and module information */}}
+        {{ $constituent := index $constituentsData.constituents .constituent_slug }}
+        {{ $module := index $modulesData.modules ($constituent.module_id | default "unknown") }}
+        
+        {{ $constituentType := $constituent.type }}
+        {{ $constituentIcon := "📋" }}
+        {{ $constituentColor := "#4a90e2" }}
+        {{ $moduleColor := "#666666" }}
+        
+        {{ if $constituent }}
+          {{ if $constituentsData.constituent_types }}
+            {{ $typeInfo := index $constituentsData.constituent_types $constituentType }}
+            {{ if $typeInfo }}
+              {{ $constituentIcon = $typeInfo.icon }}
+              {{ $constituentColor = $typeInfo.color }}
+            {{ end }}
+          {{ end }}
+        {{ end }}
+        
+        {{ if $module }}
+          {{ $moduleColor = $module.color }}
+        {{ end }}
+        
+        {{/* Get delivery type icon */}}
+        {{ $deliveryIcon := "📋" }}
+        {{ if eq .delivery_type "url" }}{{ $deliveryIcon = "🔗" }}{{ end }}
+        {{ if eq .delivery_type "upload" }}{{ $deliveryIcon = "📎" }}{{ end }}
+        {{ if eq .delivery_type "code" }}{{ $deliveryIcon = "💻" }}{{ end }}
+        {{ if eq .delivery_type "presentation" }}{{ $deliveryIcon = "🎤" }}{{ end }}
+        {{ if eq .delivery_type "video" }}{{ $deliveryIcon = "📹" }}{{ end }}
+        {{ if eq .delivery_type "text" }}{{ $deliveryIcon = "📝" }}{{ end }}
+        
+        {{/* Calculate due date status */}}
+        {{ $dueDateClass := "due-ok" }}
+        {{ $dueDateFormatted := .due_date }}
+        {{ $daysRemaining := "" }}
+        {{ if .due_date }}
+          {{ $parsedDate := time .due_date }}
+          {{ $now := now }}
+          {{ $daysDiff := div ($parsedDate.Sub $now).Hours 24 }}
+          {{ if lt $daysDiff 0 }}{{ $dueDateClass = "overdue" }}{{ end }}
+          {{ if and (ge $daysDiff 0) (lt $daysDiff 2) }}{{ $dueDateClass = "due-urgent" }}{{ end }}
+          {{ if and (ge $daysDiff 2) (lt $daysDiff 7) }}{{ $dueDateClass = "due-soon" }}{{ end }}
+          
+          {{/* Format date with time if it includes time */}}
+          {{ if (strings.Contains .due_date "T") }}
+            {{ $dueDateFormatted = $parsedDate.Format "Jan 2, 2006 3:04 PM MST" }}
+          {{ else }}
+            {{ $dueDateFormatted = $parsedDate.Format "Jan 2, 2006" }}
+          {{ end }}
+          
+          {{/* Calculate days remaining */}}
+          {{ if ge $daysDiff 0 }}
+            {{ if eq (int $daysDiff) 0 }}
+              {{ $daysRemaining = "Due today" }}
+            {{ else if eq (int $daysDiff) 1 }}
+              {{ $daysRemaining = "Due tomorrow" }}
+            {{ else }}
+              {{ $daysRemaining = printf "%d days remaining" (int $daysDiff) }}
+            {{ end }}
+          {{ else }}
+            {{ $daysOverdue := int (mul $daysDiff -1) }}
+            {{ if eq $daysOverdue 1 }}
+              {{ $daysRemaining = "1 day overdue" }}
+            {{ else }}
+              {{ $daysRemaining = printf "%d days overdue" $daysOverdue }}
+            {{ end }}
+          {{ end }}
+        {{ end }}
+        
+        <div class="important-date-card {{ $dueDateClass }}" 
+             data-constituent="{{ .constituent_slug }}"
+             data-module="{{ $constituent.module_id }}"
+             data-delivery-type="{{ .delivery_type }}">
+          
+          <div class="important-date-header">
+            <div class="date-urgency">
+              <span class="urgency-badge {{ $dueDateClass }}">⭐</span>
+              <div class="date-info">
+                <div class="due-date-main">{{ $dueDateFormatted }}</div>
+                <div class="days-remaining">{{ $daysRemaining }}</div>
+              </div>
+            </div>
+            
+            <div class="item-points">
+              <span class="points-value">{{ .points | int }}</span>
+              <span class="points-label">pts</span>
+            </div>
+          </div>
+          
+          <div class="important-date-content">
+            <h3 class="item-title">
+              {{ $constituentIcon }} {{ .title | default (.item_id | humanize | title) }}
+            </h3>
+            
+            <div class="item-context">
+              <div class="module-badge" style="--module-color: {{ $moduleColor }}">
+                {{ $module.icon | default "📚" }} {{ $module.name | default "Unknown Module" }}
+              </div>
+              <div class="constituent-badge" style="--constituent-color: {{ $constituentColor }}">
+                {{ $constituent.name | default .constituent_slug }}
+              </div>
+            </div>
+            
+            <div class="item-meta-row">
+              {{ if .delivery_type }}
+              <div class="delivery-type">
+                <span class="delivery-badge {{ .delivery_type }}">
+                  {{ $deliveryIcon }} {{ .delivery_type | replace "_" " " | title }}
+                </span>
+              </div>
+              {{ end }}
+              
+              <div class="item-source">
+                <a href="/{{ .file_path | strings.TrimSuffix ".md" }}/" class="source-link">
+                  📄 View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      {{ end }}
+    </div>
+    
+    <div class="important-dates-summary">
+      <p><strong>{{ len $importantItems }} important items</strong> found across all modules.</p>
+    </div>
+    
+  {{ else }}
+    <div class="empty-important-dates">
+      <h3>🎯 No Important Dates</h3>
+      <p>No items are currently marked as <code>important: true</code>.</p>
+      <p>Items will appear here when they are flagged as critical deadlines or high-priority assignments.</p>
+    </div>
+  {{ end }}
+  
+{{ else }}
+  <div class="alert alert-info">
+    <strong>📅 Important dates will appear here</strong>
+    <p>Critical deadlines will be displayed after the build process generates item metadata.</p>
+  </div>
+{{ end }}

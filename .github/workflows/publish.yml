@@ -112,73 +112,81 @@ jobs:
             exit 1
           fi
           
-          # For professor directory, verify framework structure
-          if [[ "$TARGET_DIR" == "professor" ]]; then
-            if [[ ! -f "professor/manage.sh" ]]; then
-              echo "❌ Missing professor/manage.sh entry point"
-              exit 1
-            fi
-            
-            if [[ ! -f "professor/framework_code/scripts/manage.py" ]]; then
-              echo "❌ Missing framework management script"
-              exit 1
-            fi
-            
-            # Make manage.sh executable
-            chmod +x professor/manage.sh
+          # Check NEW architecture - shared framework at root level
+          if [[ ! -f "manage.sh" ]]; then
+            echo "❌ Missing root-level manage.sh entry point"
+            exit 1
           fi
           
-          # For student directories, verify complete framework structure
+          if [[ ! -f "framework/scripts/manage.py" ]]; then
+            echo "❌ Missing framework management script at framework/scripts/manage.py"
+            exit 1
+          fi
+          
+          if [[ ! -d "framework/scripts/manage_modules" ]]; then
+            echo "❌ Missing modular framework at framework/scripts/manage_modules/"
+            exit 1
+          fi
+          
+          # Make manage.sh executable
+          chmod +x manage.sh
+          
+          # Create or update build.yml for the target
+          echo "📝 Configuring build.yml for target: $TARGET_DIR"
+          
+          # Determine mode and port based on target directory
+          if [[ "$TARGET_DIR" == "professor" ]]; then
+            BUILD_MODE="professor"
+            BUILD_PORT="1313"
+          else
+            BUILD_MODE="student"
+            BUILD_PORT="1314"
+          fi
+          
+          # Create build.yml with proper variable substitution
+          {
+            echo "# GitHub Actions Build Configuration"
+            echo "# Auto-generated for deployment"
+            echo ""
+            echo "build:"
+            echo "  target_directory: \"$TARGET_DIR\""
+            echo "  mode: \"$BUILD_MODE\""
+            echo "  dev_server:"
+            echo "    port: $BUILD_PORT"
+            echo ""
+            echo "user:"
+            echo "  github_username: \"${{ github.actor }}\""
+            echo "  role: \"$BUILD_MODE\""
+            echo ""
+            echo "structure:"
+            echo "  professor_directory: \"professor\""
+            echo ""
+            echo "hugo:"
+            echo "  command: \"hugo\""
+            echo "  environment:"
+            echo "    HUGO_ENV: \"production\""
+          } > build.yml
+          
+          # For student directories, verify basic student files exist
           if [[ "$TARGET_DIR" =~ ^students/ ]]; then
             echo "🔍 Validating student directory: $TARGET_DIR"
             
-            # Check basic files
-            if [[ ! -f "$TARGET_DIR/manage.sh" ]]; then
-              echo "❌ Missing $TARGET_DIR/manage.sh entry point"
+            if [[ ! -f "$TARGET_DIR/config.yml" ]]; then
+              echo "❌ Missing config.yml in $TARGET_DIR"
               echo "Student directories should be created using students/start.sh"
               exit 1
             fi
             
-            if [[ ! -f "$TARGET_DIR/config.yml" ]] || [[ ! -f "$TARGET_DIR/course.yml" ]]; then
-              echo "❌ Missing required config files in $TARGET_DIR"
-              exit 1
-            fi
-            
-            # Check modular framework exists (the issues we encountered!)
-            if [[ ! -f "$TARGET_DIR/framework_code/scripts/manage.py" ]]; then
-              echo "❌ Missing modular framework: $TARGET_DIR/framework_code/scripts/manage.py"
-              echo "Run sync_student.py to update your framework to the latest version"
-              exit 1
-            fi
-            
-            if [[ ! -d "$TARGET_DIR/framework_code/scripts/manage_modules" ]]; then
-              echo "❌ Missing modular framework: $TARGET_DIR/framework_code/scripts/manage_modules/"
-              echo "Run sync_student.py to update your framework to the latest version"
-              exit 1
-            fi
-            
-            # Check config.yml has required fields (warn but don't fail)
-            if ! grep -q "profile:" "$TARGET_DIR/config.yml"; then
-              echo "⚠️  Warning: config.yml may be outdated (missing 'profile' section)"
-              echo "💡 If build fails, copy the latest config.yml from professor directory"
-              echo "🔄 Note: We preserve your config.yml customizations - this is intentional"
-            fi
-            
-            # Make manage.sh executable
-            chmod +x "$TARGET_DIR/manage.sh"
-            
             echo "✅ Student directory validation passed"
           fi
           
-          echo "✅ Framework structure validated for $TARGET_DIR"
+          echo "✅ Framework structure validated for $TARGET_DIR (new architecture)"
 
       - name: Build framework site
         run: |
-          cd "$TARGET_DIR"
+          echo "🚀 Building framework site for target: $TARGET_DIR..."
           
-          echo "🚀 Building framework site from $TARGET_DIR..."
-          
-          # Use the framework's build system for production deployment
+          # Use the root-level manage.sh with new architecture
           if ./manage.sh --deploy --force --verbose; then
             echo "✅ Framework build completed for $TARGET_DIR"
           else
@@ -186,16 +194,15 @@ jobs:
             echo ""
             echo "🔧 Common solutions for build failures:"
             echo "• Check if config.yml has all required fields"
-            echo "• Copy latest config.yml from professor directory"
-            echo "• Run sync_student.py to update framework"
             echo "• Verify your customizations are valid YAML"
+            echo "• Check build.yml configuration"
             exit 1
           fi
 
       - name: Verify build output
         run: |
-          # Check that Hugo generated the expected output
-          HUGO_OUTPUT_DIR="$TARGET_DIR/framework_code/hugo_generated"
+          # Check that Hugo generated the expected output (NEW ARCHITECTURE)
+          HUGO_OUTPUT_DIR="hugo_generated/public"
           
           if [[ ! -d "$HUGO_OUTPUT_DIR" ]]; then
             echo "❌ Hugo build output not found: $HUGO_OUTPUT_DIR"
@@ -210,12 +217,12 @@ jobs:
           echo "📁 Build output structure for $TARGET_DIR:"
           ls -la "$HUGO_OUTPUT_DIR/"
           
-          echo "✅ Build output verified for $TARGET_DIR"
+          echo "✅ Build output verified for $TARGET_DIR (new architecture)"
 
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ steps.read_config.outputs.target_dir }}/framework_code/hugo_generated
+          path: hugo_generated/public
 
   # Deployment job
   deploy:
