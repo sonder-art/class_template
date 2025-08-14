@@ -37,6 +37,33 @@ class EnvironmentManager:
             tuple: (success, environment_context)
         """
         
+        # Check if manage.sh provided target directory info via environment variables
+        # This happens when running build/deploy operations from repo root
+        import os
+        build_target_dir = os.environ.get('BUILD_TARGET_DIR')
+        build_target = os.environ.get('BUILD_TARGET')
+        
+        if build_target_dir and build_target:
+            # Use the target directory provided by manage.sh
+            target_dir = Path(build_target_dir)
+            repo_root = Path.cwd()  # We're running from repo root
+            
+            if build_target.startswith('student:'):
+                self.context.role = "student"
+                self.context.base_dir = repo_root
+                self.context.framework_dir = repo_root / "framework"
+                self.context.is_valid_setup = True
+                self.context.current_dir = target_dir
+                return True, self.context
+            else:  # professor
+                self.context.role = "professor"
+                self.context.base_dir = repo_root
+                self.context.framework_dir = repo_root / "framework"
+                self.context.is_valid_setup = True
+                self.context.current_dir = target_dir
+                return True, self.context
+        
+        # Fall back to current working directory detection
         current_dir = Path.cwd()
         
         # Check if we're in professor directory
