@@ -29,6 +29,14 @@ Welcome to your class dashboard! This area requires authentication.
         </ul>
     </div>
 
+<div class="dashboard-section">
+    <h4>📊 Grading & Assessments</h4>
+    <ul>
+        <li><a href="../grading/">📊 Grading Interface</a></li>
+        <li><a href="../grading-sync/">🔄 Sync Grading System</a></li>
+    </ul>
+</div>
+
 <div id="enrollmentTokenSection" class="dashboard-section" style="display: none;">
     <h4>Enrollment Token</h4>
     <div id="tokenOutput" class="token-display"></div>
@@ -46,20 +54,27 @@ Welcome to your class dashboard! This area requires authentication.
 </div>
 
 <div id="studentTools" style="display: none;">
-    <h3>🎓 Student Tools</h3>
-    <div class="dashboard-section">
-        <h4>Class Resources</h4>
-        <ul>
-            <li><a href="{{ .Site.BaseURL }}class_notes/">📚 Class Notes</a></li>
-            <li><a href="{{ .Site.BaseURL }}framework_tutorials/">📖 Tutorials</a></li>
-            <li><a href="{{ .Site.BaseURL }}upload/">📤 Submit Assignment</a></li>
-        </ul>
-        
-        <h4>Your Progress</h4>
-        <div id="studentProgress">
-            <p>Progress tracking coming soon...</p>
-        </div>
-    </div>
+<h3>🎓 Student Tools</h3>
+<div class="dashboard-section">
+    <h4>Class Resources</h4>
+    <ul>
+        <li><a href="{{ .Site.BaseURL }}class_notes/">📚 Class Notes</a></li>
+        <li><a href="{{ .Site.BaseURL }}framework_tutorials/">📖 Tutorials</a></li>
+        <li><a href="{{ .Site.BaseURL }}upload/">📤 Submit Assignment</a></li>
+    </ul>
+</div>
+
+<div class="dashboard-section">
+    <h4>📊 Academic Progress</h4>
+    <ul>
+        <li><button id="viewMyGradesBtn">📊 View My Grades</button></li>
+        <li><button id="mySubmissionsBtn">📝 My Submissions</button></li>
+    </ul>
+    
+<div id="studentProgress">
+    <p>🔄 Loading your grade summary...</p>
+</div>
+</div>
 </div>
 
 <div id="enrollmentTools" style="display: none;">
@@ -229,6 +244,8 @@ function hideAllSections() {
 function setupRoleSpecificHandlers(userContext) {
     if (userContext.role === 'professor') {
         setupProfessorHandlers();
+    } else if (userContext.role === 'student' && userContext.is_member) {
+        setupStudentHandlers();
     } else if (!userContext.is_member) {
         setupEnrollmentHandlers();
     }
@@ -402,6 +419,83 @@ function setupProfessorHandlers() {
                 manageTokensBtn.textContent = '🔧 Manage Enrollment Tokens';
             }
         };
+    }
+    
+}
+
+/**
+ * Setup student-specific button handlers
+ */
+function setupStudentHandlers() {
+    const viewMyGradesBtn = document.getElementById('viewMyGradesBtn');
+    const mySubmissionsBtn = document.getElementById('mySubmissionsBtn');
+    
+    if (viewMyGradesBtn) {
+        viewMyGradesBtn.onclick = () => {
+            const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
+            window.location.href = `${baseUrl}/my-grades/`;
+        };
+    }
+    
+    if (mySubmissionsBtn) {
+        mySubmissionsBtn.onclick = () => {
+            const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
+            window.location.href = `${baseUrl}/my-grades/?tab=submissions`;
+        };
+    }
+    
+    // Load and display grade summary in dashboard
+    loadStudentGradeSummary();
+}
+
+/**
+ * Load and display student grade summary in dashboard
+ */
+async function loadStudentGradeSummary() {
+    const progressDiv = document.getElementById('studentProgress');
+    if (!progressDiv || !window.AuthClient) return;
+    
+    try {
+        const pathParts = window.location.pathname.split('/');
+        const classSlug = pathParts[1] || 'class_template';
+        
+        // Fetch module-level grades for summary
+        const response = await fetch(`/functions/v1/student-grades?level=module`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${window.authState.session.access_token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch grades');
+        }
+
+        const gradesData = await response.json();
+        const summary = gradesData.summary || {};
+        
+        progressDiv.innerHTML = `
+            <div class="grade-summary-widget">
+                <div class="summary-item">
+                    <span class="summary-label">Overall Grade:</span>
+                    <span class="summary-value">${summary.average_score?.toFixed(1) || 'N/A'}%</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Graded Items:</span>
+                    <span class="summary-value">${summary.total_grades || 0}</span>
+                </div>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.error('Failed to load grade summary:', error);
+        progressDiv.innerHTML = `
+            <div class="grade-summary-error">
+                <p>Unable to load grade summary</p>
+                <button onclick="loadStudentGradeSummary()">🔄 Retry</button>
+            </div>
+        `;
     }
 }
 

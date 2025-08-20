@@ -283,7 +283,7 @@ async def main():
         console.print("   • SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_KEY)")
         sys.exit(1)
     
-    # Find parsed grading data
+    # Find grading data - try YAML files first, then parsed JSON
     current_dir = Path.cwd()
     search_paths = [
         current_dir,
@@ -292,30 +292,87 @@ async def main():
         current_dir.parent / "class_template"
     ]
     
-    grading_data_file = None
+    grading_data = None
+    data_source = None
+    
+    # Try to load directly from YAML files (preferred)
     for search_path in search_paths:
-        candidate = search_path / "grading_data_parsed.json"
-        if candidate.exists():
-            grading_data_file = candidate
-            break
+        modules_file = search_path / "modules.yml"
+        constituents_file = search_path / "constituents.yml"
+        course_file = search_path / "course.yml"
+        
+        if modules_file.exists() and constituents_file.exists() and course_file.exists():
+            console.print(f"📁 Loading from YAML files: {search_path}")
+            try:
+                import yaml
+                
+                # Load course info for class_id
+                with open(course_file, 'r') as f:
+                    course_data = yaml.safe_load(f)
+                class_id = course_data['class_id']
+                
+                # Load modules
+                with open(modules_file, 'r') as f:
+                    modules_yaml = yaml.safe_load(f)
+                
+                # Load constituents
+                with open(constituents_file, 'r') as f:
+                    constituents_yaml = yaml.safe_load(f)
+                
+                # Convert to expected format
+                grading_data = {
+                    'modules': [],
+                    'constituents': [],
+                    'grading_policies': []
+                }
+                
+                # Convert modules
+                for module_key, module_info in modules_yaml['modules'].items():
+                    grading_data['modules'].append({
+                        **module_info,
+                        'class_id': class_id
+                    })
+                
+                # Convert constituents
+                for const_key, const_info in constituents_yaml['constituents'].items():
+                    grading_data['constituents'].append({
+                        **const_info,
+                        'class_id': class_id
+                    })
+                
+                data_source = f"YAML files in {search_path}"
+                break
+                
+            except Exception as e:
+                console.print(f"⚠️  Error loading YAML from {search_path}: {e}")
+                continue
     
-    if not grading_data_file:
-        console.print("❌ Could not find grading_data_parsed.json")
-        console.print("Run parse_grading_data.py first to generate this file")
-        console.print("Searched paths:")
-        for path in search_paths:
-            console.print(f"   • {path / 'grading_data_parsed.json'}")
-        sys.exit(1)
+    # Fallback to parsed JSON if YAML loading failed
+    if not grading_data:
+        grading_data_file = None
+        for search_path in search_paths:
+            candidate = search_path / "grading_data_parsed.json"
+            if candidate.exists():
+                grading_data_file = candidate
+                break
+        
+        if not grading_data_file:
+            console.print("❌ Could not find grading data")
+            console.print("Missing either:")
+            console.print("   • YAML files: modules.yml, constituents.yml, course.yml")
+            console.print("   • Or parsed JSON: grading_data_parsed.json")
+            sys.exit(1)
+        
+        console.print(f"📁 Using parsed JSON: {grading_data_file}")
+        try:
+            with open(grading_data_file, 'r', encoding='utf-8') as f:
+                grading_data = json.load(f)
+            data_source = f"JSON file {grading_data_file}"
+        except Exception as e:
+            console.print(f"❌ Error loading grading data: {e}")
+            sys.exit(1)
     
-    console.print(f"📁 Using grading data from: {grading_data_file}")
-    
-    # Load grading data
-    try:
-        with open(grading_data_file, 'r', encoding='utf-8') as f:
-            grading_data = json.load(f)
-    except Exception as e:
-        console.print(f"❌ Error loading grading data: {e}")
-        sys.exit(1)
+    console.print(f"📊 Data source: {data_source}")
     
     # Initialize synchronizer and sync data
     try:

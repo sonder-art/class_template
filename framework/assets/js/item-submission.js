@@ -15,41 +15,59 @@ class ItemSubmissionHandler {
     }
 
     async init() {
+        console.log('🔍 ItemSubmissionHandler.init() starting...');
+        
         // Get class context from meta tags (injected during build)
         this.classContext = this.getClassContext();
+        console.log('🔍 Class context:', this.classContext);
         
         if (!this.classContext) {
-            console.error('Missing class context - submission disabled');
+            console.error('❌ Missing class context - submission disabled');
             this.showError('Class context not found. Please refresh the page.');
             return;
         }
 
         // Initialize Supabase client
+        console.log('🔍 Initializing Supabase client...');
         this.initializeSupabase();
 
         // Check authentication
+        console.log('🔍 Checking authentication...');
         await this.checkAuthentication();
 
         // Find and enhance all item elements on the page
+        console.log('🔍 Detecting and enhancing items...');
         this.detectAndEnhanceItems();
 
-        console.log('Item submission handler initialized for class:', this.classContext.repo_name);
+        console.log('✅ Item submission handler initialized for class:', this.classContext.repo_name);
     }
 
     getClassContext() {
+        // Try meta tags first (if they exist)
         const classId = document.querySelector('meta[name="class-id"]')?.content;
         const repoName = document.querySelector('meta[name="repo-name"]')?.content;
         const professorGithub = document.querySelector('meta[name="professor-github"]')?.content;
 
-        if (!classId || !repoName) {
-            return null;
+        if (classId && repoName) {
+            return {
+                class_id: classId,
+                repo_name: repoName,
+                professor_github: professorGithub
+            };
         }
 
-        return {
-            class_id: classId,
-            repo_name: repoName,
-            professor_github: professorGithub
-        };
+        // FALLBACK: Use FrameworkConfig if meta tags don't exist
+        if (window.FrameworkConfig && window.FrameworkConfig.classContext) {
+            console.log('🔄 Using FrameworkConfig for class context');
+            const config = window.FrameworkConfig.classContext;
+            return {
+                class_id: config.classId,
+                repo_name: config.repoName,
+                professor_github: config.professorGithub
+            };
+        }
+
+        return null;
     }
 
     initializeSupabase() {
@@ -64,8 +82,8 @@ class ItemSubmissionHandler {
         }
 
         // Initialize Supabase client (assumes Supabase JS library is loaded)
-        if (typeof window.supabase !== 'undefined') {
-            this.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        if (typeof supabase !== 'undefined') {
+            this.supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
         } else {
             console.error('Supabase client library not loaded');
             this.showError('Required libraries not loaded. Please refresh the page.');
@@ -416,30 +434,48 @@ class ItemSubmissionHandler {
             throw new Error('Supabase client not initialized');
         }
 
-        // Get current session token
+        // Get current session
         const { data: { session } } = await this.supabaseClient.auth.getSession();
         
         if (!session) {
             throw new Error('No authentication session');
         }
 
-        // Call Edge Function
-        const response = await fetch('/functions/v1/submit-item', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`,
-                'X-Class-Context': this.classContext.class_id
-            },
-            body: JSON.stringify(submissionRequest)
-        });
+        // Get next attempt number
+        const { data: existingSubmissions } = await this.supabaseClient
+            .from('student_submissions')
+            .select('attempt_number')
+            .eq('student_id', session.user.id)
+            .eq('item_id', submissionRequest.item_id)
+            .order('attempt_number', { ascending: false })
+            .limit(1);
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.error || `Server error: ${response.status}`);
+        const nextAttempt = existingSubmissions && existingSubmissions.length > 0 
+            ? existingSubmissions[0].attempt_number + 1 
+            : 1;
+
+        // Submit directly to Supabase
+        const { data, error } = await this.supabaseClient
+            .from('student_submissions')
+            .insert({
+                class_id: submissionRequest.class_id,
+                student_id: session.user.id,
+                item_id: submissionRequest.item_id,
+                attempt_number: nextAttempt,
+                submission_data: JSON.stringify(submissionRequest.submission_data),
+                submitted_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(error.message);
         }
 
-        return await response.json();
+        return {
+            success: true,
+            submission: data
+        };
     }
 
     async loadExistingSubmissions(itemId, container) {
@@ -554,8 +590,8 @@ class ItemSubmissionHandler {
         `;
         
         // Replace all submission interfaces with auth message
-        document.querySelectorAll('.submission-interface').forEach(interface => {
-            interface.innerHTML = message.innerHTML;
+        document.querySelectorAll('.submission-interface').forEach(interfaceEl => {
+            interfaceEl.innerHTML = message.innerHTML;
         });
     }
 
@@ -586,8 +622,26 @@ class ItemSubmissionHandler {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Debug logging
+    console.log('🔍 Item Submission JS: DOM ready, checking for graded items...');
+    
+    const items = document.querySelectorAll('.graded-item');
+    console.log('🔍 Found graded items:', items.length);
+    
+    // Log item details
+    items.forEach((item, index) => {
+        console.log(`🔍 Item ${index + 1}:`, {
+            id: item.dataset.itemId,
+            constituent: item.dataset.constituent,
+            deliveryType: item.dataset.deliveryType
+        });
+    });
+    
     // Only initialize if we're on a page with graded items
-    if (document.querySelectorAll('.graded-item').length > 0) {
+    if (items.length > 0) {
+        console.log('✅ Initializing ItemSubmissionHandler...');
         new ItemSubmissionHandler();
+    } else {
+        console.log('ℹ️ No graded items found on this page');
     }
-});
+});// Force rebuild Sun Aug 17 05:41:36 PM CST 2025

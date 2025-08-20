@@ -83,6 +83,16 @@
         {{ if $enrollmentThemeCSS }}
             <link rel="stylesheet" href="{{ $enrollmentThemeCSS.RelPermalink }}">
         {{ end }}
+        
+        {{ $submissionThemeCSS := resources.Get "theme/components/submission-interface.css" }}
+        {{ if $submissionThemeCSS }}
+            <link rel="stylesheet" href="{{ $submissionThemeCSS.RelPermalink }}">
+        {{ end }}
+        
+        {{ $gradingSyncThemeCSS := resources.Get "theme/components/grading-sync.css" }}
+        {{ if $gradingSyncThemeCSS }}
+            <link rel="stylesheet" href="{{ $gradingSyncThemeCSS.RelPermalink }}">
+        {{ end }}
     {{ end }}
     
     <!-- External Libraries (Framework Dependencies) -->
@@ -281,7 +291,7 @@
     {{ end }}
 
     <!-- Framework Configuration (Auto-generated class context) -->
-    <script src="/js/framework-config.js"></script>
+    <script src="{{ .Site.BaseURL }}js/framework-config.js"></script>
 
     <!-- Grading System JavaScript (Students) -->
     {{ $itemSubmissionJS := resources.Get "js/item-submission.js" }}
@@ -290,9 +300,9 @@
     {{ end }}
 
     <!-- Grading System JavaScript (Professors) -->
-    {{ $professorGradingJS := resources.Get "js/professor-grading.js" }}
-    {{ if $professorGradingJS }}
-        <script src="{{ $professorGradingJS.RelPermalink }}"></script>
+    {{ $gradingJS := resources.Get "js/grading.js" }}
+    {{ if $gradingJS }}
+        <script src="{{ $gradingJS.RelPermalink }}"></script>
     {{ end }}
     
     <script>

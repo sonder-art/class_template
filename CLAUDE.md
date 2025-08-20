@@ -2,39 +2,41 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 🚧 MIGRATION NOTICE
-
-**Framework Architecture Migration In Progress**
-
-The framework is undergoing a major architectural refactoring to separate framework logic from course content. See `MIGRATION_PLAN.md` for complete details.
-
-**Current Status**: Planning phase complete. Current directory structure remains valid and functional.
-
-**Core Principles Unchanged**: All fundamental framework concepts (Hugo static generation, authentication, grading system, sync logic) remain the same - only the file organization is changing.
-
-**Impact**: File paths and directory structure will change, but core functionality and development commands remain identical.
-
 ## Repository Overview
 
-This is a GitHub Class Template Framework - a Hugo-based educational platform that creates self-contained class websites with authentication, grading, and content management. It supports both professors and students with automated synchronization and deployment.
+This is a **GitHub Class Template Framework** - a production-ready Hugo-based educational platform that creates self-contained class websites with authentication, grading, and content management. It supports both professors and students with automated synchronization, token-based enrollment, and comprehensive grade tracking.
+
+**Current Status**: Production-ready framework with complete implementation. All core features are functional including authentication, grading system, content management, and multi-user workflows.
 
 ## Core Architecture
 
-**Directory Structure:**
-- `professor/` - Source/base project containing all framework components and class content
-- `students/` - Student workspaces, each user gets their own subdirectory (e.g., `students/username/`)
-- `dna.yml` - Framework metadata and operational settings (repository root)
+**Root Directory Structure:**
+```
+/home/uumami/sonder/class_template/
+├── framework/                    # Framework components and logic
+├── class_template/              # Class metadata and configuration
+├── professor/                   # Professor workspace
+├── students/                    # Student workspaces (students/username/)
+├── framework_wiki/              # Documentation and tutorials
+├── hugo_generated/              # Hugo build output
+├── dna.yml                      # Framework meta-process control
+├── build.yml                    # Build target configuration
+├── manage.sh                    # Root orchestrator script
+└── requirements.txt             # Python dependencies
+```
 
 **Configuration Hierarchy:**
-- `dna.yml` - Framework meta-process control (sync mode, CI/CD, operational flags)
-- `config.yml` - Per-directory rendering preferences (theme, visual settings)
-- `course.yml` - Class-specific metadata (course info, professor details, branding)
+- `dna.yml` - Framework operational settings (sync mode, meta-process control)
+- `build.yml` - Build target configuration (professor vs student builds)
+- `class_template/course.yml` - Class metadata (course info, professor details, Supabase config)
+- `professor/config.yml` & `students/*/config.yml` - Rendering preferences (theme, visual settings)
 
 **Framework Principles:**
-- Each directory is self-contained for rendering (no shared dependencies)
+- Each workspace is self-contained for rendering (no shared dependencies)
 - Non-destructive synchronization (student work never overwritten)
 - Automated index generation based on file naming conventions
 - Content preservation using `<!-- KEEP:START -->` / `<!-- KEEP:END -->` blocks
+- Token-based enrollment with role management
 
 ## CRITICAL: Framework Architecture Understanding
 
@@ -42,33 +44,34 @@ This is a GitHub Class Template Framework - a Hugo-based educational platform th
 - This is a STATIC SITE framework - Hugo builds HTML/CSS/JS files only
 - NO server-side execution after build - everything runs in the browser
 - Python scripts are PRE-BUILD processors (config generation, validation, sync)
-- Backend interactions happen via JavaScript calling external APIs (Supabase)
+- Backend interactions happen via JavaScript calling external APIs (Supabase Edge Functions)
 
-**File Organization Principles (POST-MIGRATION):**
-- `framework/sql/` - Database schemas and migrations
-- `framework/supabase/` - Supabase Edge Functions and backend configurations
-- `framework/scripts/` - Python pre-build processors
-- `framework/assets/js/` - Frontend JavaScript (runtime code)
-- `framework/css/` - Framework styles
-- `framework/themes/*/` - Theme-specific overrides
+**Current Directory Organization:**
+- `framework/sql/` - Database schemas and migrations (production-ready)
+- `framework/supabase/functions/` - Deno Edge Functions (11 deployed functions)
+- `framework/scripts/` - Python pre-build processors and management tools
+- `framework/assets/js/` - Frontend JavaScript (runtime auth, grading, submissions)
+- `framework/css/` - Framework styles and component CSS
+- `framework/themes/*/` - Theme-specific overrides (Evangelion theme active)
 - `framework/auth/` - Authentication flow pages
-- `framework_code/hugo_generated/` - Hugo output (never edit) [TEMPORARY LOCATION]
+- `framework/protected_pages/` - Dashboard, grading, enrollment interfaces
+- `hugo_generated/` - Hugo build output with static assets
 
-**Content Documentation Structure (POST-MIGRATION):**
+**Content Structure:**
 - `framework_wiki/framework_documentation/` - Technical docs about framework internals
 - `framework_wiki/framework_tutorials/` - How-to guides for using the framework
-- `class_notes/` - Course content from professor
+- `professor/class_notes/` & `students/*/class_notes/` - Course content
 - Follow naming: `01_chapter/01_section.md` with frontmatter metadata
 
 ## Development Commands
 
 **Main Management Script:**
 ```bash
-# From professor/ or students/username/ directory
+# From repository root - automatically detects build target
 ./manage.sh [options]
 
-# Or directly:
-python3 framework_code/scripts/manage.py [options]
+# Direct Python execution (from any directory)
+python3 framework/scripts/manage.py [options]
 ```
 
 **Core Commands:**
@@ -78,12 +81,14 @@ python3 framework_code/scripts/manage.py [options]
 - `--validate` - Run validation and content generation only
 - `--sync` - Sync framework updates (students only)
 - `--deploy` - Build for production deployment
+- `--publish` - Complete build + deploy pipeline
 - `--clean` - Remove generated files
 
 **Command Combinations:**
 - `--build --dev` - Build and start development server
 - `--sync --build` - Sync updates and build (students)
 - `--build --force` - Skip confirmation prompts
+- `--publish` - Same as `--build --deploy`
 
 **Student Initialization:**
 ```bash
@@ -93,12 +98,21 @@ python3 framework_code/scripts/manage.py [options]
 
 ## Framework Scripts
 
-**Key Python Scripts (in `framework_code/scripts/`):**
-- `manage.py` - Unified management interface
+**Key Python Scripts (in `framework/scripts/`):**
+- `manage.py` - Unified management interface with modular architecture
 - `generate_hugo_config.py` - Auto-generate Hugo configuration from templates
 - `generate_indices.py` - Create navigation indices from content structure
 - `sync_student.py` - Synchronize professor updates to student directories
 - `validate_content.py` - Validate content structure and metadata
+- `parse_grading_data.py` - Process grading configurations and generate JSON
+- `inject_class_context.py` - Inject class metadata into build process
+
+**Management Module Architecture:**
+- `manage_modules/operation_sequencer.py` - Operation workflow management
+- `manage_modules/environment_manager.py` - Environment detection and setup
+- `manage_modules/subprocess_runner.py` - Safe subprocess execution
+- `manage_modules/message_orchestrator.py` - User communication and logging
+- `manage_modules/user_experience.py` - Rich console interface
 
 **Script Dependencies:**
 - Python 3.x required
@@ -128,65 +142,113 @@ summary: "Brief description for indices and search"
 ## Build Process
 
 **Hugo Configuration:**
-- Generated from `framework_code/hugo_config/hugo.toml.j2` template
+- Generated from `framework/hugo_config/hugo.toml.j2` template
 - Merged with values from `course.yml` and `config.yml`
-- Output directory: `framework_code/hugo_generated/`
+- Output directory: `hugo_generated/`
+- Multi-target builds with automatic detection
 
 **Content Processing:**
-1. Validate directory structure and naming conventions
-2. Generate indices and navigation components
-3. Process configuration templates with Jinja2
-4. Mount content and assets using Hugo modules
-5. Build static site with Hugo
+1. Environment detection (professor vs student workspace)
+2. Validate directory structure and naming conventions
+3. Generate indices and navigation components
+4. Process configuration templates with Jinja2
+5. Inject class context and grading data
+6. Mount content and assets using Hugo modules
+7. Build static site with Hugo
 
 **Theme System:**
-- Base framework CSS: `framework_code/css/`
-- Theme-specific styles: `framework_code/themes/{theme}/css/`
-- Active theme selected in `config.yml`, not `dna.yml`
+- Base framework CSS: `framework/css/`
+- Theme-specific styles: `framework/themes/{theme}/css/`
+- Active theme: Evangelion (configurable in `config.yml`)
+- Component-based CSS architecture
 
 ## Authentication & Backend
 
 **Supabase Integration:**
+- **Production URL**: `https://levybxqsltedfjtnkntm.supabase.co`
+- **Class ID**: `df6b6665-d793-445d-8514-f1680ff77369`
 - GitHub OAuth authentication
-- PostgreSQL with RLS (Row Level Security)
+- PostgreSQL with Row Level Security (RLS)
 - File storage for submissions
-- Edge Functions for API endpoints
+- 11 deployed Edge Functions for API endpoints
+
+**Edge Functions:**
+- `/me` - User profile and enrollment status
+- `/enroll` - Token-based class enrollment
+- `/generate-token`, `/generate-token-v2`, `/generate-token-simple` - Token management
+- `/manage-tokens` - Token administration
+- `/class-roster` - Class membership management
+- `/student-grades` - Grade retrieval
+- `/submit-item` - Assignment submission
+- `/professor-grade-item`, `/professor-add-manual-item` - Grading tools
 
 **Database Schema:**
 - Multi-class support with fine-grained permissions
-- Grading system: Modules → Constituents → Items
+- **Grading hierarchy**: Modules → Constituents → Items → Submissions
+- User profiles with GitHub integration
+- Enrollment tokens with SHA-256 hashing
 - Submission tracking with version history
 - Grade adjustments and policy engine
+- Complete Row Level Security policies
+
+## Grading System
+
+**Hierarchical Structure:**
+- **Modules**: High-level course components (e.g., "Authentication", "Databases")
+- **Constituents**: Module subdivisions (e.g., "Basic Auth", "OAuth")
+- **Items**: Individual graded elements (homework, quizzes, projects)
+- **Submissions**: Student work submitted for grading
+
+**Content Integration:**
+- Hugo shortcodes: `{{< item-inline >}}` for embedding grading elements
+- Automatic item parsing from markdown content
+- Grade sync between database and static site
+- Professor grading interfaces with rich UI
+
+**Configuration Files:**
+- `class_template/modules.yml` - Module definitions and weights
+- `class_template/constituents.yml` - Constituent configurations
+- `class_template/grading_data_parsed.json` - Generated grading structure
 
 ## Testing & Validation
 
-**No specific test framework** - validation happens through:
+**Validation System:**
 - Framework validation: `./manage.sh --validate`
 - Content validation: Built-in checks for required frontmatter and naming
 - Hugo build success indicates configuration validity
+- Python script validation for syntax and imports
+
+**No Specific Test Framework:**
+- Validation through build process success
+- Content structure verification
+- Configuration file validation
+- Database schema integrity checks
 
 **Lint/Type Checking:**
 - No specific linting commands configured
 - Python code follows standard conventions
 - YAML/Markdown validated during build process
+- JavaScript follows ES6+ standards
 
 ## Development Guidelines
 
 **File Modification Rules:**
 - Students only work in their own `students/username/` directory
-- Never modify `framework_code/` directly - updates come through sync
+- Never modify `framework/` directly - updates come through sync
 - Use preservation blocks for custom content that should survive updates
 - Follow naming conventions for automatic index generation
 
 **Configuration Priority:**
 - `dna.yml` - Framework operational settings only (never rendering preferences)
+- `build.yml` - Build target configuration and port settings
 - `config.yml` - All visual/rendering preferences (theme, colors, layout)
-- `course.yml` - Class metadata (course name, professor info, semester)
+- `course.yml` - Class metadata (course name, professor info, semester, Supabase config)
 
 **Sync Strategy:**
 - Additive by default (new files added, existing files preserved)
 - Smart exclusions prevent syncing build artifacts or auto-generated content
 - Forced updates preserve content in `<!-- KEEP -->` blocks
+- Non-destructive updates maintain student customizations
 
 ## Common Operations
 
@@ -194,6 +256,7 @@ summary: "Brief description for indices and search"
 1. Modify content in `professor/`
 2. Run `./manage.sh --build --dev` to build and preview
 3. Students sync updates with `./manage.sh --sync --build`
+4. Deploy with `./manage.sh --publish`
 
 **Student Workflow:**
 1. Initial setup: `students/start.sh username`
@@ -203,19 +266,28 @@ summary: "Brief description for indices and search"
 
 **Deployment:**
 - GitHub Pages deployment configured
-- Run `./manage.sh --deploy` for production builds
-- Site served at `{domain}/{repo_name}/`
+- Run `./manage.sh --deploy` or `./manage.sh --publish` for production builds
+- Site served at configured baseURL
 
 ## Framework Features
 
 **Authentication System:**
 - Supabase Auth with GitHub provider
-- Protected pages: dashboard, upload areas
+- Protected pages: dashboard, upload areas, grading interfaces
 - JWT-based session management
 - Frontend auth state management in JavaScript
 - **Token-based enrollment system** with professor/student role management
 - **Role-based dashboard UI** with prominent enrollment interface
 - **Secure token hashing** using SHA-256 (Deno Edge Functions compatible)
+- **Class roster management** with enrollment status tracking
+
+**Grading Features:**
+- **Hierarchical grading structure** with modules, constituents, and items
+- **In-content grading elements** via Hugo shortcodes
+- **Professor grading interfaces** with rich UI components
+- **Grade synchronization** between database and static site
+- **Submission tracking** with version history
+- **Grade adjustments** and policy-based calculations
 
 **Content Features:**
 - LaTeX math rendering via MathJax/KaTeX
@@ -223,17 +295,44 @@ summary: "Brief description for indices and search"
 - Syntax highlighting for code blocks
 - Automatic table of contents generation
 - Discussion system integration (Giscus)
+- Automatic index generation from file structure
 
 **Accessibility:**
 - Font options (including OpenDyslexic)
 - High contrast mode
 - Keyboard navigation
 - Screen reader optimization
+- WCAG compliance considerations
 
-This framework emphasizes automation, consistency, and safe collaboration between professors and students while maintaining flexibility for customization.
+**Advanced Features:**
+- **Multi-class support** - Database designed for multiple class instances
+- **Theme system** - Pluggable themes with component overrides
+- **Content preservation** - Student work protected during framework updates
+- **Smart synchronization** - Additive updates without data loss
+- **Rich development tools** - Comprehensive CLI with progress indicators
+
+## Production Configuration
+
+**Current Class Instance:**
+- **Class Name**: "GitHub Class Template Example"
+- **Course Code**: "TMPL101"
+- **Semester**: "Template 2025"
+- **Professor**: uumami (uumami@sonder.art)
+- **Theme**: Evangelion
+- **Base URL**: https://www.sonder.art/class_template/
+
+**Active Integrations:**
+- **Supabase Project**: levybxqsltedfjtnkntm
+- **GitHub OAuth**: Configured and functional
+- **Edge Functions**: All 11 functions deployed
+- **Database**: Complete schema with RLS policies
+- **File Storage**: Configured for submissions
+
+This framework represents a sophisticated, production-ready educational platform that could serve real educational institutions with enterprise-level features like token-based enrollment, comprehensive grading systems, and multi-user authentication.
 
 ## Related Documents
 
-- `IMPLEMENTATION_PLAN.md` - Current authentication implementation roadmap
 - `AUTHENTICATION_SETUP.md` - Authentication configuration guide
-- `DESIGN.md` - Complete authentication system design specification
+- `SEED.md` - Framework setup and initialization guide
+- `framework_wiki/` - Comprehensive framework documentation
+- `class_template/grading_policies/` - Grading policy configurations

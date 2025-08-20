@@ -92,10 +92,17 @@ class ClassContextInjector:
             professor_github_id = dna_config.get('professor_profile', 'unknown')
             professor_github_username = professor_github_id  # Same for now
             
-            # Generate or get class_id (could be deterministic hash of repo + professor)
-            import hashlib
-            class_id_source = f"{repo_name}:{professor_github_id}"
-            class_id = hashlib.sha256(class_id_source.encode()).hexdigest()[:16]
+            # Try to get class_id from course.yml first (manual override)
+            if 'class_id' in course_config:
+                class_id = course_config['class_id']
+                self.console.print(f"[green]✓ Using class_id from course.yml: {class_id}[/green]")
+            else:
+                # Fallback to deterministic generation for backwards compatibility
+                import hashlib
+                class_id_source = f"{repo_name}:{professor_github_id}"
+                hash_hex = hashlib.sha256(class_id_source.encode()).hexdigest()[:32]
+                class_id = f"{hash_hex[:8]}-{hash_hex[8:12]}-{hash_hex[12:16]}-{hash_hex[16:20]}-{hash_hex[20:32]}"
+                self.console.print(f"[yellow]⚠ No class_id in course.yml, using generated: {class_id}[/yellow]")
             
             self.class_context = {
                 'class_id': class_id,
@@ -148,13 +155,42 @@ class ClassContextInjector:
         return self.project_root.name
     
     def _get_supabase_config(self) -> bool:
-        """Get Supabase configuration from environment or config files"""
+        """Get Supabase configuration from config.yml, environment, or .env files"""
         
         # Check environment variables first
         supabase_url = os.environ.get('SUPABASE_URL')
         supabase_anon_key = os.environ.get('SUPABASE_ANON_KEY')
         
-        # Try to read from .env file if environment variables not set
+        # Try to read from config.yml file if environment variables not set
+        if not supabase_url or not supabase_anon_key:
+            config_files = [
+                self.project_root / "professor" / "config.yml",
+                self.project_root / "config.yml"
+            ]
+            
+            for config_file in config_files:
+                if config_file.exists():
+                    try:
+                        with open(config_file, 'r') as f:
+                            config_data = yaml.safe_load(f)
+                        
+                        # Extract Supabase config from authentication section
+                        if 'authentication' in config_data and 'supabase' in config_data['authentication']:
+                            supabase_config = config_data['authentication']['supabase']
+                            if not supabase_url and 'url' in supabase_config:
+                                supabase_url = supabase_config['url']
+                            if not supabase_anon_key and 'anon_key' in supabase_config:
+                                supabase_anon_key = supabase_config['anon_key']
+                        
+                        # If found, break from loop
+                        if supabase_url and supabase_anon_key:
+                            self.console.print(f"📋 Supabase config loaded from: {config_file.name}")
+                            break
+                            
+                    except Exception as e:
+                        self.console.print(f"Warning: Could not read {config_file}: {e}")
+        
+        # Try to read from .env file if still not found
         if not supabase_url or not supabase_anon_key:
             env_files = [
                 self.project_root / ".env",

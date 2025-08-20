@@ -1,7 +1,7 @@
 ---
 title: "Authentication Basics"
 type: "index"
-date: "2025-08-14"
+date: "2025-08-19"
 author: "Framework (Auto-generated)"
 summary: "Index for Authentication Basics chapter"
 ---
@@ -17,15 +17,9 @@ summary: "Index for Authentication Basics chapter"
 
 📋 **Homework**
 
-### [Authentication Knowledge Quiz](02_quiz_knowledge_check.md)
-*Quick knowledge verification on authentication concepts and implementation*
-
-📋 **Quiz**
-
 ## 🧭 Navigation
 
 ↑ [Back to Class Notes](../00_master_index.md)
-[Next: Framework Setup](../02_framework_setup/00_index.md) →
 
 ---
 

@@ -83,7 +83,7 @@ serve(async (req) => {
           *,
           modules (name, color, icon),
           constituents (name, type),
-          homework_items (title, due_date)
+          items (title, due_date)
         `)
         .eq('student_id', studentId)
         .eq('class_id', class_id)

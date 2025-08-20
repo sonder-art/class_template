@@ -107,6 +107,23 @@ class OperationSequencer:
         if result.returncode != 0:
             self.message_orchestrator.end_operation(False, "Validation/generation failed")
             return False
+        
+        # Inject class context for frontend JavaScript configuration
+        inject_script_path = self.framework_dir / "scripts" / "inject_class_context.py"
+        target_directory = "professor" if self.current_dir.name == "professor" else "student"
+        
+        result = self.subprocess_runner.run_command(
+            command=["python3", str(inject_script_path), target_directory],
+            description="Injecting class context for frontend",
+            working_directory=self.current_dir.parent,  # Run from project root
+            capture_output=True,
+            verbose=self.message_orchestrator.verbose,
+            error_callback=error_callback
+        )
+        
+        if result.returncode != 0:
+            self.message_orchestrator.add_message('warnings', 'Class context injection failed', 'Frontend features may be limited')
+            # Don't fail the entire build for this - it's not critical
             
         self.message_orchestrator.end_operation(True, "Framework files validated and generated")
         return True
@@ -474,6 +491,41 @@ class OperationSequencer:
         self.message_orchestrator.end_operation(True, "Items parsed and synchronized")
         return True
     
+    def generate_all_grading_json(self) -> bool:
+        """Generate all grading JSON files for frontend sync interface
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        
+        self.message_orchestrator.start_operation("Grading JSON Generation")
+        
+        # Run the grading JSON generator
+        script_path = self.framework_dir / "scripts" / "generate_all_grading_json.py"
+        
+        # Create error callback for subprocess runner
+        def error_callback(desc: str, error_text: str):
+            self.message_orchestrator.add_message('errors', desc, error_text)
+        
+        result = self.subprocess_runner.run_command(
+            command=["python3", str(script_path)],
+            description="Generating grading JSON files",
+            working_directory=self.current_dir,
+            capture_output=True,
+            verbose=self.message_orchestrator.verbose,
+            error_callback=error_callback
+        )
+        
+        if result.returncode != 0:
+            self.message_orchestrator.add_message('warnings', 'Grading JSON Generation Failed', 
+                'Grading JSON generation failed but build will continue.\n'
+                'Sync interface may not have current data.')
+            self.message_orchestrator.end_operation(True, "Grading JSON generation failed but continuing")
+            return False
+        
+        self.message_orchestrator.end_operation(True, "Grading JSON generation completed")
+        return True
+    
     def setup_grading_system(self, force: bool = False) -> bool:
         """Complete grading system setup (parse + sync + context injection)
         
@@ -549,6 +601,11 @@ class OperationSequencer:
         if not self.validate_and_generate(force=True):
             self.message_orchestrator.end_operation(False, "Pipeline failed during validation")
             return False
+        
+        # Step 1.5: Generate all grading JSON files
+        if not self.generate_all_grading_json():
+            self.message_orchestrator.add_message('warnings', 'Grading JSON Generation Failed', 
+                'Failed to generate grading JSON files but continuing build')
         
         # Step 2: Setup grading system (non-blocking)
         self.setup_grading_system(force=True)

@@ -1,0 +1,253 @@
+/* Submission Interface - Evangelion Theme
+ * Theme-specific styling for submission components using evangelion colors
+ */
+
+/* === SUBMISSION INTERFACE CONTAINER === */
+.submission-interface {
+  background: linear-gradient(135deg, var(--elevated-color) 0%, var(--surface-color) 100%) !important;
+  border: 2px solid var(--eva-cyan-primary) !important;
+  box-shadow: var(--shadow-xl), 0 0 20px var(--eva-cyan-glow) !important;
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.submission-interface::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--eva-cyan-primary), var(--eva-green-primary), var(--eva-purple-primary));
+  border-radius: 8px 8px 0 0;
+}
+
+/* === SUBMISSION FORM STYLING === */
+.item-submission-form {
+  background: var(--surface-color) !important;
+  border: 1px solid var(--eva-green-primary) !important;
+  box-shadow: 0 4px 12px rgba(0, 208, 132, 0.2) !important;
+}
+
+.submission-form-header {
+  border-bottom: 1px solid var(--eva-cyan-primary) !important;
+}
+
+.submission-form-header h4 {
+  color: var(--eva-cyan-primary) !important;
+  text-shadow: 0 0 8px var(--eva-cyan-glow) !important;
+  font-weight: 700 !important;
+}
+
+.submission-instructions {
+  color: var(--text-secondary) !important;
+}
+
+/* === FORM FIELDS STYLING === */
+.field-group label {
+  color: var(--eva-green-primary) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 5px var(--eva-green-glow) !important;
+}
+
+.field-group input,
+.field-group textarea,
+.field-group select {
+  background: var(--elevated-color) !important;
+  border: 1px solid var(--overlay-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.field-group input:focus,
+.field-group textarea:focus,
+.field-group select:focus {
+  border-color: var(--eva-cyan-primary) !important;
+  box-shadow: 0 0 0 2px var(--eva-cyan-glow) !important;
+}
+
+.field-group input::placeholder,
+.field-group textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+.field-group small {
+  color: var(--text-muted) !important;
+}
+
+.char-counter {
+  color: var(--text-muted) !important;
+}
+
+/* === SUBMIT BUTTON === */
+.submit-btn {
+  background: linear-gradient(135deg, var(--eva-green-primary), var(--eva-green-hover)) !important;
+  color: var(--bg-color) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 208, 132, 0.4) !important;
+  border: 1px solid var(--eva-green-primary) !important;
+}
+
+.submit-btn:hover {
+  background: linear-gradient(135deg, var(--eva-green-hover), var(--eva-green-soft)) !important;
+  box-shadow: 0 6px 16px rgba(0, 208, 132, 0.6), 0 0 20px var(--eva-green-glow) !important;
+  transform: translateY(-2px) !important;
+}
+
+.submit-btn:active {
+  transform: translateY(-1px) !important;
+}
+
+.submit-btn:disabled {
+  background: var(--text-disabled) !important;
+  color: var(--text-muted) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* === STATUS AND FEEDBACK === */
+.error-message {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1)) !important;
+  color: var(--eva-red-accent) !important;
+  border: 1px solid var(--eva-red-accent) !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2) !important;
+}
+
+.success-message {
+  background: linear-gradient(135deg, rgba(0, 208, 132, 0.1), rgba(0, 184, 119, 0.1)) !important;
+  color: var(--eva-green-primary) !important;
+  border: 1px solid var(--eva-green-primary) !important;
+  box-shadow: 0 0 10px var(--eva-green-glow) !important;
+}
+
+.auth-required-message {
+  background: linear-gradient(135deg, var(--elevated-color), var(--surface-color)) !important;
+  border: 2px solid var(--eva-orange-primary) !important;
+  box-shadow: 0 0 15px rgba(255, 140, 66, 0.3) !important;
+}
+
+.auth-required-message h3 {
+  color: var(--eva-orange-primary) !important;
+  text-shadow: 0 0 8px rgba(255, 140, 66, 0.4) !important;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, var(--eva-orange-primary), var(--eva-orange-hover)) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4) !important;
+  border: 1px solid var(--eva-orange-primary) !important;
+}
+
+.login-btn:hover {
+  background: linear-gradient(135deg, var(--eva-orange-hover), var(--eva-orange-primary)) !important;
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.6) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* === SUBMISSION HISTORY === */
+.submission-history {
+  border-top: 1px solid var(--eva-purple-primary) !important;
+}
+
+.submission-history h4 {
+  color: var(--eva-purple-primary) !important;
+  text-shadow: 0 0 8px var(--eva-purple-glow) !important;
+  font-weight: 700 !important;
+}
+
+.submission-item {
+  background: var(--elevated-color) !important;
+  border: 1px solid var(--overlay-color) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.submission-item:hover {
+  border-color: var(--eva-cyan-soft) !important;
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.2) !important;
+}
+
+.attempt {
+  color: var(--eva-cyan-primary) !important;
+  font-weight: 700 !important;
+}
+
+.date {
+  color: var(--text-muted) !important;
+}
+
+.grade {
+  background: linear-gradient(135deg, rgba(0, 208, 132, 0.2), rgba(0, 184, 119, 0.2)) !important;
+  color: var(--eva-green-primary) !important;
+  border: 1px solid var(--eva-green-primary) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 5px var(--eva-green-glow) !important;
+}
+
+.ungraded {
+  background: linear-gradient(135deg, rgba(255, 140, 66, 0.2), rgba(255, 107, 53, 0.2)) !important;
+  color: var(--eva-orange-primary) !important;
+  border: 1px solid var(--eva-orange-primary) !important;
+  font-weight: 600 !important;
+}
+
+.feedback {
+  background: var(--surface-color) !important;
+  border: 1px solid var(--eva-purple-soft) !important;
+  color: var(--text-secondary) !important;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.1) !important;
+}
+
+.no-submissions {
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+
+/* === RESPONSIVE ADJUSTMENTS === */
+@media (max-width: 768px) {
+  .submission-interface {
+    box-shadow: var(--shadow-lg), 0 0 15px var(--eva-cyan-glow) !important;
+  }
+  
+  .submit-btn {
+    box-shadow: 0 3px 10px rgba(0, 208, 132, 0.4) !important;
+  }
+  
+  .submit-btn:hover {
+    box-shadow: 0 4px 12px rgba(0, 208, 132, 0.6) !important;
+  }
+}
+
+/* === ENHANCED INTERACTIVE EFFECTS === */
+.field-group input:hover,
+.field-group textarea:hover,
+.field-group select:hover {
+  border-color: var(--eva-cyan-soft) !important;
+  box-shadow: 0 0 5px rgba(0, 217, 255, 0.1) !important;
+}
+
+/* Character counter animation when typing */
+.char-counter.typing {
+  color: var(--eva-cyan-primary) !important;
+  animation: counter-pulse 0.5s ease-in-out;
+}
+
+@keyframes counter-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* File input special styling */
+.field-group input[type="file"] {
+  border: 2px dashed var(--eva-purple-primary) !important;
+  background: rgba(124, 58, 237, 0.05) !important;
+  transition: all 0.3s ease !important;
+}
+
+.field-group input[type="file"]:hover {
+  border-color: var(--eva-purple-hover) !important;
+  background: rgba(124, 58, 237, 0.1) !important;
+  box-shadow: 0 0 10px var(--eva-purple-glow) !important;
+}
