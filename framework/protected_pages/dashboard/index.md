@@ -25,15 +25,15 @@ Welcome to your class dashboard! This area requires authentication.
             <li><button id="generateTokenBtn">🔗 Generate Enrollment Token</button></li>
             <li><button id="viewStudentsBtn">👥 View Class Roster</button></li>
             <li><button id="manageTokensBtn">🔧 Manage Enrollment Tokens</button></li>
-            <li><a href="{{ .Site.BaseURL }}upload/">📁 Upload Files</a></li>
+            <li><button id="uploadFilesBtn">📁 Upload Files</button></li>
         </ul>
     </div>
 
 <div class="dashboard-section">
     <h4>📊 Grading & Assessments</h4>
     <ul>
-        <li><a href="../grading/">📊 Grading Interface</a></li>
-        <li><a href="../grading-sync/">🔄 Sync Grading System</a></li>
+        <li><button id="openGradingBtn">📊 Grading Interface</button></li>
+        <li><button id="openGradingSyncBtn">🔄 Sync Grading System</button></li>
     </ul>
 </div>
 
@@ -189,8 +189,8 @@ function updateUserContextDisplay(user, userContext) {
     if (userContext) {
         contextEl.innerHTML = `
             <div class="user-card">
-                <h4>👤 ${user.email}</h4>
-                <p><strong>GitHub:</strong> @${userContext.github_username || 'Unknown'}</p>
+                <h4>👤 @${user.user_metadata?.user_name || userContext.github_username || 'Unknown'}</h4>
+                <p><strong>Email:</strong> ${user.email}</p>
                 <p><strong>Role:</strong> ${userContext.role || 'Unknown'}</p>
                 <p><strong>Class:</strong> ${userContext.class_title || 'Not enrolled'}</p>
                 <p><strong>Status:</strong> ${userContext.is_member ? '✅ Active Member' : '❌ Not enrolled'}</p>
@@ -199,7 +199,8 @@ function updateUserContextDisplay(user, userContext) {
     } else {
         contextEl.innerHTML = `
             <div class="user-card">
-                <h4>👤 ${user.email}</h4>
+                <h4>👤 @${user.user_metadata?.user_name || 'Unknown'}</h4>
+                <p><strong>Email:</strong> ${user.email}</p>
                 <p>🔄 Loading class information...</p>
             </div>
         `;
@@ -267,6 +268,7 @@ function setupProfessorHandlers() {
     const generateTokenBtn = document.getElementById('generateTokenBtn');
     const viewStudentsBtn = document.getElementById('viewStudentsBtn');
     const manageTokensBtn = document.getElementById('manageTokensBtn');
+    const uploadFilesBtn = document.getElementById('uploadFilesBtn');
     
     if (generateTokenBtn) {
         generateTokenBtn.onclick = async () => {
@@ -421,6 +423,13 @@ function setupProfessorHandlers() {
         };
     }
     
+    if (uploadFilesBtn) {
+        uploadFilesBtn.onclick = () => {
+            const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
+            window.location.href = `${baseUrl}/upload/`;
+        };
+    }
+    
 }
 
 /**
@@ -447,6 +456,24 @@ function setupStudentHandlers() {
     // Load and display grade summary in dashboard
     loadStudentGradeSummary();
 }
+
+// Quick links for grading pages as buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const openGradingBtn = document.getElementById('openGradingBtn');
+    if (openGradingBtn) {
+        openGradingBtn.onclick = () => {
+            const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
+            window.location.href = `${baseUrl}/grading/`;
+        };
+    }
+    const openGradingSyncBtn = document.getElementById('openGradingSyncBtn');
+    if (openGradingSyncBtn) {
+        openGradingSyncBtn.onclick = () => {
+            const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
+            window.location.href = `${baseUrl}/grading-sync/`;
+        };
+    }
+});
 
 /**
  * Load and display student grade summary in dashboard
