@@ -392,6 +392,16 @@ a:visited {
   cursor: pointer;
 }
 
+/* Prevent jarring shifts: default disabled/loading styles */
+#navAuthToggleBtn[disabled] {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+#userStatusText {
+  transition: opacity 0.2s ease;
+}
+
 /* Dashboard button - cyan theme */
 .nav-auth-btn.dashboard-btn {
   background-color: var(--eva-cyan-primary);

@@ -339,11 +339,15 @@
             console.log('🎯 Auth state changed event received:', event.detail);
             setTimeout(updateSidebarAuthNavigation, 100);
         });
+
+        // Also update when the detailed user context is loaded asynchronously
+        window.addEventListener('userContextLoaded', function(event) {
+            console.log('🧾 User context loaded event received:', event.detail);
+            setTimeout(updateSidebarAuthNavigation, 50);
+        });
         
-        // Initial setup when page loads - multiple attempts for reliability
-        setTimeout(updateSidebarAuthNavigation, 500);
-        setTimeout(updateSidebarAuthNavigation, 1000);
-        setTimeout(updateSidebarAuthNavigation, 2000);
+        // Initial setup when page loads
+        updateSidebarAuthNavigation();
         
         // Also listen for general auth events that might not trigger our custom event
         if (window.authState?.client) {
@@ -396,13 +400,17 @@
                 if (isLoading) {
                     userStatusText.textContent = '🔄 Loading...';
                 } else if (isAuthenticated && user) {
-                    // Prefer GitHub username when available, fall back to email
+                    // Wait for userContext to decide membership; avoid showing ❌ prematurely
                     const githubUsername = user.user_metadata?.user_name || userContext?.github_username;
                     const displayName = githubUsername || user.email || 'Unknown';
-                    const role = userContext?.role || 'Member';
-                    const isMember = userContext?.is_member === true;
-                    const status = isMember ? '✅' : '❌';
-                    userStatusText.textContent = `${status} ${displayName} (${role})`;
+                    if (userContext == null) {
+                        userStatusText.textContent = `🔄 ${displayName} (loading...)`;
+                    } else {
+                        const role = userContext?.role || 'Member';
+                        const isMember = userContext?.is_member === true;
+                        const status = isMember ? '✅' : '❌';
+                        userStatusText.textContent = `${status} ${displayName} (${role})`;
+                    }
                 } else {
                     userStatusText.textContent = '❌ Not logged in';
                 }
