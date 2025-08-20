@@ -74,6 +74,11 @@ isPlainText = true
     source = "../framework/assets/notebooks"
     target = "static/notebooks"
   
+  # Generated static files (framework-config.js, etc.)
+  [[module.mounts]]
+    source = "../hugo_generated/static"
+    target = "static"
+  
   [[module.mounts]]
     source = "../framework/css"
     target = "assets/css"

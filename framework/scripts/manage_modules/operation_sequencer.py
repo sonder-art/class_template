@@ -321,6 +321,246 @@ class OperationSequencer:
                     shutil.rmtree(file)
                 self.ux.show_file_removal_result(file)
     
+    def inject_class_context(self, force: bool = False) -> bool:
+        """Inject class context for secure frontend operations
+        
+        Args:
+            force: Skip user confirmation if True
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        
+        self.message_orchestrator.start_operation("Class Context Injection")
+        
+        # Determine target directory based on current context
+        target_directory = "professor" if self.role == "professor" else f"students/{self.current_dir.name}"
+        
+        # Run the class context injection script
+        script_path = self.framework_dir / "scripts" / "inject_class_context.py"
+        
+        # Create error callback for subprocess runner
+        def error_callback(desc: str, error_text: str):
+            self.message_orchestrator.add_message('errors', desc, error_text)
+        
+        result = self.subprocess_runner.run_command(
+            command=["python3", str(script_path), target_directory],
+            description="Injecting class context for secure operations",
+            working_directory=self.current_dir,
+            capture_output=True,
+            verbose=self.message_orchestrator.verbose,
+            error_callback=error_callback
+        )
+        
+        if result.returncode != 0:
+            self.message_orchestrator.end_operation(False, "Class context injection failed")
+            return False
+            
+        self.message_orchestrator.end_operation(True, "Class context injected successfully")
+        return True
+    
+    def parse_grading_data(self) -> bool:
+        """Parse and validate grading configuration files
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        
+        self.message_orchestrator.start_operation("Grading Data Parsing")
+        
+        # Run the grading data parser
+        script_path = self.framework_dir / "scripts" / "parse_grading_data.py"
+        
+        # Create error callback for subprocess runner
+        def error_callback(desc: str, error_text: str):
+            self.message_orchestrator.add_message('errors', desc, error_text)
+        
+        result = self.subprocess_runner.run_command(
+            command=["python3", str(script_path)],
+            description="Parsing grading configuration files",
+            working_directory=self.current_dir,
+            capture_output=True,
+            verbose=self.message_orchestrator.verbose,
+            error_callback=error_callback
+        )
+        
+        if result.returncode != 0:
+            self.message_orchestrator.end_operation(False, "Grading data parsing failed")
+            return False
+            
+        self.message_orchestrator.end_operation(True, "Grading data parsed and validated")
+        return True
+    
+    def sync_grading_with_supabase(self) -> bool:
+        """Synchronize grading data with Supabase database
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        
+        self.message_orchestrator.start_operation("Grading Data Synchronization")
+        
+        # Check for required environment variables
+        import os
+        supabase_url = os.environ.get('SUPABASE_URL')
+        supabase_key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY') or os.environ.get('SUPABASE_KEY')
+        
+        if not supabase_url or not supabase_key:
+            self.message_orchestrator.add_message('warnings', 'Missing Supabase Configuration', 
+                'SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not found in environment variables.\n'
+                'Grading data synchronization will be skipped.')
+            self.message_orchestrator.end_operation(True, "Grading sync skipped - no Supabase config")
+            return True
+        
+        # Run the grading data synchronizer
+        script_path = self.framework_dir / "scripts" / "sync_grading_data.py"
+        
+        # Create error callback for subprocess runner
+        def error_callback(desc: str, error_text: str):
+            self.message_orchestrator.add_message('errors', desc, error_text)
+        
+        result = self.subprocess_runner.run_command(
+            command=["python3", str(script_path)],
+            description="Synchronizing grading data with Supabase",
+            working_directory=self.current_dir,
+            capture_output=True,
+            verbose=self.message_orchestrator.verbose,
+            error_callback=error_callback,
+            env_vars={'SUPABASE_URL': supabase_url, 'SUPABASE_SERVICE_ROLE_KEY': supabase_key}
+        )
+        
+        if result.returncode != 0:
+            self.message_orchestrator.add_message('warnings', 'Grading Sync Failed', 
+                'Grading data synchronization failed but build will continue.\n'
+                'The framework will work without grading features.')
+            self.message_orchestrator.end_operation(True, "Grading sync failed but continuing")
+            return True  # Don't fail the entire build
+            
+        self.message_orchestrator.end_operation(True, "Grading data synchronized with Supabase")
+        return True
+    
+    def parse_and_sync_items(self) -> bool:
+        """Parse items from markdown files and sync to Supabase
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        
+        self.message_orchestrator.start_operation("Item Parsing and Sync")
+        
+        # Run the item parser
+        script_path = self.framework_dir / "scripts" / "parse_items.py"
+        
+        # Create error callback for subprocess runner
+        def error_callback(desc: str, error_text: str):
+            self.message_orchestrator.add_message('errors', desc, error_text)
+        
+        result = self.subprocess_runner.run_command(
+            command=["python3", str(script_path)],
+            description="Parsing items from markdown files",
+            working_directory=self.current_dir,
+            capture_output=True,
+            verbose=self.message_orchestrator.verbose,
+            error_callback=error_callback
+        )
+        
+        if result.returncode != 0:
+            self.message_orchestrator.add_message('warnings', 'Item Parsing Failed', 
+                'Item parsing failed but build will continue.\n'
+                'Graded items may not be available for submission.')
+            self.message_orchestrator.end_operation(True, "Item parsing failed but continuing")
+            return True  # Don't fail the entire build
+            
+        self.message_orchestrator.end_operation(True, "Items parsed and synchronized")
+        return True
+    
+    def setup_grading_system(self, force: bool = False) -> bool:
+        """Complete grading system setup (parse + sync + context injection)
+        
+        Args:
+            force: Skip user confirmation if True
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        
+        self.message_orchestrator.start_operation("Grading System Setup")
+        
+        if not force:
+            from rich.prompt import Confirm
+            self.ux.show_pipeline_preview("Grading System Setup", [
+                "Parse Configuration", 
+                "Validate Data", 
+                "Sync with Supabase",
+                "Parse Items",
+                "Inject Class Context"
+            ])
+            if not Confirm.ask("Continue with grading system setup?"):
+                self.message_orchestrator.end_operation(False, "Setup cancelled by user")
+                return False
+        
+        # Step 1: Parse grading configuration
+        if not self.parse_grading_data():
+            self.message_orchestrator.end_operation(False, "Setup failed during configuration parsing")
+            return False
+        
+        # Step 2: Synchronize with Supabase
+        if not self.sync_grading_with_supabase():
+            self.message_orchestrator.end_operation(False, "Setup failed during Supabase sync")
+            return False
+        
+        # Step 3: Parse and sync items
+        if not self.parse_and_sync_items():
+            self.message_orchestrator.end_operation(False, "Setup failed during item parsing")
+            return False
+        
+        # Step 4: Inject class context
+        if not self.inject_class_context(force=True):
+            self.message_orchestrator.end_operation(False, "Setup failed during context injection")
+            return False
+                
+        self.message_orchestrator.end_operation(True, "Grading system setup completed successfully")
+        return True
+    
+    def enhanced_build_pipeline(self, force: bool = False) -> bool:
+        """Enhanced build pipeline with grading system integration
+        
+        Args:
+            force: Skip user confirmation if True
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        
+        self.message_orchestrator.start_operation("Enhanced Build Pipeline")
+        
+        if not force:
+            self.ux.show_pipeline_preview("Enhanced Build Pipeline", [
+                "Validation & Generation", 
+                "Grading System Setup",
+                "Class Context Injection", 
+                "Hugo Build"
+            ])
+            if not self.ux.show_build_confirmation():
+                self.message_orchestrator.end_operation(False, "Pipeline cancelled by user")
+                return False
+        
+        # Step 1: Standard validation and generation
+        if not self.validate_and_generate(force=True):
+            self.message_orchestrator.end_operation(False, "Pipeline failed during validation")
+            return False
+        
+        # Step 2: Setup grading system (non-blocking)
+        self.setup_grading_system(force=True)
+        
+        # Step 3: Build production site
+        if not self.build_production():
+            self.message_orchestrator.end_operation(False, "Pipeline failed during Hugo build")
+            return False
+                
+        self.message_orchestrator.end_operation(True, "Enhanced build pipeline completed successfully")
+        return True
+    
     def execute_operation_chain(self, operations: List[str], **kwargs) -> bool:
         """Execute a sequence of operations
         
@@ -336,9 +576,15 @@ class OperationSequencer:
             'validate': self.validate_and_generate,
             'build': self.build_production,
             'pipeline': self.full_build_pipeline,
+            'enhanced_pipeline': self.enhanced_build_pipeline,
             'sync': self.sync_student_updates,
             'clean': self.clean_generated_files,
-            'dev': self.start_development_server
+            'dev': self.start_development_server,
+            'inject_context': self.inject_class_context,
+            'parse_grades': self.parse_grading_data,
+            'sync_grades': self.sync_grading_with_supabase,
+            'parse_items': self.parse_and_sync_items,
+            'setup_grades': self.setup_grading_system
         }
         
         for operation in operations:
@@ -349,15 +595,12 @@ class OperationSequencer:
             operation_func = operation_map[operation]
             
             # Handle operations with different signatures
-            if operation in ['validate', 'pipeline']:
+            if operation in ['validate', 'pipeline', 'enhanced_pipeline', 'setup_grades', 'inject_context']:
                 if not operation_func(kwargs.get('force', False)):
                     return False
             elif operation == 'dev':
                 operation_func(kwargs.get('port'))
-            elif operation == 'sync':
-                if not operation_func():
-                    return False
-            elif operation == 'build':
+            elif operation in ['sync', 'build', 'parse_grades', 'sync_grades', 'parse_items']:
                 if not operation_func():
                     return False
             elif operation == 'clean':

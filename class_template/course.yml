@@ -7,13 +7,13 @@ course_code: "TMPL101"
 semester: "Template 2025"
 
 professor:
-  name: "Template Instructor"
-  email: "instructor@example.edu"
+  name: "uumami"
+  email: "uumami@sonder.art"
   office_hours: "By appointment"
   office_location: "Virtual"
 
 resources:
-  repository: "github.com/user/class_template"
+  repository: "https://github.com/sonder-art/class_template"
   shared_drive: ""
   syllabus: "syllabus.md"
   announcements_feed: "announcements.md"

@@ -1,0 +1,257 @@
+{
+  "modules": [
+    {
+      "id": "auth_implementation",
+      "name": "Authentication System Implementation",
+      "description": "Complete implementation and testing of the authentication system",
+      "weight": 25.0,
+      "order": 1,
+      "color": "#ff6b35",
+      "icon": "\ud83d\udd10"
+    },
+    {
+      "id": "framework_basics",
+      "name": "Framework Understanding & Setup",
+      "description": "Understanding the framework architecture and completing initial setup tasks",
+      "weight": 20.0,
+      "order": 2,
+      "color": "#4a90e2",
+      "icon": "\ud83c\udfd7\ufe0f"
+    },
+    {
+      "id": "content_management",
+      "name": "Content Creation & Management",
+      "description": "Creating and organizing course content following framework conventions",
+      "weight": 15.0,
+      "order": 3,
+      "color": "#7ed321",
+      "icon": "\ud83d\udcda"
+    },
+    {
+      "id": "advanced_features",
+      "name": "Advanced Features Implementation",
+      "description": "Implementation of advanced framework features and customizations",
+      "weight": 25.0,
+      "order": 4,
+      "color": "#9013fe",
+      "icon": "\u26a1"
+    },
+    {
+      "id": "deployment",
+      "name": "Deployment & Production",
+      "description": "Deploying the framework to production and handling real-world scenarios",
+      "weight": 15.0,
+      "order": 5,
+      "color": "#f5a623",
+      "icon": "\ud83d\ude80"
+    }
+  ],
+  "constituents": [
+    {
+      "id": "auth_setup",
+      "slug": "auth-setup",
+      "name": "Authentication Setup",
+      "description": "Initial authentication system configuration and testing",
+      "module_id": "auth_implementation",
+      "weight": 30.0,
+      "type": "implementation",
+      "max_attempts": 3
+    },
+    {
+      "id": "auth_integration",
+      "slug": "auth-integration",
+      "name": "Authentication Integration",
+      "description": "Integration of authentication with existing framework components",
+      "module_id": "auth_implementation",
+      "weight": 40.0,
+      "type": "implementation",
+      "max_attempts": 2
+    },
+    {
+      "id": "auth_testing",
+      "slug": "auth-testing",
+      "name": "Authentication Testing",
+      "description": "Comprehensive testing of authentication flows and edge cases",
+      "module_id": "auth_implementation",
+      "weight": 30.0,
+      "type": "testing",
+      "max_attempts": 5
+    },
+    {
+      "id": "framework_concepts",
+      "slug": "framework-concepts",
+      "name": "Framework Concepts",
+      "description": "Understanding of core framework architecture and principles",
+      "module_id": "framework_basics",
+      "weight": 40.0,
+      "type": "theory",
+      "max_attempts": 2
+    },
+    {
+      "id": "initial_setup",
+      "slug": "initial-setup",
+      "name": "Initial Setup",
+      "description": "Successful completion of framework setup and configuration",
+      "module_id": "framework_basics",
+      "weight": 35.0,
+      "type": "implementation",
+      "max_attempts": 3
+    },
+    {
+      "id": "build_validation",
+      "slug": "build-validation",
+      "name": "Build Validation",
+      "description": "Successful build and deployment of framework instance",
+      "module_id": "framework_basics",
+      "weight": 25.0,
+      "type": "implementation",
+      "max_attempts": 5
+    },
+    {
+      "id": "content_organization",
+      "slug": "content-organization",
+      "name": "Content Organization",
+      "description": "Proper organization and naming of course content",
+      "module_id": "content_management",
+      "weight": 50.0,
+      "type": "implementation",
+      "max_attempts": 3
+    },
+    {
+      "id": "documentation_quality",
+      "slug": "documentation-quality",
+      "name": "Documentation Quality",
+      "description": "Quality and completeness of content documentation",
+      "module_id": "content_management",
+      "weight": 50.0,
+      "type": "quality",
+      "max_attempts": 2
+    }
+  ],
+  "grading_policies": [
+    {
+      "module_id": "auth_implementation",
+      "policy_name": "Authentication Implementation Grading Policy",
+      "version": "1.0",
+      "policy_data": {
+        "policy_metadata": {
+          "name": "Authentication Implementation Grading Policy",
+          "module_id": "auth_implementation",
+          "version": "1.0",
+          "created": "2025-08-13",
+          "description": "Complex 5-rule grading algorithm for authentication module"
+        },
+        "grading_rules": {
+          "base_score": {
+            "description": "Calculate weighted average of all constituent scores",
+            "type": "weighted_average",
+            "weight_source": "constituent.weight",
+            "apply_to": "all_constituents",
+            "sql_expression": "SUM(item_score * constituent_weight) / SUM(constituent_weight)\n"
+          },
+          "completion_bonus": {
+            "description": "5% bonus if all items submitted on time",
+            "type": "conditional_bonus",
+            "condition": "all_items_on_time",
+            "bonus_percentage": 5.0,
+            "sql_condition": "(SELECT COUNT(*) FROM student_submissions s \n JOIN homework_items i ON s.item_id = i.id \n WHERE s.student_id = target_student_id \n AND i.module_id = 'auth_implementation'\n AND s.submitted_at <= i.due_date) = \n(SELECT COUNT(*) FROM homework_items \n WHERE module_id = 'auth_implementation')\n"
+          },
+          "attempt_penalty": {
+            "description": "2% penalty per extra attempt beyond the first for each item",
+            "type": "attempt_penalty",
+            "penalty_per_attempt": 2.0,
+            "free_attempts": 1,
+            "sql_expression": "GREATEST(0, base_score - (\n  SELECT SUM(GREATEST(0, (attempt_count - 1) * 2.0))\n  FROM student_submission_stats \n  WHERE student_id = target_student_id \n  AND module_id = 'auth_implementation'\n))\n"
+          },
+          "late_penalty": {
+            "description": "5% penalty per day late, max 7 days",
+            "type": "time_penalty",
+            "penalty_per_day": 5.0,
+            "max_late_days": 7,
+            "grace_period_hours": 2,
+            "sql_expression": "base_score - (\n  SELECT SUM(\n    LEAST(35.0, -- Max 7 days * 5% = 35%\n      GREATEST(0, \n        EXTRACT(epoch FROM (submitted_at - due_date - interval '2 hours')) / 86400\n      ) * 5.0\n    )\n  ) FROM student_submissions s\n  JOIN homework_items i ON s.item_id = i.id\n  WHERE s.student_id = target_student_id\n  AND i.module_id = 'auth_implementation'\n  AND s.submitted_at > i.due_date + interval '2 hours'\n)\n"
+          },
+          "quality_multiplier": {
+            "description": "Multiply final score by quality factor based on testing constituent performance",
+            "type": "quality_multiplier",
+            "base_constituent": "auth_testing",
+            "multiplier_ranges": {
+              "excellent": {
+                "threshold": 95.0,
+                "multiplier": 1.05
+              },
+              "good": {
+                "threshold": 85.0,
+                "multiplier": 1.0
+              },
+              "acceptable": {
+                "threshold": 70.0,
+                "multiplier": 0.98
+              },
+              "needs_improvement": {
+                "threshold": 0.0,
+                "multiplier": 0.95
+              }
+            },
+            "sql_expression": "adjusted_score * (\n  CASE \n    WHEN testing_score >= 95.0 THEN 1.05\n    WHEN testing_score >= 85.0 THEN 1.0  \n    WHEN testing_score >= 70.0 THEN 0.98\n    ELSE 0.95\n  END\n)\n",
+            "sql_variables": "testing_score AS (\n  SELECT AVG(final_score) \n  FROM student_item_grades sig\n  JOIN homework_items hi ON sig.item_id = hi.id\n  JOIN constituents c ON hi.constituent_slug = c.slug\n  WHERE sig.student_id = target_student_id \n  AND c.id = 'auth_testing'\n)\n"
+          }
+        },
+        "execution_order": {
+          "1": "base_score",
+          "2": "attempt_penalty",
+          "3": "late_penalty",
+          "4": "completion_bonus",
+          "5": "quality_multiplier"
+        },
+        "sql_settings": {
+          "function_name": "calculate_auth_implementation_grade",
+          "input_parameters": [
+            "target_student_id UUID",
+            "calculation_date TIMESTAMP DEFAULT NOW()"
+          ],
+          "return_type": "JSONB",
+          "return_fields": {
+            "final_score": "NUMERIC(5,2)",
+            "base_score": "NUMERIC(5,2)",
+            "completion_bonus": "NUMERIC(5,2)",
+            "attempt_penalty": "NUMERIC(5,2)",
+            "late_penalty": "NUMERIC(5,2)",
+            "quality_multiplier": "NUMERIC(4,3)",
+            "grade_letter": "TEXT",
+            "breakdown": "JSONB"
+          },
+          "use_materialized_views": true,
+          "cache_duration_minutes": 30,
+          "row_level_security": true,
+          "allowed_roles": [
+            "professor",
+            "student_own_grades"
+          ]
+        },
+        "grade_scale": {
+          "A": 95.0,
+          "A-": 90.0,
+          "B+": 87.0,
+          "B": 83.0,
+          "B-": 80.0,
+          "C+": 77.0,
+          "C": 73.0,
+          "C-": 70.0,
+          "D+": 67.0,
+          "D": 63.0,
+          "D-": 60.0,
+          "F": 0.0
+        }
+      },
+      "sql_function_name": "calculate_auth_implementation_grade"
+    }
+  ],
+  "validation_summary": {
+    "total_modules": 5,
+    "total_constituents": 8,
+    "total_policies": 1,
+    "errors": [],
+    "warnings": []
+  }
+}

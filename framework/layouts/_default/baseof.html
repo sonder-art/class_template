@@ -279,6 +279,21 @@
     {{ if $supabaseAuthJS }}
         <script src="{{ $supabaseAuthJS.RelPermalink }}"></script>
     {{ end }}
+
+    <!-- Framework Configuration (Auto-generated class context) -->
+    <script src="/js/framework-config.js"></script>
+
+    <!-- Grading System JavaScript (Students) -->
+    {{ $itemSubmissionJS := resources.Get "js/item-submission.js" }}
+    {{ if $itemSubmissionJS }}
+        <script src="{{ $itemSubmissionJS.RelPermalink }}"></script>
+    {{ end }}
+
+    <!-- Grading System JavaScript (Professors) -->
+    {{ $professorGradingJS := resources.Get "js/professor-grading.js" }}
+    {{ if $professorGradingJS }}
+        <script src="{{ $professorGradingJS.RelPermalink }}"></script>
+    {{ end }}
     
     <script>
     // Auth Navigation Management

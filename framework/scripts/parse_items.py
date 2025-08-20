@@ -131,7 +131,22 @@ class ItemParser:
         """Parse all item blocks from markdown content"""
         items = []
         
-        # Generic item parsing: <!-- ITEM_START ... ITEM_END -->
+        # Primary method: Hugo shortcodes (item-inline)
+        shortcode_pattern = r'{{\s*<\s*item-inline\s+(.*?)\s*>}}'
+        shortcode_matches = re.finditer(shortcode_pattern, content, re.MULTILINE)
+        
+        for match in shortcode_matches:
+            shortcode_params = match.group(1).strip()
+            try:
+                item = self._parse_shortcode_params(shortcode_params)
+                if item:
+                    items.append(item)
+                    logger.debug(f"Parsed shortcode item: {item.item_id}")
+            except Exception as e:
+                logger.warning(f"Failed to parse shortcode: {e}")
+                continue
+        
+        # Secondary method: Generic item parsing (<!-- ITEM_START ... ITEM_END -->)
         pattern = r'<!-- ITEM_START\s*\n(.*?)\nITEM_END -->'
         matches = re.finditer(pattern, content, re.MULTILINE | re.DOTALL)
         
@@ -141,6 +156,7 @@ class ItemParser:
                 item = self._parse_item_block(item_block)
                 if item:
                     items.append(item)
+                    logger.debug(f"Parsed block item: {item.item_id}")
             except Exception as e:
                 logger.warning(f"Failed to parse item block: {e}")
                 continue
@@ -160,6 +176,42 @@ class ItemParser:
                 continue
                 
         return items
+    
+    def _parse_shortcode_params(self, params_str: str) -> Optional[Item]:
+        """Parse Hugo shortcode parameters into Item object"""
+        # Parse shortcode parameters like: constituent_slug="auth-setup" item_id="test" points="25"
+        params = {}
+        
+        # Match key="value" or key='value' patterns
+        param_pattern = r'(\w+)=["\']([^"\']*)["\']'
+        param_matches = re.findall(param_pattern, params_str)
+        
+        for key, value in param_matches:
+            params[key] = value
+        
+        logger.debug(f"Parsed shortcode params: {params}")
+        
+        # Required parameters
+        required_keys = ['constituent_slug', 'item_id', 'points']
+        for key in required_keys:
+            if key not in params:
+                logger.warning(f"Missing required parameter {key} in shortcode")
+                return None
+        
+        try:
+            return Item(
+                constituent_slug=params['constituent_slug'],
+                item_id=params['item_id'],
+                points=float(params['points']),
+                due_date=params.get('due_date'),
+                title=params.get('title'),
+                delivery_type=params.get('delivery_type'),
+                important=params.get('important', '').lower() == 'true',
+                instructions=params.get('instructions')
+            )
+        except (ValueError, KeyError) as e:
+            logger.warning(f"Error creating Item from shortcode: {e}")
+            return None
     
     def _parse_item_block(self, block: str) -> Optional[Item]:
         """Parse a single item block"""
