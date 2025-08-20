@@ -396,11 +396,13 @@
                 if (isLoading) {
                     userStatusText.textContent = '🔄 Loading...';
                 } else if (isAuthenticated && user) {
-                    const email = user.email || 'Unknown';
+                    // Prefer GitHub username when available, fall back to email
+                    const githubUsername = user.user_metadata?.user_name || userContext?.github_username;
+                    const displayName = githubUsername || user.email || 'Unknown';
                     const role = userContext?.role || 'Member';
                     const isMember = userContext?.is_member === true;
                     const status = isMember ? '✅' : '❌';
-                    userStatusText.textContent = `${status} ${email} (${role})`;
+                    userStatusText.textContent = `${status} ${displayName} (${role})`;
                 } else {
                     userStatusText.textContent = '❌ Not logged in';
                 }
