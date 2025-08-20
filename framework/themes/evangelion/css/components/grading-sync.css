@@ -7,11 +7,13 @@
 }
 
 .loading-card, .status-card, .error-card {
-    background: var(--theme-surface-elevated, #f9f9f9);
-    border: 1px solid var(--theme-border-default, #e0e0e0);
+    background: var(--theme-surface-elevated, #1A1025);
+    border: 1px solid var(--theme-border-default, #342447);
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    color: var(--theme-text-primary, #F8F9FB);
+    box-shadow: var(--glow-green);
 }
 
 .spinner {
@@ -39,18 +41,19 @@
     padding: 0.5rem 1rem;
     border-radius: 4px;
     font-weight: bold;
+    border: 1px solid transparent;
 }
 
 .status-indicator.in-sync {
-    background: rgba(76, 175, 80, 0.1);
-    color: #4CAF50;
-    border: 1px solid #4CAF50;
+    background: rgba(0, 208, 132, 0.12);
+    color: var(--eva-green-primary);
+    border-color: var(--eva-green-primary);
 }
 
 .status-indicator.changes-detected {
-    background: rgba(255, 152, 0, 0.1);
-    color: #FF9800;
-    border: 1px solid #FF9800;
+    background: rgba(255, 140, 66, 0.12);
+    color: var(--eva-orange-accent);
+    border-color: var(--eva-orange-accent);
 }
 
 .status-grid {
@@ -60,8 +63,8 @@
 }
 
 .stat-card {
-    background: var(--theme-surface-default, #ffffff);
-    border: 1px solid var(--theme-border-default, #e0e0e0);
+    background: var(--theme-surface-default, #1A1025);
+    border: 1px solid var(--theme-border-default, #342447);
     border-radius: 6px;
     padding: 1rem;
     text-align: center;
@@ -71,19 +74,19 @@
     display: block;
     font-size: 2rem;
     font-weight: bold;
-    color: var(--theme-text-primary, #333);
+    color: var(--theme-text-primary, #F8F9FB);
 }
 
 .stat-card .label {
     display: block;
-    color: var(--theme-text-secondary, #666);
+    color: var(--theme-text-secondary, #D1D6E0);
     font-size: 0.9rem;
 }
 
 .stat-card .changes {
     display: block;
     font-size: 0.8rem;
-    color: var(--theme-accent-primary, #007bff);
+    color: var(--theme-accent-primary, var(--eva-green-primary));
     margin-top: 0.25rem;
 }
 
@@ -95,19 +98,19 @@
 }
 
 .tree-module {
-    background: var(--theme-surface-elevated, #f9f9f9);
+    background: var(--theme-surface-elevated, #2A1D3A);
     border-radius: 6px;
     overflow: hidden;
 }
 
 .tree-constituent {
-    background: var(--theme-surface-default, #ffffff);
+    background: var(--theme-surface-default, #1A1025);
     margin-left: 1rem;
     border-radius: 4px;
 }
 
 .tree-item {
-    background: var(--theme-surface-subtle, #f8f9fa);
+    background: var(--theme-surface-subtle, #2A1D3A);
     margin-left: 2rem;
     padding: 0.5rem;
     border-radius: 3px;
@@ -124,7 +127,7 @@
 }
 
 .tree-header:hover {
-    background: var(--theme-surface-hover, rgba(0, 0, 0, 0.05));
+    background: var(--theme-surface-hover, #342447);
 }
 
 .tree-children {

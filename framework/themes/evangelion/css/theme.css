@@ -57,6 +57,10 @@
   --theme-bg-secondary: var(--surface-color);
   --theme-surface: var(--surface-color);
   --theme-surface-elevated: var(--elevated-color);
+  /* Provide additional semantic surfaces used by components */
+  --theme-surface-default: var(--surface-color);
+  --theme-surface-subtle: var(--elevated-color);
+  --theme-surface-hover: var(--overlay-color);
   
   /* Text & Content Theme Mappings */
   --theme-text-primary: var(--text-primary);
@@ -665,3 +669,52 @@ input:focus, textarea:focus, select:focus {
   --pre-bg: #000000;
   --pre-text: #00FF00;
 } 
+
+/* === Grading Page: Professor Test Submissions (high-contrast overrides) === */
+#professor-submissions-content {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* Each item card */
+#professor-submissions-content > div {
+  background: var(--elevated-color) !important;
+  border: 1px solid var(--border-default) !important;
+}
+
+#professor-submissions-content h4 {
+  color: var(--eva-cyan-primary) !important;
+}
+
+#professor-submissions-content table {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--border-default) !important;
+  border-collapse: collapse !important;
+}
+
+#professor-submissions-content thead th,
+#professor-submissions-content thead tr {
+  background: var(--overlay-color) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-default) !important;
+}
+
+#professor-submissions-content tbody td {
+  color: var(--text-secondary) !important;
+  border: 1px solid var(--border-subtle) !important;
+}
+
+/* Subtle zebra striping for readability */
+#professor-submissions-content tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Toggle button theme alignment */
+#toggle-professor-submissions {
+  background: var(--eva-green-primary) !important;
+  color: var(--bg-color) !important;
+}
+
+#toggle-professor-submissions:hover {
+  background: var(--eva-green-hover) !important;
+}
