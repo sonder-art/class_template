@@ -1,7 +1,7 @@
 ---
 title: "Authentication Basics"
 type: "index"
-date: "2025-08-19"
+date: "2025-08-23"
 author: "Framework (Auto-generated)"
 summary: "Index for Authentication Basics chapter"
 ---

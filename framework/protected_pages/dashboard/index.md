@@ -14,6 +14,20 @@ Welcome to your class dashboard! This area requires authentication.
     <p>🔄 Loading your profile and class information...</p>
 </div>
 
+<!-- API Status Indicator -->
+<div id="apiStatus" class="dashboard-section" style="margin-bottom: 1rem;">
+    <div id="apiStatusContent">
+        <p>🔄 Checking API status...</p>
+    </div>
+</div>
+
+<!-- Simple Development Link -->
+<div style="text-align: right; margin-bottom: 1rem;">
+    <a href="/class_template/student-dashboard/" style="background: #007acc; color: white; padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; font-size: 0.9rem;">
+        👁️ View Student Dashboard
+    </a>
+</div>
+
 ## Role-Based Tools
 
 
@@ -36,6 +50,7 @@ Welcome to your class dashboard! This area requires authentication.
         <li><button id="openGradingSyncBtn">🔄 Sync Grading System</button></li>
     </ul>
 </div>
+
 
 <div id="enrollmentTokenSection" class="dashboard-section" style="display: none;">
     <h4>Enrollment Token</h4>
@@ -123,15 +138,300 @@ Welcome to your class dashboard! This area requires authentication.
 <!-- KEEP:END dashboard-content -->
 
 <script>
+// Global modal functions (must be at global scope for onclick attributes)
+function fallbackOpenStudentModal() {
+    console.log('🔍 DEBUG: fallbackOpenStudentModal called');
+    
+    try {
+        if (typeof openStudentViewModal === 'function') {
+            console.log('🔍 DEBUG: openStudentViewModal function found, calling it');
+            openStudentViewModal();
+        } else {
+            console.log('🚨 DEBUG: openStudentViewModal function not found');
+            alert('Student dashboard modal is not ready yet. Please refresh and try again.');
+        }
+    } catch (error) {
+        console.error('🚨 DEBUG: Error in fallbackOpenStudentModal:', error);
+        alert('Error opening modal: ' + error.message);
+    }
+}
+
+/**
+ * Student Dashboard Modal Functions (Global Scope)
+ */
+function openStudentViewModal() {
+    console.log('🔍 DEBUG: openStudentViewModal called');
+    const modal = document.getElementById('studentViewModal');
+    console.log('🔍 DEBUG: Modal element found:', !!modal);
+    if (modal) {
+        modal.style.display = 'block';
+        loadStudentList();
+    } else {
+        console.log('🚨 DEBUG: studentViewModal element not found!');
+    }
+}
+
+function closeStudentViewModal() {
+    console.log('🔍 DEBUG: closeStudentViewModal called');
+    const modal = document.getElementById('studentViewModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+async function loadStudentList() {
+    console.log('🔍 DEBUG: loadStudentList called');
+    const studentSelect = document.getElementById('studentSelect');
+    const studentRadio = document.getElementById('viewModeStudent');
+    
+    if (!studentSelect) {
+        console.log('🚨 DEBUG: studentSelect element not found!');
+        return;
+    }
+    
+    // Show loading state
+    studentSelect.innerHTML = '<option value="">Loading students...</option>';
+    
+    try {
+        const pathParts = window.location.pathname.split('/');
+        const classSlug = pathParts[1] || 'class_template';
+        console.log('🔍 DEBUG: Fetching roster for class:', classSlug);
+        
+        // Check if AuthClient is available and working
+        if (!window.AuthClient || !window.AuthClient.getRoster) {
+            throw new Error('AuthClient not available');
+        }
+        
+        // Set a timeout for the API call
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('API timeout')), 10000); // 10 second timeout
+        });
+        
+        const rosterPromise = window.AuthClient.getRoster(classSlug);
+        const rosterData = await Promise.race([rosterPromise, timeoutPromise]);
+        
+        const students = rosterData.members?.filter(m => m.role === 'student') || [];
+        console.log('🔍 DEBUG: Found students:', students.length);
+        
+        studentSelect.innerHTML = '<option value="">Select a student...</option>';
+        students.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.user_id;
+            option.textContent = `${student.full_name || student.github_username || 'Unknown'} (@${student.github_username || 'unknown'})`;
+            studentSelect.appendChild(option);
+        });
+        
+        // Add success message if we got real data
+        if (students.length === 0) {
+            const option = document.createElement('option');
+            option.value = "";
+            option.textContent = "No students enrolled yet";
+            studentSelect.appendChild(option);
+        }
+        
+    } catch (error) {
+        console.error('🚨 DEBUG: Failed to load student list:', error);
+        console.log('🔶 DEBUG: Loading mock student data for testing');
+        
+        // Load mock data for testing when API is down
+        const mockStudents = [
+            { user_id: 'mock-student-1', full_name: 'Alice Johnson', github_username: 'alice_j' },
+            { user_id: 'mock-student-2', full_name: 'Bob Smith', github_username: 'bob_smith' },
+            { user_id: 'mock-student-3', full_name: 'Carol Davis', github_username: 'carol_d' }
+        ];
+        
+        studentSelect.innerHTML = '<option value="">⚠️ API Unavailable - Using Test Data</option>';
+        mockStudents.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.user_id;
+            option.textContent = `${student.full_name} (@${student.github_username}) [MOCK]`;
+            studentSelect.appendChild(option);
+        });
+        
+        // Add explanation option
+        const infoOption = document.createElement('option');
+        infoOption.value = '';
+        infoOption.disabled = true;
+        infoOption.textContent = '--- API connection issue, using test data ---';
+        studentSelect.appendChild(infoOption);
+    }
+    
+    // Setup radio button handlers (only add once)
+    if (studentRadio && !studentRadio.hasEventListener) {
+        studentRadio.addEventListener('change', function() {
+            studentSelect.disabled = !this.checked;
+        });
+        studentRadio.hasEventListener = true;
+    }
+    
+    const selfRadio = document.getElementById('viewModeSelf');
+    if (selfRadio && !selfRadio.hasEventListener) {
+        selfRadio.addEventListener('change', function() {
+            studentSelect.disabled = !document.getElementById('viewModeStudent').checked;
+        });
+        selfRadio.hasEventListener = true;
+    }
+}
+
+function confirmStudentView() {
+    console.log('🔍 DEBUG: confirmStudentView called');
+    const viewMode = document.querySelector('input[name="viewMode"]:checked')?.value;
+    const selectedStudent = document.getElementById('studentSelect')?.value;
+    
+    console.log('🔍 DEBUG: View mode:', viewMode);
+    console.log('🔍 DEBUG: Selected student:', selectedStudent);
+    
+    if (viewMode === 'student' && !selectedStudent) {
+        alert('Please select a student to debug.');
+        return;
+    }
+    
+    initiateProfessorDebugMode(viewMode, selectedStudent);
+}
+
+function initiateProfessorDebugMode(targetMode, targetStudent = null) {
+    console.log('🔍 DEBUG: initiateProfessorDebugMode called with:', targetMode, targetStudent);
+    
+    // Check if we can verify professor status
+    const hasAuthContext = window.authState?.userContext;
+    const isProfessor = hasAuthContext?.is_professor;
+    const isApiDown = !hasAuthContext && window.authState?.isAuthenticated;
+    
+    console.log('🔍 DEBUG: Auth context available:', !!hasAuthContext);
+    console.log('🔍 DEBUG: Is professor:', isProfessor);
+    console.log('🔍 DEBUG: API appears down:', isApiDown);
+    
+    // If we can verify and user is NOT a professor, block access
+    if (hasAuthContext && !isProfessor) {
+        console.log('🚨 DEBUG: Confirmed non-professor access attempt');
+        alert('Unauthorized: Only professors can access debug mode');
+        return;
+    }
+    
+    // If API is down but user is authenticated, show warning but allow access
+    let professorId = 'unknown';
+    let classId = 'unknown';
+    
+    if (hasAuthContext) {
+        professorId = hasAuthContext.user_id;
+        classId = hasAuthContext.class_id;
+    } else if (isApiDown) {
+        console.log('🔶 DEBUG: API down - allowing access with mock data');
+        // Show warning about offline mode
+        const proceedOffline = confirm(
+            '⚠️ API Connection Issue Detected\n\n' +
+            'The class API is currently unavailable, but you appear to be authenticated.\n' +
+            'This means professor verification cannot be completed.\n\n' +
+            'Would you like to proceed in TESTING MODE?\n' +
+            '(This should only be used for development/testing purposes)'
+        );
+        
+        if (!proceedOffline) {
+            console.log('🔍 DEBUG: User declined offline mode');
+            return;
+        }
+        
+        professorId = window.authState?.user?.id || 'mock-professor';
+        classId = 'mock-class-id';
+    } else {
+        console.log('🚨 DEBUG: No authentication available');
+        alert('Authentication required: Please log in first');
+        return;
+    }
+    
+    // Create debug session (with real or mock data)
+    const debugSession = {
+        mode: targetMode,
+        target_student_id: targetStudent,
+        initiated_at: new Date().toISOString(),
+        professor_id: professorId,
+        class_id: classId,
+        expires_at: new Date(Date.now() + 3600000).toISOString(), // 1 hour
+        offline_mode: !hasAuthContext && isApiDown
+    };
+    
+    console.log('🔍 DEBUG: Created debug session:', debugSession);
+    
+    // Store in sessionStorage (expires on tab close)
+    sessionStorage.setItem('professor_debug_session', JSON.stringify(debugSession));
+    
+    // Navigate to student dashboard
+    const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
+    const targetUrl = `${baseUrl}/student-dashboard/`;
+    console.log('🔍 DEBUG: Navigating to:', targetUrl);
+    window.location.href = targetUrl;
+}
+
+/**
+ * API Status Checking Functions
+ */
+async function checkApiStatus() {
+    console.log('🔍 DEBUG: checkApiStatus called');
+    const statusEl = document.getElementById('apiStatusContent');
+    
+    if (!statusEl) {
+        console.log('🚨 DEBUG: apiStatusContent element not found');
+        return;
+    }
+    
+    try {
+        // Check if basic auth components are available
+        if (!window.AuthClient) {
+            throw new Error('AuthClient not loaded');
+        }
+        
+        // Quick ping to the /me endpoint with short timeout
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout')), 5000); // 5 second timeout
+        });
+        
+        const pathParts = window.location.pathname.split('/');
+        const classSlug = pathParts[1] || 'class_template';
+        
+        const apiPromise = window.AuthClient.getMe(classSlug);
+        await Promise.race([apiPromise, timeoutPromise]);
+        
+        // If we get here, API is working
+        console.log('✅ API is responding');
+        statusEl.innerHTML = `
+            <div style="padding: 0.5rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; color: #155724;">
+                <span style="margin-right: 0.5rem;">✅</span>
+                <strong>API Status:</strong> Connected and responding
+                <small style="margin-left: 1rem; opacity: 0.8;">All features available</small>
+            </div>
+        `;
+        
+    } catch (error) {
+        console.log('🔶 API check failed:', error.message);
+        
+        // API is down or timing out
+        statusEl.innerHTML = `
+            <div style="padding: 0.5rem; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; color: #856404;">
+                <span style="margin-right: 0.5rem;">⚠️</span>
+                <strong>API Status:</strong> Connection issues detected
+                <small style="margin-left: 1rem; opacity: 0.8;">Using offline/test mode - Limited functionality</small>
+                <button onclick="checkApiStatus()" style="margin-left: 1rem; padding: 0.2rem 0.5rem; font-size: 0.8rem;">🔄 Retry</button>
+            </div>
+        `;
+    }
+}
+
 // Dashboard Authentication and Role-Based UI
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📊 Dashboard page loaded');
+    console.log('🔍 DEBUG: window.authState exists?', !!window.authState);
+    console.log('🔍 DEBUG: window.AuthClient exists?', !!window.AuthClient);
+    console.log('🔍 DEBUG: window.FrameworkConfig exists?', !!window.FrameworkConfig);
     
     // Wait for auth state to be ready
     setTimeout(() => {
+        console.log('🔍 DEBUG: After timeout - authState:', window.authState);
+        console.log('🔍 DEBUG: After timeout - isAuthenticated:', window.authState?.isAuthenticated);
+        
         // Check authentication status
         if (!window.authState || !window.authState.isAuthenticated) {
             console.warn('🚫 Unauthorized access to dashboard - redirecting to login');
+            console.log('🔍 DEBUG: Redirecting due to auth failure');
             // Use the base URL from auth config to ensure proper routing
             const baseUrl = window.authConfig?.base_url || '';
             const homeUrl = new URL('./', window.location.origin + baseUrl).toString();
@@ -140,7 +440,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         console.log('✅ User authenticated, setting up dashboard');
+        console.log('🔍 DEBUG: About to call initializeDashboard()');
         initializeDashboard();
+        
+        // Check API status in parallel
+        setTimeout(checkApiStatus, 1000);
+        
     }, 500);
     
     // Listen for auth state changes
@@ -156,24 +461,34 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize dashboard with user context
  */
 function initializeDashboard() {
+    console.log('🔍 DEBUG: initializeDashboard() called');
     const userContext = window.authState?.userContext;
     const user = window.authState?.user;
     
     console.log('📋 Initializing dashboard with context:', userContext);
+    console.log('🔍 DEBUG: User object:', user);
+    console.log('🔍 DEBUG: UserContext exists?', !!userContext);
+    console.log('🔍 DEBUG: UserContext role:', userContext?.role);
+    console.log('🔍 DEBUG: UserContext is_professor:', userContext?.is_professor);
     
     // Update user context display
     updateUserContextDisplay(user, userContext);
     
     if (userContext) {
+        console.log('🔍 DEBUG: UserContext exists, setting up role-based tools');
         // Show role-based tools based on user context
         showRoleBasedTools(userContext);
+        console.log('🔍 DEBUG: About to call setupRoleSpecificHandlers');
         setupRoleSpecificHandlers(userContext);
     } else {
         // Try to fetch user context if not available
         console.log('🔄 User context not available, attempting to fetch...');
+        console.log('🔍 DEBUG: window.AuthClient exists?', !!window.AuthClient);
         if (window.AuthClient) {
+            console.log('🔍 DEBUG: Calling fetchAndDisplayUserContext()');
             fetchAndDisplayUserContext();
         } else {
+            console.log('🔍 DEBUG: AuthClient not available, showing error');
             showErrorSection('AuthClient not available');
         }
     }
@@ -243,12 +558,22 @@ function hideAllSections() {
  * Setup event handlers for role-specific buttons
  */
 function setupRoleSpecificHandlers(userContext) {
+    console.log('🔍 DEBUG: setupRoleSpecificHandlers() called with:', userContext);
+    console.log('🔍 DEBUG: Role check - is professor?', userContext.role === 'professor');
+    console.log('🔍 DEBUG: Role check - is student?', userContext.role === 'student');
+    console.log('🔍 DEBUG: Role check - is member?', userContext.is_member);
+    
     if (userContext.role === 'professor') {
+        console.log('🔍 DEBUG: Setting up professor handlers');
         setupProfessorHandlers();
     } else if (userContext.role === 'student' && userContext.is_member) {
+        console.log('🔍 DEBUG: Setting up student handlers');
         setupStudentHandlers();
     } else if (!userContext.is_member) {
+        console.log('🔍 DEBUG: Setting up enrollment handlers');
         setupEnrollmentHandlers();
+    } else {
+        console.log('🔍 DEBUG: No matching role condition, userContext:', userContext);
     }
     
     // Setup retry button
@@ -265,10 +590,18 @@ function setupRoleSpecificHandlers(userContext) {
  * Setup professor-specific button handlers
  */
 function setupProfessorHandlers() {
+    console.log('🔍 DEBUG: setupProfessorHandlers() called');
+    
     const generateTokenBtn = document.getElementById('generateTokenBtn');
     const viewStudentsBtn = document.getElementById('viewStudentsBtn');
     const manageTokensBtn = document.getElementById('manageTokensBtn');
     const uploadFilesBtn = document.getElementById('uploadFilesBtn');
+    
+    console.log('🔍 DEBUG: Button elements found:');
+    console.log('  - generateTokenBtn:', !!generateTokenBtn);
+    console.log('  - viewStudentsBtn:', !!viewStudentsBtn);
+    console.log('  - manageTokensBtn:', !!manageTokensBtn);
+    console.log('  - uploadFilesBtn:', !!uploadFilesBtn);
     
     if (generateTokenBtn) {
         generateTokenBtn.onclick = async () => {
@@ -428,6 +761,38 @@ function setupProfessorHandlers() {
             const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
             window.location.href = `${baseUrl}/upload/`;
         };
+    }
+    
+    // Student Dashboard Access Button
+    console.log('🔍 DEBUG: Setting up viewAsStudentBtn handler');
+    const viewAsStudentBtn = document.getElementById('viewAsStudentBtn');
+    console.log('🔍 DEBUG: viewAsStudentBtn element found:', !!viewAsStudentBtn);
+    console.log('🔍 DEBUG: viewAsStudentBtn element:', viewAsStudentBtn);
+    
+    if (viewAsStudentBtn) {
+        console.log('🔍 DEBUG: Attaching onclick handler to viewAsStudentBtn');
+        viewAsStudentBtn.onclick = () => {
+            console.log('🔍 DEBUG: viewAsStudentBtn clicked!');
+            console.log('🔍 DEBUG: openStudentViewModal function exists?', typeof openStudentViewModal);
+            openStudentViewModal();
+        };
+        console.log('🔍 DEBUG: viewAsStudentBtn onclick handler attached successfully');
+    } else {
+        console.log('🚨 DEBUG: viewAsStudentBtn element NOT FOUND!');
+        // Add error recovery - try to find button after a delay
+        setTimeout(() => {
+            console.log('🔍 DEBUG: Retry finding viewAsStudentBtn after delay');
+            const retryBtn = document.getElementById('viewAsStudentBtn');
+            if (retryBtn) {
+                console.log('🔍 DEBUG: Found viewAsStudentBtn on retry, attaching handler');
+                retryBtn.onclick = () => {
+                    console.log('🔍 DEBUG: viewAsStudentBtn clicked (retry handler)!');
+                    openStudentViewModal();
+                };
+            } else {
+                console.log('🚨 DEBUG: viewAsStudentBtn still not found after retry');
+            }
+        }, 1000);
     }
     
 }
@@ -620,6 +985,29 @@ async function fetchAndDisplayUserContext() {
         
     } catch (error) {
         console.error('❌ Failed to fetch user context:', error);
+        console.log('🔍 DEBUG: Context fetch failed, attempting basic button setup anyway');
+        
+        // Even if context fetch fails, try to set up basic handlers
+        // This provides fallback functionality when auth is working but context API fails
+        if (window.authState?.isAuthenticated) {
+            console.log('🔍 DEBUG: User is authenticated, setting up fallback handlers');
+            
+            // Try to set up professor handlers if user seems to be authenticated
+            // The button will still have the onclick attribute as backup
+            const viewAsStudentBtn = document.getElementById('viewAsStudentBtn');
+            if (viewAsStudentBtn && !viewAsStudentBtn.onclick) {
+                console.log('🔍 DEBUG: Setting up emergency fallback handler for viewAsStudentBtn');
+                viewAsStudentBtn.onclick = () => {
+                    console.log('🔍 DEBUG: Emergency fallback handler triggered');
+                    if (typeof openStudentViewModal === 'function') {
+                        openStudentViewModal();
+                    } else {
+                        alert('Modal functionality is not ready. Please refresh the page and try again.');
+                    }
+                };
+            }
+        }
+        
         showErrorSection(error.message);
     }
 }
@@ -1088,6 +1476,59 @@ window.debugTokenGeneration = async function() {
         return { error: error.message };
     }
 };
+
+// Global window.onclick handler for modal close (moved to global scope)
+window.onclick = function(event) {
+    const modal = document.getElementById('studentViewModal');
+    if (event.target === modal) {
+        closeStudentViewModal();
+    }
+};
 </script>
+
+<!-- Student Dashboard Access Modal -->
+<div id="studentViewModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🔍 Access Student Dashboard</h3>
+            <button class="modal-close" onclick="closeStudentViewModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Choose how you want to access the student dashboard:</p>
+            
+            <div class="view-mode-option">
+                <input type="radio" id="viewModeSelf" name="viewMode" value="self" checked>
+                <label for="viewModeSelf">
+                    <strong>👨‍🏫 View as yourself (Professor)</strong><br>
+                    <small>Test student interface with your professor data and test submissions</small>
+                </label>
+            </div>
+            
+            <div class="view-mode-option">
+                <input type="radio" id="viewModeStudent" name="viewMode" value="student">
+                <label for="viewModeStudent">
+                    <strong>🎓 Debug specific student</strong><br>
+                    <small>View dashboard as a student would see it (for debugging)</small>
+                </label>
+                <select id="studentSelect" disabled style="margin-top: 10px; width: 100%;">
+                    <option value="">Loading students...</option>
+                </select>
+            </div>
+            
+            <div class="security-notice">
+                <p><strong>🔒 Security Notice:</strong></p>
+                <ul>
+                    <li>This access will be logged for audit purposes</li>
+                    <li>Session expires in 1 hour</li>
+                    <li>Only class data you have permission to see</li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="confirmStudentView()" class="btn-primary">Proceed to Student Dashboard</button>
+            <button onclick="closeStudentViewModal()" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
 
 <!-- Dashboard styling is handled by evangelion theme components/dashboard.css -->

@@ -71,6 +71,10 @@ isPlainText = true
     source = "../framework/protected_pages/grading-sync"
     target = "content/grading-sync"
   
+  [[module.mounts]]
+    source = "../framework/protected_pages/student-dashboard"
+    target = "content/student-dashboard"
+  
   # Framework assets mounts - NEW: Use relative path to root-level framework
   [[module.mounts]]
     source = "{{ hugo.assets_path | default('../framework/assets') }}"
