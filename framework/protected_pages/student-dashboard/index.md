@@ -12,36 +12,93 @@ protected: true
 </div>
 
 <div id="studentDashboard">
-    <h2>Welcome, <span id="studentName">Student</span>!</h2>
-    
-<div class="dashboard-section">
-<h3>📊 Grade Summary</h3>
-<div id="gradeSummary">Loading grades...</div>
+<!-- Loading State -->
+<div id="loadingState">
+<div class="loading-message">
+<p>🔄 Loading your dashboard...</p>
+</div>
 </div>
 
-<div class="dashboard-section">
-<h3>📝 Recent Submissions</h3>
-<div id="recentSubmissions">Loading submissions...</div>
+<!-- Main Dashboard (hidden initially) -->
+<div id="dashboardContent" style="display: none;">
+
+<!-- Student Header -->
+<div class="dashboard-header">
+<h2>Welcome back, <span id="studentName">Student</span>!</h2>
+<p class="student-info">
+<span id="githubUsername"></span> | 
+<span id="className"></span>
+</p>
 </div>
 
-<div class="dashboard-section">
+<!-- Grade Overview Card -->
+<div class="dashboard-section grade-overview">
+<h3>📊 Your Grade</h3>
+<div class="grade-display">
+<div class="overall-grade">
+<span class="grade-percentage" id="overallGrade">--</span>
+<span class="grade-label">Overall</span>
+</div>
+<div class="grade-stats">
+<div class="stat">
+<span id="gradedCount">0</span>
+<span>Graded</span>
+</div>
+<div class="stat">
+<span id="pendingCount">0</span>
+<span>Pending</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Upcoming Work -->
+<div class="dashboard-section upcoming-work">
+<h3>📌 Upcoming Assignments</h3>
+<div id="upcomingList" class="upcoming-list">
+<p>Loading assignments...</p>
+</div>
+</div>
+
+<!-- Recent Grades -->
+<div class="dashboard-section recent-grades">
+<h3>✅ Recent Grades</h3>
+<div id="recentGradesList" class="grades-list">
+<p>Loading recent grades...</p>
+</div>
+</div>
+
+<!-- Quick Actions -->
+<div class="dashboard-section quick-actions">
 <h3>⚡ Quick Actions</h3>
-<button onclick="window.location.href='{{ .Site.BaseURL }}upload/'">📤 Submit Assignment</button>
-<button onclick="window.location.href='{{ .Site.BaseURL }}my-grades/'">📊 View Detailed Grades</button>
-<button onclick="window.location.href='{{ .Site.BaseURL }}class_notes/'">📚 Class Notes</button>
+<div class="action-buttons">
+<button onclick="navigateToGrades()">📊 View All Grades</button>
+<button onclick="navigateToSubmit()">📤 Submit Assignment</button>
+<button onclick="navigateToNotes()">📚 Class Notes</button>
+</div>
+</div>
+</div>
+
+<!-- Error State -->
+<div id="errorState" style="display: none;">
+<div class="error-message">
+<h3>⚠️ Unable to Load Dashboard</h3>
+<p id="errorMessage"></p>
+<button onclick="window.location.reload()">🔄 Retry</button>
+</div>
 </div>
 </div>
 
 <script>
+// Main dashboard initialization
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit for auth state to be ready
     setTimeout(() => {
         initializeStudentDashboard();
-    }, 1000);
+    }, 500); // Small delay for auth state to be ready
 });
 
 async function initializeStudentDashboard() {
-    // Check for debug session
+    // Check for debug session first
     const debugSession = sessionStorage.getItem('professor_debug_session');
     let targetStudentId = null;
     
@@ -63,33 +120,53 @@ async function initializeStudentDashboard() {
         }
     }
     
-    // Load student data
-    await loadStudentData(targetStudentId);
+    try {
+        // Check authentication
+        if (!window.authState || !window.authState.isAuthenticated) {
+            showError('Please log in to view your dashboard');
+            return;
+        }
+        
+        // The framework's authState.client should already be initialized and authenticated
+        
+        // Load all dashboard data
+        await Promise.all([
+            loadStudentInfo(targetStudentId),
+            loadGradeOverview(targetStudentId),
+            loadUpcomingWork(),
+            loadRecentGrades(targetStudentId)
+        ]);
+        
+        // Show dashboard
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Dashboard initialization failed:', error);
+        showError(error.message);
+    }
 }
 
-async function loadStudentData(studentId) {
-    try {
-        // Check if required elements exist
-        const gradeSummaryEl = document.getElementById('gradeSummary');
-        const studentNameEl = document.getElementById('studentName');
-        const recentSubmissionsEl = document.getElementById('recentSubmissions');
-        
-        if (!gradeSummaryEl || !studentNameEl || !recentSubmissionsEl) {
-            console.error('Required DOM elements not found');
-            return;
-        }
+async function loadStudentInfo(targetStudentId) {
+    const user = window.authState?.user;
+    const userContext = window.authState?.userContext;
+    
+    if (user && userContext) {
+        document.getElementById('studentName').textContent = 
+            userContext.full_name || user.email?.split('@')[0] || 'Student';
+        document.getElementById('githubUsername').textContent = 
+            `@${userContext.github_username || 'unknown'}`;
+        document.getElementById('className').textContent = 
+            userContext.class_title || 'Class';
+    }
+}
 
-        // Check if we have a valid auth session
-        if (!window.authState || !window.authState.session || !window.authState.session.access_token) {
-            console.log('No auth session available, showing offline mode');
-            showOfflineMode();
-            return;
-        }
-        
-        // Build URL with student_id if provided
+async function loadGradeOverview(targetStudentId) {
+    try {
+        // Build URL with student_id if provided (for professor debug mode)
         let gradesUrl = 'https://levybxqsltedfjtnkntm.supabase.co/functions/v1/student-grades?level=module';
-        if (studentId) {
-            gradesUrl += `&student_id=${studentId}`;
+        if (targetStudentId) {
+            gradesUrl += `&student_id=${targetStudentId}`;
         }
         
         const response = await fetch(gradesUrl, {
@@ -101,92 +178,189 @@ async function loadStudentData(studentId) {
         
         if (response.ok) {
             const data = await response.json();
-            displayGradeSummary(data.summary);
+            updateGradeDisplay(data);
         } else {
-            console.log(`API request failed with status ${response.status}, showing offline mode`);
-            showOfflineMode();
+            console.warn('Failed to load grade overview:', response.status);
+            // Show default/empty state
+            updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
+        }
+    } catch (error) {
+        console.error('Failed to load grade overview:', error);
+        updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
+    }
+}
+
+async function loadUpcomingWork() {
+    try {
+        // Use the framework's authenticated Supabase client
+        if (!window.authState?.client) {
+            console.warn('Framework Supabase client not available');
+            document.getElementById('upcomingList').innerHTML = '<p>Unable to load upcoming assignments</p>';
             return;
         }
         
-        // Update student name
-        const userContext = window.authState?.userContext;
-        if (userContext) {
-            studentNameEl.textContent = 
-                userContext.full_name || userContext.github_username || 'Student';
+        const { data: items, error } = await window.authState.client
+            .from('items')
+            .select('id, title, points, due_date, constituent_slug')
+            .gt('due_date', new Date().toISOString())
+            .eq('is_current', true)
+            .order('due_date', { ascending: true })
+            .limit(5);
+        
+        if (!error && items) {
+            displayUpcomingWork(items);
+        } else {
+            console.warn('No upcoming items found or error:', error);
+            document.getElementById('upcomingList').innerHTML = '<p>No upcoming assignments found</p>';
+        }
+    } catch (error) {
+        console.error('Failed to load upcoming work:', error);
+        document.getElementById('upcomingList').innerHTML = '<p>Unable to load upcoming assignments</p>';
+    }
+}
+
+async function loadRecentGrades(targetStudentId) {
+    try {
+        // Use the framework's authenticated Supabase client
+        if (!window.authState?.client) {
+            console.warn('Framework Supabase client not available');
+            document.getElementById('recentGradesList').innerHTML = '<p>Unable to load recent grades</p>';
+            return;
         }
         
-        // Load recent submissions placeholder
-        recentSubmissionsEl.innerHTML = 
-            '<p>View your recent submissions in the <a href="{{ .Site.BaseURL }}my-grades/">grades page</a>.</p>';
+        const studentId = targetStudentId || window.authState?.user?.id;
+        if (!studentId) {
+            document.getElementById('recentGradesList').innerHTML = '<p>Unable to determine student ID</p>';
+            return;
+        }
         
+        const { data: submissions, error } = await window.authState.client
+            .from('student_submissions')
+            .select(`
+                id,
+                item_id,
+                raw_score,
+                adjusted_score,
+                graded_at,
+                items!inner (title, points)
+            `)
+            .eq('student_id', studentId)
+            .not('graded_at', 'is', null)
+            .order('graded_at', { ascending: false })
+            .limit(5);
+        
+        if (!error && submissions) {
+            displayRecentGrades(submissions);
+        } else {
+            console.warn('No recent grades found or error:', error);
+            document.getElementById('recentGradesList').innerHTML = '<p>No graded items yet</p>';
+        }
     } catch (error) {
-        console.log('Failed to load student data, showing offline mode:', error.message);
-        showOfflineMode();
+        console.error('Failed to load recent grades:', error);
+        document.getElementById('recentGradesList').innerHTML = '<p>Unable to load recent grades</p>';
     }
 }
 
-function showOfflineMode() {
-    // Show mock data when offline
-    const studentNameEl = document.getElementById('studentName');
-    const gradeSummaryEl = document.getElementById('gradeSummary');
-    const recentSubmissionsEl = document.getElementById('recentSubmissions');
+function updateGradeDisplay(gradeData) {
+    const summary = gradeData.summary || {};
+    const grades = gradeData.grades || [];
     
-    if (studentNameEl) studentNameEl.textContent = 'Professor (Test Mode)';
+    // Update overall grade
+    const overallGrade = summary.average_score || 0;
+    const gradeEl = document.getElementById('overallGrade');
+    gradeEl.textContent = `${overallGrade.toFixed(1)}%`;
     
-    if (gradeSummaryEl) {
-        gradeSummaryEl.innerHTML = `
-            <div class="grade-widget">
-                <div class="grade-item">
-                    <span class="grade-label">Overall Grade:</span>
-                    <span class="grade-value">85.2%</span>
-                    <small style="display: block; color: #666; margin-top: 5px;">[Test Data - API Offline]</small>
+    // Apply color based on grade
+    if (overallGrade >= 90) gradeEl.style.color = 'var(--eva-green-primary)';
+    else if (overallGrade >= 80) gradeEl.style.color = 'var(--eva-cyan-primary)';
+    else if (overallGrade >= 70) gradeEl.style.color = 'var(--eva-yellow-primary)';
+    else gradeEl.style.color = 'var(--eva-red-accent)';
+    
+    // Update counts
+    document.getElementById('gradedCount').textContent = summary.total_grades || 0;
+    document.getElementById('pendingCount').textContent = 0; // Will calculate from submissions later
+}
+
+function displayUpcomingWork(items) {
+    const container = document.getElementById('upcomingList');
+    
+    if (items.length === 0) {
+        container.innerHTML = '<p>No upcoming assignments</p>';
+        return;
+    }
+    
+    container.innerHTML = items.map(item => {
+        const dueDate = new Date(item.due_date);
+        const daysUntil = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
+        const urgency = daysUntil <= 1 ? 'urgent' : daysUntil <= 3 ? 'soon' : '';
+        
+        return `
+            <div class="upcoming-item ${urgency}">
+                <div class="item-info">
+                    <strong>${item.title}</strong>
+                    <span class="points">${item.points} pts</span>
                 </div>
-                <div class="grade-item">
-                    <span class="grade-label">Graded Items:</span>
-                    <span class="grade-value">12</span>
-                    <small style="display: block; color: #666; margin-top: 5px;">[Test Data - API Offline]</small>
+                <div class="due-info">
+                    Due: ${dueDate.toLocaleDateString()}
+                    ${daysUntil === 0 ? '(Today!)' : daysUntil === 1 ? '(Tomorrow)' : `(${daysUntil} days)`}
                 </div>
             </div>
         `;
+    }).join('');
+}
+
+function displayRecentGrades(submissions) {
+    const container = document.getElementById('recentGradesList');
+    
+    if (submissions.length === 0) {
+        container.innerHTML = '<p>No graded items yet</p>';
+        return;
     }
     
-    if (recentSubmissionsEl) {
-        recentSubmissionsEl.innerHTML = `
-            <div style="background: #fff3cd; padding: 10px; border-radius: 4px; border: 1px solid #ffeaa7;">
-                <strong>⚠️ API Connection Issue</strong><br>
-                Showing test data. In a real environment, this would show your recent submissions.
+    container.innerHTML = submissions.map(sub => {
+        const score = sub.adjusted_score || sub.raw_score;
+        const maxPoints = sub.items?.points || 100;
+        const percentage = ((score / maxPoints) * 100).toFixed(1);
+        
+        return `
+            <div class="grade-item">
+                <div class="grade-info">
+                    <strong>${sub.items?.title || 'Unknown'}</strong>
+                    <span class="score">${score}/${maxPoints} (${percentage}%)</span>
+                </div>
+                <div class="grade-date">
+                    ${new Date(sub.graded_at).toLocaleDateString()}
+                </div>
             </div>
         `;
-    }
+    }).join('');
 }
 
-function showErrorState(errorMessage) {
-    const gradeSummaryEl = document.getElementById('gradeSummary');
-    if (gradeSummaryEl) {
-        gradeSummaryEl.innerHTML = `
-            <div class="error">
-                <p><strong>Unable to load grade data</strong></p>
-                <p>Error: ${errorMessage}</p>
-                <button onclick="window.location.reload()">🔄 Retry</button>
-            </div>
-        `;
-    }
+// Navigation functions
+function navigateToGrades() {
+    window.location.href = '{{ .Site.BaseURL }}my-grades/';
 }
 
-function displayGradeSummary(summary) {
-    const html = `
-        <div class="grade-widget">
-            <div class="grade-item">
-                <span class="grade-label">Overall Grade:</span>
-                <span class="grade-value">${summary?.average_score?.toFixed(1) || 'N/A'}%</span>
-            </div>
-            <div class="grade-item">
-                <span class="grade-label">Graded Items:</span>
-                <span class="grade-value">${summary?.total_grades || 0}</span>
-            </div>
-        </div>
-    `;
-    document.getElementById('gradeSummary').innerHTML = html;
+function navigateToSubmit() {
+    window.location.href = '{{ .Site.BaseURL }}upload/';
+}
+
+function navigateToNotes() {
+    window.location.href = '{{ .Site.BaseURL }}class_notes/';
+}
+
+function showError(message) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('dashboardContent').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+    document.getElementById('errorMessage').textContent = message;
+}
+
+// Keep existing debug mode functions
+function exitDebugMode() {
+    sessionStorage.removeItem('professor_debug_session');
+    const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/'));
+    window.location.href = `${baseUrl}/dashboard/`;
 }
 
 function exitDebugMode() {

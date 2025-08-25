@@ -76,40 +76,81 @@ serve(async (req) => {
       // Set target student (professors can specify, students default to self)
       const studentId = targetStudentId || user.id
 
-      // Build query based on grade level
-      let query = supabaseClient
-        .from('student_grades_cache')
-        .select(`
-          *,
-          modules (name, color, icon),
-          constituents (name, type),
-          items (title, due_date)
-        `)
-        .eq('student_id', studentId)
-        .eq('class_id', class_id)
-        .eq('grade_level', gradeLevel)
-        .order('computed_at', { ascending: false })
+      // Calculate grades on-the-fly using SQL functions
+      let grades = []
+      let gradesError = null
 
-      const { data: grades, error: gradesError } = await query
+      try {
+        if (gradeLevel === 'item') {
+          const { data, error } = await supabaseClient
+            .rpc('get_item_grades', {
+              p_student_id: studentId,
+              p_class_id: class_id
+            })
+          grades = data || []
+          gradesError = error
+        } else if (gradeLevel === 'constituent') {
+          const { data, error } = await supabaseClient
+            .rpc('calculate_constituent_grades', {
+              p_student_id: studentId,
+              p_class_id: class_id
+            })
+          grades = data || []
+          gradesError = error
+        } else { // module level
+          const { data, error } = await supabaseClient
+            .rpc('calculate_module_grades', {
+              p_student_id: studentId,
+              p_class_id: class_id
+            })
+          grades = data || []
+          gradesError = error
+        }
 
-      if (gradesError) {
-        throw gradesError
+        if (gradesError) {
+          throw gradesError
+        }
+      } catch (error) {
+        console.error('Error calculating grades:', error)
+        throw new Error(`Failed to calculate ${gradeLevel} grades: ${error.message}`)
       }
 
-      // Calculate summary statistics
-      const summary = {
-        total_grades: grades.length,
-        average_score: grades.length > 0 ? 
-          grades.reduce((sum, g) => sum + (g.final_score || 0), 0) / grades.length : 0,
+      // Get summary statistics using SQL function
+      let summary = {
+        total_grades: 0,
+        average_score: 0,
         grade_distribution: {},
-        last_updated: grades.length > 0 ? grades[0].computed_at : null
+        last_updated: null
       }
 
-      // Count letter grades
-      grades.forEach(grade => {
-        const letter = grade.letter_grade || 'N/A'
-        summary.grade_distribution[letter] = (summary.grade_distribution[letter] || 0) + 1
-      })
+      try {
+        const { data: summaryData, error: summaryError } = await supabaseClient
+          .rpc('calculate_grade_summary', {
+            p_student_id: studentId,
+            p_class_id: class_id,
+            p_grade_level: gradeLevel
+          })
+
+        if (!summaryError && summaryData) {
+          summary = {
+            total_grades: summaryData.total_grades || 0,
+            average_score: summaryData.average_score || 0,
+            grade_distribution: summaryData.grade_distribution || {},
+            last_updated: summaryData.last_updated || null
+          }
+        }
+      } catch (error) {
+        console.error('Error calculating summary:', error)
+        // Continue with empty summary rather than failing
+      }
+
+      // Add cache headers for performance
+      const cacheHeaders = {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'private, max-age=300', // 5 minutes
+        'ETag': `"${studentId}-${gradeLevel}-${summary.last_updated || 'empty'}"`
+      }
 
       return new Response(
         JSON.stringify({
@@ -123,7 +164,7 @@ serve(async (req) => {
             grade_level: gradeLevel
           }
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: cacheHeaders }
       )
     }
 
