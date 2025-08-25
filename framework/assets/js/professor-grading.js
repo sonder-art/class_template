@@ -17,6 +17,8 @@ class ProfessorGradingInterface {
         this.currentSubmission = null;
         this.filterMode = null; // 'student' or 'item' or null
         this.filterValue = null; // student_id or item_id
+        this.selectedItemId = null; // Track which item is selected for detail view
+        this.itemViewMode = 'list'; // 'list' or 'detail' - controls what renderItemsView shows
         
         // Initialize asynchronously to handle auth waiting
         this.init().catch(error => {
@@ -175,14 +177,13 @@ class ProfessorGradingInterface {
                 }
             })(),
             
-            // Load class members (simplified query to avoid 400 errors)
+            // Load class members (all roles - including professors who might submit)
             (async () => {
                 try {
                     return await this.supabase
                         .from('class_members')
                         .select('*')
-                        .eq('class_id', this.classId)
-                        .eq('role', 'student');
+                        .eq('class_id', this.classId);
                 } catch (e) {
                     console.warn('⚠️ Failed to load students:', e);
                     return { data: [] };
@@ -191,8 +192,10 @@ class ProfessorGradingInterface {
             
             // Load modules from JSON (build-time data)
             (() => {
-                const modulesUrl = `${window.location.origin}${window.authConfig?.base_url || ''}/data/modules.json`;
+                // Use hardcoded path to ensure it works
+                const modulesUrl = '/class_template/data/modules.json';
                 console.log('🔍 Debug - Loading modules from:', modulesUrl);
+                console.log('🔍 Debug - window.authConfig:', window.authConfig);
                 return fetch(modulesUrl)
                     .then(r => {
                         console.log('🔍 Debug - Modules response status:', r.status, r.ok);
@@ -207,8 +210,10 @@ class ProfessorGradingInterface {
             
             // Load constituents from JSON (build-time data)  
             (() => {
-                const constituentsUrl = `${window.location.origin}${window.authConfig?.base_url || ''}/data/constituents.json`;
+                // Use hardcoded path to ensure it works
+                const constituentsUrl = '/class_template/data/constituents.json';
                 console.log('🔍 Debug - Loading constituents from:', constituentsUrl);
+                console.log('🔍 Debug - window.authConfig:', window.authConfig);
                 return fetch(constituentsUrl)
                     .then(r => {
                         console.log('🔍 Debug - Constituents response status:', r.status, r.ok);
@@ -225,15 +230,57 @@ class ProfessorGradingInterface {
         // Process results
         this.items = itemsResult.data || [];
         this.submissions = submissionsResult.data || [];
-        this.students = studentsResult.data || [];
         
-        console.log('🔍 Debug - Raw modulesResult:', modulesResult);
-        console.log('🔍 Debug - Raw constituentsResult:', constituentsResult);
+        // Get all unique user IDs from both class members and actual submitters
+        const rawStudents = studentsResult.data || [];
+        const submitterIds = [...new Set(this.submissions.map(s => s.student_id))];
+        const memberIds = rawStudents.map(s => s.user_id);
+        const allUserIds = [...new Set([...memberIds, ...submitterIds])];
+        
+        
+        // Add current user as fallback if they're testing (like old code)
+        if (window.authState?.user?.id && !allUserIds.includes(window.authState.user.id)) {
+            console.log('🔄 Adding current user as fallback for testing:', window.authState.user.id);
+            allUserIds.push(window.authState.user.id);
+        }
+        
+        // Load profiles for ALL relevant users efficiently using .in() query (like old code)
+        let profiles = [];
+        if (allUserIds.length > 0) {
+            const profilesResult = await this.supabase
+                .from('profiles')
+                .select('*')
+                .in('user_id', allUserIds);
+            profiles = profilesResult.data || [];
+        }
+        
+        // Create unified students list that includes everyone who matters
+        this.students = allUserIds.map(userId => {
+            const member = rawStudents.find(m => m.user_id === userId);
+            const profile = profiles.find(p => p.user_id === userId);
+            return {
+                user_id: userId,
+                role: member?.role || 'submitter', // Could be student, professor, or just submitter
+                profile: profile || null,
+                ...member // Include any other member data
+            };
+        });
+        
         
         this.modules = modulesResult.modules || [];
         this.constituents = constituentsResult.constituents || [];
         
         console.log(`📈 Loaded: ${this.items.length} items, ${this.submissions.length} submissions, ${this.students.length} students, ${this.modules.length} modules, ${this.constituents.length} constituents`);
+        
+        // Debug submissions and their student IDs
+        if (this.submissions.length > 0) {
+            console.log('🔍 Submissions sample:', this.submissions.slice(0, 2));
+            const submissionStudentIds = [...new Set(this.submissions.map(s => s.student_id))];
+            console.log('🔍 Unique student IDs in submissions:', submissionStudentIds);
+            const studentUserIds = this.students.map(s => s.user_id);
+            console.log('🔍 User IDs in students array:', studentUserIds);
+            console.log('🔍 Missing student IDs:', submissionStudentIds.filter(id => !studentUserIds.includes(id)));
+        }
         console.log('🔍 Items sample:', this.items.slice(0, 2));
         console.log('🔍 Modules sample:', this.modules.slice(0, 2));
         console.log('🔍 Constituents sample:', this.constituents.slice(0, 2));
@@ -294,6 +341,32 @@ class ProfessorGradingInterface {
             }
         } catch (error) {
             console.error('❌ Error setting up modal listener:', error);
+        }
+        
+        // Event delegation for dynamically created View Submissions buttons
+        try {
+            document.addEventListener('click', (e) => {
+                // Handle student view submissions buttons
+                if (e.target.classList.contains('view-student-btn')) {
+                    e.preventDefault();
+                    const studentId = e.target.dataset.studentId;
+                    console.log('🔍 Student button clicked, studentId:', studentId);
+                    this.viewStudentSubmissions(studentId);
+                    return;
+                }
+                
+                // Handle item view submissions buttons
+                if (e.target.classList.contains('view-item-btn')) {
+                    e.preventDefault();
+                    const itemId = e.target.dataset.itemId;
+                    console.log('🔍 Item button clicked, itemId:', itemId);
+                    this.viewItemSubmissions(itemId);
+                    return;
+                }
+            });
+            console.log('✅ View Submissions button event delegation set up');
+        } catch (error) {
+            console.error('❌ Error setting up View Submissions event delegation:', error);
         }
         
         console.log('✅ Event listeners setup complete');
@@ -373,11 +446,20 @@ class ProfessorGradingInterface {
         const container = document.getElementById('pendingSubmissions');
         let pending = this.submissions.filter(s => !s.graded_at);
         
+        console.log('🔍 renderPendingSubmissions - total ungraded:', pending.length);
+        console.log('🔍 Filter mode:', this.filterMode, 'value:', this.filterValue);
+        
         // Apply filter if active
         if (this.filterMode === 'student' && this.filterValue) {
+            const beforeFilter = pending.length;
             pending = pending.filter(s => s.student_id === this.filterValue);
+            console.log('🔍 Student filter applied - before:', beforeFilter, 'after:', pending.length);
         } else if (this.filterMode === 'item' && this.filterValue) {
+            const beforeFilter = pending.length;
             pending = pending.filter(s => s.item_id === this.filterValue);
+            console.log('🔍 Item filter applied - before:', beforeFilter, 'after:', pending.length);
+        } else {
+            console.log('🔍 No filter applied');
         }
         
         if (pending.length === 0) {
@@ -447,11 +529,11 @@ class ProfessorGradingInterface {
             html += `
                 <div class="student-card">
                     <div class="student-header">
-                        <img src="${student.profiles?.avatar_url || '/default-avatar.png'}" 
+                        <img src="${student.profile?.avatar_url || '/default-avatar.png'}" 
                              class="student-avatar" alt="Avatar">
                         <div class="student-info">
-                            <h5>${student.profiles?.full_name || 'Unknown Student'}</h5>
-                            <p>@${student.profiles?.github_username || 'unknown'}</p>
+                            <h5>${student.profile?.full_name || 'Unknown Student'}</h5>
+                            <p>@${student.profile?.github_username || 'unknown'}</p>
                         </div>
                     </div>
                     <div class="student-stats">
@@ -459,7 +541,7 @@ class ProfessorGradingInterface {
                         <span class="stat graded">${graded} graded</span>
                     </div>
                     <button class="view-student-btn" 
-                            onclick="window.professorGrading.viewStudentSubmissions('${student.user_id}')">
+                            data-student-id="${student.user_id}">
                         View Submissions
                     </button>
                 </div>
@@ -483,6 +565,17 @@ class ProfessorGradingInterface {
             `;
             return;
         }
+        
+        // Switch between list view and detail view
+        if (this.itemViewMode === 'detail' && this.selectedItemId) {
+            this.renderItemDetailView(this.selectedItemId);
+        } else {
+            this.renderItemListView();
+        }
+    }
+    
+    renderItemListView() {
+        const container = document.getElementById('itemsView');
         
         // Group by module → constituent
         const grouped = this.groupItemsByHierarchy(this.items);
@@ -523,7 +616,7 @@ class ProfessorGradingInterface {
                                 <span class="stat graded">${graded} graded</span>
                             </div>
                             <button class="view-item-btn" 
-                                    onclick="window.professorGrading.viewItemSubmissions('${item.id}')">
+                                    data-item-id="${item.id}">
                                 View Submissions
                             </button>
                         </div>
@@ -538,6 +631,157 @@ class ProfessorGradingInterface {
             
             html += `</div>`;
         }
+        
+        container.innerHTML = html;
+    }
+    
+    renderItemDetailView(itemId) {
+        const container = document.getElementById('itemsView');
+        const item = this.items.find(i => i.id === itemId);
+        
+        if (!item) {
+            container.innerHTML = `
+                <div class="error-state">
+                    <h4>❌ Item not found</h4>
+                    <button class="back-btn" onclick="window.professorGrading.backToItemsList()">← Back to All Assignments</button>
+                </div>
+            `;
+            return;
+        }
+        
+        // Get all submissions for this item, then filter to latest version per student
+        const allSubmissions = this.submissions.filter(s => s.item_id === itemId);
+        
+        // Group by student_id and get only the latest attempt
+        const latestSubmissions = {};
+        allSubmissions.forEach(submission => {
+            const studentId = submission.student_id;
+            if (!latestSubmissions[studentId] || 
+                (submission.attempt_number || 1) > (latestSubmissions[studentId].attempt_number || 1)) {
+                latestSubmissions[studentId] = submission;
+            }
+        });
+        
+        // Convert back to array
+        const itemSubmissions = Object.values(latestSubmissions);
+        
+        console.log('🔍 Debug - All submissions for item:', allSubmissions.length);
+        console.log('🔍 Debug - Latest submissions only:', itemSubmissions.length);
+        const constituent = this.constituents.find(c => c.slug === item.constituent_slug);
+        const module = this.modules.find(m => m.id === constituent?.module_id);
+        
+        let html = `
+            <div class="item-detail-view">
+                <div class="item-detail-header">
+                    <div class="breadcrumb">
+                        <button class="back-btn" onclick="window.professorGrading.backToItemsList()">
+                            ← Back to All Assignments
+                        </button>
+                        <span class="breadcrumb-path">
+                            ${module?.name || 'Unknown Module'} > ${constituent?.name || 'Unknown Constituent'} > ${item.title}
+                        </span>
+                    </div>
+                    <div class="item-detail-info">
+                        <h2>${item.title}</h2>
+                        <div class="item-meta">
+                            <span class="item-points">📊 ${item.points} points</span>
+                            <span class="item-due">📅 Due: ${item.due_date ? new Date(item.due_date).toLocaleDateString() : 'No due date'}</span>
+                            <span class="item-type">🔖 ${item.delivery_type || 'Unknown'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="submissions-table-container">
+                    <h3>📋 Submissions (${itemSubmissions.length})</h3>
+        `;
+        
+        if (itemSubmissions.length === 0) {
+            html += `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <h4>No submissions yet</h4>
+                        <p>Students haven't submitted work for this assignment</p>
+                    </div>
+            `;
+        } else {
+            html += `
+                    <table class="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>GitHub</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Grade</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            // Sort submissions: pending first, then by submission date
+            const sortedSubmissions = itemSubmissions.sort((a, b) => {
+                if (!a.graded_at && b.graded_at) return -1;
+                if (a.graded_at && !b.graded_at) return 1;
+                return new Date(b.submitted_at || 0) - new Date(a.submitted_at || 0);
+            });
+            
+            sortedSubmissions.forEach(submission => {
+                let student = this.students.find(s => s.user_id === submission.student_id);
+                
+                // Fallback: if student not found, create placeholder
+                if (!student) {
+                    console.log('⚠️ Student not found for submission, creating fallback:', submission.student_id);
+                    student = {
+                        user_id: submission.student_id,
+                        role: 'unknown',
+                        profile: {
+                            full_name: `User ${submission.student_id.substring(0, 8)}...`,
+                            github_username: `user_${submission.student_id.substring(0, 8)}`,
+                            avatar_url: '/default-avatar.png'
+                        }
+                    };
+                }
+                
+                const submittedDate = submission.submitted_at ? 
+                    new Date(submission.submitted_at).toLocaleDateString() : 'Not submitted';
+                const isGraded = !!submission.graded_at;
+                const grade = submission.adjusted_score || submission.raw_score || '--';
+                
+                
+                const githubUsername = student?.profile?.github_username || 'unknown';
+                
+                html += `
+                            <tr class="${isGraded ? 'graded' : 'pending'}">
+                                <td class="github-cell">@${githubUsername}</td>
+                                <td class="date-cell">${submittedDate}</td>
+                                <td class="status-cell">
+                                    <span class="status ${isGraded ? 'graded' : 'pending'}">
+                                        ${isGraded ? '✅ Graded' : '⏳ Pending'}
+                                    </span>
+                                </td>
+                                <td class="grade-cell">
+                                    ${isGraded ? `<span class="grade">${grade}/${item.points}</span>` : '--'}
+                                </td>
+                                <td class="actions-cell">
+                                    <button class="grade-btn ${isGraded ? 'regrade' : 'grade'}" 
+                                            onclick="window.professorGrading.openGradingModal('${submission.id}')">
+                                        ${isGraded ? '🔄 Regrade' : '📝 Grade'}
+                                    </button>
+                                </td>
+                            </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+            `;
+        }
+        
+        html += `
+                </div>
+            </div>
+        `;
         
         container.innerHTML = html;
     }
@@ -698,6 +942,15 @@ class ProfessorGradingInterface {
     }
 
     async submitGrade() {
+        console.log('🎯 Starting grade submission process...');
+        console.log('🔍 Auth State:', {
+            has_authState: !!window.authState,
+            has_session: !!window.authState?.session,
+            has_user: !!window.authState?.user,
+            has_userContext: !!window.authState?.userContext,
+            userContext: window.authState?.userContext
+        });
+        
         const score = parseFloat(document.getElementById('gradeScore').value);
         const feedback = document.getElementById('gradeFeedback').value.trim();
         
@@ -713,41 +966,34 @@ class ProfessorGradingInterface {
         }
         
         try {
-            // Call the professor-grade-item Edge Function
-            const response = await fetch('https://levybxqsltedfjtnkntm.supabase.co/functions/v1/professor-grade-item', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${window.authState.session.access_token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    class_id: this.classId,
-                    repo_name: window.authState.userContext?.repo_name || 'class_template',
-                    submission_id: this.currentSubmission.id,
-                    grading_data: {
-                        raw_score: score,
-                        feedback: feedback || null
-                    }
-                })
-            });
-            
-            if (!response.ok) {
-                const error = await response.text();
-                throw new Error(`Grading failed: ${error}`);
-            }
-            
-            console.log('✅ Grade submitted successfully');
-            
-            // Update local data
-            const submissionIndex = this.submissions.findIndex(s => s.id === this.currentSubmission.id);
-            if (submissionIndex >= 0) {
-                this.submissions[submissionIndex] = {
-                    ...this.submissions[submissionIndex],
+            // Use direct Supabase update with RLS security
+            const { data: updatedSubmission, error } = await this.supabase
+                .from('student_submissions')
+                .update({
                     raw_score: score,
                     adjusted_score: score,
                     feedback: feedback || null,
                     graded_at: new Date().toISOString(),
                     grader_id: window.authState.user.id
+                })
+                .eq('id', this.currentSubmission.id)
+                .eq('class_id', this.classId)
+                .select()
+                .single();
+
+            if (error) {
+                console.error('❌ Grading failed:', error);
+                throw new Error(`Grading failed: ${error.message}`);
+            }
+            
+            console.log('✅ Grade submitted successfully');
+            
+            // Update local data with the returned data
+            const submissionIndex = this.submissions.findIndex(s => s.id === this.currentSubmission.id);
+            if (submissionIndex >= 0) {
+                this.submissions[submissionIndex] = {
+                    ...this.submissions[submissionIndex],
+                    ...updatedSubmission
                 };
             }
             
@@ -769,20 +1015,38 @@ class ProfessorGradingInterface {
 
     viewStudentSubmissions(studentId) {
         console.log('🔍 Viewing submissions for student:', studentId);
+        console.log('🔍 Total submissions before filter:', this.submissions.length);
+        
         this.filterMode = 'student';
         this.filterValue = studentId;
+        
+        console.log('🔍 Filter set - mode:', this.filterMode, 'value:', this.filterValue);
+        
         this.switchTab('pending');
         this.renderCurrentTab();
         this.addFilterIndicator(`Student: ${this.getStudentName(studentId)}`);
+        
+        console.log('🔍 viewStudentSubmissions complete');
     }
 
     viewItemSubmissions(itemId) {
         console.log('🔍 Viewing submissions for item:', itemId);
-        this.filterMode = 'item';
-        this.filterValue = itemId;
-        this.switchTab('pending');
-        this.renderCurrentTab();
-        this.addFilterIndicator(`Item: ${this.getItemName(itemId)}`);
+        console.log('🔍 Total submissions for item:', this.submissions.filter(s => s.item_id === itemId).length);
+        
+        // Switch to detail view mode instead of filtering pending tab
+        this.selectedItemId = itemId;
+        this.itemViewMode = 'detail';
+        
+        console.log('🔍 Item detail mode set - itemId:', this.selectedItemId, 'mode:', this.itemViewMode);
+        
+        // Stay in items tab but re-render to show detail view
+        if (this.currentTab !== 'items') {
+            this.switchTab('items');
+        } else {
+            this.renderCurrentTab();
+        }
+        
+        console.log('🔍 viewItemSubmissions complete - staying in items tab');
     }
     
     getStudentName(studentId) {
@@ -799,6 +1063,13 @@ class ProfessorGradingInterface {
         this.filterMode = null;
         this.filterValue = null;
         this.removeFilterIndicator();
+        this.renderCurrentTab();
+    }
+    
+    backToItemsList() {
+        console.log('🔍 Returning to items list view');
+        this.selectedItemId = null;
+        this.itemViewMode = 'list';
         this.renderCurrentTab();
     }
     
