@@ -231,6 +231,9 @@ class ProfessorGradingInterface {
         this.items = itemsResult.data || [];
         this.submissions = submissionsResult.data || [];
         
+        // Apply grade persistence logic in JavaScript
+        this.applyGradePersistence();
+        
         // Get all unique user IDs from both class members and actual submitters
         const rawStudents = studentsResult.data || [];
         const submitterIds = [...new Set(this.submissions.map(s => s.student_id))];
@@ -307,6 +310,51 @@ class ProfessorGradingInterface {
             console.error('❌ Error loading grading data:', error);
             throw error;
         }
+    }
+
+    applyGradePersistence() {
+        // Group submissions by student_id and item_id
+        const submissionGroups = {};
+        
+        this.submissions.forEach(submission => {
+            const key = `${submission.student_id}-${submission.item_id}`;
+            if (!submissionGroups[key]) {
+                submissionGroups[key] = [];
+            }
+            submissionGroups[key].push(submission);
+        });
+        
+        // For each group, apply grade persistence logic
+        Object.values(submissionGroups).forEach(group => {
+            if (group.length <= 1) return; // Single submission, no inheritance needed
+            
+            // Sort by attempt_number (descending to get latest first)
+            group.sort((a, b) => (b.attempt_number || 1) - (a.attempt_number || 1));
+            
+            // Find the most recent graded submission
+            const gradedSubmission = group.find(s => s.graded_at);
+            if (!gradedSubmission) return; // No graded submission found
+            
+            // Get the latest (highest attempt_number) submission
+            const latestSubmission = group[0];
+            
+            // If latest submission is not the graded one, inherit the grade
+            if (latestSubmission.id !== gradedSubmission.id) {
+                // Inherit grade data but preserve original submission data
+                latestSubmission.raw_score = gradedSubmission.raw_score;
+                latestSubmission.adjusted_score = gradedSubmission.adjusted_score;
+                latestSubmission.feedback = gradedSubmission.feedback;
+                latestSubmission.graded_at = gradedSubmission.graded_at;
+                latestSubmission.grader_id = gradedSubmission.grader_id;
+                latestSubmission.graded_attempt_number = gradedSubmission.attempt_number;
+                latestSubmission.has_newer_version = false; // This IS the newer version
+                
+                // Mark the graded submission as having a newer version
+                gradedSubmission.has_newer_version = true;
+                
+                console.log(`🔄 Grade inherited: ${latestSubmission.item_id} from attempt ${gradedSubmission.attempt_number} to ${latestSubmission.attempt_number}`);
+            }
+        });
     }
 
     setupEventListeners() {
@@ -746,6 +794,8 @@ class ProfessorGradingInterface {
                     new Date(submission.submitted_at).toLocaleDateString() : 'Not submitted';
                 const isGraded = !!submission.graded_at;
                 const grade = submission.adjusted_score || submission.raw_score || '--';
+                const hasNewerVersion = submission.has_newer_version || false;
+                const versionIndicator = hasNewerVersion ? ' 🔄' : '';
                 
                 
                 const githubUsername = student?.profile?.github_username || 'unknown';
@@ -756,11 +806,11 @@ class ProfessorGradingInterface {
                                 <td class="date-cell">${submittedDate}</td>
                                 <td class="status-cell">
                                     <span class="status ${isGraded ? 'graded' : 'pending'}">
-                                        ${isGraded ? '✅ Graded' : '⏳ Pending'}
+                                        ${isGraded ? `✅ Graded${versionIndicator}` : '⏳ Pending'}
                                     </span>
                                 </td>
                                 <td class="grade-cell">
-                                    ${isGraded ? `<span class="grade">${grade}/${item.points}</span>` : '--'}
+                                    ${isGraded ? `<span class="grade">${grade}/${item.points}${versionIndicator}</span>` : '--'}
                                 </td>
                                 <td class="actions-cell">
                                     <button class="grade-btn ${isGraded ? 'regrade' : 'grade'}" 
@@ -793,10 +843,13 @@ class ProfessorGradingInterface {
         const githubUsername = submission.profiles?.github_username || 'unknown';
         const submittedDate = new Date(submission.submitted_at).toLocaleDateString();
         
+        const hasNewerVersion = submission.has_newer_version || false;
+        const versionIndicator = hasNewerVersion ? ' 🔄 New version submitted' : '';
+        
         const gradeDisplay = isGraded ? `
             <div class="submission-grade">
                 <span class="grade-score">${submission.adjusted_score || submission.raw_score}/${item?.points || '?'}</span>
-                <small>Graded ${new Date(submission.graded_at).toLocaleDateString()}</small>
+                <small>Graded ${new Date(submission.graded_at).toLocaleDateString()}${versionIndicator}</small>
             </div>
         ` : `
             <button class="grade-btn" 
@@ -974,7 +1027,9 @@ class ProfessorGradingInterface {
                     adjusted_score: score,
                     feedback: feedback || null,
                     graded_at: new Date().toISOString(),
-                    grader_id: window.authState.user.id
+                    grader_id: window.authState.user.id,
+                    graded_attempt_number: this.currentSubmission.attempt_number,
+                    has_newer_version: false  // Reset since we're grading this version
                 })
                 .eq('id', this.currentSubmission.id)
                 .eq('class_id', this.classId)
