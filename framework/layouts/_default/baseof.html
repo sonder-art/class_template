@@ -83,6 +83,16 @@
         {{ if $enrollmentThemeCSS }}
             <link rel="stylesheet" href="{{ $enrollmentThemeCSS.RelPermalink }}">
         {{ end }}
+        
+        {{ $submissionThemeCSS := resources.Get "theme/components/submission-interface.css" }}
+        {{ if $submissionThemeCSS }}
+            <link rel="stylesheet" href="{{ $submissionThemeCSS.RelPermalink }}">
+        {{ end }}
+        
+        {{ $gradingSyncThemeCSS := resources.Get "theme/components/grading-sync.css" }}
+        {{ if $gradingSyncThemeCSS }}
+            <link rel="stylesheet" href="{{ $gradingSyncThemeCSS.RelPermalink }}">
+        {{ end }}
     {{ end }}
     
     <!-- External Libraries (Framework Dependencies) -->
@@ -279,6 +289,33 @@
     {{ if $supabaseAuthJS }}
         <script src="{{ $supabaseAuthJS.RelPermalink }}"></script>
     {{ end }}
+
+    <!-- Framework Configuration (Auto-generated class context) -->
+    <script src="{{ .Site.BaseURL }}js/framework-config.js"></script>
+
+    <!-- Grading System JavaScript (Students) -->
+    {{ $itemSubmissionJS := resources.Get "js/item-submission.js" }}
+    {{ if $itemSubmissionJS }}
+        <script src="{{ $itemSubmissionJS.RelPermalink }}"></script>
+    {{ end }}
+
+    <!-- Grading System JavaScript (Professors) -->
+    {{ $gradingJS := resources.Get "js/grading.js" }}
+    {{ if $gradingJS }}
+        <script src="{{ $gradingJS.RelPermalink }}"></script>
+    {{ end }}
+
+    <!-- Smart Upload Interface (Students) -->
+    {{ $smartUploadJS := resources.Get "js/smart-upload.js" }}
+    {{ if $smartUploadJS }}
+        <script src="{{ $smartUploadJS.RelPermalink }}"></script>
+    {{ end }}
+
+    <!-- Professor Grading Interface -->
+    {{ $professorGradingJS := resources.Get "js/professor-grading.js" }}
+    {{ if $professorGradingJS }}
+        <script src="{{ $professorGradingJS.RelPermalink }}"></script>
+    {{ end }}
     
     <script>
     // Auth Navigation Management
@@ -314,11 +351,15 @@
             console.log('🎯 Auth state changed event received:', event.detail);
             setTimeout(updateSidebarAuthNavigation, 100);
         });
+
+        // Also update when the detailed user context is loaded asynchronously
+        window.addEventListener('userContextLoaded', function(event) {
+            console.log('🧾 User context loaded event received:', event.detail);
+            setTimeout(updateSidebarAuthNavigation, 50);
+        });
         
-        // Initial setup when page loads - multiple attempts for reliability
-        setTimeout(updateSidebarAuthNavigation, 500);
-        setTimeout(updateSidebarAuthNavigation, 1000);
-        setTimeout(updateSidebarAuthNavigation, 2000);
+        // Initial setup when page loads
+        updateSidebarAuthNavigation();
         
         // Also listen for general auth events that might not trigger our custom event
         if (window.authState?.client) {
@@ -371,11 +412,17 @@
                 if (isLoading) {
                     userStatusText.textContent = '🔄 Loading...';
                 } else if (isAuthenticated && user) {
-                    const email = user.email || 'Unknown';
-                    const role = userContext?.role || 'Member';
-                    const isMember = userContext?.is_member === true;
-                    const status = isMember ? '✅' : '❌';
-                    userStatusText.textContent = `${status} ${email} (${role})`;
+                    // Wait for userContext to decide membership; avoid showing ❌ prematurely
+                    const githubUsername = user.user_metadata?.user_name || userContext?.github_username;
+                    const displayName = githubUsername || user.email || 'Unknown';
+                    if (userContext == null) {
+                        userStatusText.textContent = `🔄 ${displayName} (loading...)`;
+                    } else {
+                        const role = userContext?.role || 'Member';
+                        const isMember = userContext?.is_member === true;
+                        const status = isMember ? '✅' : '❌';
+                        userStatusText.textContent = `${status} ${displayName} (${role})`;
+                    }
                 } else {
                     userStatusText.textContent = '❌ Not logged in';
                 }
@@ -423,6 +470,63 @@
             console.error('Error updating navigation buttons:', error);
         }
     }
+    
+    // Page-specific JavaScript initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        const pathname = window.location.pathname;
+        
+        // Initialize Smart Upload on upload page
+        if (pathname.includes('/upload/')) {
+            if (typeof SmartUploadManager !== 'undefined') {
+                setTimeout(() => {
+                    window.smartUpload = new SmartUploadManager();
+                }, 500);
+            }
+        }
+        
+        // Initialize Professor Grading on grading page
+        if (pathname.includes('/grading/') && !pathname.includes('/grading-sync/')) {
+            console.log('🎯 On grading page, checking for ProfessorGradingInterface...');
+            
+            // Wait for all scripts to load with multiple attempts
+            let attempts = 0;
+            const maxAttempts = 10;
+            
+            const tryInit = () => {
+                attempts++;
+                console.log(`🔄 Attempt ${attempts}: ProfessorGradingInterface available:`, typeof ProfessorGradingInterface !== 'undefined');
+                
+                if (typeof ProfessorGradingInterface !== 'undefined') {
+                    console.log('🎯 Initializing ProfessorGradingInterface...');
+                    console.log('🔍 Auth state at init time:', window.authState);
+                    
+                    // Add delay to ensure auth system is fully initialized
+                    setTimeout(() => {
+                        try {
+                            window.professorGrading = new ProfessorGradingInterface();
+                            console.log('✅ ProfessorGradingInterface initialized successfully');
+                        } catch (error) {
+                            console.error('❌ Error initializing ProfessorGradingInterface:', error);
+                            document.getElementById('loadingState').style.display = 'none';
+                            document.getElementById('errorState').style.display = 'block';
+                            document.getElementById('errorMessage').textContent = `Initialization error: ${error.message}`;
+                        }
+                    }, 2000); // 2 second delay to allow auth to fully initialize
+                } else if (attempts < maxAttempts) {
+                    console.log(`⏳ Waiting for ProfessorGradingInterface... (attempt ${attempts}/${maxAttempts})`);
+                    setTimeout(tryInit, 200);
+                } else {
+                    console.error('❌ ProfessorGradingInterface class not found after multiple attempts!');
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('errorState').style.display = 'block';
+                    document.getElementById('errorMessage').textContent = 'Failed to load grading interface';
+                }
+            };
+            
+            // Start trying immediately and also after a delay
+            tryInit();
+        }
+    });
     </script>
     {{ end }}
 

@@ -5,15 +5,16 @@
 course_name: "GitHub Class Template Example"
 course_code: "TMPL101"
 semester: "Template 2025"
+class_id: "df6b6665-d793-445d-8514-f1680ff77369"
 
 professor:
-  name: "Template Instructor"
-  email: "instructor@example.edu"
+  name: "uumami"
+  email: "uumami@sonder.art"
   office_hours: "By appointment"
   office_location: "Virtual"
 
 resources:
-  repository: "github.com/user/class_template"
+  repository: "https://github.com/sonder-art/class_template"
   shared_drive: ""
   syllabus: "syllabus.md"
   announcements_feed: "announcements.md"

@@ -1,95 +1,89 @@
 ---
-title: "Upload Files"
+title: "Submit Assignments"
 protected: true
 ---
 
-# 📤 Upload Files
+# 📤 Submit Assignments
 
-This is a protected upload area. You must be authenticated to access this section.
+View all course assignments and submit your work. Track your submission status and manage deadlines.
 
-## File Upload Interface
-
-<div id="uploadInterface">
-    <div class="upload-area">
-        <h3>📁 Drag & Drop Files Here</h3>
-        <p>Or click to browse files</p>
-        <input type="file" id="fileInput" multiple style="display: none;">
-        <button onclick="document.getElementById('fileInput').click()">Choose Files</button>
-    </div>
-    
-    <div id="uploadStatus" style="margin-top: 20px;"></div>
+<!-- Authentication check -->
+<div id="authCheck" style="display: none;">
+<div class="auth-error">
+<h3>🔐 Authentication Required</h3>
+<p>Please log in to submit assignments.</p>
+<button onclick="window.location.href='{{ .Site.BaseURL }}auth/login/'">Log In with GitHub</button>
+</div>
 </div>
 
-<script>
-// Authentication protection
-document.addEventListener('DOMContentLoaded', function() {
-    // Check authentication status
-    setTimeout(() => {
-        if (!window.authState || !window.authState.isAuthenticated) {
-            console.warn('🚫 Unauthorized access to protected page - redirecting to login');
-            window.location.href = window.authConfig?.logout_redirect || '/';
-            return;
-        }
-        
-        // Set up file upload interface if authenticated
-        const fileInput = document.getElementById('fileInput');
-        const uploadStatus = document.getElementById('uploadStatus');
-        
-        fileInput.addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            
-            if (files.length > 0) {
-                uploadStatus.innerHTML = `
-                    <div class="upload-preview">
-                        <h4>📋 Selected Files:</h4>
-                        <ul>
-                            ${files.map(file => `<li>${file.name} (${(file.size / 1024).toFixed(1)} KB)</li>`).join('')}
-                        </ul>
-                        <p><em>Note: This is a demo interface. Actual upload functionality would be implemented based on your backend requirements.</em></p>
-                    </div>
-                `;
-            }
-        });
-    }, 500);
-});
-</script>
+<!-- Loading state -->
+<div id="loadingState">
+<div class="loading-message">
+<p>🔄 Loading assignments...</p>
+</div>
+</div>
 
-<style>
-.upload-area {
-    border: 2px dashed #ccc;
-    border-radius: 10px;
-    padding: 40px;
-    text-align: center;
-    background: #f9f9f9;
-    margin: 20px 0;
-    transition: border-color 0.3s;
-}
+<!-- Main submissions interface -->
+<div id="submissionsInterface" style="display: none;">
 
-.upload-area:hover {
-    border-color: #007bff;
-    background: #f0f8ff;
-}
+<!-- Summary stats -->
+<div class="submissions-header">
+<div class="stats-summary" id="submissionStats">
+<div class="stat-item">
+<span class="stat-number" id="totalItems">--</span>
+<span class="stat-label">Total Items</span>
+</div>
+<div class="stat-item">
+<span class="stat-number" id="submittedItems">--</span>
+<span class="stat-label">Submitted</span>
+</div>
+<div class="stat-item">
+<span class="stat-number" id="pendingItems">--</span>
+<span class="stat-label">Pending</span>
+</div>
+<div class="stat-item">
+<span class="stat-number" id="overdueItems">--</span>
+<span class="stat-label">Overdue</span>
+</div>
+</div>
+</div>
 
-.upload-area button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-}
+<!-- Filters and search -->
+<div class="submissions-controls">
+<div class="control-group">
+<label for="moduleFilter">Module:</label>
+<select id="moduleFilter">
+<option value="all">All Modules</option>
+</select>
+</div>
+<div class="control-group">
+<label for="statusFilter">Status:</label>
+<select id="statusFilter">
+<option value="all">All Status</option>
+<option value="not_submitted">Not Submitted</option>
+<option value="submitted">Submitted</option>
+<option value="graded">Graded</option>
+<option value="overdue">Overdue</option>
+</select>
+</div>
+<div class="control-group">
+<input type="text" id="searchFilter" placeholder="🔍 Search assignments...">
+</div>
+</div>
 
-.upload-preview {
-    background: #e9ecef;
-    padding: 15px;
-    border-radius: 5px;
-    border-left: 4px solid #28a745;
-}
+<!-- Items list -->
+<div id="itemsList" class="items-list">
+<!-- Dynamically populated -->
+</div>
 
-.upload-preview ul {
-    text-align: left;
-    max-width: 400px;
-    margin: 10px auto;
-}
-</style>
+</div>
+
+<!-- Error state -->
+<div id="errorState" style="display: none;">
+<div class="error-message">
+<h3>⚠️ Unable to Load Assignments</h3>
+<p id="errorMessage"></p>
+<button onclick="window.location.reload()">🔄 Retry</button>
+</div>
+</div>
+

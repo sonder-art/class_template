@@ -1,0 +1,14 @@
+{{ define "main" }}
+<article class="grading-sync-page">
+    <header class="content-header">
+        <h1>{{ .Title }}</h1>
+    </header>
+    
+    <div class="content-body">
+        {{ .Content | safeHTML }}
+    </div>
+</article>
+
+<!-- Load grading sync JavaScript -->
+<script src="{{ .Site.BaseURL }}assets/js/grading-sync.js"></script>
+{{ end }}

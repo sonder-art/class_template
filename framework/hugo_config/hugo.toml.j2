@@ -59,6 +59,22 @@ isPlainText = true
     source = "../framework/protected_pages/upload"
     target = "content/upload"
   
+  [[module.mounts]]
+    source = "../framework/protected_pages/grading"
+    target = "content/grading"
+  
+  [[module.mounts]]
+    source = "../framework/protected_pages/my-grades"
+    target = "content/my-grades"
+  
+  [[module.mounts]]
+    source = "../framework/protected_pages/grading-sync"
+    target = "content/grading-sync"
+  
+  [[module.mounts]]
+    source = "../framework/protected_pages/student-dashboard"
+    target = "content/student-dashboard"
+  
   # Framework assets mounts - NEW: Use relative path to root-level framework
   [[module.mounts]]
     source = "{{ hugo.assets_path | default('../framework/assets') }}"
@@ -73,6 +89,16 @@ isPlainText = true
   [[module.mounts]]
     source = "../framework/assets/notebooks"
     target = "static/notebooks"
+  
+  # Generated static files (framework-config.js, etc.)
+  [[module.mounts]]
+    source = "../hugo_generated/static"
+    target = "static"
+  
+  # Generated data files (JSON for sync interface)
+  [[module.mounts]]
+    source = "../hugo_generated/data"
+    target = "static/data"
   
   [[module.mounts]]
     source = "../framework/css"

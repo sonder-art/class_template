@@ -249,3 +249,4 @@ hugo.toml
 .hugo_build.lock
 build.yml
 build copy.yml
+supabase/

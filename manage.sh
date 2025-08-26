@@ -275,7 +275,6 @@ if [[ $# -eq 0 ]]; then
     
     build_target=$(detect_build_target)
     if [[ "$build_target" == professor ]]; then
-        local prof_dir
         prof_dir=$(get_professor_directory)
         echo -e "   ${BLUE}→ Professor site ($prof_dir/)${NC}"
     else
