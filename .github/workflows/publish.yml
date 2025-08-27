@@ -1,0 +1,79 @@
+# GitHub Action to automatically build and deploy Hugo site
+# Class Template Framework deployment workflow
+
+name: Build and Deploy Hugo Site
+
+# Run this workflow when a push is made to the main branch
+on:
+  push:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets the permissions for the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest'
+          extended: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Make manage script executable
+        run: chmod +x manage.sh
+
+      - name: Build Hugo site with framework
+        run: |
+          echo "y" | ./manage.sh --build --deploy
+
+      - name: List generated files for debugging
+        run: |
+          echo "Contents of hugo_generated/public:"
+          ls -la hugo_generated/public/ || echo "hugo_generated/public not found"
+          find hugo_generated/ -type f -name "*.html" | head -5 || echo "No HTML files found"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: hugo_generated/public
+
+  # Deployment job
+  deploy:
+    # This job requires the build job to have completed successfully
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
