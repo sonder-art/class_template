@@ -1,11 +1,23 @@
 ---
 title: "Join Class"
-protected: true
 ---
 
 # 🎓 Join This Class
 
-Welcome! Use an enrollment token provided by your instructor to join this class.
+Welcome! To join this class, you'll need an enrollment token from your instructor.
+
+## How to Enroll
+
+1. **Get an enrollment token** from your instructor (format: XXXX-XXXX-XXXX-XXXX)
+2. **Login with GitHub** (required for class access)  
+3. **Enter your token** in the form below
+4. **Start learning!** Access class materials and submit assignments
+
+## Need Help?
+
+- **No token?** Contact your instructor: {{ .Site.Params.professor_name }} ({{ .Site.Params.professor_email }})
+- **Technical issues?** Make sure you're logged in with the GitHub account you want to use for this class
+- **Lost token?** Your instructor can generate a new one for you
 
 <!-- KEEP:START enrollment-content -->
 <div id="enrollmentStatus">
@@ -66,8 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         // Check authentication status
         if (!window.authState || !window.authState.isAuthenticated) {
-            console.warn('🚫 Unauthorized access to enrollment page - redirecting to login');
-            window.location.href = window.authConfig?.logout_redirect || '/';
+            console.log('🔐 User not authenticated, showing login prompt');
+            showLoginPrompt();
             return;
         }
         
@@ -75,6 +87,53 @@ document.addEventListener('DOMContentLoaded', function() {
         checkEnrollmentStatus();
     }, 500);
 });
+
+/**
+ * Show login prompt for unauthenticated users
+ */
+function showLoginPrompt() {
+    const statusEl = document.getElementById('enrollmentStatus');
+    const formEl = document.getElementById('enrollmentForm');
+    const enrolledEl = document.getElementById('alreadyEnrolled');
+    const errorEl = document.getElementById('enrollmentError');
+    
+    // Hide other sections
+    formEl.style.display = 'none';
+    enrolledEl.style.display = 'none';
+    errorEl.style.display = 'none';
+    
+    // Show login prompt
+    statusEl.innerHTML = `
+        <div class="enrollment-card">
+            <h3>🔐 Login Required</h3>
+            <p>To join this class, you need to login with your GitHub account first.</p>
+            <p>This allows us to:</p>
+            <ul style="text-align: left; margin: 1rem 0;">
+                <li>Verify your identity</li>
+                <li>Track your progress and submissions</li>
+                <li>Provide personalized access to class materials</li>
+            </ul>
+            <div class="form-actions">
+                <button onclick="loginAndReturnToEnroll()" class="btn-primary">
+                    🔐 Login with GitHub
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Login and return to enrollment
+ */
+function loginAndReturnToEnroll() {
+    if (window.supabaseAuth && window.supabaseAuth.login) {
+        // Store current page to return after login
+        sessionStorage.setItem('post_login_redirect', window.location.pathname + window.location.search);
+        window.supabaseAuth.login();
+    } else {
+        alert('Authentication system not ready. Please refresh the page and try again.');
+    }
+}
 
 /**
  * Check if user is already enrolled in this class

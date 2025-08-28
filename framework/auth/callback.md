@@ -126,13 +126,25 @@ async function handleAuthCallback() {
                     authSuccessEl.style.display = 'block';
                     
                     setTimeout(() => {
-                        // Determine where to redirect
+                        // Check for stored post-login redirect (from enrollment page)
+                        const storedRedirect = sessionStorage.getItem('post_login_redirect');
+                        if (storedRedirect) {
+                            sessionStorage.removeItem('post_login_redirect');
+                            console.log('Auth callback: Using stored redirect:', storedRedirect);
+                            const basePath = window.location.pathname.replace('/auth/callback/', '');
+                            const baseUrl = window.location.origin + basePath;
+                            const finalUrl = new URL(storedRedirect, baseUrl).toString();
+                            window.location.href = finalUrl;
+                            return;
+                        }
+                        
+                        // Determine where to redirect with smart defaults
                         let targetPath = redirectPath;
                         
                         // Validate the redirect path for security
                         if (!targetPath || !targetPath.startsWith('/') || targetPath.startsWith('//')) {
-                            // If no valid redirect path, use the homepage
-                            targetPath = '/';
+                            // Default: send to dashboard (which now shows appropriate view)
+                            targetPath = '/dashboard/';
                         }
                         
                         // Get the base path for the site
@@ -142,7 +154,7 @@ async function handleAuthCallback() {
                         // Build the final redirect URL
                         const finalUrl = new URL(targetPath, baseUrl).toString();
                         
-                        console.log('Auth callback: Redirecting to original page:', finalUrl);
+                        console.log('Auth callback: Redirecting to:', finalUrl);
                         window.location.href = finalUrl;
                     }, 1500);
                     
@@ -187,13 +199,25 @@ async function handleAuthCallback() {
             authStatusEl.style.display = 'none';
             authSuccessEl.style.display = 'block';
             
-            // Redirect to original page
+            // Redirect with smart routing
             setTimeout(() => {
+                // Check for stored post-login redirect first
+                const storedRedirect = sessionStorage.getItem('post_login_redirect');
+                if (storedRedirect) {
+                    sessionStorage.removeItem('post_login_redirect');
+                    console.log('Auth callback: Using stored redirect:', storedRedirect);
+                    const basePath = window.location.pathname.replace('/auth/callback/', '');
+                    const baseUrl = window.location.origin + basePath;
+                    const finalUrl = new URL(storedRedirect, baseUrl).toString();
+                    window.location.href = finalUrl;
+                    return;
+                }
+                
                 let targetPath = redirectPath;
                 
-                // Validate redirect path
+                // Validate redirect path with smart defaults
                 if (!targetPath || !targetPath.startsWith('/') || targetPath.startsWith('//')) {
-                    targetPath = '/';
+                    targetPath = '/dashboard/';
                 }
                 
                 const basePath = window.location.pathname.replace('/auth/callback/', '');
