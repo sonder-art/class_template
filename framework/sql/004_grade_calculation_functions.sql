@@ -51,22 +51,34 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 AS $$
+  -- Get only the most recent graded submission per item for accurate constituent scores
+  WITH latest_submissions AS (
+    SELECT DISTINCT ON (ss.item_id)
+      ss.item_id,
+      ss.adjusted_score,
+      ss.graded_at
+    FROM student_submissions ss
+    INNER JOIN items i ON i.id = ss.item_id
+    WHERE ss.student_id = p_student_id
+      AND ss.class_id = p_class_id
+      AND ss.graded_at IS NOT NULL
+      AND i.is_current = true
+    ORDER BY ss.item_id, ss.graded_at DESC
+  )
   SELECT 
     p_student_id as student_id,
     p_class_id as class_id,
     'constituent' as grade_level,
     c.id as constituent_id,
-    COALESCE(SUM(ss.adjusted_score), 0) as final_score,
+    COALESCE(SUM(ls.adjusted_score), 0) as final_score,
     COALESCE(SUM(i.points), 0) as max_points,
-    MAX(ss.graded_at) as computed_at,
+    MAX(ls.graded_at) as computed_at,
     jsonb_build_object('name', c.name, 'type', c.type) as constituents,
     jsonb_build_object('name', m.name, 'color', m.color, 'icon', m.icon) as modules
   FROM constituents c
   INNER JOIN modules m ON m.id = c.module_id
-  LEFT JOIN items i ON i.constituent_slug = c.slug AND i.class_id = p_class_id
-  LEFT JOIN student_submissions ss ON ss.item_id = i.id 
-    AND ss.student_id = p_student_id 
-    AND ss.graded_at IS NOT NULL
+  LEFT JOIN items i ON i.constituent_slug = c.slug AND i.class_id = p_class_id AND i.is_current = true
+  LEFT JOIN latest_submissions ls ON ls.item_id = i.id
   WHERE c.class_id = p_class_id
     AND c.is_current = true
   GROUP BY c.id, c.name, c.type, m.name, m.color, m.icon
@@ -93,21 +105,33 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 AS $$
+  -- Get only the most recent graded submission per item for accurate module scores
+  WITH latest_submissions AS (
+    SELECT DISTINCT ON (ss.item_id)
+      ss.item_id,
+      ss.adjusted_score,
+      ss.graded_at
+    FROM student_submissions ss
+    INNER JOIN items i ON i.id = ss.item_id
+    WHERE ss.student_id = p_student_id
+      AND ss.class_id = p_class_id
+      AND ss.graded_at IS NOT NULL
+      AND i.is_current = true
+    ORDER BY ss.item_id, ss.graded_at DESC
+  )
   SELECT 
     p_student_id as student_id,
     p_class_id as class_id,
     'module' as grade_level,
     m.id as module_id,
-    COALESCE(SUM(ss.adjusted_score), 0) as final_score,
+    COALESCE(SUM(ls.adjusted_score), 0) as final_score,
     COALESCE(SUM(i.points), 0) as max_points,
-    MAX(ss.graded_at) as computed_at,
+    MAX(ls.graded_at) as computed_at,
     jsonb_build_object('name', m.name, 'color', m.color, 'icon', m.icon) as modules
   FROM modules m
   LEFT JOIN constituents c ON c.module_id = m.id AND c.is_current = true
-  LEFT JOIN items i ON i.constituent_slug = c.slug AND i.class_id = p_class_id
-  LEFT JOIN student_submissions ss ON ss.item_id = i.id 
-    AND ss.student_id = p_student_id 
-    AND ss.graded_at IS NOT NULL
+  LEFT JOIN items i ON i.constituent_slug = c.slug AND i.class_id = p_class_id AND i.is_current = true
+  LEFT JOIN latest_submissions ls ON ls.item_id = i.id
   WHERE m.class_id = p_class_id
     AND m.is_current = true
   GROUP BY m.id, m.name, m.color, m.icon
@@ -136,28 +160,40 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 AS $$
+  -- Get only the most recent graded submission per item
+  WITH latest_submissions AS (
+    SELECT DISTINCT ON (ss.item_id)
+      ss.student_id,
+      ss.class_id,
+      ss.item_id,
+      ss.adjusted_score,
+      ss.graded_at
+    FROM student_submissions ss
+    INNER JOIN items i ON i.id = ss.item_id
+    WHERE ss.student_id = p_student_id
+      AND ss.class_id = p_class_id
+      AND ss.graded_at IS NOT NULL
+      AND i.is_current = true
+    ORDER BY ss.item_id, ss.graded_at DESC
+  )
   SELECT 
-    ss.student_id,
-    ss.class_id,
+    ls.student_id,
+    ls.class_id,
     'item' as grade_level,
-    ss.item_id,
-    ss.adjusted_score as final_score,
+    ls.item_id,
+    ls.adjusted_score as final_score,
     i.points as max_points,
-    ss.graded_at as computed_at,
+    ls.graded_at as computed_at,
     jsonb_build_object('title', i.title, 'due_date', i.due_date) as items,
     jsonb_build_object('name', c.name, 'type', c.type) as constituents,
     jsonb_build_object('name', m.name, 'color', m.color, 'icon', m.icon) as modules
-  FROM student_submissions ss
-  INNER JOIN items i ON i.id = ss.item_id
+  FROM latest_submissions ls
+  INNER JOIN items i ON i.id = ls.item_id
   INNER JOIN constituents c ON c.slug = i.constituent_slug
   INNER JOIN modules m ON m.id = c.module_id
-  WHERE ss.student_id = p_student_id
-    AND ss.class_id = p_class_id
-    AND ss.graded_at IS NOT NULL
-    AND i.is_current = true
-    AND c.is_current = true
+  WHERE c.is_current = true
     AND m.is_current = true
-  ORDER BY ss.graded_at DESC;
+  ORDER BY ls.graded_at DESC;
 $$;
 
 -- ============================================================================
