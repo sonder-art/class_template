@@ -474,22 +474,22 @@ function initializeDashboard() {
     // Update user context display
     updateUserContextDisplay(user, userContext);
     
-    if (userContext) {
-        console.log('🔍 DEBUG: UserContext exists, setting up role-based tools');
-        // Show role-based tools based on user context
-        showRoleBasedTools(userContext);
-        console.log('🔍 DEBUG: About to call setupRoleSpecificHandlers');
-        setupRoleSpecificHandlers(userContext);
-    } else {
-        // Try to fetch user context if not available
+    // Always show role-based tools (with smart defaults)
+    console.log('🔍 DEBUG: Setting up role-based tools, userContext:', !!userContext);
+    showRoleBasedTools(userContext);
+    console.log('🔍 DEBUG: About to call setupRoleSpecificHandlers');
+    setupRoleSpecificHandlers(userContext);
+    
+    // If no userContext, try to fetch it in the background
+    if (!userContext) {
         console.log('🔄 User context not available, attempting to fetch...');
         console.log('🔍 DEBUG: window.AuthClient exists?', !!window.AuthClient);
         if (window.AuthClient) {
             console.log('🔍 DEBUG: Calling fetchAndDisplayUserContext()');
             fetchAndDisplayUserContext();
         } else {
-            console.log('🔍 DEBUG: AuthClient not available, showing error');
-            showErrorSection('AuthClient not available');
+            console.log('🔍 DEBUG: AuthClient not available, but showing enrollment tools anyway');
+            // Don't show error - enrollment tools are already displayed as default
         }
     }
 }
@@ -529,17 +529,22 @@ function showRoleBasedTools(userContext) {
     // Hide all sections first
     hideAllSections();
     
-    if (!userContext.is_member) {
-        // User is not a member of this class
+    // Smart defaults: assume student/enrollment unless proven professor
+    if (!userContext) {
+        // No context yet - show enrollment tools as default
+        console.log('🔄 No user context - defaulting to enrollment tools');
         document.getElementById('enrollmentTools').style.display = 'block';
     } else if (userContext.role === 'professor') {
-        // Show professor tools
+        // Confirmed professor - show professor tools
+        console.log('👨‍🏫 Professor confirmed - showing professor tools');
         document.getElementById('professorTools').style.display = 'block';
-    } else if (userContext.role === 'student') {
-        // Show student tools
-        document.getElementById('studentTools').style.display = 'block';
+    } else if (!userContext.is_member) {
+        // Not a member - show enrollment tools
+        console.log('❌ Not a member - showing enrollment tools');
+        document.getElementById('enrollmentTools').style.display = 'block';
     } else {
-        // Unknown role but is a member
+        // Member but not professor - show student tools
+        console.log('🎓 Student/member - showing student tools');
         document.getElementById('studentTools').style.display = 'block';
     }
 }
@@ -559,11 +564,15 @@ function hideAllSections() {
  */
 function setupRoleSpecificHandlers(userContext) {
     console.log('🔍 DEBUG: setupRoleSpecificHandlers() called with:', userContext);
-    console.log('🔍 DEBUG: Role check - is professor?', userContext.role === 'professor');
-    console.log('🔍 DEBUG: Role check - is student?', userContext.role === 'student');
-    console.log('🔍 DEBUG: Role check - is member?', userContext.is_member);
+    console.log('🔍 DEBUG: Role check - is professor?', userContext?.role === 'professor');
+    console.log('🔍 DEBUG: Role check - is student?', userContext?.role === 'student');
+    console.log('🔍 DEBUG: Role check - is member?', userContext?.is_member);
     
-    if (userContext.role === 'professor') {
+    // Handle null/undefined userContext gracefully
+    if (!userContext) {
+        console.log('🔍 DEBUG: No userContext - setting up enrollment handlers as default');
+        setupEnrollmentHandlers();
+    } else if (userContext.role === 'professor') {
         console.log('🔍 DEBUG: Setting up professor handlers');
         setupProfessorHandlers();
     } else if (userContext.role === 'student' && userContext.is_member) {
@@ -573,7 +582,8 @@ function setupRoleSpecificHandlers(userContext) {
         console.log('🔍 DEBUG: Setting up enrollment handlers');
         setupEnrollmentHandlers();
     } else {
-        console.log('🔍 DEBUG: No matching role condition, userContext:', userContext);
+        console.log('🔍 DEBUG: Defaulting to student handlers, userContext:', userContext);
+        setupStudentHandlers();
     }
     
     // Setup retry button

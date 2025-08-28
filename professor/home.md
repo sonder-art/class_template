@@ -52,6 +52,17 @@ students/                          # Student workspace system
    - Hugo will automatically detect the generated configuration
    - GitHub Pages renders student directories when they exist
 
+## 🎓 Join This Class
+
+**Students:** Ready to join this class? You'll need an enrollment token from your instructor.
+
+<div style="background: var(--elevated-color, #f8f9fa); border: 2px solid var(--eva-green-primary, #00d084); border-radius: 8px; padding: 20px; margin: 20px 0;">
+<h3 style="color: var(--eva-green-primary, #00d084); margin-top: 0;">Quick Enrollment</h3>
+<p><strong>Have a token?</strong> Click below to join:</p>
+<a href="/enroll/" style="display: inline-block; background: var(--eva-green-primary, #00d084); color: var(--bg-color, #ffffff); padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">🎓 Join Class</a>
+<p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;"><strong>No token yet?</strong> Contact {{ .Site.Params.professor_name }} at {{ .Site.Params.professor_email }}</p>
+</div>
+
 ## 🎨 Current Theme: Evangelion
 
 The active theme provides a dark, modern interface inspired by Evangelion aesthetics:

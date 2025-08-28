@@ -386,6 +386,7 @@
     function updateSidebarAuthNavigation() {
         const authToggleBtn = document.getElementById('navAuthToggleBtn');
         const dashboardBtn = document.getElementById('navDashboardBtn');
+        const enrollBtn = document.getElementById('navEnrollBtn');
         const userStatusText = document.getElementById('userStatusText');
         
         if (!authToggleBtn) {
@@ -453,17 +454,43 @@
             console.error('Error updating auth button:', error);
         }
         
-        // Update navigation buttons - simplified without enroll button
+        // Update navigation buttons with role-appropriate labels
         try {
             if (isAuthenticated && user && !isLoading) {
-                // Always show dashboard for authenticated users
+                // Show/hide enrollment button based on membership
+                if (enrollBtn) {
+                    if (userContext?.is_member) {
+                        enrollBtn.style.display = 'none';
+                    } else {
+                        // Not a member - show enrollment button
+                        enrollBtn.style.display = 'block';
+                    }
+                }
+                
+                // Show dashboard button with role-appropriate text
                 if (dashboardBtn) {
                     dashboardBtn.style.display = 'block';
+                    
+                    // Update button text based on role
+                    if (userContext?.role === 'professor') {
+                        dashboardBtn.textContent = '👨‍🏫 Professor Dashboard';
+                        dashboardBtn.title = 'Access professor admin tools';
+                    } else if (userContext?.is_member) {
+                        dashboardBtn.textContent = '🎓 Student Dashboard';
+                        dashboardBtn.title = 'Access your student dashboard';
+                    } else {
+                        dashboardBtn.textContent = '📊 Dashboard';
+                        dashboardBtn.title = 'Access dashboard and enroll in class';
+                    }
                 }
             } else {
-                // User is not authenticated or still loading - hide dashboard
+                // User is not authenticated or still loading - hide navigation buttons
                 if (dashboardBtn) {
                     dashboardBtn.style.display = 'none';
+                }
+                if (enrollBtn) {
+                    // Show enrollment button for non-authenticated users
+                    enrollBtn.style.display = 'block';
                 }
             }
         } catch (error) {
