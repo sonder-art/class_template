@@ -316,6 +316,12 @@
     {{ if $professorGradingJS }}
         <script src="{{ $professorGradingJS.RelPermalink }}"></script>
     {{ end }}
+
+    <!-- Student Grades Interface -->
+    {{ $studentGradesJS := resources.Get "js/student-grades.js" }}
+    {{ if $studentGradesJS }}
+        <script src="{{ $studentGradesJS.RelPermalink }}"></script>
+    {{ end }}
     
     <script>
     // Auth Navigation Management

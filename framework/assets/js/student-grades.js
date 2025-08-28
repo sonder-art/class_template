@@ -154,7 +154,9 @@ class StudentGradesInterface {
                 items: itemGrades.summary || {}
             };
 
-            console.log(`Loaded grades:`, this.grades);
+            console.log(`✅ Loaded grades:`, this.grades);
+            console.log(`📊 Module grades sample:`, this.grades.modules[0]);
+            console.log(`📝 Item grades sample:`, this.grades.items[0]);
 
         } catch (error) {
             console.error('Failed to load grades:', error);
@@ -163,19 +165,23 @@ class StudentGradesInterface {
     }
 
     async fetchGradesData(classSlug, level) {
-        const response = await fetch(`/functions/v1/student-grades?level=${level}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${window.authState.session.access_token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to fetch ${level} grades: ${response.statusText}`);
+        if (!window.AuthClient) {
+            throw new Error('AuthClient not available');
         }
 
-        return await response.json();
+        try {
+            // Add cache-busting parameter to test SQL fix
+            const cacheBust = Date.now();
+            const result = await window.AuthClient.callEndpoint(
+                `/student-grades?class_slug=${classSlug}&level=${level}&_cb=${cacheBust}`
+            );
+            
+            console.log(`✅ Fetched ${level} grades for class ${classSlug}:`, result);
+            return result;
+        } catch (error) {
+            console.error(`❌ Failed to fetch ${level} grades:`, error);
+            throw new Error(`Failed to fetch ${level} grades: ${error.message}`);
+        }
     }
 
     async loadSubmissions() {
@@ -219,9 +225,18 @@ class StudentGradesInterface {
     async loadModules() {
         try {
             // Get module structure from class_template data
-            const classTemplateResponse = await fetch(`{{ .Site.BaseURL }}data/modules.json`);
+            // Use relative URL from current page base
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const baseUrl = pathParts.length > 0 ? `/${pathParts[0]}/` : '/';
+            const modulesUrl = `${baseUrl}data/modules.json`;
+            
+            console.log('🔍 Loading modules from:', modulesUrl);
+            const classTemplateResponse = await fetch(modulesUrl);
             if (classTemplateResponse.ok) {
                 this.modules = await classTemplateResponse.json();
+                console.log('✅ Loaded modules:', this.modules);
+            } else {
+                console.warn('⚠️ Could not load modules.json, continuing without module data');
             }
         } catch (error) {
             console.error('Failed to load modules:', error);
@@ -422,12 +437,18 @@ class StudentGradesInterface {
         const gradeDate = new Date(grade.computed_at).toLocaleDateString();
         const score = grade.final_score || grade.raw_score || 0;
         const maxPoints = grade.max_points || 100;
-        const percentage = ((score / maxPoints) * 100).toFixed(1);
+        const percentage = maxPoints > 0 ? ((score / maxPoints) * 100).toFixed(1) : 0;
+        
+        // Extract nested data from JSON objects
+        const itemTitle = grade.items?.title || grade.item_title || 'Unknown Item';
+        const moduleName = grade.modules?.name || 'Unknown Module';
+        const constituentName = grade.constituents?.name || 'Unknown Section';
         
         return `
             <div class="grade-item">
                 <div class="grade-info">
-                    <span class="item-title">${grade.item_title || 'Unknown Item'}</span>
+                    <span class="item-title">${itemTitle}</span>
+                    <span class="grade-meta">${moduleName} › ${constituentName}</span>
                     <span class="grade-date">${gradeDate}</span>
                 </div>
                 <div class="grade-score">

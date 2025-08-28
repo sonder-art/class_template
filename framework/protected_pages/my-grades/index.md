@@ -36,28 +36,28 @@ View your current grades, submission history, and academic progress.
         </div>
     </div>
 
-    <div class="grades-tabs">
-        <button class="tab-btn active" data-tab="overview">📊 Overview</button>
-        <button class="tab-btn" data-tab="modules">📚 By Module</button>
-        <button class="tab-btn" data-tab="submissions">📝 Submissions</button>
-        <button class="tab-btn" data-tab="progress">📈 Progress</button>
-    </div>
+<div class="grades-tabs">
+    <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+    <button class="tab-btn" data-tab="modules">📚 By Module</button>
+    <button class="tab-btn" data-tab="submissions">📝 Submissions</button>
+    <button class="tab-btn" data-tab="progress">📈 Progress</button>
+</div>
 
-    <div class="tab-content active" id="overview-tab">
-        <div id="overviewContent">Loading overview...</div>
-    </div>
+<div class="tab-content active" id="overview-tab">
+    <div id="overviewContent">Loading overview...</div>
+</div>
 
-    <div class="tab-content" id="modules-tab">
-        <div id="modulesContent">Loading module grades...</div>
-    </div>
+<div class="tab-content" id="modules-tab">
+    <div id="modulesContent">Loading module grades...</div>
+</div>
 
-    <div class="tab-content" id="submissions-tab">
-        <div id="submissionsContent">Loading submissions...</div>
-    </div>
+<div class="tab-content" id="submissions-tab">
+    <div id="submissionsContent">Loading submissions...</div>
+</div>
 
-    <div class="tab-content" id="progress-tab">
-        <div id="progressContent">Loading progress...</div>
-    </div>
+<div class="tab-content" id="progress-tab">
+    <div id="progressContent">Loading progress...</div>
+</div>
 </div>
 
 <script>

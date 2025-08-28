@@ -338,15 +338,18 @@ function displayRecentGrades(submissions) {
 
 // Navigation functions
 function navigateToGrades() {
-    window.location.href = '{{ .Site.BaseURL }}my-grades/';
+    // Use relative URL to work in all environments
+    window.location.href = '../my-grades/';
 }
 
 function navigateToSubmit() {
-    window.location.href = '{{ .Site.BaseURL }}upload/';
+    // Use relative URL to work in all environments
+    window.location.href = '../upload/';
 }
 
 function navigateToNotes() {
-    window.location.href = '{{ .Site.BaseURL }}class_notes/';
+    // Use relative URL to work in all environments  
+    window.location.href = '../class_notes/';
 }
 
 function showError(message) {
