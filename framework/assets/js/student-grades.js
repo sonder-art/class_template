@@ -170,10 +170,8 @@ class StudentGradesInterface {
         }
 
         try {
-            // Add cache-busting parameter to test SQL fix
-            const cacheBust = Date.now();
             const result = await window.AuthClient.callEndpoint(
-                `/student-grades?class_slug=${classSlug}&level=${level}&_cb=${cacheBust}`
+                `/student-grades?class_slug=${classSlug}&level=${level}`
             );
             
             console.log(`✅ Fetched ${level} grades for class ${classSlug}:`, result);
@@ -265,9 +263,11 @@ class StudentGradesInterface {
 
         if (studentInfo && user && userContext) {
             studentInfo.innerHTML = `
-                <h3>👤 ${user.email}</h3>
-                <p><strong>GitHub:</strong> @${userContext.github_username || 'Unknown'}</p>
-                <p><strong>Class:</strong> ${userContext.class_title || 'Unknown'}</p>
+                <div class="profile-avatar">👤</div>
+                <div class="profile-details">
+                    <h2>${user.email}</h2>
+                    <p class="student-meta">@${userContext.github_username || 'Unknown'} • ${userContext.class_title || 'GitHub Class Template'}</p>
+                </div>
             `;
         }
     }
@@ -280,39 +280,52 @@ class StudentGradesInterface {
         }
 
         const summary = this.gradeSummary.modules;
+        const lastUpdated = summary.last_updated ? 
+            new Date(summary.last_updated).toLocaleDateString() : 'Never';
         
-        gradeSummary.innerHTML = `
-            <div class="summary-card">
-                <div class="overall-grade">
-                    <span class="grade-number">${summary.average_score?.toFixed(1) || 'N/A'}%</span>
-                    <span class="grade-label">Overall Grade</span>
-                </div>
-                <div class="grade-stats">
-                    <div class="stat">
-                        <span class="stat-number">${summary.total_grades || 0}</span>
-                        <span class="stat-label">Graded Items</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-number">${Object.keys(summary.grade_distribution || {}).length}</span>
-                        <span class="stat-label">Grade Types</span>
-                    </div>
-                </div>
-            </div>
-        `;
+        // Update individual summary cards
+        const overallGradeCard = gradeSummary.querySelector('.overall-grade .grade-number');
+        const pointsEarned = gradeSummary.querySelector('.points-earned');
+        const pointsTotal = gradeSummary.querySelector('.points-total');
+        const countNumber = gradeSummary.querySelector('.count-number');
+        const timeText = gradeSummary.querySelector('.time-text');
+        
+        if (overallGradeCard) {
+            overallGradeCard.textContent = summary.average_score?.toFixed(1) || '--';
+        }
+        
+        if (pointsEarned && pointsTotal) {
+            pointsEarned.textContent = summary.total_score?.toFixed(0) || '--';
+            pointsTotal.textContent = summary.max_points?.toFixed(0) || '--';
+        }
+        
+        if (countNumber) {
+            countNumber.textContent = summary.total_grades || '--';
+        }
+        
+        if (timeText) {
+            timeText.textContent = lastUpdated;
+        }
     }
 
     renderTabContent(tabName) {
         this.currentTab = tabName;
         
         // Update tab buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => {
+        document.querySelectorAll('.nav-tab').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tabName);
         });
 
-        // Update tab content
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.toggle('active', content.id === `${tabName}-tab`);
+        // Update tab panels
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.toggle('active', panel.id === `${tabName}-panel`);
         });
+
+        // Show/hide nav controls based on tab
+        const navControls = document.getElementById('navControls');
+        if (navControls) {
+            navControls.style.display = (tabName === 'modules' || tabName === 'submissions') ? 'flex' : 'none';
+        }
 
         // Render specific tab content
         switch(tabName) {
@@ -333,60 +346,95 @@ class StudentGradesInterface {
 
     renderOverviewTab() {
         const container = document.getElementById('overviewContent');
-        const moduleGrades = this.grades.modules || [];
         
-        if (moduleGrades.length === 0) {
+        // Add error handling for missing container
+        if (!container) {
+            console.error('overviewContent container not found - interface may not be ready');
+            setTimeout(() => this.renderOverviewTab(), 100); // Retry after 100ms
+            return;
+        }
+        
+        const moduleGrades = this.grades.modules || [];
+        const itemGrades = this.grades.items || [];
+        
+        if (moduleGrades.length === 0 && itemGrades.length === 0) {
             container.innerHTML = `
-                <div class="no-grades">
+                <div class="empty-state">
                     <div class="empty-icon">📊</div>
-                    <h4>No Grades Yet</h4>
-                    <p>You don't have any graded items yet. Complete assignments to see your grades here.</p>
+                    <h3>No Grades Yet</h3>
+                    <p>Complete assignments to see your grades and progress here.</p>
                 </div>
             `;
             return;
         }
 
-        const recentGrades = this.grades.items.slice(0, 5);
+        const recentGrades = itemGrades.slice(0, 6);
         
         container.innerHTML = `
-            <div class="overview-grid">
-                <div class="recent-grades">
-                    <h4>📝 Recent Grades</h4>
-                    <div class="grades-list">
-                        ${recentGrades.map(grade => this.renderGradeItem(grade)).join('')}
+            <div class="overview-layout">
+                <!-- Recent Grades Section -->
+                <section class="overview-section">
+                    <div class="section-header">
+                        <h3>📝 Recent Grades</h3>
+                        <span class="item-count">${recentGrades.length} items</span>
                     </div>
-                </div>
+                    <div class="recent-grades-grid">
+                        ${recentGrades.map(grade => this.renderRecentGradeCard(grade)).join('')}
+                    </div>
+                </section>
                 
-                <div class="grade-distribution">
-                    <h4>📊 Grade Distribution</h4>
-                    <div class="distribution-chart">
-                        ${this.renderGradeDistribution()}
+                <!-- Module Performance Section -->
+                <section class="overview-section">
+                    <div class="section-header">
+                        <h3>📚 Module Performance</h3>
+                        <span class="item-count">${moduleGrades.length} modules</span>
                     </div>
-                </div>
+                    <div class="module-performance-grid">
+                        ${moduleGrades.map(module => this.renderModulePerformanceCard(module)).join('')}
+                    </div>
+                </section>
                 
-                <div class="upcoming-items">
-                    <h4>⏰ Upcoming Items</h4>
-                    <div class="upcoming-list">
-                        ${this.renderUpcomingItems()}
+                <!-- Quick Stats Section -->
+                <section class="overview-section">
+                    <div class="section-header">
+                        <h3>📈 Quick Stats</h3>
                     </div>
-                </div>
+                    <div class="quick-stats">
+                        ${this.renderQuickStats()}
+                    </div>
+                </section>
             </div>
         `;
     }
 
     renderModulesTab() {
         const container = document.getElementById('modulesContent');
+        
+        // Add error handling for missing container
+        if (!container) {
+            console.error('modulesContent container not found - interface may not be ready');
+            setTimeout(() => this.renderModulesTab(), 100);
+            return;
+        }
+        
         const moduleGrades = this.grades.modules || [];
         
         container.innerHTML = `
             <div class="modules-grid">
-                ${moduleGrades.map(moduleGrade => this.renderModuleCard(moduleGrade)).join('')}
+                ${moduleGrades.map(module => this.renderModulePerformanceCard(module)).join('')}
             </div>
         `;
     }
 
     renderSubmissionsTab() {
         const container = document.getElementById('submissionsContent');
+        
+        // Add error handling for missing container
+        if (!container) {
+            console.error('submissionsContent container not found - interface may not be ready');
+            setTimeout(() => this.renderSubmissionsTab(), 100);
+            return;
+        }
         
         container.innerHTML = `
             <div class="submissions-section">
@@ -413,6 +461,13 @@ class StudentGradesInterface {
 
     renderProgressTab() {
         const container = document.getElementById('progressContent');
+        
+        // Add error handling for missing container
+        if (!container) {
+            console.error('progressContent container not found - interface may not be ready');
+            setTimeout(() => this.renderProgressTab(), 100);
+            return;
+        }
         
         container.innerHTML = `
             <div class="progress-section">
@@ -580,20 +635,209 @@ class StudentGradesInterface {
         return this.renderProgressChart(); // Same implementation for now
     }
 
+    // New enhanced rendering methods for the redesigned interface
+
+    renderRecentGradeCard(grade) {
+        const gradeDate = new Date(grade.computed_at).toLocaleDateString();
+        const score = grade.final_score || grade.raw_score || 0;
+        const maxPoints = grade.max_points || 100;
+        const percentage = maxPoints > 0 ? ((score / maxPoints) * 100).toFixed(1) : 0;
+        
+        const itemTitle = grade.items?.title || grade.item_title || 'Unknown Item';
+        const moduleName = grade.modules?.name || 'Unknown Module';
+        const constituentName = grade.constituents?.name || 'Unknown Section';
+        
+        // Get grade color based on percentage
+        let gradeColor = '#10B981'; // Green for good grades
+        if (percentage < 60) gradeColor = '#EF4444'; // Red for failing
+        else if (percentage < 70) gradeColor = '#F59E0B'; // Yellow for concerning
+        else if (percentage < 85) gradeColor = '#6B7280'; // Gray for average
+        
+        return `
+            <div class="grade-card recent-grade-card">
+                <div class="card-header">
+                    <div class="item-info">
+                        <h4 class="item-title">${itemTitle}</h4>
+                        <p class="item-path">${moduleName} › ${constituentName}</p>
+                    </div>
+                    <div class="grade-badge" style="background-color: ${gradeColor}">
+                        ${percentage}%
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <span class="points-detail">${score}/${maxPoints} pts</span>
+                    <span class="grade-date">${gradeDate}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    renderModulePerformanceCard(moduleGrade) {
+        const score = moduleGrade.final_score || 0;
+        const maxPoints = moduleGrade.max_points || 1;
+        const progress = ((score / maxPoints) * 100).toFixed(1);
+        const moduleName = moduleGrade.modules?.name || 'Unknown Module';
+        const moduleColor = moduleGrade.modules?.color || '#6B7280';
+        const moduleIcon = moduleGrade.modules?.icon || '📚';
+        
+        // Get grade letter
+        let gradeLetter = 'N/A';
+        let gradeColor = '#6B7280';
+        if (progress >= 97) { gradeLetter = 'A+'; gradeColor = '#10B981'; }
+        else if (progress >= 93) { gradeLetter = 'A'; gradeColor = '#10B981'; }
+        else if (progress >= 90) { gradeLetter = 'A-'; gradeColor = '#10B981'; }
+        else if (progress >= 87) { gradeLetter = 'B+'; gradeColor = '#3B82F6'; }
+        else if (progress >= 83) { gradeLetter = 'B'; gradeColor = '#3B82F6'; }
+        else if (progress >= 80) { gradeLetter = 'B-'; gradeColor = '#3B82F6'; }
+        else if (progress >= 77) { gradeLetter = 'C+'; gradeColor = '#F59E0B'; }
+        else if (progress >= 73) { gradeLetter = 'C'; gradeColor = '#F59E0B'; }
+        else if (progress >= 70) { gradeLetter = 'C-'; gradeColor = '#F59E0B'; }
+        else if (progress >= 60) { gradeLetter = 'D'; gradeColor = '#EF4444'; }
+        else { gradeLetter = 'F'; gradeColor = '#EF4444'; }
+        
+        return `
+            <div class="module-card performance-card" style="border-left: 4px solid ${moduleColor}">
+                <div class="module-header">
+                    <div class="module-info">
+                        <span class="module-icon">${moduleIcon}</span>
+                        <div>
+                            <h4 class="module-name">${moduleName}</h4>
+                            <p class="module-progress-text">${progress}% complete</p>
+                        </div>
+                    </div>
+                    <div class="grade-display" style="color: ${gradeColor}">
+                        <span class="grade-letter">${gradeLetter}</span>
+                        <span class="grade-percentage">${progress}%</span>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%; background-color: ${moduleColor}"></div>
+                    </div>
+                </div>
+                <div class="module-stats">
+                    <span class="stat-item">${score.toFixed(0)}/${maxPoints.toFixed(0)} pts</span>
+                </div>
+            </div>
+        `;
+    }
+
+    renderQuickStats() {
+        const itemGrades = this.grades.items || [];
+        const moduleGrades = this.grades.modules || [];
+        
+        // Calculate stats
+        const totalItems = itemGrades.length;
+        const avgModuleGrade = moduleGrades.length > 0 ? 
+            moduleGrades.reduce((sum, m) => sum + ((m.final_score / m.max_points) * 100), 0) / moduleGrades.length : 0;
+        
+        const excellentGrades = itemGrades.filter(g => ((g.final_score / g.max_points) * 100) >= 90).length;
+        const needsImprovementGrades = itemGrades.filter(g => ((g.final_score / g.max_points) * 100) < 70).length;
+        
+        return `
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <span class="stat-number">${avgModuleGrade.toFixed(1)}%</span>
+                        <span class="stat-label">Avg Module Grade</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-info">
+                        <span class="stat-number">${excellentGrades}</span>
+                        <span class="stat-label">Excellent Grades</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <span class="stat-number">${totalItems}</span>
+                        <span class="stat-label">Total Items</span>
+                    </div>
+                </div>
+                <div class="stat-card ${needsImprovementGrades > 0 ? 'stat-warning' : ''}">
+                    <div class="stat-icon">${needsImprovementGrades > 0 ? '⚠️' : '✅'}</div>
+                    <div class="stat-info">
+                        <span class="stat-number">${needsImprovementGrades}</span>
+                        <span class="stat-label">Need Improvement</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     setupEventHandlers() {
-        // Tab switching
+        // Tab switching - updated for new nav-tab class
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('tab-btn')) {
-                this.renderTabContent(e.target.dataset.tab);
+            if (e.target.classList.contains('nav-tab') || e.target.closest('.nav-tab')) {
+                const tab = e.target.closest('.nav-tab') || e.target;
+                this.renderTabContent(tab.dataset.tab);
+            }
+        });
+
+        // Search functionality
+        document.addEventListener('input', (e) => {
+            if (e.target.id === 'gradesSearch') {
+                this.performSearch(e.target.value);
             }
         });
 
         // Filter handlers
         document.addEventListener('change', (e) => {
+            if (e.target.id === 'gradeFilter') {
+                this.applyGradeFilter(e.target.value);
+            }
             if (e.target.id === 'submission-status-filter' || e.target.id === 'submission-module-filter') {
                 this.filterSubmissions();
             }
         });
+    }
+
+    // New search and filter functionality
+    performSearch(searchTerm) {
+        if (!searchTerm.trim()) {
+            // Show all items when search is empty
+            this.renderTabContent(this.currentTab);
+            return;
+        }
+
+        const term = searchTerm.toLowerCase();
+        
+        // Filter based on current tab
+        if (this.currentTab === 'modules') {
+            this.filterModules(term);
+        } else if (this.currentTab === 'submissions') {
+            this.filterSubmissions(term);
+        }
+    }
+
+    applyGradeFilter(filterValue) {
+        // Apply grade-based filtering
+        if (this.currentTab === 'modules' || this.currentTab === 'submissions') {
+            this.renderTabContent(this.currentTab);
+        }
+    }
+
+    filterModules(searchTerm = '') {
+        const container = document.getElementById('modulesContent');
+        const moduleGrades = this.grades.modules || [];
+        
+        let filteredModules = moduleGrades;
+        
+        if (searchTerm) {
+            filteredModules = moduleGrades.filter(module => {
+                const moduleName = (module.modules?.name || '').toLowerCase();
+                return moduleName.includes(searchTerm);
+            });
+        }
+        
+        container.innerHTML = `
+            <div class="modules-grid">
+                ${filteredModules.map(module => this.renderModulePerformanceCard(module)).join('')}
+            </div>
+        `;
     }
 
     filterSubmissions() {
@@ -615,6 +859,20 @@ class StudentGradesInterface {
             submissionsList.innerHTML = filteredSubmissions
                 .map(submission => this.renderSubmissionCard(submission))
                 .join('');
+        }
+    }
+
+    // Public method for manual refresh
+    async refresh() {
+        console.log('🔄 Refreshing student grades data...');
+        try {
+            await this.loadInitialData();
+            this.renderGradesInterface();
+            console.log('✅ Student grades refreshed successfully');
+        } catch (error) {
+            console.error('❌ Failed to refresh grades:', error);
+            this.showError(`Failed to refresh grades: ${error.message}`);
+            throw error;
         }
     }
 
