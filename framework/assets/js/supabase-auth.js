@@ -231,14 +231,18 @@ async function handleLogin() {
         // Use AuthUtils if available, fallback to basic logic
         let callbackUrl;
         if (window.AuthUtils) {
-            callbackUrl = new URL(window.AuthUtils.getCallbackUrl());
+            const baseCallbackUrl = window.AuthUtils.getCallbackUrl();
+            callbackUrl = new URL(baseCallbackUrl);
+            console.log('🔐 Using AuthUtils for callback URL:', baseCallbackUrl);
             
             // Validate and add redirect parameter
             const validatedPath = window.AuthUtils.validateRedirectPath(currentPath);
             if (validatedPath && validatedPath !== '/auth/callback/') {
                 callbackUrl.searchParams.set('redirect', validatedPath);
+                console.log('🔐 Added redirect parameter:', validatedPath);
             }
         } else {
+            console.warn('⚠️ AuthUtils not available, using fallback logic');
             // Fallback to original logic
             callbackUrl = new URL(window.authConfig.login_redirect || '/auth/callback/', window.location.origin);
             if (currentPath && currentPath !== '/auth/callback/') {
@@ -246,7 +250,9 @@ async function handleLogin() {
             }
         }
 
-        console.log('Auth: Initiating login, will return to:', currentPath);
+        console.log('🔐 Final OAuth callback URL:', callbackUrl.toString());
+        console.log('🔐 Current environment:', window.AuthUtils?.getEnvironment?.() || 'unknown');
+        console.log('🔐 Current base path:', window.AuthUtils?.getBasePath?.() || 'unknown');
 
         const { data, error } = await window.authState.client.auth.signInWithOAuth({
             provider: 'github',

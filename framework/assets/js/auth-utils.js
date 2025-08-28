@@ -29,23 +29,28 @@ window.AuthUtils = (function() {
      * This handles multi-repo deployments where the site might be at /repo-name/
      */
     function getBasePath() {
-        // Try to get from Hugo configuration first
+        // In development, always use root path
+        if (getEnvironment() === 'development') {
+            console.log('🔍 AuthUtils: Development environment detected, using root path');
+            return '/';
+        }
+
+        // In production, try to get from Hugo configuration first
         if (window.authConfig && window.authConfig.base_url) {
             try {
                 const url = new URL(window.authConfig.base_url);
-                return url.pathname.endsWith('/') ? url.pathname : url.pathname + '/';
+                const basePath = url.pathname.endsWith('/') ? url.pathname : url.pathname + '/';
+                console.log('🔍 AuthUtils: Production base path from config:', basePath);
+                return basePath;
             } catch {
                 // If base_url is just a path, use it
                 const path = window.authConfig.base_url;
                 if (path.startsWith('/')) {
-                    return path.endsWith('/') ? path : path + '/';
+                    const basePath = path.endsWith('/') ? path : path + '/';
+                    console.log('🔍 AuthUtils: Production base path from config (fallback):', basePath);
+                    return basePath;
                 }
             }
-        }
-
-        // In development, usually at root
-        if (getEnvironment() === 'development') {
-            return '/';
         }
 
         // Try to infer from current URL
@@ -53,10 +58,11 @@ window.AuthUtils = (function() {
         const path = window.location.pathname;
         const match = path.match(/^(\/[^\/]+\/)/);
         if (match && match[1] !== '/auth/') {
+            console.log('🔍 AuthUtils: Base path inferred from URL:', match[1]);
             return match[1];
         }
 
-        // Default to root
+        console.log('🔍 AuthUtils: Using default root path');
         return '/';
     }
 
@@ -86,12 +92,16 @@ window.AuthUtils = (function() {
         const basePath = getBasePath();
         
         if (env === 'development') {
-            // In development, use localhost with the appropriate port
-            return window.location.origin + basePath + 'auth/callback/';
+            // In development, use localhost with root path (no subpath needed)
+            const callbackUrl = window.location.origin + '/auth/callback/';
+            console.log('🔍 AuthUtils: Development callback URL:', callbackUrl);
+            return callbackUrl;
         }
         
-        // In production, use the configured base URL
-        return buildSiteUrl('auth/callback/');
+        // In production, use the configured base URL with subpath
+        const callbackUrl = buildSiteUrl('auth/callback/');
+        console.log('🔍 AuthUtils: Production callback URL:', callbackUrl);
+        return callbackUrl;
     }
 
     /**
