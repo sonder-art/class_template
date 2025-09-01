@@ -465,22 +465,22 @@
             console.error('Error updating auth button:', error);
         }
         
-        // Update navigation buttons with role-appropriate labels
+        // Update navigation buttons with role-appropriate labels (class-based visibility)
         try {
             if (isAuthenticated && user && !isLoading) {
                 // Show/hide enrollment button based on membership
                 if (enrollBtn) {
                     if (userContext?.is_member) {
-                        enrollBtn.style.display = 'none';
+                        enrollBtn.classList.remove('is-visible');
                     } else {
                         // Not a member - show enrollment button
-                        enrollBtn.style.display = 'block';
+                        enrollBtn.classList.add('is-visible');
                     }
                 }
                 
                 // Show dashboard button with role-appropriate text
                 if (dashboardBtn) {
-                    dashboardBtn.style.display = 'block';
+                    dashboardBtn.classList.add('is-visible');
                     
                     // Update button text based on role
                     if (userContext?.role === 'professor') {
@@ -497,11 +497,11 @@
             } else {
                 // User is not authenticated or still loading - hide navigation buttons
                 if (dashboardBtn) {
-                    dashboardBtn.style.display = 'none';
+                    dashboardBtn.classList.remove('is-visible');
                 }
                 if (enrollBtn) {
                     // Show enrollment button for non-authenticated users
-                    enrollBtn.style.display = 'block';
+                    enrollBtn.classList.add('is-visible');
                 }
             }
         } catch (error) {
