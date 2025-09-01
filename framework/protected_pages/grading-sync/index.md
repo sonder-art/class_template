@@ -34,6 +34,9 @@ type: "grading-sync"
 <button id="sync-now-btn" class="btn btn-primary" disabled>
 📤 Sync to Database
 </button>
+<button id="force-sync-btn" class="btn btn-warning">
+⚡ Force Full Resync
+</button>
 </div>
 
 <!-- Progress area -->

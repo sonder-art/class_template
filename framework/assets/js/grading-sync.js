@@ -268,6 +268,8 @@ class GradingSyncManager {
             () => this.previewChanges());
         document.getElementById('sync-now-btn')?.addEventListener('click', 
             () => this.syncNow());
+        document.getElementById('force-sync-btn')?.addEventListener('click', 
+            () => this.forceSyncNow());
     }
     
     async renderSyncInterface() {
@@ -488,6 +490,77 @@ class GradingSyncManager {
             progressDiv.style.display = 'none';
             syncBtn.disabled = false;
             syncBtn.textContent = '📤 Sync to Database';
+        }
+    }
+
+    async forceSyncNow() {
+        if (!confirm('⚡ Force resync will mark all database items as inactive, then re-sync from current files. This ensures old items are hidden regardless of detected changes. Continue?')) {
+            return;
+        }
+
+        console.log('⚡ Starting FORCE sync process...');
+        
+        const progressDiv = document.getElementById('sync-progress');
+        const resultsDiv = document.getElementById('sync-results');
+        
+        progressDiv.style.display = 'block';
+        resultsDiv.style.display = 'none';
+        
+        const forceBtn = document.getElementById('force-sync-btn');
+        const syncBtn = document.getElementById('sync-now-btn');
+        forceBtn.disabled = true;
+        syncBtn.disabled = true;
+        forceBtn.textContent = '⚡ Force Syncing...';
+        
+        try {
+            let progress = 0;
+            const totalSteps = 4;
+            
+            // Step 1: Mark all items as not current (soft deactivation)
+            this.updateProgress(++progress, totalSteps, 'Force deactivating ALL database items...');
+            await this.deactivateAllItems();
+            
+            // Step 2: Sync modules (will be marked as current)
+            this.updateProgress(++progress, totalSteps, 'Syncing modules...');
+            await this.syncModules();
+            
+            // Step 3: Sync constituents (will be marked as current)
+            this.updateProgress(++progress, totalSteps, 'Syncing constituents...');
+            await this.syncConstituents();
+            
+            // Step 4: Sync items (will be marked as current)
+            this.updateProgress(++progress, totalSteps, 'Syncing items...');
+            await this.syncItems();
+            
+            // Complete
+            this.updateProgress(totalSteps, totalSteps, 'Force sync completed!');
+            
+            resultsDiv.innerHTML = `
+                <div class="success-message">
+                    <h3>⚡ Force Sync Completed Successfully!</h3>
+                    <p>Full resync completed. All old items are now hidden, only current items from files will be visible.</p>
+                    <button onclick="window.location.reload()">🔄 Refresh Page</button>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+            
+        } catch (error) {
+            console.error('❌ Force sync failed:', error);
+            
+            resultsDiv.innerHTML = `
+                <div class="error-message">
+                    <h3>❌ Force Sync Failed</h3>
+                    <p>${error.message}</p>
+                    <button onclick="this.parentElement.parentElement.style.display='none'">Close</button>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+            
+        } finally {
+            progressDiv.style.display = 'none';
+            forceBtn.disabled = false;
+            syncBtn.disabled = false;
+            forceBtn.textContent = '⚡ Force Full Resync';
         }
     }
     

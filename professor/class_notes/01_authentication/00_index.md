@@ -1,25 +1,26 @@
 ---
-title: "Authentication Basics"
+title: "Authentication"
 type: "index"
-date: "2025-08-27"
+date: "2025-09-01"
 author: "Framework (Auto-generated)"
-summary: "Index for Authentication Basics chapter"
+summary: "Index for Authentication chapter"
 ---
 
-# Authentication Basics
+# Authentication
 
 *This index is automatically generated from the chapter content.*
 
 ## 📚 Chapter Content
 
-### [Authentication System Setup - Homework 1](01_homework_auth_setup.md)
-*Complete authentication system setup and initial testing*
+### [Authentication Module Test Items](01_auth_test_items.md)
+*Test items for authentication module covering all delivery types and grading scenarios*
 
 📋 **Homework**
 
 ## 🧭 Navigation
 
 ↑ [Back to Class Notes](../00_master_index.md)
+[Next: Framework](../02_framework/00_index.md) →
 
 ---
 

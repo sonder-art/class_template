@@ -242,9 +242,10 @@ async function loadRecentGrades(targetStudentId) {
                 raw_score,
                 adjusted_score,
                 graded_at,
-                items!inner (title, points)
+                items!inner (title, points, is_current)
             `)
             .eq('student_id', studentId)
+            .eq('items.is_current', true)
             .not('graded_at', 'is', null)
             .order('graded_at', { ascending: false })
             .limit(5);
