@@ -459,6 +459,51 @@ class ProfessorGradingInterface {
             console.error('❌ Error setting up View Submissions event delegation:', error);
         }
         
+        // ESC key handler for navigation
+        try {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // Check if we're in item detail view mode
+                    const itemsTab = document.getElementById('items-tab');
+                    const itemsContainer = document.getElementById('itemsView');
+                    if (itemsTab && itemsContainer && itemsTab.classList.contains('active')) {
+                        // If showing item submissions detail, go back to items list
+                        if (itemsContainer.dataset.viewMode === 'item-submissions') {
+                            e.preventDefault();
+                            this.renderItemListView();
+                            console.log('🔙 ESC: Returned to items list view');
+                            return;
+                        }
+                    }
+                    
+                    // Check if we're in student detail view mode
+                    const studentsTab = document.getElementById('students-tab');
+                    const studentsContainer = document.getElementById('studentView');
+                    if (studentsTab && studentsContainer && studentsTab.classList.contains('active')) {
+                        // If showing student submissions detail, go back to students list
+                        if (studentsContainer.dataset.viewMode === 'student-submissions') {
+                            e.preventDefault();
+                            this.renderStudentListView();
+                            console.log('🔙 ESC: Returned to students list view');
+                            return;
+                        }
+                    }
+                    
+                    // Check if grading modal is open
+                    const modal = document.getElementById('gradingModal');
+                    if (modal && modal.style.display !== 'none') {
+                        e.preventDefault();
+                        this.closeGradingModal();
+                        console.log('🔙 ESC: Closed grading modal');
+                        return;
+                    }
+                }
+            });
+            console.log('✅ ESC key handler setup complete');
+        } catch (error) {
+            console.error('❌ Error setting up ESC key handler:', error);
+        }
+        
         console.log('✅ Event listeners setup complete');
     }
 
@@ -498,6 +543,13 @@ class ProfessorGradingInterface {
     }
 
     switchTab(tabName) {
+        // Reset item view mode when switching away from items tab or switching to items tab
+        if (this.currentTab === 'items' || tabName === 'items') {
+            this.itemViewMode = 'list';
+            this.selectedItemId = null;
+            console.log('🔄 Reset item view mode to list when switching tabs');
+        }
+        
         // Update tab buttons
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
