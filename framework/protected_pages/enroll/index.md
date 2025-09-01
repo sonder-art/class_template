@@ -146,9 +146,19 @@ async function checkEnrollmentStatus() {
             throw new Error('AuthClient not available');
         }
         
-        // Get current class slug from URL
-        const pathParts = window.location.pathname.split('/');
-        const classSlug = pathParts[1] || 'class_template';
+        // Get current class slug from auth config
+        const baseUrl = window.authConfig?.base_url || '';
+        let classSlug = 'class_template'; // default
+        if (baseUrl) {
+            try {
+                const url = new URL(baseUrl);
+                const pathSegments = url.pathname.split('/').filter(s => s);
+                classSlug = pathSegments[pathSegments.length - 1] || 'class_template';
+            } catch {
+                // Fallback to default if URL parsing fails
+                classSlug = 'class_template';
+            }
+        }
         
         // Check current enrollment status
         const context = await window.AuthClient.getMe(classSlug);
@@ -246,9 +256,19 @@ function setupEnrollmentForm() {
             btnSpinner.style.display = 'inline';
             resultDiv.innerHTML = '';
             
-            // Get class slug
-            const pathParts = window.location.pathname.split('/');
-            const classSlug = pathParts[1] || 'class_template';
+            // Get current class slug from auth config
+            const baseUrl = window.authConfig?.base_url || '';
+            let classSlug = 'class_template'; // default
+            if (baseUrl) {
+                try {
+                    const url = new URL(baseUrl);
+                    const pathSegments = url.pathname.split('/').filter(s => s);
+                    classSlug = pathSegments[pathSegments.length - 1] || 'class_template';
+                } catch {
+                    // Fallback to default if URL parsing fails
+                    classSlug = 'class_template';
+                }
+            }
             
             // Call enrollment API
             const result = await window.AuthClient.enroll(classSlug, token);
