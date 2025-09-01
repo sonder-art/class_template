@@ -358,7 +358,7 @@ class ItemSubmissionHandler {
         try {
             // Collect form data
             const formData = new FormData(form);
-            const submissionData = this.collectSubmissionData(formData, deliveryType);
+            const submissionData = await this.collectSubmissionData(formData, deliveryType);
 
             // Prepare submission request
             const submissionRequest = {
@@ -392,7 +392,7 @@ class ItemSubmissionHandler {
         }
     }
 
-    collectSubmissionData(formData, deliveryType) {
+    async collectSubmissionData(formData, deliveryType) {
         const submissionData = {
             type: deliveryType
         };
@@ -416,10 +416,24 @@ class ItemSubmissionHandler {
 
             case 'file':
             case 'upload':
-                // File handling will be implemented separately
-                // For now, we'll handle it as a placeholder
-                submissionData.file_name = formData.get('file')?.name || 'file';
-                submissionData.description = formData.get('description');
+                const file = formData.get('file');
+                if (file && file.size > 0) {
+                    // Read file content as base64
+                    const base64Data = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = () => reject(reader.error);
+                        reader.readAsDataURL(file);
+                    });
+                    
+                    submissionData.file_name = file.name;
+                    submissionData.file_type = file.type;
+                    submissionData.file_size = file.size;
+                    submissionData.file_data = base64Data;
+                    submissionData.description = formData.get('description');
+                } else {
+                    throw new Error('Please select a file to upload');
+                }
                 break;
 
             case 'code':

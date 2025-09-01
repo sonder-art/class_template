@@ -2387,6 +2387,155 @@
     min-height: 60px;
 }
 
+/* === SUBMISSION CONTENT TYPES === */
+.submission-text {
+    margin-bottom: 15px;
+}
+
+.submission-text .text-content {
+    background-color: var(--surface-color);
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    line-height: 1.5;
+    color: var(--text-primary);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.submission-url {
+    margin-bottom: 15px;
+}
+
+.submission-url p {
+    margin: 8px 0;
+    color: var(--text-primary);
+}
+
+.submission-url .submission-link {
+    color: var(--eva-cyan-primary);
+    text-decoration: none;
+    word-break: break-all;
+}
+
+.submission-url .submission-link:hover {
+    color: var(--eva-cyan-accent);
+    text-decoration: underline;
+}
+
+.submission-file {
+    margin-bottom: 15px;
+}
+
+.submission-file p {
+    margin: 8px 0;
+    color: var(--text-primary);
+}
+
+.submission-code {
+    margin-bottom: 15px;
+}
+
+.submission-code p {
+    margin: 8px 0 12px 0;
+    color: var(--text-primary);
+}
+
+.submission-code pre {
+    background-color: var(--surface-color);
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    overflow-x: auto;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.submission-code code {
+    color: var(--text-primary);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.submission-generic {
+    margin-bottom: 15px;
+}
+
+.submission-generic p {
+    margin: 8px 0;
+    color: var(--text-primary);
+}
+
+.submission-generic pre {
+    background-color: var(--surface-color);
+    padding: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--border-light);
+    font-size: 0.85em;
+    overflow-x: auto;
+    max-height: 200px;
+    overflow-y: auto;
+    color: var(--text-secondary);
+}
+
+/* === SUBMISSION PREVIEW STYLES (for cards) === */
+.submission-preview {
+    margin-bottom: 10px;
+}
+
+.submission-preview p {
+    margin: 4px 0;
+    color: var(--text-primary);
+    font-size: 0.9em;
+}
+
+.submission-preview strong {
+    color: var(--eva-purple-primary);
+}
+
+.preview-text {
+    background-color: var(--elevated-color);
+    padding: 8px;
+    border-radius: 3px;
+    border-left: 3px solid var(--eva-purple-primary);
+    font-style: italic;
+    color: var(--text-secondary);
+}
+
+.preview-code {
+    background-color: var(--elevated-color);
+    padding: 8px;
+    border-radius: 3px;
+    border-left: 3px solid var(--eva-green-primary);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    overflow: hidden;
+}
+
+.preview-description {
+    background-color: var(--elevated-color);
+    padding: 6px 8px;
+    border-radius: 3px;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    border-left: 2px solid var(--eva-cyan-primary);
+}
+
+.url-preview a {
+    color: var(--eva-cyan-primary);
+    text-decoration: none;
+}
+
+.url-preview a:hover {
+    color: var(--eva-cyan-accent);
+    text-decoration: underline;
+}
+
 .grading-inputs {
     background-color: var(--surface-color);
     padding: 20px;
