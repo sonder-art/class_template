@@ -280,9 +280,31 @@ function setupEnrollmentForm() {
             
             // Redirect to dashboard after a short delay
             setTimeout(() => {
-                // Use the base URL from auth config to ensure proper routing
+                // Extract just the path portion from base_url for proper URL construction
+                let basePath = '';
                 const baseUrl = window.authConfig?.base_url || '';
-                const dashboardUrl = new URL('dashboard/', window.location.origin + baseUrl).toString();
+                
+                if (baseUrl) {
+                    try {
+                        // Try to parse as URL (has full origin)
+                        const url = new URL(baseUrl);
+                        basePath = url.pathname;
+                    } catch {
+                        // Not a full URL, use as-is (just a path)
+                        basePath = baseUrl;
+                    }
+                } else {
+                    // Fallback to current path analysis
+                    const pathParts = window.location.pathname.split('/').filter(Boolean);
+                    basePath = pathParts.length > 0 ? `/${pathParts[0]}` : '';
+                }
+                
+                // Ensure proper formatting
+                if (!basePath.startsWith('/')) basePath = '/' + basePath;
+                if (!basePath.endsWith('/')) basePath = basePath + '/';
+                
+                // Construct the dashboard URL properly
+                const dashboardUrl = window.location.origin + basePath + 'dashboard/';
                 window.location.href = dashboardUrl;
             }, 2000);
             
