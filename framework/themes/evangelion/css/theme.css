@@ -386,10 +386,28 @@ a:visited {
   text-decoration: none;
   font-weight: 500;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: opacity var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-fast);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
   white-space: nowrap;
   border: 2px solid transparent;
   cursor: pointer;
+}
+
+/* Smooth visibility toggling for auth buttons */
+.nav-auth-btn.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-auth-btn,
+  .nav-auth-btn.is-visible {
+    transition: none;
+    transform: none;
+  }
 }
 
 /* Prevent jarring shifts: default disabled/loading styles */

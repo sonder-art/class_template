@@ -21,52 +21,52 @@ Welcome! To join this class, you'll need an enrollment token from your instructo
 
 <!-- KEEP:START enrollment-content -->
 <div id="enrollmentStatus">
-    <p>🔄 Checking your enrollment status...</p>
+<p>🔄 Checking your enrollment status...</p>
 </div>
 
 <div id="enrollmentForm" style="display: none;">
-    <div class="enrollment-card">
-        <h3>📝 Enter Enrollment Token</h3>
-        <p>Your instructor should have provided you with an enrollment token. Enter it below to join the class.</p>
-        
-        <form id="tokenForm">
-            <div class="form-group">
-                <label for="enrollmentToken">Enrollment Token:</label>
-                <input type="text" id="enrollmentToken" name="enrollmentToken" 
-                       placeholder="Enter your enrollment token" 
-                       required autocomplete="off">
-            </div>
-            
-            <div class="form-actions">
-                <button type="submit" id="enrollBtn">
-                    <span id="enrollBtnText">🎓 Join Class</span>
-                    <span id="enrollBtnSpinner" style="display: none;">🔄 Enrolling...</span>
-                </button>
-            </div>
-        </form>
-        
-        <div id="enrollmentResult"></div>
-    </div>
+<div class="enrollment-card">
+<h3>📝 Enter Enrollment Token</h3>
+<p>Your instructor should have provided you with an enrollment token. Enter it below to join the class.</p>
+
+<form id="tokenForm">
+<div class="form-group">
+<label for="enrollmentToken">Enrollment Token:</label>
+<input type="text" id="enrollmentToken" name="enrollmentToken" 
+       placeholder="Enter your enrollment token" 
+       required autocomplete="off">
+</div>
+
+<div class="form-actions">
+<button type="submit" id="enrollBtn">
+<span id="enrollBtnText">🎓 Join Class</span>
+<span id="enrollBtnSpinner" style="display: none;">🔄 Enrolling...</span>
+</button>
+</div>
+</form>
+
+<div id="enrollmentResult"></div>
+</div>
 </div>
 
 <div id="alreadyEnrolled" style="display: none;">
-    <div class="status-card success">
-        <h3>✅ Already Enrolled</h3>
-        <p>You're already a member of this class!</p>
-        <div class="form-actions">
-            <a href="{{ .Site.BaseURL }}dashboard/" class="btn-primary">Go to Dashboard</a>
-        </div>
-    </div>
+<div class="status-card success">
+<h3>✅ Already Enrolled</h3>
+<p>You're already a member of this class!</p>
+<div class="form-actions">
+<a href="{{ .Site.BaseURL }}dashboard/" class="btn-primary">Go to Dashboard</a>
+</div>
+</div>
 </div>
 
 <div id="enrollmentError" style="display: none;">
-    <div class="status-card error">
-        <h3>⚠️ Unable to Load Enrollment</h3>
-        <p>There was an error checking your enrollment status. Please try refreshing the page.</p>
-        <div class="form-actions">
-            <button id="retryBtn" class="btn-secondary">🔄 Retry</button>
-        </div>
-    </div>
+<div class="status-card error">
+<h3>⚠️ Unable to Load Enrollment</h3>
+<p>There was an error checking your enrollment status. Please try refreshing the page.</p>
+<div class="form-actions">
+<button id="retryBtn" class="btn-secondary">🔄 Retry</button>
+</div>
+</div>
 </div>
 <!-- KEEP:END enrollment-content -->
 
