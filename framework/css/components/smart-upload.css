@@ -131,7 +131,13 @@
     box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
 }
 
-/* === STATUS BADGE SYSTEM - SIMPLE === */
+/* === BADGE SYSTEM - STATUS & TIMING === */
+
+.badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
 
 .status-badge {
     padding: 4px 8px;
@@ -144,24 +150,37 @@
     color: white;
 }
 
-/* Pending/Not Submitted - Orange */
+/* Status Colors - Always based on actual status */
 .status-badge.not_submitted {
-    background-color: #f97316;
+    background-color: #f97316; /* Orange - Pending */
 }
 
-/* Submitted - Blue */
 .status-badge.submitted {
-    background-color: #2563eb;
+    background-color: #2563eb; /* Blue - Submitted */
 }
 
-/* Graded - Green */
 .status-badge.graded {
-    background-color: #16a34a;
+    background-color: #16a34a; /* Green - Graded */
 }
 
-/* Overdue - Red */
-.status-badge.overdue {
-    background-color: #dc2626;
+/* Timing Badges - Separate from status */
+.timing-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    min-width: 60px;
+    color: white;
+}
+
+.timing-badge.overdue {
+    background-color: #dc2626; /* Red - Overdue (not submitted) */
+}
+
+.timing-badge.late {
+    background-color: #b45309; /* Dark Orange - Late submission */
 }
 
 /* === ITEM CARDS === */
@@ -224,8 +243,9 @@
 .item-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 1rem;
+    gap: 1rem;
 }
 
 .item-header h5 {
@@ -233,6 +253,7 @@
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-primary);
+    flex: 1;
 }
 
 .item-meta {

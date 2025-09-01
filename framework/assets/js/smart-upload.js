@@ -329,21 +329,25 @@ class SmartUploadManager {
         const status = this.getSubmissionStatus(item.item_id);
         const submission = this.getSubmission(item.item_id);
         const isOverdue = this.isOverdue(item);
+        const isLate = this.isSubmittedLate(item, submission);
         
-        const statusClass = isOverdue ? 'overdue' : status;
-        const statusText = this.getStatusText(status, isOverdue);
+        const statusText = this.getStatusText(status);
         const dueDateText = this.formatDueDate(item.due_date);
         
         return `
-            <div class="item-card ${statusClass}" data-item-id="${item.item_id}">
+            <div class="item-card ${status}" data-item-id="${item.item_id}">
                 <div class="item-header">
                     <h5>${item.title}</h5>
-                    <span class="status-badge ${statusClass}">${statusText}</span>
+                    <div class="badges">
+                        <span class="status-badge ${status}">${statusText}</span>
+                        ${isOverdue && status === 'not_submitted' ? '<span class="timing-badge overdue">OVERDUE</span>' : ''}
+                        ${isLate ? '<span class="timing-badge late">LATE</span>' : ''}
+                    </div>
                 </div>
                 
                 <div class="item-meta">
                     <span class="points">${item.points} pts</span>
-                    ${dueDateText ? `<span class="due-date ${isOverdue ? 'urgent' : ''}">${dueDateText}</span>` : ''}
+                    ${dueDateText ? `<span class="due-date">${dueDateText}</span>` : ''}
                     <span class="delivery-type">${this.getDeliveryIcon(item.delivery_type)} ${this.formatDeliveryType(item.delivery_type)}</span>
                 </div>
                 
@@ -383,14 +387,20 @@ class SmartUploadManager {
         return new Date(item.due_date) < new Date();
     }
 
-    getStatusText(status, isOverdue) {
-        if (isOverdue && status === 'not_submitted') return '⏰ Overdue';
+    getStatusText(status) {
         const statusMap = {
-            'not_submitted': '📋 Not Submitted',
-            'submitted': '✅ Submitted',
-            'graded': '🎯 Graded'
+            'not_submitted': 'PENDING',
+            'submitted': 'SUBMITTED',
+            'graded': 'GRADED'
         };
         return statusMap[status] || status;
+    }
+
+    isSubmittedLate(item, submission) {
+        if (!submission || !item.due_date) return false;
+        const dueDate = new Date(item.due_date);
+        const submittedDate = new Date(submission.submitted_at);
+        return submittedDate > dueDate;
     }
 
     formatDueDate(dueDateStr) {
