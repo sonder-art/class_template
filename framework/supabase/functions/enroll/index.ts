@@ -248,7 +248,7 @@ serve(async (req: Request) => {
         class_id: classData.id,
         user_id: user.id,
         role: 'student',
-        joined_at: new Date().toISOString()
+        enrolled_at: new Date().toISOString()
       })
 
     if (enrollError) {
