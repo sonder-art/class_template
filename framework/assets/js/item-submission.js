@@ -240,13 +240,13 @@ class ItemSubmissionHandler {
                     <div class="field-group">
                         <label for="submission-url">URL:</label>
                         <input 
-                            type="url" 
+                            type="text" 
                             id="submission-url" 
                             name="url" 
                             required
-                            placeholder="https://example.com/your-work"
+                            placeholder="example.com/your-work or https://github.com/user/repo"
                         />
-                        <small>Provide a link to your work (GitHub repo, deployed site, document, etc.)</small>
+                        <small>Provide a link to your work. Protocol (https://) will be added automatically if needed.</small>
                     </div>
                     <div class="field-group">
                         <label for="submission-description">Description (optional):</label>
@@ -271,9 +271,8 @@ class ItemSubmissionHandler {
                             id="submission-file" 
                             name="file" 
                             required
-                            accept=".pdf,.doc,.docx,.txt,.zip,.py,.js,.html,.css,.md"
                         />
-                        <small>Accepted formats: PDF, Word docs, text files, code files, archives (max 10MB)</small>
+                        <small>Any file type accepted (max 10MB)</small>
                     </div>
                     <div class="field-group">
                         <label for="file-description">File Description (optional):</label>
@@ -404,7 +403,14 @@ class ItemSubmissionHandler {
                 break;
 
             case 'url':
-                submissionData.url = formData.get('url');
+                const rawUrl = formData.get('url');
+                const normalizedUrl = this.normalizeUrl(rawUrl);
+                
+                if (!normalizedUrl) {
+                    throw new Error('Please enter a valid URL (e.g., github.com or https://example.com)');
+                }
+                
+                submissionData.url = normalizedUrl;
                 submissionData.description = formData.get('description');
                 break;
 
@@ -576,6 +582,42 @@ class ItemSubmissionHandler {
 
         // Additional validation could be added here
         console.log('File selected:', file.name, file.size);
+    }
+
+    normalizeUrl(url) {
+        if (!url || typeof url !== 'string') {
+            return null;
+        }
+
+        // Trim whitespace
+        url = url.trim();
+        
+        // Return null for empty strings
+        if (!url) {
+            return null;
+        }
+
+        // If URL already has protocol, validate and return
+        if (url.match(/^https?:\/\//i)) {
+            try {
+                // Test if it's a valid URL
+                new URL(url);
+                return url;
+            } catch (e) {
+                return null; // Invalid URL format
+            }
+        }
+
+        // Auto-prepend https:// for URLs without protocol
+        const normalizedUrl = `https://${url}`;
+        
+        try {
+            // Validate the normalized URL
+            new URL(normalizedUrl);
+            return normalizedUrl;
+        } catch (e) {
+            return null; // Invalid URL format even after normalization
+        }
     }
 
     showAuthenticationRequired() {

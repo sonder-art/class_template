@@ -256,6 +256,23 @@
     flex: 1;
 }
 
+.item-title-link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.item-title-link:hover {
+    color: var(--eva-cyan-primary);
+    text-decoration: none;
+}
+
+.item-title-link:visited {
+    color: inherit;
+}
+
 .item-meta {
     display: flex;
     gap: 1rem;
@@ -402,6 +419,16 @@
 
 .submit-btn.resubmit:hover {
     background-color: #ea580c;
+}
+
+/* See Button - Simple navigation */
+.submit-btn.see-btn {
+    background-color: var(--eva-cyan-primary);
+    color: white;
+}
+
+.submit-btn.see-btn:hover {
+    background-color: var(--eva-cyan-secondary);
 }
 
 /* View Feedback Button */

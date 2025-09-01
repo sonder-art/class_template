@@ -77,6 +77,41 @@ class SmartUploadManager {
         return `${basePath}/data/${filename}`;
     }
 
+    getContentUrl(filePath) {
+        // Convert file paths like "class_notes/01_authentication/01_auth_test_items.md" 
+        // to Hugo URLs like "/class_template/class_notes/01_authentication/01_auth_test_items/"
+        
+        // Extract just the path portion from base_url for proper URL construction
+        let basePath = '';
+        const baseUrl = window.authConfig?.base_url || '';
+        
+        if (baseUrl) {
+            try {
+                // Try to parse as URL (development mode)
+                const url = new URL(baseUrl);
+                basePath = url.pathname;
+            } catch {
+                // Not a full URL, use as-is (production mode)
+                basePath = baseUrl;
+            }
+        } else {
+            // Fallback to current path analysis
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            basePath = pathParts.length > 0 ? `/${pathParts[0]}` : '';
+        }
+        
+        // Ensure proper formatting
+        if (!basePath.startsWith('/')) basePath = '/' + basePath;
+        if (basePath.endsWith('/')) basePath = basePath.slice(0, -1);
+        
+        // Convert file path to Hugo URL
+        // Remove .md extension and ensure trailing slash
+        let contentPath = filePath.replace(/\.md$/, '');
+        if (!contentPath.endsWith('/')) contentPath += '/';
+        
+        return `${basePath}/${contentPath}`;
+    }
+
     async loadData() {
         console.log('📊 Loading assignment data...');
         
@@ -337,7 +372,7 @@ class SmartUploadManager {
         return `
             <div class="item-card ${status}" data-item-id="${item.item_id}">
                 <div class="item-header">
-                    <h5>${item.title}</h5>
+                    <h5><a href="${this.getContentUrl(item.file_path)}" class="item-title-link">${item.title}</a></h5>
                     <div class="badges">
                         <span class="status-badge ${status}">${statusText}</span>
                         ${isOverdue && status === 'not_submitted' ? '<span class="timing-badge overdue">OVERDUE</span>' : ''}
@@ -493,16 +528,19 @@ class SmartUploadManager {
     }
 
     renderSimpleActionButton(status, submission, item) {
+        const assignmentUrl = this.getContentUrl(item.file_path);
+        
         if (status === 'graded') {
             const score = submission.adjusted_score || submission.raw_score;
-            return `<span class="grade">✅ ${score}/${item.points}</span>`;
+            return `
+                <div class="graded-section">
+                    <span class="grade">✅ ${score}/${item.points}</span>
+                    <button class="submit-btn see-btn" onclick="window.location.href='${assignmentUrl}'">See</button>
+                </div>
+            `;
         }
         
-        if (status === 'submitted') {
-            return `<button class="submit-btn resubmit" onclick="window.smartUpload.openSubmissionForm('${item.item_id}')">Update</button>`;
-        }
-        
-        return `<button class="submit-btn" onclick="window.smartUpload.openSubmissionForm('${item.item_id}')">Submit</button>`;
+        return `<button class="submit-btn see-btn" onclick="window.location.href='${assignmentUrl}'">See</button>`;
     }
 
     openSubmissionForm(itemId) {
