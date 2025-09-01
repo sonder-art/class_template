@@ -323,6 +323,29 @@ class ProfessorGradingInterface {
         }
     }
 
+    getLatestSubmissions() {
+        // Group submissions by student_id and item_id, return only the latest for each
+        const submissionGroups = {};
+        
+        this.submissions.forEach(submission => {
+            const key = `${submission.student_id}-${submission.item_id}`;
+            if (!submissionGroups[key]) {
+                submissionGroups[key] = [];
+            }
+            submissionGroups[key].push(submission);
+        });
+        
+        const latestSubmissions = [];
+        Object.values(submissionGroups).forEach(group => {
+            // Sort by attempt_number (descending to get latest first)
+            group.sort((a, b) => (b.attempt_number || 1) - (a.attempt_number || 1));
+            // Take the latest submission (first after sorting)
+            latestSubmissions.push(group[0]);
+        });
+        
+        return latestSubmissions;
+    }
+
     applyGradePersistence() {
         // Group submissions by student_id and item_id
         const submissionGroups = {};
@@ -456,8 +479,9 @@ class ProfessorGradingInterface {
     }
 
     renderStats() {
-        const pendingSubmissions = this.submissions.filter(s => !s.graded_at);
-        const gradedSubmissions = this.submissions.filter(s => s.graded_at);
+        const latestSubmissions = this.getLatestSubmissions();
+        const pendingSubmissions = latestSubmissions.filter(s => !s.graded_at);
+        const gradedSubmissions = latestSubmissions.filter(s => s.graded_at);
         
         document.getElementById('pendingCount').textContent = pendingSubmissions.length;
         document.getElementById('gradedCount').textContent = gradedSubmissions.length;
@@ -503,7 +527,9 @@ class ProfessorGradingInterface {
 
     renderPendingSubmissions() {
         const container = document.getElementById('pendingSubmissions');
-        let pending = this.submissions.filter(s => !s.graded_at);
+        // Get only latest submissions, then filter for ungraded ones
+        const latestSubmissions = this.getLatestSubmissions();
+        let pending = latestSubmissions.filter(s => !s.graded_at);
         
         console.log('🔍 renderPendingSubmissions - total ungraded:', pending.length);
         console.log('🔍 Filter mode:', this.filterMode, 'value:', this.filterValue);
@@ -543,7 +569,9 @@ class ProfessorGradingInterface {
 
     renderGradedSubmissions() {
         const container = document.getElementById('gradedSubmissions');
-        const graded = this.submissions.filter(s => s.graded_at).slice(0, 20); // Show recent 20
+        // Get only latest submissions, then filter for graded ones
+        const latestSubmissions = this.getLatestSubmissions();
+        const graded = latestSubmissions.filter(s => s.graded_at).slice(0, 20); // Show recent 20
         
         if (graded.length === 0) {
             container.innerHTML = `
@@ -660,7 +688,20 @@ class ProfessorGradingInterface {
                 `;
                 
                 items.forEach(item => {
-                    const itemSubmissions = this.submissions.filter(s => s.item_id === item.id);
+                    // Get all submissions for this item and filter to latest per student
+                    const allItemSubmissions = this.submissions.filter(s => s.item_id === item.id);
+                    
+                    // Group by student and get only the latest attempt
+                    const latestByStudent = {};
+                    allItemSubmissions.forEach(submission => {
+                        const studentId = submission.student_id;
+                        if (!latestByStudent[studentId] || 
+                            (submission.attempt_number || 1) > (latestByStudent[studentId].attempt_number || 1)) {
+                            latestByStudent[studentId] = submission;
+                        }
+                    });
+                    
+                    const itemSubmissions = Object.values(latestByStudent);
                     const pending = itemSubmissions.filter(s => !s.graded_at).length;
                     const graded = itemSubmissions.filter(s => s.graded_at).length;
                     
