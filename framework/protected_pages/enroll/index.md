@@ -54,7 +54,7 @@ Welcome! To join this class, you'll need an enrollment token from your instructo
 <h3>✅ Already Enrolled</h3>
 <p>You're already a member of this class!</p>
 <div class="form-actions">
-<a href="{{ .Site.BaseURL }}dashboard/" class="btn-primary">Go to Dashboard</a>
+<button onclick="const baseUrl = window.location.origin + (window.location.pathname.split('/').slice(0, 2).join('/')); window.location.href = baseUrl + '/dashboard/';" class="btn-primary">Go to Dashboard</button>
 </div>
 </div>
 </div>
