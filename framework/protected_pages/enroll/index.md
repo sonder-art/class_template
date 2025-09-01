@@ -271,6 +271,7 @@ function setupEnrollmentForm() {
             }
             
             // Call enrollment API
+            console.log('🎓 Attempting enrollment with class slug:', classSlug);
             const result = await window.AuthClient.enroll(classSlug, token);
             console.log('✅ Enrollment successful:', result);
             

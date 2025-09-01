@@ -123,24 +123,41 @@ serve(async (req: Request) => {
     console.log('✅ User authenticated:', user.email)
 
     // Get class information
+    console.log('🔍 Looking for class with slug:', class_slug)
     const { data: classData, error: classError } = await supabaseService
       .from('classes')
-      .select('id, title')
+      .select('id, title, slug')
       .eq('slug', class_slug)
       .single()
 
     if (classError || !classData) {
       console.error('❌ Class not found:', classError)
+      console.error('❌ Class lookup error details:', {
+        code: classError?.code,
+        message: classError?.message,
+        class_slug_searched: class_slug
+      })
+      
+      // Check if any classes exist to help debug
+      const { data: allClasses } = await supabaseService
+        .from('classes')
+        .select('slug, title')
+      console.log('📋 Available classes in database:', allClasses)
+      
       return new Response(
         JSON.stringify({ 
           success: false,
-          error: 'Class not found' 
+          error: 'Class not found',
+          debug: {
+            searched_slug: class_slug,
+            available_classes: allClasses?.map(c => c.slug) || []
+          }
         }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('✅ Class found:', classData.title)
+    console.log('✅ Class found:', classData.title, 'with slug:', classData.slug)
 
     // Check if user is already enrolled
     const { data: existingMembership, error: membershipError } = await supabaseService
@@ -236,10 +253,29 @@ serve(async (req: Request) => {
 
     if (enrollError) {
       console.error('❌ Failed to enroll user:', enrollError)
+      console.error('❌ Enrollment error details:', {
+        code: enrollError.code,
+        message: enrollError.message,
+        details: enrollError.details,
+        hint: enrollError.hint
+      })
+      
+      // Provide more specific error message
+      let errorMessage = 'Failed to enroll in class'
+      if (enrollError.code === '23505') {
+        errorMessage = 'You are already enrolled in this class'
+      } else if (enrollError.code === '23503') {
+        errorMessage = 'Invalid class or user information'
+      }
+      
       return new Response(
         JSON.stringify({ 
           success: false,
-          error: 'Failed to enroll in class' 
+          error: errorMessage,
+          debug: {
+            code: enrollError.code,
+            message: enrollError.message
+          }
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
