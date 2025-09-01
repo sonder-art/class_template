@@ -50,11 +50,38 @@ class SmartUploadManager {
         console.log('✅ User authenticated:', this.currentUser?.user_metadata?.user_name);
     }
 
+    getDataUrl(filename) {
+        // Extract just the path portion from base_url for proper URL construction
+        let basePath = '';
+        const baseUrl = window.authConfig?.base_url || '';
+        
+        if (baseUrl) {
+            try {
+                // Try to parse as URL (development mode)
+                const url = new URL(baseUrl);
+                basePath = url.pathname;
+            } catch {
+                // Not a full URL, use as-is (production mode)
+                basePath = baseUrl;
+            }
+        } else {
+            // Fallback to current path analysis
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            basePath = pathParts.length > 0 ? `/${pathParts[0]}` : '';
+        }
+        
+        // Ensure proper formatting
+        if (!basePath.startsWith('/')) basePath = '/' + basePath;
+        if (basePath.endsWith('/')) basePath = basePath.slice(0, -1);
+        
+        return `${basePath}/data/${filename}`;
+    }
+
     async loadData() {
         console.log('📊 Loading assignment data...');
         
         // Load items from generated JSON (build-time data)
-        const itemsResponse = await fetch(`${window.location.origin}${window.authConfig?.base_url || ''}/data/items.json`);
+        const itemsResponse = await fetch(this.getDataUrl('items.json'));
         if (!itemsResponse.ok) {
             throw new Error('Failed to load items data');
         }
@@ -64,8 +91,8 @@ class SmartUploadManager {
         // Load modules and constituents for organization
         try {
             const [modulesResponse, constituentsResponse] = await Promise.all([
-                fetch(`${window.location.origin}${window.authConfig?.base_url || ''}/data/modules.json`),
-                fetch(`${window.location.origin}${window.authConfig?.base_url || ''}/data/constituents.json`)
+                fetch(this.getDataUrl('modules.json')),
+                fetch(this.getDataUrl('constituents.json'))
             ]);
             
             if (modulesResponse.ok) {
