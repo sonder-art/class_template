@@ -229,7 +229,18 @@ class ProfessorGradingInterface {
 
         // Process results
         this.items = itemsResult.data || [];
-        this.submissions = submissionsResult.data || [];
+        this.submissions = (submissionsResult.data || []).map(submission => {
+            // Parse JSON submission_data if it's a string
+            if (submission.submission_data && typeof submission.submission_data === 'string') {
+                try {
+                    submission.submission_data = JSON.parse(submission.submission_data);
+                } catch (e) {
+                    console.warn('Failed to parse submission_data for submission', submission.id, ':', e);
+                    submission.submission_data = {};
+                }
+            }
+            return submission;
+        });
         
         // Apply grade persistence logic in JavaScript
         this.applyGradePersistence();
@@ -269,6 +280,14 @@ class ProfessorGradingInterface {
             };
         });
         
+        // Attach profiles to submissions for rendering
+        this.submissions = this.submissions.map(submission => {
+            const student = this.students.find(s => s.user_id === submission.student_id);
+            if (student && student.profile) {
+                submission.profiles = student.profile;
+            }
+            return submission;
+        });
         
         this.modules = modulesResult.modules || [];
         this.constituents = constituentsResult.constituents || [];
@@ -310,6 +329,29 @@ class ProfessorGradingInterface {
             console.error('❌ Error loading grading data:', error);
             throw error;
         }
+    }
+
+    getLatestSubmissions() {
+        // Group submissions by student_id and item_id, return only the latest for each
+        const submissionGroups = {};
+        
+        this.submissions.forEach(submission => {
+            const key = `${submission.student_id}-${submission.item_id}`;
+            if (!submissionGroups[key]) {
+                submissionGroups[key] = [];
+            }
+            submissionGroups[key].push(submission);
+        });
+        
+        const latestSubmissions = [];
+        Object.values(submissionGroups).forEach(group => {
+            // Sort by attempt_number (descending to get latest first)
+            group.sort((a, b) => (b.attempt_number || 1) - (a.attempt_number || 1));
+            // Take the latest submission (first after sorting)
+            latestSubmissions.push(group[0]);
+        });
+        
+        return latestSubmissions;
     }
 
     applyGradePersistence() {
@@ -417,6 +459,51 @@ class ProfessorGradingInterface {
             console.error('❌ Error setting up View Submissions event delegation:', error);
         }
         
+        // ESC key handler for navigation
+        try {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // Check if we're in item detail view mode
+                    const itemsTab = document.getElementById('items-tab');
+                    const itemsContainer = document.getElementById('itemsView');
+                    if (itemsTab && itemsContainer && itemsTab.classList.contains('active')) {
+                        // If showing item submissions detail, go back to items list
+                        if (itemsContainer.dataset.viewMode === 'item-submissions') {
+                            e.preventDefault();
+                            this.renderItemListView();
+                            console.log('🔙 ESC: Returned to items list view');
+                            return;
+                        }
+                    }
+                    
+                    // Check if we're in student detail view mode
+                    const studentsTab = document.getElementById('students-tab');
+                    const studentsContainer = document.getElementById('studentView');
+                    if (studentsTab && studentsContainer && studentsTab.classList.contains('active')) {
+                        // If showing student submissions detail, go back to students list
+                        if (studentsContainer.dataset.viewMode === 'student-submissions') {
+                            e.preventDefault();
+                            this.renderStudentListView();
+                            console.log('🔙 ESC: Returned to students list view');
+                            return;
+                        }
+                    }
+                    
+                    // Check if grading modal is open
+                    const modal = document.getElementById('gradingModal');
+                    if (modal && modal.style.display !== 'none') {
+                        e.preventDefault();
+                        this.closeGradingModal();
+                        console.log('🔙 ESC: Closed grading modal');
+                        return;
+                    }
+                }
+            });
+            console.log('✅ ESC key handler setup complete');
+        } catch (error) {
+            console.error('❌ Error setting up ESC key handler:', error);
+        }
+        
         console.log('✅ Event listeners setup complete');
     }
 
@@ -445,8 +532,9 @@ class ProfessorGradingInterface {
     }
 
     renderStats() {
-        const pendingSubmissions = this.submissions.filter(s => !s.graded_at);
-        const gradedSubmissions = this.submissions.filter(s => s.graded_at);
+        const latestSubmissions = this.getLatestSubmissions();
+        const pendingSubmissions = latestSubmissions.filter(s => !s.graded_at);
+        const gradedSubmissions = latestSubmissions.filter(s => s.graded_at);
         
         document.getElementById('pendingCount').textContent = pendingSubmissions.length;
         document.getElementById('gradedCount').textContent = gradedSubmissions.length;
@@ -455,6 +543,13 @@ class ProfessorGradingInterface {
     }
 
     switchTab(tabName) {
+        // Reset item view mode when switching away from items tab or switching to items tab
+        if (this.currentTab === 'items' || tabName === 'items') {
+            this.itemViewMode = 'list';
+            this.selectedItemId = null;
+            console.log('🔄 Reset item view mode to list when switching tabs');
+        }
+        
         // Update tab buttons
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -492,7 +587,9 @@ class ProfessorGradingInterface {
 
     renderPendingSubmissions() {
         const container = document.getElementById('pendingSubmissions');
-        let pending = this.submissions.filter(s => !s.graded_at);
+        // Get only latest submissions, then filter for ungraded ones
+        const latestSubmissions = this.getLatestSubmissions();
+        let pending = latestSubmissions.filter(s => !s.graded_at);
         
         console.log('🔍 renderPendingSubmissions - total ungraded:', pending.length);
         console.log('🔍 Filter mode:', this.filterMode, 'value:', this.filterValue);
@@ -532,7 +629,9 @@ class ProfessorGradingInterface {
 
     renderGradedSubmissions() {
         const container = document.getElementById('gradedSubmissions');
-        const graded = this.submissions.filter(s => s.graded_at).slice(0, 20); // Show recent 20
+        // Get only latest submissions, then filter for graded ones
+        const latestSubmissions = this.getLatestSubmissions();
+        const graded = latestSubmissions.filter(s => s.graded_at).slice(0, 20); // Show recent 20
         
         if (graded.length === 0) {
             container.innerHTML = `
@@ -649,7 +748,20 @@ class ProfessorGradingInterface {
                 `;
                 
                 items.forEach(item => {
-                    const itemSubmissions = this.submissions.filter(s => s.item_id === item.id);
+                    // Get all submissions for this item and filter to latest per student
+                    const allItemSubmissions = this.submissions.filter(s => s.item_id === item.id);
+                    
+                    // Group by student and get only the latest attempt
+                    const latestByStudent = {};
+                    allItemSubmissions.forEach(submission => {
+                        const studentId = submission.student_id;
+                        if (!latestByStudent[studentId] || 
+                            (submission.attempt_number || 1) > (latestByStudent[studentId].attempt_number || 1)) {
+                            latestByStudent[studentId] = submission;
+                        }
+                    });
+                    
+                    const itemSubmissions = Object.values(latestByStudent);
                     const pending = itemSubmissions.filter(s => !s.graded_at).length;
                     const graded = itemSubmissions.filter(s => s.graded_at).length;
                     
@@ -874,7 +986,7 @@ class ProfessorGradingInterface {
                 <div class="submission-details">
                     <h5>${item?.title || 'Unknown Item'}</h5>
                     <div class="submission-content">
-                        ${this.renderSubmissionContent(submissionData)}
+                        ${this.renderSubmissionPreview(submissionData)}
                     </div>
                 </div>
                 <div class="submission-actions">
@@ -889,16 +1001,149 @@ class ProfessorGradingInterface {
         
         switch (type) {
             case 'url':
-                return `<a href="${submissionData.url}" target="_blank" class="submission-link">🔗 ${submissionData.url}</a>`;
+                const url = submissionData.url || 'No URL provided';
+                const urlDescription = submissionData.description || '';
+                return `
+                    <div class="submission-url">
+                        <p><strong>URL:</strong> <a href="${url}" target="_blank" class="submission-link">🔗 ${url}</a></p>
+                        ${urlDescription ? `<p><strong>Description:</strong> ${urlDescription}</p>` : ''}
+                    </div>
+                `;
+                
             case 'text':
-                return `<p class="submission-text">${submissionData.content || submissionData.text || 'No content'}</p>`;
+                const content = submissionData.content || submissionData.text || 'No content provided';
+                return `
+                    <div class="submission-text">
+                        <pre class="text-content">${content}</pre>
+                    </div>
+                `;
+                
             case 'file':
             case 'upload':
-                return `<span class="submission-file">📎 ${submissionData.filename || 'Uploaded file'}</span>`;
+                const fileName = submissionData.file_name || submissionData.filename || 'Uploaded file';
+                const fileDescription = submissionData.description || '';
+                const fileData = submissionData.file_data;
+                const fileSize = submissionData.file_size || 0;
+                const fileType = submissionData.file_type || 'application/octet-stream';
+                
+                // Format file size
+                const formatFileSize = (bytes) => {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                };
+                
+                return `
+                    <div class="submission-file">
+                        <p><strong>File:</strong> 📎 ${fileName}</p>
+                        ${fileType ? `<p><strong>Type:</strong> ${fileType}</p>` : ''}
+                        ${fileSize > 0 ? `<p><strong>Size:</strong> ${formatFileSize(fileSize)}</p>` : ''}
+                        ${fileDescription ? `<p><strong>Description:</strong> ${fileDescription}</p>` : ''}
+                        ${fileData ? 
+                            `<a href="${fileData}" download="${fileName}" class="btn-download" style="margin-top: 8px; padding: 8px 16px; background: var(--eva-green-primary); color: white; text-decoration: none; border-radius: 4px; display: inline-block; cursor: pointer;">
+                                ⬇️ Download File
+                            </a>` : 
+                            `<button class="btn-download" disabled style="margin-top: 8px; padding: 6px 12px; background: #ccc; border: none; border-radius: 4px; cursor: not-allowed;">
+                                ⬇️ No file data available
+                            </button>`
+                        }
+                    </div>
+                `;
+                
             case 'code':
-                return `<code class="submission-code">${submissionData.code || 'No code provided'}</code>`;
+                const code = submissionData.code || 'No code provided';
+                const language = submissionData.language || 'text';
+                const explanation = submissionData.explanation || '';
+                return `
+                    <div class="submission-code">
+                        <p><strong>Language:</strong> ${language}</p>
+                        <pre><code class="language-${language}">${code}</code></pre>
+                        ${explanation ? `<p><strong>Explanation:</strong> ${explanation}</p>` : ''}
+                    </div>
+                `;
+                
             default:
-                return `<span class="submission-generic">${JSON.stringify(submissionData)}</span>`;
+                return `
+                    <div class="submission-generic">
+                        <p><strong>Raw submission data:</strong></p>
+                        <pre>${JSON.stringify(submissionData, null, 2)}</pre>
+                    </div>
+                `;
+        }
+    }
+
+    renderSubmissionPreview(submissionData) {
+        const type = submissionData.type || 'text';
+        
+        switch (type) {
+            case 'url':
+                const url = submissionData.url || 'No URL provided';
+                const urlDescription = submissionData.description || '';
+                const shortUrl = url.length > 50 ? url.substring(0, 50) + '...' : url;
+                return `
+                    <div class="submission-preview url-preview">
+                        <p><strong>🔗 URL:</strong> <a href="${url}" target="_blank">${shortUrl}</a></p>
+                        ${urlDescription ? `<p class="preview-description">${urlDescription.length > 100 ? urlDescription.substring(0, 100) + '...' : urlDescription}</p>` : ''}
+                    </div>
+                `;
+                
+            case 'text':
+                const content = submissionData.content || submissionData.text || 'No content provided';
+                const shortContent = content.length > 150 ? content.substring(0, 150) + '...' : content;
+                return `
+                    <div class="submission-preview text-preview">
+                        <p><strong>📝 Text:</strong></p>
+                        <p class="preview-text">${shortContent}</p>
+                    </div>
+                `;
+                
+            case 'file':
+            case 'upload':
+                const fileName = submissionData.file_name || submissionData.filename || 'Uploaded file';
+                const fileDescription = submissionData.description || '';
+                const fileSize = submissionData.file_size || 0;
+                const fileType = submissionData.file_type || '';
+                const hasFileData = !!submissionData.file_data;
+                
+                // Format file size for preview
+                const formatBytes = (bytes) => {
+                    if (bytes === 0) return '0 B';
+                    const k = 1024;
+                    const sizes = ['B', 'KB', 'MB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+                };
+                
+                return `
+                    <div class="submission-preview file-preview">
+                        <p><strong>📎 File:</strong> ${fileName} ${hasFileData ? '✅' : '❌'}</p>
+                        ${fileSize > 0 ? `<small>${formatBytes(fileSize)} ${fileType ? `• ${fileType}` : ''}</small>` : ''}
+                        ${fileDescription ? `<p class="preview-description">${fileDescription.length > 80 ? fileDescription.substring(0, 80) + '...' : fileDescription}</p>` : ''}
+                    </div>
+                `;
+                
+            case 'code':
+                const language = submissionData.language || 'text';
+                const code = submissionData.code || 'No code provided';
+                const explanation = submissionData.explanation || '';
+                const shortCode = code.length > 100 ? code.substring(0, 100) + '...' : code;
+                return `
+                    <div class="submission-preview code-preview">
+                        <p><strong>💻 Code (${language}):</strong></p>
+                        <pre class="preview-code">${shortCode}</pre>
+                        ${explanation ? `<p class="preview-description">${explanation.length > 100 ? explanation.substring(0, 100) + '...' : explanation}</p>` : ''}
+                    </div>
+                `;
+                
+            default:
+                return `
+                    <div class="submission-preview generic-preview">
+                        <p><strong>📋 Submission data:</strong></p>
+                        <small>Click to grade for full details</small>
+                    </div>
+                `;
         }
     }
 
