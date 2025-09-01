@@ -2020,8 +2020,9 @@
 
 .grading-tabs .tab-btn.active {
     background: linear-gradient(135deg, var(--eva-purple-primary), var(--eva-purple-accent));
-    color: var(--bg-color);
+    color: white;
     box-shadow: 0 2px 8px rgba(180, 142, 173, 0.3);
+    font-weight: 600;
 }
 
 /* Tab Content */
