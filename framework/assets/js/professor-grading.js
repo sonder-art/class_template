@@ -280,6 +280,14 @@ class ProfessorGradingInterface {
             };
         });
         
+        // Attach profiles to submissions for rendering
+        this.submissions = this.submissions.map(submission => {
+            const student = this.students.find(s => s.user_id === submission.student_id);
+            if (student && student.profile) {
+                submission.profiles = student.profile;
+            }
+            return submission;
+        });
         
         this.modules = modulesResult.modules || [];
         this.constituents = constituentsResult.constituents || [];
