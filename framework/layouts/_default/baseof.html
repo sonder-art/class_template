@@ -50,6 +50,11 @@
         <link rel="stylesheet" href="{{ $pythonUIFrameworkCSS.RelPermalink }}">
     {{ end }}
     
+    {{ $smartUploadCSS := resources.Get "css/components/smart-upload.css" }}
+    {{ if $smartUploadCSS }}
+        <link rel="stylesheet" href="{{ $smartUploadCSS.RelPermalink }}">
+    {{ end }}
+    
     <!-- THEME HOOK: Load theme-specific stylesheets (AFTER framework) -->
     {{ block "theme-styles" . }}
         <!-- Evangelion Theme Core Styles -->

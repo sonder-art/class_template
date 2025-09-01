@@ -170,13 +170,16 @@ class SmartUploadManager {
     }
 
     renderStats() {
+        const total = this.items.length;
         const submitted = this.items.filter(item => this.getSubmissionStatus(item.item_id) === 'submitted').length;
         const graded = this.items.filter(item => this.getSubmissionStatus(item.item_id) === 'graded').length;
-        const overdue = this.items.filter(item => this.isOverdue(item)).length;
-        const pending = this.items.length - submitted;
-
-        document.getElementById('totalItems').textContent = this.items.length;
-        document.getElementById('submittedItems').textContent = submitted + graded;
+        const overdue = this.items.filter(item => 
+            this.isOverdue(item) && this.getSubmissionStatus(item.item_id) === 'not_submitted').length;
+        const pending = total - submitted - graded;
+        
+        // Update basic stats
+        document.getElementById('totalItems').textContent = total;
+        document.getElementById('submittedItems').textContent = submitted;
         document.getElementById('pendingItems').textContent = pending;
         document.getElementById('overdueItems').textContent = overdue;
     }
@@ -332,26 +335,22 @@ class SmartUploadManager {
         const dueDateText = this.formatDueDate(item.due_date);
         
         return `
-            <div class="item-card ${statusClass}" data-item-id="${item.item_id}" data-constituent="${item.constituent_slug}" data-delivery-type="${item.delivery_type}">
+            <div class="item-card ${statusClass}" data-item-id="${item.item_id}">
                 <div class="item-header">
                     <h5>${item.title}</h5>
                     <span class="status-badge ${statusClass}">${statusText}</span>
                 </div>
-                <div class="item-details">
-                    <div class="item-meta">
-                        <span class="points">${item.points} points</span>
-                        ${dueDateText ? `<span class="due-date">${dueDateText}</span>` : ''}
-                        <span class="delivery-type">${this.getDeliveryIcon(item.delivery_type)} ${item.delivery_type}</span>
-                    </div>
-                    ${submission ? this.renderSubmissionInfo(submission) : ''}
+                
+                <div class="item-meta">
+                    <span class="points">${item.points} pts</span>
+                    ${dueDateText ? `<span class="due-date ${isOverdue ? 'urgent' : ''}">${dueDateText}</span>` : ''}
+                    <span class="delivery-type">${this.getDeliveryIcon(item.delivery_type)} ${this.formatDeliveryType(item.delivery_type)}</span>
                 </div>
+                
+                ${submission ? this.renderSubmissionInfo(submission) : ''}
+                
                 <div class="item-actions">
-                    ${status === 'graded' ? 
-                        `<span class="grade">${submission.adjusted_score || submission.raw_score}/${item.points}</span>` : 
-                        `<button class="submit-btn" onclick="window.smartUpload.openSubmissionForm('${item.item_id}')">
-                            ${status === 'submitted' ? '📝 Resubmit' : '📤 Submit'}
-                        </button>`
-                    }
+                    ${this.renderSimpleActionButton(status, submission, item)}
                 </div>
             </div>
         `;
@@ -419,6 +418,83 @@ class SmartUploadManager {
         return iconMap[deliveryType] || '📋';
     }
 
+    getDueDateInfo(dueDateStr) {
+        if (!dueDateStr) return { html: '', class: '' };
+        
+        const date = new Date(dueDateStr);
+        const now = new Date();
+        const diffDays = Math.ceil((date - now) / (1000 * 60 * 60 * 24));
+        
+        let text, className;
+        
+        if (diffDays < 0) {
+            text = `⏰ ${Math.abs(diffDays)} days overdue`;
+            className = 'urgent';
+        } else if (diffDays === 0) {
+            text = '🔥 Due today!';
+            className = 'urgent';
+        } else if (diffDays === 1) {
+            text = '⚡ Due tomorrow';
+            className = 'soon';
+        } else if (diffDays <= 3) {
+            text = `📅 ${diffDays} days left`;
+            className = 'soon';
+        } else {
+            text = `📅 ${diffDays} days`;
+            className = 'plenty';
+        }
+        
+        return {
+            html: `<span class="due-date ${className}">${text}</span>`,
+            class: className
+        };
+    }
+
+    formatDeliveryType(type) {
+        const formats = {
+            'url': 'URL Link',
+            'upload': 'File Upload',
+            'file': 'File Upload',
+            'code': 'Code Submission',
+            'text': 'Text Entry',
+            'presentation': 'Presentation',
+            'video': 'Video'
+        };
+        return formats[type] || type;
+    }
+
+    renderEnhancedSubmissionInfo(submission, item) {
+        const submissionDate = new Date(submission.submitted_at).toLocaleDateString();
+        const hasGrade = submission.raw_score !== null || submission.adjusted_score !== null;
+        
+        return `
+            <div class="enhanced-submission-info">
+                <div class="submission-meta">
+                    <span class="submission-date">Submitted: ${submissionDate}</span>
+                    ${submission.feedback ? '<span class="has-feedback">💬 Feedback available</span>' : ''}
+                </div>
+                ${hasGrade ? `
+                    <div class="submission-grade-info">
+                        <small>Score: ${submission.adjusted_score || submission.raw_score}/${item.points}</small>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }
+
+    renderSimpleActionButton(status, submission, item) {
+        if (status === 'graded') {
+            const score = submission.adjusted_score || submission.raw_score;
+            return `<span class="grade">✅ ${score}/${item.points}</span>`;
+        }
+        
+        if (status === 'submitted') {
+            return `<button class="submit-btn resubmit" onclick="window.smartUpload.openSubmissionForm('${item.item_id}')">Update</button>`;
+        }
+        
+        return `<button class="submit-btn" onclick="window.smartUpload.openSubmissionForm('${item.item_id}')">Submit</button>`;
+    }
+
     openSubmissionForm(itemId) {
         // Find the item card and trigger the submission form
         const itemCard = document.querySelector(`[data-item-id="${itemId}"]`);
@@ -438,6 +514,101 @@ class SmartUploadManager {
                 const handler = new ItemSubmissionHandler();
             }
         }
+    }
+
+    showFeedback(itemId) {
+        const submission = this.getSubmission(itemId);
+        if (!submission || !submission.feedback) {
+            alert('No feedback available for this item.');
+            return;
+        }
+        
+        // Create a modal-style feedback display
+        const modal = document.createElement('div');
+        modal.className = 'feedback-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 2rem;
+        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: var(--elevated-color);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-default);
+        `;
+        
+        const item = this.items.find(i => i.item_id === itemId);
+        modalContent.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; color: var(--text-primary);">💬 Feedback</h3>
+                <button class="close-feedback" style="
+                    background: transparent;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: var(--text-secondary);
+                    padding: 0;
+                    line-height: 1;
+                ">×</button>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: var(--text-primary);">Assignment:</strong> ${item ? item.title : 'Unknown'}
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: var(--text-primary);">Grade:</strong> 
+                <span style="color: var(--eva-green-primary); font-weight: 600;">
+                    ${submission.adjusted_score || submission.raw_score}/${item ? item.points : 'N/A'}
+                </span>
+            </div>
+            <div style="
+                background: var(--surface-color);
+                padding: 1.5rem;
+                border-radius: 8px;
+                border-left: 4px solid var(--eva-green-primary);
+                line-height: 1.6;
+                color: var(--text-primary);
+                white-space: pre-wrap;
+            ">${submission.feedback}</div>
+        `;
+        
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+        
+        // Close modal handlers
+        const closeBtn = modalContent.querySelector('.close-feedback');
+        const closeModal = () => {
+            document.body.removeChild(modal);
+        };
+        
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+        
+        // ESC key to close
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
     }
 
     showAuthRequired() {

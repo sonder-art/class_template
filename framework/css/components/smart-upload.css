@@ -1,0 +1,554 @@
+/*
+ * Smart Upload Interface - Enhanced UX/UI Components
+ * Professional styling for assignment submission interface
+ */
+
+/* === LAYOUT & GRID SYSTEM === */
+
+.submissions-interface {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.submissions-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.stat-item {
+    background: var(--elevated-color);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.stat-number {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* Completion Indicator Ring */
+.completion-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.completion-ring {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.completion-text {
+    position: absolute;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--eva-green-primary);
+}
+
+.completion-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* === CONTROLS & FILTERS === */
+
+.submissions-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--elevated-color);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+.control-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.control-group select,
+.control-group input {
+    padding: 0.75rem;
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    background: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.control-group select:focus,
+.control-group input:focus {
+    outline: none;
+    border-color: var(--eva-cyan-primary);
+    box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+}
+
+/* === STATUS BADGE SYSTEM - SIMPLE === */
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+    color: white;
+}
+
+/* Pending/Not Submitted - Orange */
+.status-badge.not_submitted {
+    background-color: #f97316;
+}
+
+/* Submitted - Blue */
+.status-badge.submitted {
+    background-color: #2563eb;
+}
+
+/* Graded - Green */
+.status-badge.graded {
+    background-color: #16a34a;
+}
+
+/* Overdue - Red */
+.status-badge.overdue {
+    background-color: #dc2626;
+}
+
+/* === ITEM CARDS === */
+
+.module-group {
+    margin-bottom: 3rem;
+}
+
+.module-header {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: var(--elevated-color);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    border-left: 4px solid var(--eva-cyan-primary);
+}
+
+.module-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.constituent-group {
+    margin-bottom: 2rem;
+}
+
+.constituent-group h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    font-weight: 600;
+    padding-left: 1rem;
+    border-left: 2px solid var(--eva-purple-primary);
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1rem;
+}
+
+/* Simple Card Design */
+.item-card {
+    background: var(--elevated-color);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: box-shadow 0.2s ease;
+}
+
+.item-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* === CARD CONTENT === */
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.item-header h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.item-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.points {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.due-date {
+    color: var(--text-secondary);
+}
+
+.due-date.urgent {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.delivery-type {
+    color: var(--text-secondary);
+}
+
+/* Submission Info */
+.submission-info {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #3B82F6;
+}
+
+.submission-info small {
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* Enhanced Submission Info */
+.enhanced-submission-info {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: var(--surface-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+}
+
+.submission-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.submission-date {
+    color: var(--text-secondary);
+}
+
+.has-feedback {
+    color: var(--eva-green-primary);
+    font-weight: 500;
+}
+
+/* Grade Progress */
+.grade-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--surface-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--eva-green-primary), var(--eva-cyan-primary));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.grade-text {
+    font-weight: 600;
+    color: var(--eva-green-primary);
+    min-width: 40px;
+}
+
+/* === ACTIONS === */
+
+.item-actions {
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    background: rgba(0, 0, 0, 0.02);
+    border-top: 1px solid var(--border-light);
+}
+
+/* Grade Display for Completed Items */
+.graded-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grade {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #10B981;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.grade::before {
+    content: '✅';
+}
+
+/* Simple Submit Button */
+.submit-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.submit-btn:hover {
+    background-color: #1d4ed8;
+}
+
+.submit-btn.resubmit {
+    background-color: #f97316;
+}
+
+.submit-btn.resubmit:hover {
+    background-color: #ea580c;
+}
+
+/* View Feedback Button */
+.view-feedback-btn {
+    background: transparent;
+    border: 1px solid var(--eva-green-primary);
+    color: var(--eva-green-primary);
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.view-feedback-btn:hover {
+    background: var(--eva-green-primary);
+    color: white;
+}
+
+/* === EMPTY STATES === */
+
+.no-items {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+}
+
+.no-items p {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+}
+
+.no-items button {
+    background: var(--eva-cyan-primary);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.no-items button:hover {
+    background: var(--eva-cyan-secondary);
+}
+
+/* === SIMPLE ANIMATIONS === */
+
+.item-card.highlighted {
+    border-color: var(--eva-orange-primary);
+    box-shadow: 0 0 10px var(--eva-orange-glow);
+}
+
+/* === RESPONSIVE DESIGN === */
+
+@media (max-width: 1024px) {
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .submissions-interface {
+        padding: 1rem 0.5rem;
+    }
+    
+    .stats-summary {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .submissions-controls {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .control-group {
+        min-width: unset;
+    }
+    
+    .items-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .item-card {
+        margin-bottom: 12px;
+    }
+    
+    .item-header {
+        padding: 1rem 1rem 0.75rem 1rem;
+    }
+    
+    .item-title-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .item-details {
+        padding: 0.75rem 1rem;
+    }
+    
+    .item-meta {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .item-actions {
+        padding: 0.75rem 1rem 1rem 1rem;
+    }
+    
+    .graded-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-item {
+        padding: 1rem 0.75rem;
+    }
+    
+    .item-title-section h5 {
+        font-size: 1rem;
+    }
+    
+    .submit-btn {
+        padding: 10px 20px;
+        font-size: 0.8rem;
+    }
+}
+
+/* === HIGH CONTRAST MODE === */
+
+@media (prefers-contrast: high) {
+    .item-card {
+        border-width: 2px;
+    }
+    
+    .status-badge {
+        border: 2px solid currentColor;
+        font-weight: 700;
+    }
+    
+    .submit-btn {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* === REDUCED MOTION === */
+
+@media (prefers-reduced-motion: reduce) {
+    .item-card,
+    .submit-btn,
+    .status-badge {
+        transition: none;
+    }
+    
+    .subtle-pulse,
+    .urgent-pulse,
+    .highlightPulse {
+        animation: none;
+    }
+}
