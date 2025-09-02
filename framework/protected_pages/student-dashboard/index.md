@@ -98,25 +98,41 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeStudentDashboard() {
-    // Check for debug session first
+    // Check for debug session first - but validate it's legitimate
     const debugSession = sessionStorage.getItem('professor_debug_session');
     let targetStudentId = null;
     
     if (debugSession) {
-        const session = JSON.parse(debugSession);
-        
-        // Check expiration
-        if (new Date(session.expires_at) < new Date()) {
-            sessionStorage.removeItem('professor_debug_session');
-        } else {
-            // Show debug banner
-            document.getElementById('debugBanner').style.display = 'block';
-            document.getElementById('debugInfo').textContent = 
-                session.mode === 'self' 
-                    ? 'Viewing as Professor (test data)' 
-                    : `Viewing as Student ID: ${session.target_student_id}`;
+        try {
+            const session = JSON.parse(debugSession);
             
-            targetStudentId = session.mode === 'self' ? null : session.target_student_id;
+            // Check expiration
+            if (new Date(session.expires_at) < new Date()) {
+                sessionStorage.removeItem('professor_debug_session');
+                console.log('Debug session expired, removed');
+            } else {
+                // Validate that the current user is actually a professor
+                const userContext = window.authState?.userContext;
+                if (!userContext || !userContext.is_professor) {
+                    // Not a professor - remove debug session to prevent data leakage
+                    sessionStorage.removeItem('professor_debug_session');
+                    console.warn('Debug session found but user is not a professor - removing session');
+                } else {
+                    // Valid professor debug session
+                    document.getElementById('debugBanner').style.display = 'block';
+                    document.getElementById('debugInfo').textContent = 
+                        session.mode === 'self' 
+                            ? 'Viewing as Professor (test data)' 
+                            : `Viewing as Student ID: ${session.target_student_id}`;
+                    
+                    targetStudentId = session.mode === 'self' ? null : session.target_student_id;
+                    console.log('Valid professor debug session active');
+                }
+            }
+        } catch (error) {
+            // Invalid debug session format
+            sessionStorage.removeItem('professor_debug_session');
+            console.warn('Invalid debug session format, removed');
         }
     }
     
@@ -199,18 +215,43 @@ async function loadUpcomingWork() {
             return;
         }
         
-        const { data: items, error } = await window.authState.client
+        const studentId = window.authState?.user?.id;
+        if (!studentId) {
+            document.getElementById('upcomingList').innerHTML = '<p>Unable to determine student ID</p>';
+            return;
+        }
+        
+        // Get all current items with due dates in the future
+        const { data: allItems, error: itemsError } = await window.authState.client
             .from('items')
             .select('id, title, points, due_date, constituent_slug')
             .gt('due_date', new Date().toISOString())
             .eq('is_current', true)
-            .order('due_date', { ascending: true })
-            .limit(5);
+            .order('due_date', { ascending: true });
         
-        if (!error && items) {
-            displayUpcomingWork(items);
+        if (itemsError || !allItems) {
+            console.warn('Error loading items:', itemsError);
+            document.getElementById('upcomingList').innerHTML = '<p>Unable to load assignments</p>';
+            return;
+        }
+        
+        // Get student's submissions to filter out completed items
+        const { data: submissions, error: submissionsError } = await window.authState.client
+            .from('student_submissions')
+            .select('item_id')
+            .eq('student_id', studentId);
+        
+        if (submissionsError) {
+            console.warn('Error loading submissions:', submissionsError);
+        }
+        
+        // Filter out items the student has already submitted
+        const submittedItemIds = new Set((submissions || []).map(s => s.item_id));
+        const upcomingItems = allItems.filter(item => !submittedItemIds.has(item.id)).slice(0, 5);
+        
+        if (upcomingItems.length > 0) {
+            displayUpcomingWork(upcomingItems);
         } else {
-            console.warn('No upcoming items found or error:', error);
             document.getElementById('upcomingList').innerHTML = '<p>No upcoming assignments found</p>';
         }
     } catch (error) {
@@ -279,7 +320,56 @@ function updateGradeDisplay(gradeData) {
     
     // Update counts
     document.getElementById('gradedCount').textContent = summary.total_grades || 0;
-    document.getElementById('pendingCount').textContent = 0; // Will calculate from submissions later
+    
+    // Calculate pending count - will be updated by calculatePendingCount()
+    calculatePendingCount();
+}
+
+async function calculatePendingCount() {
+    try {
+        if (!window.authState?.client) {
+            document.getElementById('pendingCount').textContent = 0;
+            return;
+        }
+        
+        const studentId = window.authState?.user?.id;
+        if (!studentId) {
+            document.getElementById('pendingCount').textContent = 0;
+            return;
+        }
+        
+        // Get all current items
+        const { data: allItems, error: itemsError } = await window.authState.client
+            .from('items')
+            .select('id')
+            .eq('is_current', true);
+        
+        if (itemsError || !allItems) {
+            document.getElementById('pendingCount').textContent = 0;
+            return;
+        }
+        
+        // Get student's submissions
+        const { data: submissions, error: submissionsError } = await window.authState.client
+            .from('student_submissions')
+            .select('item_id')
+            .eq('student_id', studentId);
+        
+        if (submissionsError) {
+            document.getElementById('pendingCount').textContent = 0;
+            return;
+        }
+        
+        // Calculate pending items (items not yet submitted)
+        const submittedItemIds = new Set((submissions || []).map(s => s.item_id));
+        const pendingCount = allItems.filter(item => !submittedItemIds.has(item.id)).length;
+        
+        document.getElementById('pendingCount').textContent = pendingCount;
+        
+    } catch (error) {
+        console.error('Failed to calculate pending count:', error);
+        document.getElementById('pendingCount').textContent = 0;
+    }
 }
 
 function displayUpcomingWork(items) {

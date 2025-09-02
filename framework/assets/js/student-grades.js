@@ -12,6 +12,7 @@ class StudentGradesInterface {
         this.grades = [];
         this.submissions = [];
         this.modules = [];
+        this.constituents = [];
         this.currentTab = 'overview';
         
         this.init();
@@ -184,7 +185,7 @@ class StudentGradesInterface {
 
     async loadSubmissions() {
         try {
-            const { data: submissions, error } = await this.supabaseClient
+            const { data: allSubmissions, error } = await this.supabaseClient
                 .from('student_submissions')
                 .select(`
                     id,
@@ -200,7 +201,8 @@ class StudentGradesInterface {
                         title,
                         points,
                         constituent_slug,
-                        delivery_type
+                        delivery_type,
+                        is_current
                     )
                 `)
                 .eq('student_id', this.currentUser.id)
@@ -212,8 +214,13 @@ class StudentGradesInterface {
                 return;
             }
 
-            this.submissions = submissions || [];
-            console.log(`Loaded ${this.submissions.length} submissions`);
+            // Filter out submissions for non-current items after the join
+            const currentSubmissions = (allSubmissions || []).filter(submission => 
+                submission.items && submission.items.is_current === true
+            );
+
+            this.submissions = this.getLatestSubmissions(currentSubmissions);
+            console.log(`Loaded ${allSubmissions?.length || 0} total submissions, ${currentSubmissions.length} for current items, ${this.submissions.length} latest submissions`);
 
         } catch (error) {
             console.error('Failed to load submissions:', error);
@@ -227,18 +234,62 @@ class StudentGradesInterface {
             const pathParts = window.location.pathname.split('/').filter(Boolean);
             const baseUrl = pathParts.length > 0 ? `/${pathParts[0]}/` : '/';
             const modulesUrl = `${baseUrl}data/modules.json`;
+            const constituentsUrl = `${baseUrl}data/constituents.json`;
             
             console.log('🔍 Loading modules from:', modulesUrl);
             const classTemplateResponse = await fetch(modulesUrl);
             if (classTemplateResponse.ok) {
-                this.modules = await classTemplateResponse.json();
+                const modulesData = await classTemplateResponse.json();
+                this.modules = modulesData.modules || [];
                 console.log('✅ Loaded modules:', this.modules);
             } else {
                 console.warn('⚠️ Could not load modules.json, continuing without module data');
             }
+            
+            console.log('🔍 Loading constituents from:', constituentsUrl);
+            const constituentsResponse = await fetch(constituentsUrl);
+            if (constituentsResponse.ok) {
+                const constituentsData = await constituentsResponse.json();
+                this.constituents = constituentsData.constituents || [];
+                console.log('✅ Loaded constituents:', this.constituents);
+            } else {
+                console.warn('⚠️ Could not load constituents.json, continuing without constituent data');
+            }
         } catch (error) {
-            console.error('Failed to load modules:', error);
+            console.error('Failed to load modules/constituents:', error);
         }
+    }
+
+    /**
+     * Filter submissions to show only the latest attempt per item
+     */
+    getLatestSubmissions(allSubmissions) {
+        const submissionGroups = {};
+        
+        // Group submissions by item_id
+        allSubmissions.forEach(submission => {
+            const itemId = submission.item_id;
+            if (!submissionGroups[itemId]) {
+                submissionGroups[itemId] = [];
+            }
+            submissionGroups[itemId].push(submission);
+        });
+        
+        // For each item, get the latest submission (highest attempt_number or latest submitted_at)
+        const latestSubmissions = [];
+        Object.values(submissionGroups).forEach(group => {
+            // Sort by attempt_number (descending), then by submitted_at (descending)
+            group.sort((a, b) => {
+                const attemptDiff = (b.attempt_number || 1) - (a.attempt_number || 1);
+                if (attemptDiff !== 0) return attemptDiff;
+                return new Date(b.submitted_at) - new Date(a.submitted_at);
+            });
+            
+            // Take the first (latest) submission
+            latestSubmissions.push(group[0]);
+        });
+        
+        return latestSubmissions;
     }
 
     renderGradesInterface() {
@@ -446,7 +497,7 @@ class StudentGradesInterface {
                     </select>
                     <select id="submission-module-filter">
                         <option value="">All Modules</option>
-                        ${this.modules.map(module => 
+                        ${(this.modules || []).map(module => 
                             `<option value="${module.id}">${module.name}</option>`
                         ).join('')}
                     </select>
@@ -844,21 +895,48 @@ class StudentGradesInterface {
         const statusFilter = document.getElementById('submission-status-filter')?.value;
         const moduleFilter = document.getElementById('submission-module-filter')?.value;
         
-        // Re-render submissions with filters applied
-        let filteredSubmissions = this.submissions;
+        // Start with all submissions
+        let filteredSubmissions = [...this.submissions];
         
+        // Apply status filter
         if (statusFilter === 'graded') {
             filteredSubmissions = filteredSubmissions.filter(s => s.raw_score !== null);
         } else if (statusFilter === 'ungraded') {
             filteredSubmissions = filteredSubmissions.filter(s => s.raw_score === null);
         }
         
+        // Apply module filter
+        if (moduleFilter) {
+            filteredSubmissions = filteredSubmissions.filter(submission => {
+                // Find which module this submission belongs to by matching constituent_slug
+                const constituentSlug = submission.items?.constituent_slug;
+                if (!constituentSlug) return false;
+                
+                // Find the constituent that matches this slug
+                const constituent = this.constituents.find(c => c.slug === constituentSlug);
+                if (!constituent) return false;
+                
+                // Check if the constituent's module_id matches the selected module filter
+                return constituent.module_id === moduleFilter;
+            });
+        }
+        
         // Update the submissions list
         const submissionsList = document.querySelector('.submissions-list');
         if (submissionsList) {
-            submissionsList.innerHTML = filteredSubmissions
-                .map(submission => this.renderSubmissionCard(submission))
-                .join('');
+            if (filteredSubmissions.length === 0) {
+                submissionsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <h4>No submissions match your filters</h4>
+                        <p>Try adjusting your filter selections.</p>
+                    </div>
+                `;
+            } else {
+                submissionsList.innerHTML = filteredSubmissions
+                    .map(submission => this.renderSubmissionCard(submission))
+                    .join('');
+            }
         }
     }
 
