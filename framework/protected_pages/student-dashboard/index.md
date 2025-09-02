@@ -179,27 +179,21 @@ async function loadStudentInfo(targetStudentId) {
 
 async function loadGradeOverview(targetStudentId) {
     try {
-        // Build URL with student_id if provided (for professor debug mode)
-        let gradesUrl = 'https://levybxqsltedfjtnkntm.supabase.co/functions/v1/student-grades?level=module';
-        if (targetStudentId) {
-            gradesUrl += `&student_id=${targetStudentId}`;
-        }
-        
-        const response = await fetch(gradesUrl, {
-            headers: {
-                'Authorization': `Bearer ${window.authState.session.access_token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            updateGradeDisplay(data);
-        } else {
-            console.warn('Failed to load grade overview:', response.status);
-            // Show default/empty state
+        if (!window.AuthClient) {
+            console.warn('AuthClient not available');
             updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
+            return;
         }
+        
+        // Build endpoint URL with student_id if provided (for professor debug mode)
+        let endpoint = '/student-grades?level=module';
+        if (targetStudentId) {
+            endpoint += `&student_id=${targetStudentId}`;
+        }
+        
+        const data = await window.AuthClient.callEndpoint(endpoint);
+        updateGradeDisplay(data);
+        
     } catch (error) {
         console.error('Failed to load grade overview:', error);
         updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
