@@ -72,11 +72,11 @@ View your current grades, submission history, and academic progress.
 <div class="summary-card graded-items">
 <div class="card-header">
 <span class="card-icon">✅</span>
-<span class="card-title">Items Graded</span>
+<span class="card-title">Modules Graded</span>
 </div>
 <div class="count-display">
 <span class="count-number">--</span>
-<span class="count-label">items</span>
+<span class="count-label">modules</span>
 </div>
 </div>
 

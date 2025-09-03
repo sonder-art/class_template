@@ -187,53 +187,73 @@ CREATE OR REPLACE FUNCTION calculate_module_grades(
     p_student_id UUID,
     p_class_id UUID
 ) RETURNS TABLE (
+    student_id UUID,
+    class_id UUID,
+    grade_level TEXT,
     module_id TEXT,
-    module_name TEXT,
-    raw_score NUMERIC,
     final_score NUMERIC,
-    grade_count INTEGER
-) 
+    max_points NUMERIC,
+    computed_at TIMESTAMPTZ,
+    modules JSONB
+)
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 BEGIN
     RETURN QUERY
-    WITH module_submissions AS (
+    WITH latest_submissions AS (
+        SELECT DISTINCT ON (ss.item_id)
+            ss.item_id,
+            ss.adjusted_score,
+            ss.graded_at
+        FROM student_submissions ss
+        INNER JOIN items i ON i.id = ss.item_id
+        WHERE ss.student_id = p_student_id
+        AND ss.class_id = p_class_id
+        AND ss.graded_at IS NOT NULL
+        AND i.is_current = true
+        ORDER BY ss.item_id, ss.graded_at DESC
+    ),
+    module_grades AS (
         SELECT 
             m.id as module_id,
             m.name as module_name,
-            array_agg(
-                COALESCE(ls.adjusted_score, ls.raw_score, 0)
-                ORDER BY hi.id
-            ) FILTER (WHERE ls.raw_score IS NOT NULL) AS grades_array,
-            COUNT(ls.raw_score) as grade_count
+            m.color as module_color,
+            m.icon as module_icon,
+            -- Collect all grades for this module for policy calculation
+            array_agg(ls.adjusted_score ORDER BY i.id) FILTER (WHERE ls.adjusted_score IS NOT NULL) as grades_array,
+            COALESCE(SUM(ls.adjusted_score), 0) as raw_total,
+            COALESCE(SUM(i.points), 0) as max_points,
+            MAX(ls.graded_at) as computed_at,
+            COUNT(ls.adjusted_score) as grade_count
         FROM modules m
-        LEFT JOIN constituents c ON c.module_id = m.id AND c.class_id = p_class_id
-        LEFT JOIN homework_items hi ON hi.constituent_slug = c.slug AND hi.class_id = p_class_id
-        LEFT JOIN LATERAL (
-            SELECT DISTINCT ON (ss.item_id)
-                ss.raw_score,
-                ss.adjusted_score
-            FROM student_submissions ss
-            WHERE ss.student_id = p_student_id
-            AND ss.class_id = p_class_id
-            AND ss.item_id = hi.id
-            ORDER BY ss.item_id, ss.attempt_number DESC
-        ) ls ON true
+        LEFT JOIN constituents c ON c.module_id = m.id AND c.is_current = true
+        LEFT JOIN items i ON i.constituent_slug = c.slug AND i.class_id = p_class_id AND i.is_current = true
+        LEFT JOIN latest_submissions ls ON ls.item_id = i.id
         WHERE m.class_id = p_class_id
         AND m.is_current = true
-        GROUP BY m.id, m.name, m.order_index
-        ORDER BY m.order_index
+        GROUP BY m.id, m.name, m.color, m.icon
+        HAVING COALESCE(SUM(i.points), 0) > 0
     )
     SELECT 
-        ms.module_id,
-        ms.module_name,
-        COALESCE(AVG(g), 0) as raw_score,
-        apply_grading_policy(ms.module_id, p_class_id, ms.grades_array) as final_score,
-        ms.grade_count::INTEGER
-    FROM module_submissions ms
-    LEFT JOIN LATERAL UNNEST(COALESCE(ms.grades_array, ARRAY[]::NUMERIC[])) AS g ON true
-    GROUP BY ms.module_id, ms.module_name, ms.grades_array, ms.grade_count;
+        p_student_id as student_id,
+        p_class_id as class_id,
+        'module'::TEXT as grade_level,
+        mg.module_id,
+        -- Apply grading policy if grades exist, otherwise use raw total
+        CASE 
+            WHEN mg.grades_array IS NOT NULL AND array_length(mg.grades_array, 1) > 0
+            THEN apply_grading_policy(mg.module_id, p_class_id, mg.grades_array)
+            ELSE mg.raw_total
+        END as final_score,
+        mg.max_points,
+        mg.computed_at,
+        jsonb_build_object(
+            'name', mg.module_name, 
+            'color', mg.module_color, 
+            'icon', mg.module_icon
+        ) as modules
+    FROM module_grades mg;
 END;
 $$;
 
