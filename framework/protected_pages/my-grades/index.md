@@ -212,6 +212,20 @@ View your current grades, submission history, and academic progress.
     justify-content: center;
     font-size: 1.5rem;
     backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-avatar .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-avatar .avatar-fallback {
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.8);
 }
 
 .profile-details h2 {

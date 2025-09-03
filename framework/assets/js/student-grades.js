@@ -313,11 +313,19 @@ class StudentGradesInterface {
         const userContext = window.authState?.userContext;
 
         if (studentInfo && user && userContext) {
+            // Use GitHub profile picture if available, otherwise fallback to placeholder
+            const avatarUrl = userContext.avatar_url || '/assets/images/profile-placeholder.svg';
+            const displayName = userContext.full_name || userContext.github_username || user.email;
+            const githubUsername = userContext.github_username || 'Unknown';
+            
             studentInfo.innerHTML = `
-                <div class="profile-avatar">👤</div>
+                <div class="profile-avatar">
+                    <img src="${avatarUrl}" alt="Profile" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="avatar-fallback" style="display:none;">👤</div>
+                </div>
                 <div class="profile-details">
-                    <h2>${user.email}</h2>
-                    <p class="student-meta">@${userContext.github_username || 'Unknown'} • ${userContext.class_title || 'GitHub Class Template'}</p>
+                    <h2>${displayName}</h2>
+                    <p class="student-meta">@${githubUsername} • ${userContext.class_title || 'GitHub Class Template'}</p>
                 </div>
             `;
         }
