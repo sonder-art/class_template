@@ -205,20 +205,39 @@ class GradingDataSynchronizer:
         try:
             for policy_data in policies_data:
                 try:
-                    module_id = policy_data['module_id']
+                    module_id = policy_data.get('module_id')  # None for universal policies
                     version = policy_data['version']
+                    policy_name = policy_data['policy_name']
+                    class_id = self.class_config.get('class_id')
                     
-                    # Check if policy exists (by module_id and version)
-                    existing = self.supabase.table('grading_policies').select('*').eq('module_id', module_id).eq('version', version).execute()
+                    if not class_id:
+                        raise Exception("class_id not found in configuration")
+                    
+                    # Check if policy exists (by module_id, class_id, and version)
+                    query = self.supabase.table('grading_policies').select('*').eq('class_id', class_id).eq('version', version)
+                    if module_id:
+                        query = query.eq('module_id', module_id)
+                    else:
+                        query = query.is_('module_id', 'null')
+                    existing = query.execute()
+                    
+                    # Prepare policy_rules as JSONB (just the rules, not full YAML)
+                    policy_rules = {
+                        'grading_rules': policy_data['policy_data'].get('grading_rules', []),
+                        'policy_settings': policy_data['policy_data'].get('policy_settings', {}),
+                        'metadata': policy_data['policy_data'].get('policy_metadata', {})
+                    }
                     
                     # Prepare data for database
                     db_data = {
                         'module_id': module_id,
-                        'policy_name': policy_data['policy_name'],
+                        'class_id': class_id,
+                        'policy_name': policy_name,
                         'version': version,
-                        'policy_data': policy_data['policy_data'],  # Store full YAML as JSON
-                        'sql_function_name': policy_data.get('sql_function_name'),
-                        'is_active': True  # New/updated policies are active
+                        'policy_rules': policy_rules,  # Store as JSONB for SQL function
+                        'description': policy_data['policy_data'].get('policy_metadata', {}).get('description'),
+                        'is_active': True,  # New/updated policies are active
+                        'updated_at': 'now()'
                     }
                     
                     if existing.data:
@@ -226,12 +245,14 @@ class GradingDataSynchronizer:
                         policy_id = existing.data[0]['id']
                         self.supabase.table('grading_policies').update(db_data).eq('id', policy_id).execute()
                         result.updated_count += 1
-                        self.console.print(f"   📝 Updated policy: {policy_data['policy_name']}")
+                        policy_type = "Universal" if module_id is None else f"Module-specific ({module_id})"
+                        self.console.print(f"   📝 Updated {policy_type} policy: {policy_name}")
                     else:
                         # Create new policy
                         self.supabase.table('grading_policies').insert(db_data).execute()
                         result.created_count += 1
-                        self.console.print(f"   ➕ Created policy: {policy_data['policy_name']}")
+                        policy_type = "Universal" if module_id is None else f"Module-specific ({module_id})"
+                        self.console.print(f"   ➕ Created {policy_type} policy: {policy_name}")
                         
                 except Exception as e:
                     result.error_count += 1

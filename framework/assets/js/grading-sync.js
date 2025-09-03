@@ -117,28 +117,28 @@ class GradingSyncManager {
         console.log('📊 Loading grading data...');
         
         try {
-            // Load grading data from generated JSON files
-            const [modulesResponse, constituentsResponse, itemsResponse, classResponse] = await Promise.all([
-                fetch('/class_template/data/modules.json').catch(() => ({ ok: false })),
-                fetch('/class_template/data/constituents.json').catch(() => ({ ok: false })),
-                fetch('/class_template/data/items.json'),
+            // Load grading data from generated files
+            const [gradingResponse, classResponse] = await Promise.all([
+                fetch('/class_template/data/grading_complete.json'),
                 fetch('/class_template/data/class_context.json')
             ]);
             
-            // Parse responses
-            const modules = modulesResponse.ok ? await modulesResponse.json() : { modules: [] };
-            const constituents = constituentsResponse.ok ? await constituentsResponse.json() : { constituents: [] };
-            const items = await itemsResponse.json();
+            if (!gradingResponse.ok) {
+                throw new Error(`Failed to load grading data: ${gradingResponse.status}`);
+            }
+            
+            const gradingData = await gradingResponse.json();
             const classContext = await classResponse.json();
             
-            // Combine all data
+            // Extract data from the structured response (including grading policies)
             this.gradingData = {
-                modules: modules.modules || [],
-                constituents: constituents.constituents || [],
-                items: items.items || [],
+                modules: gradingData.data?.modules || [],
+                constituents: gradingData.data?.constituents || [],
+                items: gradingData.data?.items || [],
+                grading_policies: gradingData.data?.grading_policies || [],
                 metadata: {
-                    generated_at: items.generated_at,
-                    total_items: items.total_items,
+                    generated_at: gradingData.generated_at,
+                    total_items: gradingData.counts?.items || 0,
                     class_id: this.classId
                 }
             };
@@ -146,7 +146,8 @@ class GradingSyncManager {
             console.log('✅ Grading data loaded:', {
                 modules: this.gradingData.modules.length,
                 constituents: this.gradingData.constituents.length,
-                items: this.gradingData.items.length
+                items: this.gradingData.items.length,
+                grading_policies: this.gradingData.grading_policies?.length || 0
             });
             
             // Debug: Show detailed items data
@@ -165,29 +166,67 @@ class GradingSyncManager {
             console.log('🔍 DEBUG: Class ID being used for sync:', this.classId);
             
         } catch (error) {
-            throw new Error(`Failed to load grading data: ${error.message}`);
+            console.error('❌ Failed to load grading data:', error);
+            
+            // Fallback: Create minimal data structure to prevent crashes
+            this.gradingData = {
+                modules: [],
+                constituents: [],
+                items: [],
+                grading_policies: [],
+                metadata: {
+                    generated_at: new Date().toISOString(),
+                    total_items: 0,
+                    class_id: this.classId
+                }
+            };
+            
+            console.log('⚠️ Using fallback data structure');
+            this.showError(`Failed to load grading data: ${error.message}`);
         }
     }
     
     async loadDatabaseState() {
         console.log('📊 Loading current database state...');
         
-        const [modules, constituents, items] = await Promise.all([
-            this.supabase.from('modules').select('*').eq('class_id', this.classId),
-            this.supabase.from('constituents').select('*').eq('class_id', this.classId), 
-            this.supabase.from('items').select('*').eq('class_id', this.classId)
-        ]);
-        
-        this.databaseState = {
-            modules: modules.data || [],
-            constituents: constituents.data || [],
-            items: items.data || []
-        };
+        try {
+            // Handle grading_policies separately with proper error handling
+            let policies = { data: [] };
+            try {
+                policies = await this.supabase.from('grading_policies').select('*').eq('class_id', this.classId);
+            } catch (policiesError) {
+                console.warn('⚠️ grading_policies table may not exist:', policiesError);
+                policies = { data: [] };
+            }
+            
+            const [modules, constituents, items] = await Promise.all([
+                this.supabase.from('modules').select('*').eq('class_id', this.classId),
+                this.supabase.from('constituents').select('*').eq('class_id', this.classId), 
+                this.supabase.from('items').select('*').eq('class_id', this.classId)
+            ]);
+            
+            this.databaseState = {
+                modules: modules.data || [],
+                constituents: constituents.data || [],
+                items: items.data || [],
+                policies: policies.data || []
+            };
+        } catch (error) {
+            console.error('❌ Failed to load database state:', error);
+            // Fallback to empty state
+            this.databaseState = {
+                modules: [],
+                constituents: [],
+                items: [],
+                policies: []
+            };
+        }
         
         console.log('✅ Database state loaded:', {
             modules: this.databaseState.modules.length,
             constituents: this.databaseState.constituents.length,
-            items: this.databaseState.items.length
+            items: this.databaseState.items.length,
+            policies: this.databaseState.policies.length
         });
     }
     
@@ -198,6 +237,7 @@ class GradingSyncManager {
         const currentDbModules = this.databaseState.modules.filter(m => m.is_current);
         const currentDbConstituents = this.databaseState.constituents.filter(c => c.is_current);
         const currentDbItems = this.databaseState.items.filter(i => i.is_current);
+        const currentDbPolicies = this.databaseState.policies.filter(p => p.is_active);
         
         this.changes = {
             modules: {
@@ -229,13 +269,32 @@ class GradingSyncManager {
                 }),
                 will_deactivate: currentDbItems.filter(db => 
                     !this.gradingData.items.find(i => i.item_id === db.id))
+            },
+            policies: {
+                new: (this.gradingData.grading_policies || []).filter(p => {
+                    const key = p.module_id || 'universal';
+                    return !currentDbPolicies.find(db => 
+                        (db.module_id === p.module_id) && (db.version === p.version)
+                    );
+                }),
+                modified: (this.gradingData.grading_policies || []).filter(p => {
+                    const dbPolicy = currentDbPolicies.find(db => 
+                        (db.module_id === p.module_id) && (db.version === p.version)
+                    );
+                    return dbPolicy && this.hasPolicyChanged(p, dbPolicy);
+                }),
+                will_deactivate: currentDbPolicies.filter(db => 
+                    !(this.gradingData.grading_policies || []).find(p => 
+                        (p.module_id === db.module_id) && (p.version === db.version)
+                    ))
             }
         };
         
         console.log('✅ Sync status analyzed:', {
             modules: Object.values(this.changes.modules).flat().length,
             constituents: Object.values(this.changes.constituents).flat().length,
-            items: Object.values(this.changes.items).flat().length
+            items: Object.values(this.changes.items).flat().length,
+            policies: Object.values(this.changes.policies).flat().length
         });
     }
     
@@ -261,6 +320,18 @@ class GradingSyncManager {
             
             return fileVal !== dbVal;
         });
+    }
+    
+    hasPolicyChanged(filePolicy, dbPolicy) {
+        // Compare policy fields
+        if (filePolicy.policy_name !== dbPolicy.policy_name) return true;
+        if (filePolicy.version !== dbPolicy.version) return true;
+        
+        // Deep comparison of policy_data
+        const fileRules = JSON.stringify(filePolicy.policy_data.grading_rules || []);
+        const dbRules = JSON.stringify(dbPolicy.policy_rules.grading_rules || []);
+        
+        return fileRules !== dbRules;
     }
     
     setupEventListeners() {
@@ -411,7 +482,8 @@ class GradingSyncManager {
         const preview = {
             modules: this.changes.modules,
             constituents: this.changes.constituents,
-            items: this.changes.items
+            items: this.changes.items,
+            policies: this.changes.policies
         };
         
         // Show detailed preview modal or expand tree with diff view
@@ -444,7 +516,7 @@ class GradingSyncManager {
         
         try {
             let progress = 0;
-            const totalSteps = 4;
+            const totalSteps = 5;
             
             // Step 1: Mark all items as not current (soft deactivation)
             this.updateProgress(++progress, totalSteps, 'Deactivating removed items...');
@@ -461,6 +533,10 @@ class GradingSyncManager {
             // Step 4: Sync items (will be marked as current)
             this.updateProgress(++progress, totalSteps, 'Syncing items...');
             await this.syncItems();
+            
+            // Step 5: Sync grading policies (will be marked as active)
+            this.updateProgress(++progress, totalSteps, 'Syncing grading policies...');
+            await this.syncPolicies();
             
             // Complete
             this.updateProgress(totalSteps, totalSteps, 'Sync completed!');
@@ -514,7 +590,7 @@ class GradingSyncManager {
         
         try {
             let progress = 0;
-            const totalSteps = 4;
+            const totalSteps = 5;
             
             // Step 1: Mark all items as not current (soft deactivation)
             this.updateProgress(++progress, totalSteps, 'Force deactivating ALL database items...');
@@ -531,6 +607,10 @@ class GradingSyncManager {
             // Step 4: Sync items (will be marked as current)
             this.updateProgress(++progress, totalSteps, 'Syncing items...');
             await this.syncItems();
+            
+            // Step 5: Sync grading policies (will be marked as active)
+            this.updateProgress(++progress, totalSteps, 'Syncing grading policies...');
+            await this.syncPolicies();
             
             // Complete
             this.updateProgress(totalSteps, totalSteps, 'Force sync completed!');
@@ -572,7 +652,7 @@ class GradingSyncManager {
     
     async deactivateAllItems() {
         // Mark all existing records as not current (soft deactivation)
-        const [modulesResult, constituentsResult, itemsResult] = await Promise.all([
+        const [modulesResult, constituentsResult, itemsResult, policiesResult] = await Promise.all([
             this.supabase
                 .from('modules')
                 .update({ is_current: false })
@@ -584,6 +664,10 @@ class GradingSyncManager {
             this.supabase
                 .from('items')
                 .update({ is_current: false })
+                .eq('class_id', this.classId),
+            this.supabase
+                .from('grading_policies')
+                .update({ is_active: false })
                 .eq('class_id', this.classId)
         ]);
         
@@ -596,8 +680,11 @@ class GradingSyncManager {
         if (itemsResult.error) {
             throw new Error(`Failed to deactivate items: ${itemsResult.error.message}`);
         }
+        if (policiesResult.error) {
+            throw new Error(`Failed to deactivate policies: ${policiesResult.error.message}`);
+        }
         
-        console.log('✅ All items marked as not current');
+        console.log('✅ All items and policies marked as not current');
     }
     
     async syncModules() {
@@ -728,6 +815,49 @@ class GradingSyncManager {
         } else {
             console.log('🔍 Verification - items now in database:', verifyItems);
         }
+    }
+    
+    async syncPolicies() {
+        // Sync ALL policies from files (not just changes) and mark as active
+        if (!this.gradingData.grading_policies || this.gradingData.grading_policies.length === 0) {
+            console.log('📋 No grading policies to sync');
+            return;
+        }
+
+        const policiesToSync = this.gradingData.grading_policies.map(p => {
+            // Transform the policy data structure
+            const policy_rules = {
+                grading_rules: p.policy_data.grading_rules || [],
+                policy_settings: p.policy_data.policy_settings || {},
+                metadata: p.policy_data.policy_metadata || {}
+            };
+
+            return {
+                module_id: p.module_id, // null for universal policies
+                class_id: this.classId,
+                policy_name: p.policy_name,
+                version: p.version,
+                policy_rules: policy_rules,
+                description: p.policy_data.policy_metadata?.description || null,
+                is_active: true
+            };
+        });
+
+        console.log('📋 Policies to sync:', policiesToSync);
+
+        const { error } = await this.supabase
+            .from('grading_policies')
+            .upsert(policiesToSync, { 
+                onConflict: 'module_id,class_id,version',
+                ignoreDuplicates: false 
+            });
+
+        if (error) {
+            console.error('❌ Error syncing policies:', error);
+            throw new Error(`Failed to sync grading policies: ${error.message}`);
+        }
+
+        console.log(`✅ Synced ${policiesToSync.length} grading policies`);
     }
     
     showError(message) {

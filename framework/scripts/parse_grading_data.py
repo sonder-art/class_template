@@ -239,21 +239,40 @@ class GradingDataParser:
                     policy_data = yaml.safe_load(f)
                     
                 metadata = policy_data.get('policy_metadata', {})
-                module_id = metadata.get('module_id')
                 
-                if not module_id:
-                    self.errors.append(f"Policy file {policy_file.name} missing module_id in policy_metadata")
+                # Handle universal policies (applies_to: "all_modules")
+                applies_to = metadata.get('applies_to', '')
+                if applies_to == 'all_modules':
+                    # Universal policy - use None as module_id
+                    module_id = None
+                    policy_key = 'universal'
+                else:
+                    # Module-specific policy
+                    module_id = metadata.get('module_id')
+                    if not module_id:
+                        self.errors.append(f"Policy file {policy_file.name} missing module_id in policy_metadata (or use applies_to: 'all_modules')")
+                        continue
+                    policy_key = module_id
+                
+                # Validate required grading_rules structure
+                if 'grading_rules' not in policy_data:
+                    self.errors.append(f"Policy file {policy_file.name} missing required 'grading_rules' section")
                     continue
                     
+                grading_rules = policy_data.get('grading_rules', [])
+                if not isinstance(grading_rules, list) or len(grading_rules) == 0:
+                    self.errors.append(f"Policy file {policy_file.name} 'grading_rules' must be a non-empty array")
+                    continue
+                
                 policy = GradingPolicy(
                     module_id=module_id,
                     policy_name=metadata.get('name', policy_file.stem),
                     version=metadata.get('version', '1.0'),
                     policy_data=policy_data,
-                    sql_function_name=policy_data.get('sql_settings', {}).get('function_name')
+                    sql_function_name=None  # We use universal apply_grading_policy function
                 )
                 
-                self.grading_policies[module_id] = policy
+                self.grading_policies[policy_key] = policy
                 
             except yaml.YAMLError as e:
                 self.errors.append(f"YAML error in {policy_file.name}: {e}")
@@ -274,9 +293,10 @@ class GradingDataParser:
                 self.errors.append(f"Constituent {constituent_id} references unknown module: {constituent.module_id}")
                 success = False
         
-        # Check that all grading policies reference valid modules
+        # Check that all grading policies reference valid modules (or are universal)
         for policy_module_id, policy in self.grading_policies.items():
-            if policy.module_id not in self.modules:
+            # Universal policies (module_id = None) are valid
+            if policy.module_id is not None and policy.module_id not in self.modules:
                 self.errors.append(f"Grading policy for {policy_module_id} references unknown module: {policy.module_id}")
                 success = False
         

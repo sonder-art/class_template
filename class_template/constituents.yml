@@ -111,20 +111,3 @@ constituent_types:
     description: "Code quality, documentation, and best practices"
     icon: "📋"
     color: "#9013fe"
-
-# Settings for constituent management
-settings:
-  # Default values
-  default_max_attempts: 3
-  
-  # Grade calculation
-  round_grades_to: 1  # Decimal places
-  
-  # Submission policies
-  allow_late_submissions: true
-  late_penalty_per_day: 5.0  # Percentage points
-  max_late_days: 7
-  
-  # Student visibility (inherits from modules.yml but can be overridden)
-  student_can_see_constituent_weights: true
-  student_can_see_max_attempts: true

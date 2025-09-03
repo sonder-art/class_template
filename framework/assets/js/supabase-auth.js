@@ -169,6 +169,11 @@ function updateAuthState(user, session) {
     // Update UI
     updateAuthUI();
     
+    // Update sidebar navigation
+    if (typeof updateSidebarAuthNavigation === 'function') {
+        updateSidebarAuthNavigation();
+    }
+    
     // Fetch user context if authenticated and AuthClient is available
     if (user && session && window.AuthClient) {
         fetchUserContext();
@@ -213,6 +218,96 @@ function updateAuthUI() {
 }
 
 /**
+ * Update sidebar authentication navigation elements
+ */
+function updateSidebarAuthNavigation() {
+    const authButton = document.getElementById('navAuthToggleBtn');
+    const enrollBtn = document.getElementById('navEnrollBtn');
+    const dashboardBtn = document.getElementById('navDashboardBtn');
+    const userStatus = document.getElementById('navUserStatus');
+    const userStatusText = document.getElementById('userStatusText');
+    
+    if (!authButton) {
+        console.warn('🔍 navAuthToggleBtn element not found');
+        return;
+    }
+    
+    const isAuthenticated = window.authState.isAuthenticated;
+    const userContext = window.authState.userContext;
+    
+    console.log('🔐 Updating sidebar auth navigation:', {
+        isAuthenticated,
+        hasUserContext: !!userContext,
+        userEmail: window.authState.user?.email
+    });
+    
+    // Always ensure the auth button is visible and enabled with proper CSS class
+    authButton.style.display = 'block';
+    authButton.disabled = false;
+    authButton.classList.remove('loading');
+    authButton.classList.add('is-visible'); // Add this to make button visible via CSS
+    
+    // Update auth button based on authentication state
+    if (isAuthenticated) {
+        // User is logged in - show logout
+        authButton.textContent = '🚪 Logout';
+        authButton.title = 'Logout from your account';
+        authButton.classList.add('authenticated');
+        
+        // Update user status
+        if (userStatusText) {
+            const email = window.authState.user?.email || 'User';
+            const role = userContext?.role || '';
+            userStatusText.textContent = `👤 ${email}${role ? ` (${role})` : ''}`;
+        }
+        
+        // Show dashboard, hide enroll based on role
+        if (dashboardBtn) {
+            dashboardBtn.style.display = 'block';
+            dashboardBtn.classList.add('is-visible');
+        }
+        if (enrollBtn) {
+            if (userContext?.role) {
+                enrollBtn.style.display = 'none';
+                enrollBtn.classList.remove('is-visible');
+            } else {
+                enrollBtn.style.display = 'block';
+                enrollBtn.classList.add('is-visible');
+            }
+        }
+    } else {
+        // User is not logged in - show login
+        authButton.textContent = '🔑 Login';
+        authButton.title = 'Login with GitHub';
+        authButton.classList.remove('authenticated');
+        
+        // Update user status
+        if (userStatusText) {
+            userStatusText.textContent = '👤 Not logged in';
+        }
+        
+        // Hide dashboard, show enroll
+        if (dashboardBtn) {
+            dashboardBtn.style.display = 'none';
+            dashboardBtn.classList.remove('is-visible');
+        }
+        if (enrollBtn) {
+            enrollBtn.style.display = 'block';
+            enrollBtn.classList.add('is-visible');
+        }
+    }
+    
+    console.log('✅ Sidebar auth navigation updated:', {
+        buttonText: authButton.textContent,
+        buttonVisible: authButton.style.display,
+        buttonDisabled: authButton.disabled
+    });
+}
+
+// Make it available globally
+window.updateSidebarAuthNavigation = updateSidebarAuthNavigation;
+
+/**
  * Handle login action
  */
 async function handleLogin() {
@@ -242,10 +337,12 @@ async function handleLogin() {
                 console.log('🔐 Added redirect parameter:', validatedPath);
             }
         } else {
-            console.warn('⚠️ AuthUtils not available, using fallback logic');
-            // Fallback to original logic
-            callbackUrl = new URL(window.authConfig.login_redirect || '/auth/callback/', window.location.origin);
-            if (currentPath && currentPath !== '/auth/callback/') {
+            console.warn('⚠️ AuthUtils not available, using proven buildSiteUrl fallback');
+            // Use our own proven buildSiteUrl function instead of simple origin concatenation
+            const callbackPath = window.authConfig.login_redirect || '/auth/callback/';
+            const fullCallbackUrl = buildSiteUrl(callbackPath);
+            callbackUrl = new URL(fullCallbackUrl);
+            if (currentPath && currentPath !== callbackPath) {
                 callbackUrl.searchParams.set('redirect', currentPath);
             }
         }
@@ -335,26 +432,31 @@ async function handleLogout() {
 function setLoadingState(isLoading) {
     window.authState.isLoading = isLoading;
     
-    // Support both old and new auth buttons
+    // Update both old and new auth buttons
     const oldAuthButton = document.getElementById('authButton');
     const newAuthButton = document.getElementById('navAuthToggleBtn');
     
-    const authButton = newAuthButton || oldAuthButton;
-    
-    if (authButton) {
-        if (isLoading) {
-            authButton.classList.add('loading');
-            authButton.title = 'Loading...';
-            authButton.disabled = true;
-        } else {
-            authButton.classList.remove('loading');
-            authButton.disabled = false;
-            updateAuthUI();
-            
-            // Also trigger the new navigation update if it exists
-            if (typeof updateSidebarAuthNavigation === 'function') {
-                updateSidebarAuthNavigation();
+    [oldAuthButton, newAuthButton].forEach(authButton => {
+        if (authButton) {
+            if (isLoading) {
+                authButton.classList.add('loading');
+                authButton.textContent = 'Loading...';
+                authButton.title = 'Loading...';
+                authButton.disabled = true;
+            } else {
+                authButton.classList.remove('loading');
+                authButton.disabled = false;
             }
+        }
+    });
+    
+    // Update UI after loading state changes
+    if (!isLoading) {
+        updateAuthUI();
+        
+        // Also trigger the new navigation update if it exists
+        if (typeof updateSidebarAuthNavigation === 'function') {
+            updateSidebarAuthNavigation();
         }
     }
 }
@@ -420,6 +522,12 @@ async function fetchUserContext() {
  * Initialize authentication when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔥 DOM loaded, starting auth initialization...');
+    
+    // Check if auth button exists immediately
+    const navAuthBtn = document.getElementById('navAuthToggleBtn');
+    console.log('🔍 navAuthToggleBtn found?', !!navAuthBtn, navAuthBtn);
+    
     // Load auth config from Hugo site params
     window.authConfig = window.authConfig || {};
     
@@ -431,10 +539,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize authentication
     initializeSupabaseAuth();
     
+    // Initialize sidebar auth navigation immediately
+    console.log('🔐 Calling updateSidebarAuthNavigation...');
+    updateSidebarAuthNavigation();
+    
     // Set up auth button click handler
     const authButton = document.getElementById('authButton');
     if (authButton) {
         authButton.addEventListener('click', function() {
+            if (window.authState.isLoading) return;
+            
+            if (window.authState.isAuthenticated) {
+                handleLogout();
+            } else {
+                handleLogin();
+            }
+        });
+    }
+    
+    // Set up sidebar nav auth button click handler  
+    if (navAuthBtn) {
+        navAuthBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             if (window.authState.isLoading) return;
             
             if (window.authState.isAuthenticated) {

@@ -1,7 +1,7 @@
 ---
 title: "Framework"
 type: "index"
-date: "2025-09-02"
+date: "2025-09-03"
 author: "Framework (Auto-generated)"
 summary: "Index for Framework chapter"
 ---
