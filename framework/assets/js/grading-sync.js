@@ -232,6 +232,12 @@ class GradingSyncManager {
     
     detectChanges() {
         console.log('🔍 Detecting sync status...');
+        console.log('📊 Database state:', {
+            modules: this.databaseState.modules.length,
+            constituents: this.databaseState.constituents.length,
+            items: this.databaseState.items.length,
+            policies: this.databaseState.policies.length
+        });
         
         // Compare what's in files vs what's current in database
         const currentDbModules = this.databaseState.modules.filter(m => m.is_current);
@@ -239,13 +245,30 @@ class GradingSyncManager {
         const currentDbItems = this.databaseState.items.filter(i => i.is_current);
         const currentDbPolicies = this.databaseState.policies.filter(p => p.is_active);
         
+        console.log('📊 Current database state (is_current=true):', {
+            modules: currentDbModules.length,
+            constituents: currentDbConstituents.length,
+            items: currentDbItems.length,
+            policies: currentDbPolicies.length
+        });
+        console.log('📊 File data counts:', {
+            modules: this.gradingData.modules.length,
+            constituents: this.gradingData.constituents.length,
+            items: this.gradingData.items.length,
+            policies: (this.gradingData.grading_policies || []).length
+        });
+        
         this.changes = {
             modules: {
                 new: this.gradingData.modules.filter(m => 
                     !currentDbModules.find(db => db.id === m.id)),
                 modified: this.gradingData.modules.filter(m => {
                     const dbModule = currentDbModules.find(db => db.id === m.id);
-                    return dbModule && this.hasChanged(m, dbModule);
+                    const hasChanged = dbModule && this.hasChanged(m, dbModule);
+                    if (hasChanged) {
+                        console.log('🔧 Module changed:', m.id, {file: m, db: dbModule});
+                    }
+                    return hasChanged;
                 }),
                 will_deactivate: currentDbModules.filter(db => 
                     !this.gradingData.modules.find(m => m.id === db.id))
@@ -255,7 +278,11 @@ class GradingSyncManager {
                     !currentDbConstituents.find(db => db.id === c.id)),
                 modified: this.gradingData.constituents.filter(c => {
                     const dbConstituent = currentDbConstituents.find(db => db.id === c.id);
-                    return dbConstituent && this.hasChanged(c, dbConstituent);
+                    const hasChanged = dbConstituent && this.hasChanged(c, dbConstituent);
+                    if (hasChanged) {
+                        console.log('🔧 Constituent changed:', c.id, {file: c, db: dbConstituent});
+                    }
+                    return hasChanged;
                 }),
                 will_deactivate: currentDbConstituents.filter(db => 
                     !this.gradingData.constituents.find(c => c.id === db.id))
@@ -265,7 +292,11 @@ class GradingSyncManager {
                     !currentDbItems.find(db => db.id === i.item_id)),
                 modified: this.gradingData.items.filter(i => {
                     const dbItem = currentDbItems.find(db => db.id === i.item_id);
-                    return dbItem && this.hasChanged(i, dbItem);
+                    const hasChanged = dbItem && this.hasChanged(i, dbItem);
+                    if (hasChanged) {
+                        console.log('🔧 Item changed:', i.item_id, {file: i, db: dbItem});
+                    }
+                    return hasChanged;
                 }),
                 will_deactivate: currentDbItems.filter(db => 
                     !this.gradingData.items.find(i => i.item_id === db.id))
@@ -290,17 +321,62 @@ class GradingSyncManager {
             }
         };
         
-        console.log('✅ Sync status analyzed:', {
-            modules: Object.values(this.changes.modules).flat().length,
-            constituents: Object.values(this.changes.constituents).flat().length,
-            items: Object.values(this.changes.items).flat().length,
-            policies: Object.values(this.changes.policies).flat().length
+        console.log('✅ Sync status analyzed - DETAILED:', {
+            modules: {
+                new: this.changes.modules.new.length,
+                modified: this.changes.modules.modified.length,
+                will_deactivate: this.changes.modules.will_deactivate.length,
+                total: Object.values(this.changes.modules).flat().length
+            },
+            constituents: {
+                new: this.changes.constituents.new.length,
+                modified: this.changes.constituents.modified.length,
+                will_deactivate: this.changes.constituents.will_deactivate.length,
+                total: Object.values(this.changes.constituents).flat().length
+            },
+            items: {
+                new: this.changes.items.new.length,
+                modified: this.changes.items.modified.length,
+                will_deactivate: this.changes.items.will_deactivate.length,
+                total: Object.values(this.changes.items).flat().length
+            },
+            policies: {
+                new: this.changes.policies.new.length,
+                modified: this.changes.policies.modified.length,
+                will_deactivate: this.changes.policies.will_deactivate.length,
+                total: Object.values(this.changes.policies).flat().length
+            }
         });
+        
+        // Log specific items if there are changes
+        const totalChanges = Object.values(this.changes).reduce((sum, category) => 
+            sum + Object.values(category).flat().length, 0);
+        
+        if (totalChanges > 0) {
+            console.log('🚨 FOUND CHANGES - Details:');
+            if (this.changes.modules.new.length > 0) console.log('🆕 New modules:', this.changes.modules.new.map(m => m.id));
+            if (this.changes.modules.modified.length > 0) console.log('✏️ Modified modules:', this.changes.modules.modified.map(m => m.id));
+            if (this.changes.modules.will_deactivate.length > 0) console.log('🗑️ Will deactivate modules:', this.changes.modules.will_deactivate.map(m => m.id));
+            
+            if (this.changes.constituents.new.length > 0) console.log('🆕 New constituents:', this.changes.constituents.new.map(c => c.id));
+            if (this.changes.constituents.modified.length > 0) console.log('✏️ Modified constituents:', this.changes.constituents.modified.map(c => c.id));
+            if (this.changes.constituents.will_deactivate.length > 0) console.log('🗑️ Will deactivate constituents:', this.changes.constituents.will_deactivate.map(c => c.id));
+            
+            if (this.changes.items.new.length > 0) console.log('🆕 New items:', this.changes.items.new.map(i => i.item_id));
+            if (this.changes.items.modified.length > 0) console.log('✏️ Modified items:', this.changes.items.modified.map(i => i.item_id));
+            if (this.changes.items.will_deactivate.length > 0) console.log('🗑️ Will deactivate items:', this.changes.items.will_deactivate.map(i => i.id));
+            
+            if (this.changes.policies.new.length > 0) console.log('🆕 New policies:', this.changes.policies.new.map(p => p.policy_name));
+            if (this.changes.policies.modified.length > 0) console.log('✏️ Modified policies:', this.changes.policies.modified.map(p => p.policy_name));
+            if (this.changes.policies.will_deactivate.length > 0) console.log('🗑️ Will deactivate policies:', this.changes.policies.will_deactivate.map(p => p.policy_name));
+        } else {
+            console.log('✅ No changes detected - database is in sync');
+        }
     }
     
     hasChanged(fileItem, dbItem) {
         // Compare actual item fields that exist
-        const itemFields = ['points', 'title', 'delivery_type', 'due_date', 'constituent_slug'];
+        const itemFields = ['points', 'title', 'delivery_type', 'due_date', 'constituent_slug', 'is_active'];
         return itemFields.some(key => {
             const fileVal = fileItem[key];
             const dbVal = dbItem[key];
@@ -318,6 +394,11 @@ class GradingSyncManager {
                 return fDate !== dDate;
             }
             
+            // Handle boolean comparison for is_active
+            if (key === 'is_active') {
+                return Boolean(fileVal) !== Boolean(dbVal);
+            }
+            
             return fileVal !== dbVal;
         });
     }
@@ -327,11 +408,42 @@ class GradingSyncManager {
         if (filePolicy.policy_name !== dbPolicy.policy_name) return true;
         if (filePolicy.version !== dbPolicy.version) return true;
         
-        // Deep comparison of policy_data
-        const fileRules = JSON.stringify(filePolicy.policy_data.grading_rules || []);
-        const dbRules = JSON.stringify(dbPolicy.policy_rules.grading_rules || []);
+        // Deep comparison - File uses policy_data, Database uses policy_rules
+        const fileRules = filePolicy.policy_data?.grading_rules || [];
+        const dbRules = dbPolicy.policy_rules?.grading_rules || [];
         
-        return fileRules !== dbRules;
+        // Normalize objects by sorting keys recursively to avoid key ordering issues
+        const normalizeObject = (obj) => {
+            if (Array.isArray(obj)) {
+                return obj.map(normalizeObject);
+            } else if (obj !== null && typeof obj === 'object') {
+                return Object.keys(obj).sort().reduce((result, key) => {
+                    result[key] = normalizeObject(obj[key]);
+                    return result;
+                }, {});
+            }
+            return obj;
+        };
+        
+        const normalizedFileRules = JSON.stringify(normalizeObject(fileRules));
+        const normalizedDbRules = JSON.stringify(normalizeObject(dbRules));
+        
+        const hasChanged = normalizedFileRules !== normalizedDbRules;
+        if (hasChanged) {
+            console.log('🔧 Policy changed - detailed comparison:', {
+                policy_name: filePolicy.policy_name,
+                file_version: filePolicy.version,
+                db_version: dbPolicy.version,
+                file_rules_length: fileRules.length,
+                db_rules_length: dbRules.length,
+                fileRules: normalizedFileRules.substring(0, 200) + '...',
+                dbRules: normalizedDbRules.substring(0, 200) + '...'
+            });
+        } else {
+            console.log('✅ Policy unchanged after normalization:', filePolicy.policy_name);
+        }
+        
+        return hasChanged;
     }
     
     setupEventListeners() {
@@ -748,7 +860,7 @@ class GradingSyncManager {
             delivery_type: i.delivery_type,
             instructions: i.instructions,
             due_date: i.due_date,
-            is_active: true,
+            is_active: i.is_active !== undefined ? i.is_active : true, // Respect is_active from JSON
             is_current: true,
             class_id: this.classId
         }));

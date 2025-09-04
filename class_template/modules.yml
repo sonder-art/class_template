@@ -33,22 +33,3 @@ modules:
     color: "#7ed321"  # Green
     icon: "📚"
     
-  # Module 4: Advanced Features Implementation
-  advanced_features:
-    id: "advanced_features"
-    name: "Advanced Features Implementation"
-    description: "Implementation of advanced framework features and customizations"
-    weight: 25.0
-    order: 4
-    color: "#9013fe"  # Purple
-    icon: "⚡"
-    
-  # Module 5: Deployment & Production
-  deployment:
-    id: "deployment"
-    name: "Deployment & Production"
-    description: "Deploying the framework to production and handling real-world scenarios"
-    weight: 15.0
-    order: 5
-    color: "#f5a623"  # Yellow
-    icon: "🚀"

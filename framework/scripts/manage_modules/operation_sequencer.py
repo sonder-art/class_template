@@ -304,12 +304,22 @@ class OperationSequencer:
         self.message_orchestrator.start_operation("Full Build Pipeline")
         
         if not force:
-            self.ux.show_pipeline_preview("Full Build Pipeline", ["Validation", "Generation", "Hugo Build"])
+            self.ux.show_pipeline_preview("Full Build Pipeline", ["Validation & Generation", "Grading System Setup", "Hugo Build"])
             if not self.ux.show_build_confirmation():
                 self.message_orchestrator.end_operation(False, "Pipeline cancelled by user")
                 return False
         
-        # Build production (which includes validation)
+        # Step 1: Standard validation and generation
+        if not self.validate_and_generate(force=True):
+            self.message_orchestrator.end_operation(False, "Pipeline failed during validation")
+            return False
+        
+        # Step 1.5: Generate all grading JSON files
+        if not self.generate_all_grading_json():
+            self.message_orchestrator.add_message('warnings', 'Grading JSON Generation Failed', 
+                'Failed to generate grading JSON files but continuing build')
+        
+        # Step 2: Build production site
         if not self.build_production():
             self.message_orchestrator.end_operation(False, "Pipeline failed during build")
             return False

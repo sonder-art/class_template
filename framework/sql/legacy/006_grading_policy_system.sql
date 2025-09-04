@@ -179,8 +179,66 @@ END;
 $$;
 
 -- ============================================================================
+-- CONSTITUENT GRADE NORMALIZATION FUNCTION
+-- Calculates normalized constituent grades (0-10 scale) for policy application
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION calculate_normalized_constituent_grades(
+    p_student_id UUID,
+    p_class_id UUID,
+    p_module_id TEXT
+) RETURNS TABLE (
+    constituent_id TEXT,
+    constituent_slug TEXT,
+    normalized_grade NUMERIC,
+    raw_score NUMERIC,
+    max_points NUMERIC,
+    item_count INTEGER
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY
+    WITH latest_submissions AS (
+        SELECT DISTINCT ON (ss.item_id)
+            ss.item_id,
+            ss.adjusted_score,
+            ss.graded_at
+        FROM student_submissions ss
+        INNER JOIN items i ON i.id = ss.item_id
+        WHERE ss.student_id = p_student_id
+        AND ss.class_id = p_class_id
+        AND ss.graded_at IS NOT NULL
+        AND i.is_current = true
+        ORDER BY ss.item_id, ss.graded_at DESC
+    )
+    SELECT 
+        c.id as constituent_id,
+        c.slug as constituent_slug,
+        -- Normalize to 0-10 scale: (earned/possible) * 10
+        CASE 
+            WHEN COALESCE(SUM(i.points), 0) > 0
+            THEN ROUND((COALESCE(SUM(ls.adjusted_score), 0) / SUM(i.points)) * 10, 2)
+            ELSE 0::NUMERIC
+        END as normalized_grade,
+        COALESCE(SUM(ls.adjusted_score), 0) as raw_score,
+        COALESCE(SUM(i.points), 0) as max_points,
+        COUNT(i.id) as item_count
+    FROM constituents c
+    LEFT JOIN items i ON i.constituent_slug = c.slug AND i.class_id = p_class_id AND i.is_current = true
+    LEFT JOIN latest_submissions ls ON ls.item_id = i.id
+    WHERE c.module_id = p_module_id
+    AND c.class_id = p_class_id
+    AND c.is_current = true
+    GROUP BY c.id, c.slug
+    HAVING COUNT(i.id) > 0; -- Only return constituents that have items
+END;
+$$;
+
+-- ============================================================================
 -- UPDATE EXISTING GRADE CALCULATION FUNCTION
--- Modify calculate_module_grades to use the new policy system
+-- Modify calculate_module_grades to use the new policy system properly
 -- ============================================================================
 
 CREATE OR REPLACE FUNCTION calculate_module_grades(
@@ -201,59 +259,139 @@ SECURITY DEFINER
 AS $$
 BEGIN
     RETURN QUERY
-    WITH latest_submissions AS (
-        SELECT DISTINCT ON (ss.item_id)
-            ss.item_id,
-            ss.adjusted_score,
-            ss.graded_at
-        FROM student_submissions ss
-        INNER JOIN items i ON i.id = ss.item_id
-        WHERE ss.student_id = p_student_id
-        AND ss.class_id = p_class_id
-        AND ss.graded_at IS NOT NULL
-        AND i.is_current = true
-        ORDER BY ss.item_id, ss.graded_at DESC
-    ),
-    module_grades AS (
+    WITH module_constituent_grades AS (
+        -- Get normalized constituent grades for each module
         SELECT 
             m.id as module_id,
             m.name as module_name,
             m.color as module_color,
             m.icon as module_icon,
-            -- Collect all grades for this module for policy calculation
-            array_agg(ls.adjusted_score ORDER BY i.id) FILTER (WHERE ls.adjusted_score IS NOT NULL) as grades_array,
-            COALESCE(SUM(ls.adjusted_score), 0) as raw_total,
-            COALESCE(SUM(i.points), 0) as max_points,
-            MAX(ls.graded_at) as computed_at,
-            COUNT(ls.adjusted_score) as grade_count
+            -- Collect normalized constituent grades for policy application
+            array_agg(ncg.normalized_grade ORDER BY ncg.constituent_id) FILTER (WHERE ncg.normalized_grade IS NOT NULL) as constituent_grades,
+            -- Calculate total raw points for display
+            SUM(ncg.raw_score) as raw_total,
+            SUM(ncg.max_points) as max_points,
+            MAX(
+                CASE WHEN ncg.raw_score > 0 THEN NOW() ELSE NULL END
+            ) as computed_at,
+            COUNT(ncg.constituent_id) as constituent_count
         FROM modules m
-        LEFT JOIN constituents c ON c.module_id = m.id AND c.is_current = true
-        LEFT JOIN items i ON i.constituent_slug = c.slug AND i.class_id = p_class_id AND i.is_current = true
-        LEFT JOIN latest_submissions ls ON ls.item_id = i.id
+        LEFT JOIN LATERAL (
+            SELECT * FROM calculate_normalized_constituent_grades(p_student_id, p_class_id, m.id)
+        ) ncg ON true
         WHERE m.class_id = p_class_id
         AND m.is_current = true
         GROUP BY m.id, m.name, m.color, m.icon
-        HAVING COALESCE(SUM(i.points), 0) > 0
     )
     SELECT 
         p_student_id as student_id,
         p_class_id as class_id,
         'module'::TEXT as grade_level,
-        mg.module_id,
-        -- Apply grading policy if grades exist, otherwise use raw total
+        mcg.module_id,
+        -- Apply grading policy to constituent grades (proper hierarchy!)
         CASE 
-            WHEN mg.grades_array IS NOT NULL AND array_length(mg.grades_array, 1) > 0
-            THEN apply_grading_policy(mg.module_id, p_class_id, mg.grades_array)
-            ELSE mg.raw_total
+            WHEN mcg.constituent_grades IS NOT NULL AND array_length(mcg.constituent_grades, 1) > 0
+            THEN apply_grading_policy(mcg.module_id, p_class_id, mcg.constituent_grades)
+            ELSE 0::NUMERIC
         END as final_score,
-        mg.max_points,
-        mg.computed_at,
+        COALESCE(mcg.max_points, 0) as max_points,
+        mcg.computed_at,
         jsonb_build_object(
-            'name', mg.module_name, 
-            'color', mg.module_color, 
-            'icon', mg.module_icon
+            'name', mcg.module_name, 
+            'color', mcg.module_color, 
+            'icon', mcg.module_icon,
+            'constituent_count', mcg.constituent_count,
+            'constituent_grades', mcg.constituent_grades
         ) as modules
-    FROM module_grades mg;
+    FROM module_constituent_grades mcg
+    WHERE mcg.constituent_count > 0 OR mcg.max_points > 0; -- Include modules with constituents/items
+END;
+$$;
+
+-- ============================================================================
+-- WEIGHTED FINAL GRADE CALCULATION FUNCTION
+-- Calculates the final weighted grade from all module grades
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION calculate_final_weighted_grade(
+    p_student_id UUID,
+    p_class_id UUID
+) RETURNS TABLE (
+    student_id UUID,
+    class_id UUID,
+    final_grade NUMERIC,
+    total_weight_used NUMERIC,
+    modules_graded INTEGER,
+    total_modules INTEGER,
+    grade_breakdown JSONB,
+    computed_at TIMESTAMPTZ
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    v_final_grade NUMERIC := 0;
+    v_total_weight NUMERIC := 0;
+    v_used_weight NUMERIC := 0;
+    v_modules_graded INTEGER := 0;
+    v_total_modules INTEGER := 0;
+    v_breakdown JSONB := '[]'::JSONB;
+    v_module_record RECORD;
+BEGIN
+    -- Get total modules count
+    SELECT COUNT(*) INTO v_total_modules
+    FROM modules m
+    WHERE m.class_id = p_class_id AND m.is_current = true;
+    
+    -- Get total possible weight
+    SELECT COALESCE(SUM(weight), 0) INTO v_total_weight
+    FROM modules m
+    WHERE m.class_id = p_class_id AND m.is_current = true;
+    
+    -- Calculate weighted grade from each module
+    FOR v_module_record IN
+        SELECT 
+            m.id,
+            m.name,
+            m.weight,
+            mg.final_score
+        FROM modules m
+        LEFT JOIN calculate_module_grades(p_student_id, p_class_id) mg ON mg.module_id = m.id
+        WHERE m.class_id = p_class_id AND m.is_current = true
+        ORDER BY m.order_index
+    LOOP
+        -- Add to breakdown
+        v_breakdown := v_breakdown || jsonb_build_object(
+            'module_id', v_module_record.id,
+            'module_name', v_module_record.name,
+            'module_weight', v_module_record.weight,
+            'module_grade', COALESCE(v_module_record.final_score, 0),
+            'contribution', CASE 
+                WHEN v_module_record.final_score IS NOT NULL 
+                THEN ROUND((v_module_record.final_score * v_module_record.weight / 100), 2)
+                ELSE 0
+            END,
+            'has_grades', v_module_record.final_score IS NOT NULL
+        );
+        
+        -- Add to final grade if module has grades
+        IF v_module_record.final_score IS NOT NULL THEN
+            v_final_grade := v_final_grade + (v_module_record.final_score * v_module_record.weight / 100);
+            v_used_weight := v_used_weight + v_module_record.weight;
+            v_modules_graded := v_modules_graded + 1;
+        END IF;
+    END LOOP;
+    
+    RETURN QUERY
+    SELECT 
+        p_student_id,
+        p_class_id,
+        ROUND(v_final_grade, 2) as final_grade,
+        v_used_weight as total_weight_used,
+        v_modules_graded,
+        v_total_modules,
+        v_breakdown as grade_breakdown,
+        NOW() as computed_at;
 END;
 $$;
 
@@ -261,11 +399,52 @@ $$;
 -- GRANT APPROPRIATE PERMISSIONS
 -- ============================================================================
 
--- Grant usage on the table to authenticated users (read-only)
-GRANT SELECT ON grading_policies TO authenticated;
+-- ============================================================================
+-- ROW LEVEL SECURITY POLICIES FOR GRADING_POLICIES
+-- ============================================================================
 
--- Grant execute permissions on the function
+-- Enable RLS on grading_policies table
+ALTER TABLE grading_policies ENABLE ROW LEVEL SECURITY;
+
+-- Read access: All authenticated users can read grading policies for their classes
+CREATE POLICY "grading_policies_read" ON grading_policies
+    FOR SELECT TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM class_members
+            WHERE user_id = auth.uid()
+            AND class_id = grading_policies.class_id
+        )
+    );
+
+-- Write access: Only professors can insert/update grading policies
+CREATE POLICY "grading_policies_professor_write" ON grading_policies
+    FOR ALL TO authenticated
+    USING (
+        EXISTS (
+            SELECT 1 FROM class_members
+            WHERE user_id = auth.uid()
+            AND class_id = grading_policies.class_id
+            AND role = 'professor'
+        )
+    )
+    WITH CHECK (
+        EXISTS (
+            SELECT 1 FROM class_members
+            WHERE user_id = auth.uid()
+            AND class_id = grading_policies.class_id
+            AND role = 'professor'
+        )
+    );
+
+-- Grant usage on the table to authenticated users
+GRANT SELECT ON grading_policies TO authenticated;
+GRANT INSERT, UPDATE ON grading_policies TO authenticated;
+
+-- Grant execute permissions on all grading functions
 GRANT EXECUTE ON FUNCTION apply_grading_policy(TEXT, UUID, NUMERIC[]) TO authenticated;
+GRANT EXECUTE ON FUNCTION calculate_normalized_constituent_grades(UUID, UUID, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION calculate_final_weighted_grade(UUID, UUID) TO authenticated;
 
 -- ============================================================================
 -- VERIFICATION AND SUMMARY
