@@ -26,7 +26,7 @@ class Item:
     def __init__(self, constituent_slug: str, item_id: str, points: float, 
                  due_date: Optional[str] = None, title: Optional[str] = None,
                  delivery_type: Optional[str] = None, important: bool = False,
-                 instructions: Optional[str] = None):
+                 instructions: Optional[str] = None, is_active: bool = True):
         self.constituent_slug = constituent_slug
         self.item_id = item_id
         self.points = points
@@ -35,6 +35,7 @@ class Item:
         self.delivery_type = delivery_type  # text|upload|url|code|presentation|video
         self.important = important
         self.instructions = instructions
+        self.is_active = is_active  # False if inactive="true" in shortcode
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
@@ -46,7 +47,8 @@ class Item:
             'title': self.title,
             'delivery_type': self.delivery_type,
             'important': self.important,
-            'instructions': self.instructions
+            'instructions': self.instructions,
+            'is_active': self.is_active
         }
 
 class ParsedItemFile:
@@ -73,10 +75,15 @@ class ItemParser:
     def __init__(self, class_notes_dir: str):
         self.class_notes_dir = Path(class_notes_dir)
         self.parsed_files: List[ParsedItemFile] = []
+        self.warnings: List[str] = []
+        self.class_id: Optional[str] = None
         
     def parse_all_content(self) -> List[ParsedItemFile]:
         """Parse all markdown files for graded items"""
         logger.info(f"Parsing items from {self.class_notes_dir}")
+        
+        # Load class_id for validation
+        self.class_id = self._load_class_id()
         
         # Find all markdown files recursively
         markdown_files = list(self.class_notes_dir.rglob("*.md"))
@@ -96,6 +103,11 @@ class ItemParser:
                 logger.error(f"Error parsing {file_path}: {e}")
                 
         logger.info(f"Total files parsed: {len(self.parsed_files)}")
+        
+        # Validate relationships and output warnings
+        self._validate_item_references()
+        self._output_warnings()
+        
         return self.parsed_files
     
     def _parse_file(self, file_path: Path) -> ParsedItemFile:
@@ -141,7 +153,8 @@ class ItemParser:
                 item = self._parse_shortcode_params(shortcode_params)
                 if item:
                     items.append(item)
-                    logger.debug(f"Parsed shortcode item: {item.item_id}")
+                    status = "inactive" if not item.is_active else "active"
+                    logger.debug(f"Parsed shortcode item: {item.item_id} ({status})")
             except Exception as e:
                 logger.warning(f"Failed to parse shortcode: {e}")
                 continue
@@ -156,7 +169,8 @@ class ItemParser:
                 item = self._parse_item_block(item_block)
                 if item:
                     items.append(item)
-                    logger.debug(f"Parsed block item: {item.item_id}")
+                    status = "inactive" if not item.is_active else "active"
+                    logger.debug(f"Parsed block item: {item.item_id} ({status})")
             except Exception as e:
                 logger.warning(f"Failed to parse item block: {e}")
                 continue
@@ -207,7 +221,8 @@ class ItemParser:
                 title=params.get('title'),
                 delivery_type=params.get('delivery_type'),
                 important=params.get('important', '').lower() == 'true',
-                instructions=params.get('instructions')
+                instructions=params.get('instructions'),
+                is_active=params.get('inactive', '').lower() != 'true'  # Active unless inactive="true"
             )
         except (ValueError, KeyError) as e:
             logger.warning(f"Error creating Item from shortcode: {e}")
@@ -255,7 +270,8 @@ class ItemParser:
                 title=parsed_data.get('title'),
                 delivery_type=parsed_data.get('delivery_type'),
                 important=parsed_data.get('important', False),
-                instructions=parsed_data.get('instructions')
+                instructions=parsed_data.get('instructions'),
+                is_active=not parsed_data.get('inactive', False)  # Active unless inactive=true
             )
         except (ValueError, KeyError) as e:
             logger.warning(f"Error creating Item: {e}")
@@ -315,6 +331,93 @@ class ItemParser:
                     logger.warning(f"Failed to copy {source_name}: {e}")
             else:
                 logger.warning(f"Config file {source_name} not found")
+    
+    def _load_class_id(self) -> Optional[str]:
+        """Load class_id from course.yml for validation"""
+        try:
+            base_dir = self.class_notes_dir.parent
+            course_file = base_dir / 'course.yml'
+            
+            if course_file.exists():
+                with open(course_file, 'r', encoding='utf-8') as f:
+                    course_data = yaml.safe_load(f)
+                    class_id = course_data.get('class_id')
+                    if class_id:
+                        logger.debug(f"Loaded class_id: {class_id}")
+                        return class_id
+                    else:
+                        logger.warning("No class_id found in course.yml")
+            else:
+                logger.warning("course.yml not found - constituent validation disabled")
+                
+        except Exception as e:
+            logger.warning(f"Failed to load class_id from course.yml: {e}")
+            
+        return None
+    
+    def _validate_item_references(self):
+        """Check all items reference valid constituents (warnings only)"""
+        if not self.class_id:
+            logger.warning("Cannot validate item references without class_id")
+            return
+            
+        # Load valid constituent slugs from constituents.yml
+        valid_slugs = self._load_valid_constituent_slugs()
+        if not valid_slugs:
+            logger.warning("No valid constituent slugs loaded - item validation skipped")
+            return
+        
+        # Check all items across all parsed files
+        orphaned_count = 0
+        for parsed_file in self.parsed_files:
+            for item in parsed_file.items:
+                if item.constituent_slug not in valid_slugs:
+                    self.warnings.append(
+                        f"Orphaned item: '{item.item_id}' in file '{parsed_file.file_path}' "
+                        f"references unknown constituent: '{item.constituent_slug}'"
+                    )
+                    orphaned_count += 1
+        
+        if orphaned_count > 0:
+            self.warnings.append(f"Total orphaned items found: {orphaned_count}")
+        else:
+            logger.debug("All items reference valid constituents")
+    
+    def _load_valid_constituent_slugs(self) -> set:
+        """Load valid constituent slugs from constituents.yml"""
+        try:
+            base_dir = self.class_notes_dir.parent
+            constituents_file = base_dir / 'constituents.yml'
+            
+            if not constituents_file.exists():
+                logger.warning("constituents.yml not found")
+                return set()
+            
+            with open(constituents_file, 'r', encoding='utf-8') as f:
+                constituents_data = yaml.safe_load(f)
+                
+            # Extract slugs from constituents data
+            valid_slugs = set()
+            for constituent_id, constituent in constituents_data.get('constituents', {}).items():
+                if isinstance(constituent, dict) and 'slug' in constituent:
+                    valid_slugs.add(constituent['slug'])
+            
+            logger.debug(f"Loaded {len(valid_slugs)} valid constituent slugs")
+            return valid_slugs
+            
+        except Exception as e:
+            logger.warning(f"Failed to load constituent slugs: {e}")
+            return set()
+    
+    def _output_warnings(self):
+        """Output all collected warnings"""
+        if self.warnings:
+            logger.warning("⚠️  Build validation warnings:")
+            for warning in self.warnings:
+                logger.warning(f"   • {warning}")
+            logger.warning(f"Total warnings: {len(self.warnings)}")
+        else:
+            logger.info("✅ All item references validated successfully")
 
 def main():
     """Main function for command-line usage"""

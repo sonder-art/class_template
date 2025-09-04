@@ -12,6 +12,7 @@ class StudentGradesInterface {
         this.grades = [];
         this.submissions = [];
         this.modules = [];
+        this.constituents = [];
         this.currentTab = 'overview';
         
         this.init();
@@ -154,9 +155,7 @@ class StudentGradesInterface {
                 items: itemGrades.summary || {}
             };
 
-            console.log(`✅ Loaded grades:`, this.grades);
-            console.log(`📊 Module grades sample:`, this.grades.modules[0]);
-            console.log(`📝 Item grades sample:`, this.grades.items[0]);
+            console.log(`✅ Loaded grades for ${this.grades.modules?.length || 0} modules`);
 
         } catch (error) {
             console.error('Failed to load grades:', error);
@@ -174,7 +173,7 @@ class StudentGradesInterface {
                 `/student-grades?class_slug=${classSlug}&level=${level}`
             );
             
-            console.log(`✅ Fetched ${level} grades for class ${classSlug}:`, result);
+            console.log(`✅ Fetched ${level} grades: ${result.grades?.length || 0} items`);
             return result;
         } catch (error) {
             console.error(`❌ Failed to fetch ${level} grades:`, error);
@@ -184,7 +183,7 @@ class StudentGradesInterface {
 
     async loadSubmissions() {
         try {
-            const { data: submissions, error } = await this.supabaseClient
+            const { data: allSubmissions, error } = await this.supabaseClient
                 .from('student_submissions')
                 .select(`
                     id,
@@ -200,7 +199,8 @@ class StudentGradesInterface {
                         title,
                         points,
                         constituent_slug,
-                        delivery_type
+                        delivery_type,
+                        is_current
                     )
                 `)
                 .eq('student_id', this.currentUser.id)
@@ -212,8 +212,13 @@ class StudentGradesInterface {
                 return;
             }
 
-            this.submissions = submissions || [];
-            console.log(`Loaded ${this.submissions.length} submissions`);
+            // Filter out submissions for non-current items after the join
+            const currentSubmissions = (allSubmissions || []).filter(submission => 
+                submission.items && submission.items.is_current === true
+            );
+
+            this.submissions = this.getLatestSubmissions(currentSubmissions);
+            console.log(`Loaded ${allSubmissions?.length || 0} total submissions, ${currentSubmissions.length} for current items, ${this.submissions.length} latest submissions`);
 
         } catch (error) {
             console.error('Failed to load submissions:', error);
@@ -227,18 +232,62 @@ class StudentGradesInterface {
             const pathParts = window.location.pathname.split('/').filter(Boolean);
             const baseUrl = pathParts.length > 0 ? `/${pathParts[0]}/` : '/';
             const modulesUrl = `${baseUrl}data/modules.json`;
+            const constituentsUrl = `${baseUrl}data/constituents.json`;
             
             console.log('🔍 Loading modules from:', modulesUrl);
             const classTemplateResponse = await fetch(modulesUrl);
             if (classTemplateResponse.ok) {
-                this.modules = await classTemplateResponse.json();
-                console.log('✅ Loaded modules:', this.modules);
+                const modulesData = await classTemplateResponse.json();
+                this.modules = modulesData.modules || [];
+                console.log(`✅ Loaded ${this.modules.length} modules`);
             } else {
                 console.warn('⚠️ Could not load modules.json, continuing without module data');
             }
+            
+            console.log('🔍 Loading constituents from:', constituentsUrl);
+            const constituentsResponse = await fetch(constituentsUrl);
+            if (constituentsResponse.ok) {
+                const constituentsData = await constituentsResponse.json();
+                this.constituents = constituentsData.constituents || [];
+                console.log(`✅ Loaded ${this.constituents.length} constituents`);
+            } else {
+                console.warn('⚠️ Could not load constituents.json, continuing without constituent data');
+            }
         } catch (error) {
-            console.error('Failed to load modules:', error);
+            console.error('Failed to load modules/constituents:', error);
         }
+    }
+
+    /**
+     * Filter submissions to show only the latest attempt per item
+     */
+    getLatestSubmissions(allSubmissions) {
+        const submissionGroups = {};
+        
+        // Group submissions by item_id
+        allSubmissions.forEach(submission => {
+            const itemId = submission.item_id;
+            if (!submissionGroups[itemId]) {
+                submissionGroups[itemId] = [];
+            }
+            submissionGroups[itemId].push(submission);
+        });
+        
+        // For each item, get the latest submission (highest attempt_number or latest submitted_at)
+        const latestSubmissions = [];
+        Object.values(submissionGroups).forEach(group => {
+            // Sort by attempt_number (descending), then by submitted_at (descending)
+            group.sort((a, b) => {
+                const attemptDiff = (b.attempt_number || 1) - (a.attempt_number || 1);
+                if (attemptDiff !== 0) return attemptDiff;
+                return new Date(b.submitted_at) - new Date(a.submitted_at);
+            });
+            
+            // Take the first (latest) submission
+            latestSubmissions.push(group[0]);
+        });
+        
+        return latestSubmissions;
     }
 
     renderGradesInterface() {
@@ -262,11 +311,19 @@ class StudentGradesInterface {
         const userContext = window.authState?.userContext;
 
         if (studentInfo && user && userContext) {
+            // Use GitHub profile picture if available, otherwise fallback to placeholder
+            const avatarUrl = userContext.avatar_url || '/assets/images/profile-placeholder.svg';
+            const displayName = userContext.full_name || userContext.github_username || user.email;
+            const githubUsername = userContext.github_username || 'Unknown';
+            
             studentInfo.innerHTML = `
-                <div class="profile-avatar">👤</div>
+                <div class="profile-avatar">
+                    <img src="${avatarUrl}" alt="Profile" class="avatar-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="avatar-fallback" style="display:none;">👤</div>
+                </div>
                 <div class="profile-details">
-                    <h2>${user.email}</h2>
-                    <p class="student-meta">@${userContext.github_username || 'Unknown'} • ${userContext.class_title || 'GitHub Class Template'}</p>
+                    <h2>${displayName}</h2>
+                    <p class="student-meta">@${githubUsername} • ${userContext.class_title || 'GitHub Class Template'}</p>
                 </div>
             `;
         }
@@ -284,19 +341,57 @@ class StudentGradesInterface {
             new Date(summary.last_updated).toLocaleDateString() : 'Never';
         
         // Update individual summary cards
-        const overallGradeCard = gradeSummary.querySelector('.overall-grade .grade-number');
-        const pointsEarned = gradeSummary.querySelector('.points-earned');
-        const pointsTotal = gradeSummary.querySelector('.points-total');
+        const currentScore = gradeSummary.querySelector('.current-score');
+        const totalPossible = gradeSummary.querySelector('.total-possible');
+        const percentageText = gradeSummary.querySelector('.percentage-text');
         const countNumber = gradeSummary.querySelector('.count-number');
         const timeText = gradeSummary.querySelector('.time-text');
         
-        if (overallGradeCard) {
-            overallGradeCard.textContent = summary.average_score?.toFixed(1) || '--';
+        // Hide Overall Grade card as it's confusing
+        const overallCard = gradeSummary.querySelector('.overall-grade');
+        if (overallCard) {
+            overallCard.style.display = 'none';
         }
         
-        if (pointsEarned && pointsTotal) {
-            pointsEarned.textContent = summary.total_score?.toFixed(0) || '--';
-            pointsTotal.textContent = summary.max_points?.toFixed(0) || '--';
+        // Dynamic calculation: Use actual module weights from SQL
+        const moduleGrades = this.grades.modules || [];
+        
+        let totalEarnedPoints = 0;
+        let totalPossiblePoints = 0;
+        
+        moduleGrades.forEach(module => {
+            const score = parseFloat(module.final_score || 0); // 0-10 scale
+            
+            // Get weight ONLY from module configuration in database
+            let weight = 0;
+            if (module.modules?.weight) {
+                weight = parseFloat(module.modules.weight);
+            } else if (module.weight) {
+                weight = parseFloat(module.weight);
+            }
+            // Removed max_points fallback - it represents item points, not module weight!
+            
+            // Only include modules that have valid weights
+            if (weight > 0) {
+                // Convert: if student got 9/10 in a module worth 25%, they earned 22.5 points
+                const earnedPoints = (score / 10) * weight;
+                totalEarnedPoints += earnedPoints;
+                totalPossiblePoints += weight;
+            }
+        });
+        
+        // Update display
+        if (currentScore) {
+            currentScore.textContent = totalEarnedPoints.toFixed(1);
+        }
+        
+        if (totalPossible) {
+            totalPossible.textContent = totalPossiblePoints > 0 ? totalPossiblePoints.toString() : '60';
+        }
+        
+        if (percentageText) {
+            const percentage = ((totalEarnedPoints / totalPossiblePoints) * 100).toFixed(1);
+            percentageText.textContent = percentage;
         }
         
         if (countNumber) {
@@ -446,7 +541,7 @@ class StudentGradesInterface {
                     </select>
                     <select id="submission-module-filter">
                         <option value="">All Modules</option>
-                        ${this.modules.map(module => 
+                        ${(this.modules || []).map(module => 
                             `<option value="${module.id}">${module.name}</option>`
                         ).join('')}
                     </select>
@@ -673,26 +768,27 @@ class StudentGradesInterface {
     }
 
     renderModulePerformanceCard(moduleGrade) {
-        const score = moduleGrade.final_score || 0;
-        const maxPoints = moduleGrade.max_points || 1;
-        const progress = ((score / maxPoints) * 100).toFixed(1);
+        // Handle 0-10 grading scale properly
+        const score = parseFloat(moduleGrade.final_score || 0); // 0-10 scale
+        const percentage = moduleGrade.percentage ? parseFloat(moduleGrade.percentage) : (score * 10);
+        const displayScore = moduleGrade.display_score || score.toFixed(2);
         const moduleName = moduleGrade.modules?.name || 'Unknown Module';
         const moduleColor = moduleGrade.modules?.color || '#6B7280';
         const moduleIcon = moduleGrade.modules?.icon || '📚';
         
-        // Get grade letter
+        // Get grade letter based on 0-10 scale
         let gradeLetter = 'N/A';
         let gradeColor = '#6B7280';
-        if (progress >= 97) { gradeLetter = 'A+'; gradeColor = '#10B981'; }
-        else if (progress >= 93) { gradeLetter = 'A'; gradeColor = '#10B981'; }
-        else if (progress >= 90) { gradeLetter = 'A-'; gradeColor = '#10B981'; }
-        else if (progress >= 87) { gradeLetter = 'B+'; gradeColor = '#3B82F6'; }
-        else if (progress >= 83) { gradeLetter = 'B'; gradeColor = '#3B82F6'; }
-        else if (progress >= 80) { gradeLetter = 'B-'; gradeColor = '#3B82F6'; }
-        else if (progress >= 77) { gradeLetter = 'C+'; gradeColor = '#F59E0B'; }
-        else if (progress >= 73) { gradeLetter = 'C'; gradeColor = '#F59E0B'; }
-        else if (progress >= 70) { gradeLetter = 'C-'; gradeColor = '#F59E0B'; }
-        else if (progress >= 60) { gradeLetter = 'D'; gradeColor = '#EF4444'; }
+        if (score >= 9.7) { gradeLetter = 'A+'; gradeColor = '#10B981'; }
+        else if (score >= 9.3) { gradeLetter = 'A'; gradeColor = '#10B981'; }
+        else if (score >= 9.0) { gradeLetter = 'A-'; gradeColor = '#10B981'; }
+        else if (score >= 8.7) { gradeLetter = 'B+'; gradeColor = '#3B82F6'; }
+        else if (score >= 8.3) { gradeLetter = 'B'; gradeColor = '#3B82F6'; }
+        else if (score >= 8.0) { gradeLetter = 'B-'; gradeColor = '#3B82F6'; }
+        else if (score >= 7.7) { gradeLetter = 'C+'; gradeColor = '#F59E0B'; }
+        else if (score >= 7.3) { gradeLetter = 'C'; gradeColor = '#F59E0B'; }
+        else if (score >= 7.0) { gradeLetter = 'C-'; gradeColor = '#F59E0B'; }
+        else if (score >= 6.0) { gradeLetter = 'D'; gradeColor = '#EF4444'; }
         else { gradeLetter = 'F'; gradeColor = '#EF4444'; }
         
         return `
@@ -702,21 +798,22 @@ class StudentGradesInterface {
                         <span class="module-icon">${moduleIcon}</span>
                         <div>
                             <h4 class="module-name">${moduleName}</h4>
-                            <p class="module-progress-text">${progress}% complete</p>
+                            <p class="module-progress-text">${percentage}% complete</p>
                         </div>
                     </div>
                     <div class="grade-display" style="color: ${gradeColor}">
                         <span class="grade-letter">${gradeLetter}</span>
-                        <span class="grade-percentage">${progress}%</span>
+                        <span class="grade-percentage">${percentage}%</span>
                     </div>
                 </div>
                 <div class="progress-bar-container">
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${progress}%; background-color: ${moduleColor}"></div>
+                        <div class="progress-fill" style="width: ${percentage}%; background-color: ${moduleColor}"></div>
                     </div>
                 </div>
                 <div class="module-stats">
-                    <span class="stat-item">${score.toFixed(0)}/${maxPoints.toFixed(0)} pts</span>
+                    <span class="stat-item">${displayScore}/10.00 pts</span>
+                    <span class="stat-item">${percentage}%</span>
                 </div>
             </div>
         `;
@@ -726,13 +823,23 @@ class StudentGradesInterface {
         const itemGrades = this.grades.items || [];
         const moduleGrades = this.grades.modules || [];
         
-        // Calculate stats
+        // Calculate stats with proper 0-10 scale handling
         const totalItems = itemGrades.length;
         const avgModuleGrade = moduleGrades.length > 0 ? 
-            moduleGrades.reduce((sum, m) => sum + ((m.final_score / m.max_points) * 100), 0) / moduleGrades.length : 0;
+            moduleGrades.reduce((sum, m) => {
+                const percentage = m.percentage ? parseFloat(m.percentage) : (parseFloat(m.final_score || 0) * 10);
+                return sum + percentage;
+            }, 0) / moduleGrades.length : 0;
         
-        const excellentGrades = itemGrades.filter(g => ((g.final_score / g.max_points) * 100) >= 90).length;
-        const needsImprovementGrades = itemGrades.filter(g => ((g.final_score / g.max_points) * 100) < 70).length;
+        const excellentGrades = itemGrades.filter(g => {
+            const percentage = g.percentage ? parseFloat(g.percentage) : ((g.final_score / g.max_points) * 100);
+            return percentage >= 90;
+        }).length;
+        
+        const needsImprovementGrades = itemGrades.filter(g => {
+            const percentage = g.percentage ? parseFloat(g.percentage) : ((g.final_score / g.max_points) * 100);
+            return percentage < 70;
+        }).length;
         
         return `
             <div class="stats-grid">
@@ -844,21 +951,48 @@ class StudentGradesInterface {
         const statusFilter = document.getElementById('submission-status-filter')?.value;
         const moduleFilter = document.getElementById('submission-module-filter')?.value;
         
-        // Re-render submissions with filters applied
-        let filteredSubmissions = this.submissions;
+        // Start with all submissions
+        let filteredSubmissions = [...this.submissions];
         
+        // Apply status filter
         if (statusFilter === 'graded') {
             filteredSubmissions = filteredSubmissions.filter(s => s.raw_score !== null);
         } else if (statusFilter === 'ungraded') {
             filteredSubmissions = filteredSubmissions.filter(s => s.raw_score === null);
         }
         
+        // Apply module filter
+        if (moduleFilter) {
+            filteredSubmissions = filteredSubmissions.filter(submission => {
+                // Find which module this submission belongs to by matching constituent_slug
+                const constituentSlug = submission.items?.constituent_slug;
+                if (!constituentSlug) return false;
+                
+                // Find the constituent that matches this slug
+                const constituent = this.constituents.find(c => c.slug === constituentSlug);
+                if (!constituent) return false;
+                
+                // Check if the constituent's module_id matches the selected module filter
+                return constituent.module_id === moduleFilter;
+            });
+        }
+        
         // Update the submissions list
         const submissionsList = document.querySelector('.submissions-list');
         if (submissionsList) {
-            submissionsList.innerHTML = filteredSubmissions
-                .map(submission => this.renderSubmissionCard(submission))
-                .join('');
+            if (filteredSubmissions.length === 0) {
+                submissionsList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📋</div>
+                        <h4>No submissions match your filters</h4>
+                        <p>Try adjusting your filter selections.</p>
+                    </div>
+                `;
+            } else {
+                submissionsList.innerHTML = filteredSubmissions
+                    .map(submission => this.renderSubmissionCard(submission))
+                    .join('');
+            }
         }
     }
 

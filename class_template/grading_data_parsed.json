@@ -130,121 +130,147 @@
   ],
   "grading_policies": [
     {
-      "module_id": "auth_implementation",
-      "policy_name": "Authentication Implementation Grading Policy",
+      "module_id": null,
+      "policy_name": "Universal 5-Rule Module Grading Policy",
       "version": "1.0",
       "policy_data": {
         "policy_metadata": {
-          "name": "Authentication Implementation Grading Policy",
-          "module_id": "auth_implementation",
+          "name": "Universal 5-Rule Module Grading Policy",
           "version": "1.0",
-          "created": "2025-08-13",
-          "description": "Complex 5-rule grading algorithm for authentication module"
+          "description": "Applies 5-rule grading algorithm to all course modules",
+          "author": "Course Framework",
+          "applies_to": "all_modules"
         },
-        "grading_rules": {
-          "base_score": {
-            "description": "Calculate weighted average of all constituent scores",
-            "type": "weighted_average",
-            "weight_source": "constituent.weight",
-            "apply_to": "all_constituents",
-            "sql_expression": "SUM(item_score * constituent_weight) / SUM(constituent_weight)\n"
-          },
-          "completion_bonus": {
-            "description": "5% bonus if all items submitted on time",
-            "type": "conditional_bonus",
-            "condition": "all_items_on_time",
-            "bonus_percentage": 5.0,
-            "sql_condition": "(SELECT COUNT(*) FROM student_submissions s \n JOIN homework_items i ON s.item_id = i.id \n WHERE s.student_id = target_student_id \n AND i.module_id = 'auth_implementation'\n AND s.submitted_at <= i.due_date) = \n(SELECT COUNT(*) FROM homework_items \n WHERE module_id = 'auth_implementation')\n"
-          },
-          "attempt_penalty": {
-            "description": "2% penalty per extra attempt beyond the first for each item",
-            "type": "attempt_penalty",
-            "penalty_per_attempt": 2.0,
-            "free_attempts": 1,
-            "sql_expression": "GREATEST(0, base_score - (\n  SELECT SUM(GREATEST(0, (attempt_count - 1) * 2.0))\n  FROM student_submission_stats \n  WHERE student_id = target_student_id \n  AND module_id = 'auth_implementation'\n))\n"
-          },
-          "late_penalty": {
-            "description": "5% penalty per day late, max 7 days",
-            "type": "time_penalty",
-            "penalty_per_day": 5.0,
-            "max_late_days": 7,
-            "grace_period_hours": 2,
-            "sql_expression": "base_score - (\n  SELECT SUM(\n    LEAST(35.0, -- Max 7 days * 5% = 35%\n      GREATEST(0, \n        EXTRACT(epoch FROM (submitted_at - due_date - interval '2 hours')) / 86400\n      ) * 5.0\n    )\n  ) FROM student_submissions s\n  JOIN homework_items i ON s.item_id = i.id\n  WHERE s.student_id = target_student_id\n  AND i.module_id = 'auth_implementation'\n  AND s.submitted_at > i.due_date + interval '2 hours'\n)\n"
-          },
-          "quality_multiplier": {
-            "description": "Multiply final score by quality factor based on testing constituent performance",
-            "type": "quality_multiplier",
-            "base_constituent": "auth_testing",
-            "multiplier_ranges": {
-              "excellent": {
-                "threshold": 95.0,
-                "multiplier": 1.05
-              },
-              "good": {
-                "threshold": 85.0,
-                "multiplier": 1.0
-              },
-              "acceptable": {
-                "threshold": 70.0,
-                "multiplier": 0.98
-              },
-              "needs_improvement": {
-                "threshold": 0.0,
-                "multiplier": 0.95
-              }
+        "grading_rules": [
+          {
+            "rule_id": "exceptional_performance",
+            "priority": 1,
+            "description": "All grades > 9.0 \u2192 Final score = 10.0",
+            "condition": {
+              "type": "all_grades_above",
+              "threshold": 9.0
             },
-            "sql_expression": "adjusted_score * (\n  CASE \n    WHEN testing_score >= 95.0 THEN 1.05\n    WHEN testing_score >= 85.0 THEN 1.0  \n    WHEN testing_score >= 70.0 THEN 0.98\n    ELSE 0.95\n  END\n)\n",
-            "sql_variables": "testing_score AS (\n  SELECT AVG(final_score) \n  FROM student_item_grades sig\n  JOIN homework_items hi ON sig.item_id = hi.id\n  JOIN constituents c ON hi.constituent_slug = c.slug\n  WHERE sig.student_id = target_student_id \n  AND c.id = 'auth_testing'\n)\n"
+            "action": {
+              "type": "set_final_score",
+              "value": 10.0
+            }
+          },
+          {
+            "rule_id": "good_performance",
+            "priority": 2,
+            "description": "All grades > 8.0 \u2192 Average + bonus (linear interpolation 0.15-0.5)",
+            "condition": {
+              "type": "all_grades_above",
+              "threshold": 8.0
+            },
+            "action": {
+              "type": "add_linear_bonus",
+              "min_bonus": 0.15,
+              "max_bonus": 0.5,
+              "min_average": 8.0,
+              "max_average": 9.0,
+              "cap_at": 10.0
+            }
+          },
+          {
+            "rule_id": "acceptable_performance",
+            "priority": 3,
+            "description": "All grades > 7.5 \u2192 Use exact average (no bonus, no penalty)",
+            "condition": {
+              "type": "all_grades_above",
+              "threshold": 7.5
+            },
+            "action": {
+              "type": "use_average"
+            }
+          },
+          {
+            "rule_id": "warning_zone",
+            "priority": 4,
+            "description": "Any grade between 6.0-7.5 \u2192 Average - 0.3 penalty (minimum 6.0)",
+            "condition": {
+              "type": "any_grade_in_range",
+              "min_threshold": 6.0,
+              "max_threshold": 7.5
+            },
+            "action": {
+              "type": "subtract_penalty",
+              "penalty": 0.3,
+              "minimum_score": 6.0
+            }
+          },
+          {
+            "rule_id": "problematic_performance",
+            "priority": 5,
+            "description": "Any grade < 6.0 \u2192 Remove highest grade and average the rest",
+            "condition": {
+              "type": "any_grade_below",
+              "threshold": 6.0
+            },
+            "action": {
+              "type": "remove_highest_and_average",
+              "protection": {
+                "min_items_required": 2,
+                "fallback_action": "use_average"
+              }
+            }
+          }
+        ],
+        "policy_settings": {
+          "target_modules": [],
+          "decimal_places": 2,
+          "grade_range": {
+            "minimum": 0.0,
+            "maximum": 10.0
+          },
+          "cache_results": true,
+          "cache_duration_minutes": 30,
+          "log_rule_applications": false,
+          "track_policy_usage": true
+        },
+        "rule_documentation": {
+          "condition_types": {
+            "all_grades_above": "All grades in the set must be above the threshold",
+            "any_grade_below": "At least one grade must be below the threshold",
+            "any_grade_in_range": "At least one grade must be within min_threshold and max_threshold (inclusive)"
+          },
+          "action_types": {
+            "set_final_score": "Set final score to a fixed value",
+            "use_average": "Use the simple average of all grades",
+            "add_linear_bonus": "Add bonus based on linear interpolation",
+            "subtract_penalty": "Subtract fixed penalty with minimum score protection",
+            "remove_highest_and_average": "Remove highest grade and average remaining grades"
           }
         },
-        "execution_order": {
-          "1": "base_score",
-          "2": "attempt_penalty",
-          "3": "late_penalty",
-          "4": "completion_bonus",
-          "5": "quality_multiplier"
-        },
-        "sql_settings": {
-          "function_name": "calculate_auth_implementation_grade",
-          "input_parameters": [
-            "target_student_id UUID",
-            "calculation_date TIMESTAMP DEFAULT NOW()"
-          ],
-          "return_type": "JSONB",
-          "return_fields": {
-            "final_score": "NUMERIC(5,2)",
-            "base_score": "NUMERIC(5,2)",
-            "completion_bonus": "NUMERIC(5,2)",
-            "attempt_penalty": "NUMERIC(5,2)",
-            "late_penalty": "NUMERIC(5,2)",
-            "quality_multiplier": "NUMERIC(4,3)",
-            "grade_letter": "TEXT",
-            "breakdown": "JSONB"
+        "usage_examples": [
+          {
+            "scenario": "Student has grades [9.2, 9.5, 9.8]",
+            "rule_applied": "exceptional_performance",
+            "calculation": "All > 9.0, so final = 10.0"
           },
-          "use_materialized_views": true,
-          "cache_duration_minutes": 30,
-          "row_level_security": true,
-          "allowed_roles": [
-            "professor",
-            "student_own_grades"
-          ]
-        },
-        "grade_scale": {
-          "A": 95.0,
-          "A-": 90.0,
-          "B+": 87.0,
-          "B": 83.0,
-          "B-": 80.0,
-          "C+": 77.0,
-          "C": 73.0,
-          "C-": 70.0,
-          "D+": 67.0,
-          "D": 63.0,
-          "D-": 60.0,
-          "F": 0.0
-        }
+          {
+            "scenario": "Student has grades [8.2, 8.7, 8.9]",
+            "rule_applied": "good_performance",
+            "calculation": "All > 8.0, avg=8.6, bonus=0.36, final=8.96"
+          },
+          {
+            "scenario": "Student has grades [7.8, 8.2, 8.5]",
+            "rule_applied": "acceptable_performance",
+            "calculation": "All > 7.5, so final = average = 8.17"
+          },
+          {
+            "scenario": "Student has grades [6.5, 8.0, 8.5]",
+            "rule_applied": "warning_zone",
+            "calculation": "Has grade 6.5 in warning zone, avg=7.67, final=7.37"
+          },
+          {
+            "scenario": "Student has grades [5.5, 7.0, 8.5]",
+            "rule_applied": "problematic_performance",
+            "calculation": "Has grade < 6.0, remove highest (8.5), avg of [5.5,7.0] = 6.25"
+          }
+        ]
       },
-      "sql_function_name": "calculate_auth_implementation_grade"
+      "sql_function_name": null
     }
   ],
   "validation_summary": {

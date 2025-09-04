@@ -46,37 +46,30 @@ View your current grades, submission history, and academic progress.
 </div>
 
 <div class="grade-summary-cards" id="gradeSummary">
-<div class="summary-card overall-grade">
-<div class="card-header">
-<span class="card-icon">🎯</span>
-<span class="card-title">Overall Grade</span>
-</div>
-<div class="grade-display">
-<span class="grade-number">--</span>
-<span class="grade-unit">%</span>
-</div>
-</div>
-
-<div class="summary-card total-points">
+<div class="summary-card current-grade" style="grid-column: 1 / 3;">
 <div class="card-header">
 <span class="card-icon">📊</span>
-<span class="card-title">Points Earned</span>
+<span class="card-title">Current Grade</span>
 </div>
-<div class="points-display">
-<span class="points-earned">--</span>
-<span class="points-separator">/</span>
-<span class="points-total">--</span>
+<div class="grade-fraction-display">
+<span class="current-score">--</span>
+<span class="grade-separator">/</span>
+<span class="total-possible">60</span>
+</div>
+<div class="grade-percentage-display">
+<span class="percentage-text">--</span>
+<span class="percentage-symbol">%</span>
 </div>
 </div>
 
 <div class="summary-card graded-items">
 <div class="card-header">
 <span class="card-icon">✅</span>
-<span class="card-title">Items Graded</span>
+<span class="card-title">Modules Graded</span>
 </div>
 <div class="count-display">
 <span class="count-number">--</span>
-<span class="count-label">items</span>
+<span class="count-label">modules</span>
 </div>
 </div>
 
@@ -212,6 +205,20 @@ View your current grades, submission history, and academic progress.
     justify-content: center;
     font-size: 1.5rem;
     backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-avatar .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-avatar .avatar-fallback {
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.8);
 }
 
 .profile-details h2 {
@@ -304,7 +311,24 @@ View your current grades, submission history, and academic progress.
     opacity: 0.8;
 }
 
-.points-display {
+.grade-percentage-display {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.percentage-text {
+    font-weight: 600;
+}
+
+.current-grade {
+    text-align: center;
+}
+
+.points-display, .grade-fraction-display {
     display: flex;
     align-items: baseline;
     gap: 0.25rem;
@@ -312,7 +336,7 @@ View your current grades, submission history, and academic progress.
     font-weight: 600;
 }
 
-.points-separator {
+.points-separator, .grade-separator {
     opacity: 0.6;
     margin: 0 0.25rem;
 }

@@ -87,7 +87,10 @@ serve(async (req) => {
               p_student_id: studentId,
               p_class_id: class_id
             })
-          grades = data || []
+          grades = (data || []).map(grade => ({
+            ...grade,
+            percentage: grade.max_points > 0 ? ((grade.final_score / grade.max_points) * 100).toFixed(1) : 0
+          }))
           gradesError = error
         } else if (gradeLevel === 'constituent') {
           const { data, error } = await supabaseClient
@@ -95,7 +98,10 @@ serve(async (req) => {
               p_student_id: studentId,
               p_class_id: class_id
             })
-          grades = data || []
+          grades = (data || []).map(grade => ({
+            ...grade,
+            percentage: grade.max_points > 0 ? ((grade.final_score / grade.max_points) * 100).toFixed(1) : 0
+          }))
           gradesError = error
         } else { // module level
           const { data, error } = await supabaseClient
@@ -103,7 +109,13 @@ serve(async (req) => {
               p_student_id: studentId,
               p_class_id: class_id
             })
-          grades = data || []
+          // Transform module grades: final_score is 0-10, convert to percentage for display
+          grades = (data || []).map(grade => ({
+            ...grade,
+            percentage: grade.final_score ? (parseFloat(grade.final_score) * 10).toFixed(1) : '0.0',
+            display_score: parseFloat(grade.final_score || 0).toFixed(2),
+            scale_type: '0-10' // Flag for frontend to know this is 0-10 scale
+          }))
           gradesError = error
         }
 

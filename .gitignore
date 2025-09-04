@@ -250,3 +250,4 @@ hugo.toml
 build.yml
 build copy.yml
 supabase/
+.mcp.json

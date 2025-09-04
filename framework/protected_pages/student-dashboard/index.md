@@ -31,26 +31,6 @@ protected: true
 </p>
 </div>
 
-<!-- Grade Overview Card -->
-<div class="dashboard-section grade-overview">
-<h3>📊 Your Grade</h3>
-<div class="grade-display">
-<div class="overall-grade">
-<span class="grade-percentage" id="overallGrade">--</span>
-<span class="grade-label">Overall</span>
-</div>
-<div class="grade-stats">
-<div class="stat">
-<span id="gradedCount">0</span>
-<span>Graded</span>
-</div>
-<div class="stat">
-<span id="pendingCount">0</span>
-<span>Pending</span>
-</div>
-</div>
-</div>
-</div>
 
 <!-- Upcoming Work -->
 <div class="dashboard-section upcoming-work">
@@ -98,25 +78,41 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function initializeStudentDashboard() {
-    // Check for debug session first
+    // Check for debug session first - but validate it's legitimate
     const debugSession = sessionStorage.getItem('professor_debug_session');
     let targetStudentId = null;
     
     if (debugSession) {
-        const session = JSON.parse(debugSession);
-        
-        // Check expiration
-        if (new Date(session.expires_at) < new Date()) {
-            sessionStorage.removeItem('professor_debug_session');
-        } else {
-            // Show debug banner
-            document.getElementById('debugBanner').style.display = 'block';
-            document.getElementById('debugInfo').textContent = 
-                session.mode === 'self' 
-                    ? 'Viewing as Professor (test data)' 
-                    : `Viewing as Student ID: ${session.target_student_id}`;
+        try {
+            const session = JSON.parse(debugSession);
             
-            targetStudentId = session.mode === 'self' ? null : session.target_student_id;
+            // Check expiration
+            if (new Date(session.expires_at) < new Date()) {
+                sessionStorage.removeItem('professor_debug_session');
+                console.log('Debug session expired, removed');
+            } else {
+                // Validate that the current user is actually a professor
+                const userContext = window.authState?.userContext;
+                if (!userContext || !userContext.is_professor) {
+                    // Not a professor - remove debug session to prevent data leakage
+                    sessionStorage.removeItem('professor_debug_session');
+                    console.warn('Debug session found but user is not a professor - removing session');
+                } else {
+                    // Valid professor debug session
+                    document.getElementById('debugBanner').style.display = 'block';
+                    document.getElementById('debugInfo').textContent = 
+                        session.mode === 'self' 
+                            ? 'Viewing as Professor (test data)' 
+                            : `Viewing as Student ID: ${session.target_student_id}`;
+                    
+                    targetStudentId = session.mode === 'self' ? null : session.target_student_id;
+                    console.log('Valid professor debug session active');
+                }
+            }
+        } catch (error) {
+            // Invalid debug session format
+            sessionStorage.removeItem('professor_debug_session');
+            console.warn('Invalid debug session format, removed');
         }
     }
     
@@ -132,7 +128,6 @@ async function initializeStudentDashboard() {
         // Load all dashboard data
         await Promise.all([
             loadStudentInfo(targetStudentId),
-            loadGradeOverview(targetStudentId),
             loadUpcomingWork(),
             loadRecentGrades(targetStudentId)
         ]);
@@ -161,34 +156,6 @@ async function loadStudentInfo(targetStudentId) {
     }
 }
 
-async function loadGradeOverview(targetStudentId) {
-    try {
-        // Build URL with student_id if provided (for professor debug mode)
-        let gradesUrl = 'https://levybxqsltedfjtnkntm.supabase.co/functions/v1/student-grades?level=module';
-        if (targetStudentId) {
-            gradesUrl += `&student_id=${targetStudentId}`;
-        }
-        
-        const response = await fetch(gradesUrl, {
-            headers: {
-                'Authorization': `Bearer ${window.authState.session.access_token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            updateGradeDisplay(data);
-        } else {
-            console.warn('Failed to load grade overview:', response.status);
-            // Show default/empty state
-            updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
-        }
-    } catch (error) {
-        console.error('Failed to load grade overview:', error);
-        updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
-    }
-}
 
 async function loadUpcomingWork() {
     try {
@@ -199,18 +166,43 @@ async function loadUpcomingWork() {
             return;
         }
         
-        const { data: items, error } = await window.authState.client
+        const studentId = window.authState?.user?.id;
+        if (!studentId) {
+            document.getElementById('upcomingList').innerHTML = '<p>Unable to determine student ID</p>';
+            return;
+        }
+        
+        // Get all current items with due dates in the future
+        const { data: allItems, error: itemsError } = await window.authState.client
             .from('items')
             .select('id, title, points, due_date, constituent_slug')
             .gt('due_date', new Date().toISOString())
             .eq('is_current', true)
-            .order('due_date', { ascending: true })
-            .limit(5);
+            .order('due_date', { ascending: true });
         
-        if (!error && items) {
-            displayUpcomingWork(items);
+        if (itemsError || !allItems) {
+            console.warn('Error loading items:', itemsError);
+            document.getElementById('upcomingList').innerHTML = '<p>Unable to load assignments</p>';
+            return;
+        }
+        
+        // Get student's submissions to filter out completed items
+        const { data: submissions, error: submissionsError } = await window.authState.client
+            .from('student_submissions')
+            .select('item_id')
+            .eq('student_id', studentId);
+        
+        if (submissionsError) {
+            console.warn('Error loading submissions:', submissionsError);
+        }
+        
+        // Filter out items the student has already submitted
+        const submittedItemIds = new Set((submissions || []).map(s => s.item_id));
+        const upcomingItems = allItems.filter(item => !submittedItemIds.has(item.id)).slice(0, 5);
+        
+        if (upcomingItems.length > 0) {
+            displayUpcomingWork(upcomingItems);
         } else {
-            console.warn('No upcoming items found or error:', error);
             document.getElementById('upcomingList').innerHTML = '<p>No upcoming assignments found</p>';
         }
     } catch (error) {
@@ -262,25 +254,6 @@ async function loadRecentGrades(targetStudentId) {
     }
 }
 
-function updateGradeDisplay(gradeData) {
-    const summary = gradeData.summary || {};
-    const grades = gradeData.grades || [];
-    
-    // Update overall grade
-    const overallGrade = summary.average_score || 0;
-    const gradeEl = document.getElementById('overallGrade');
-    gradeEl.textContent = `${overallGrade.toFixed(1)}%`;
-    
-    // Apply color based on grade
-    if (overallGrade >= 90) gradeEl.style.color = 'var(--eva-green-primary)';
-    else if (overallGrade >= 80) gradeEl.style.color = 'var(--eva-cyan-primary)';
-    else if (overallGrade >= 70) gradeEl.style.color = 'var(--eva-yellow-primary)';
-    else gradeEl.style.color = 'var(--eva-red-accent)';
-    
-    // Update counts
-    document.getElementById('gradedCount').textContent = summary.total_grades || 0;
-    document.getElementById('pendingCount').textContent = 0; // Will calculate from submissions later
-}
 
 function displayUpcomingWork(items) {
     const container = document.getElementById('upcomingList');

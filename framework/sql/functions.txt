@@ -1,0 +1,97 @@
+[
+  {
+    "function_name": "apply_grading_policy",
+    "arguments": "p_module_id text, p_class_id uuid, p_grades numeric[]",
+    "return_type": "numeric"
+  },
+  {
+    "function_name": "calculate_constituent_grades",
+    "arguments": "p_student_id uuid, p_class_id uuid",
+    "return_type": "TABLE(student_id uuid, class_id uuid, grade_level text, constituent_id text, final_score numeric, max_points numeric, computed_at timestamp with time zone, constituents jsonb, modules jsonb)"
+  },
+  {
+    "function_name": "calculate_grade_summary",
+    "arguments": "p_student_id uuid, p_class_id uuid, p_grade_level text DEFAULT 'module'::text",
+    "return_type": "jsonb"
+  },
+  {
+    "function_name": "calculate_module_grades",
+    "arguments": "p_student_id uuid, p_class_id uuid",
+    "return_type": "TABLE(student_id uuid, class_id uuid, grade_level text, module_id text, final_score numeric, max_points numeric, computed_at timestamp with time zone, modules jsonb)"
+  },
+  {
+    "function_name": "check_rate_limit",
+    "arguments": "p_user_id uuid, p_endpoint text, p_class_id uuid, p_limit integer, p_window_minutes integer",
+    "return_type": "boolean"
+  },
+  {
+    "function_name": "ensure_professor_enrollment",
+    "arguments": "p_github_username text, p_class_slug text",
+    "return_type": "jsonb"
+  },
+  {
+    "function_name": "get_class_id_by_slug",
+    "arguments": "p_slug text",
+    "return_type": "uuid"
+  },
+  {
+    "function_name": "get_effective_grade",
+    "arguments": "p_student_id uuid, p_item_id text, p_class_id uuid",
+    "return_type": "TABLE(effective_raw_score numeric, effective_adjusted_score numeric, effective_feedback text, effective_graded_at timestamp with time zone, effective_grader_id uuid, graded_attempt_number integer, latest_attempt_number integer, has_newer_version boolean)"
+  },
+  {
+    "function_name": "get_item_grades",
+    "arguments": "p_student_id uuid, p_class_id uuid",
+    "return_type": "TABLE(student_id uuid, class_id uuid, grade_level text, item_id text, final_score numeric, max_points numeric, computed_at timestamp with time zone, items jsonb, constituents jsonb, modules jsonb)"
+  },
+  {
+    "function_name": "get_latest_submissions_with_grades",
+    "arguments": "p_class_id uuid",
+    "return_type": "TABLE(id uuid, student_id uuid, item_id text, class_id uuid, attempt_number integer, submission_data jsonb, submitted_at timestamp with time zone, raw_score numeric, adjusted_score numeric, feedback text, graded_at timestamp with time zone, grader_id uuid, graded_attempt_number integer, has_newer_version boolean, is_latest_attempt boolean)"
+  },
+  {
+    "function_name": "handle_new_user",
+    "arguments": "",
+    "return_type": "trigger"
+  },
+  {
+    "function_name": "initialize_class",
+    "arguments": "p_class_slug text, p_class_title text, p_professor_github text",
+    "return_type": "json"
+  },
+  {
+    "function_name": "is_member_of",
+    "arguments": "p_class_id uuid, p_user_id uuid",
+    "return_type": "boolean"
+  },
+  {
+    "function_name": "is_professor_of",
+    "arguments": "p_class_id uuid, p_user_id uuid",
+    "return_type": "boolean"
+  },
+  {
+    "function_name": "is_student_of",
+    "arguments": "p_class_id uuid, p_user_id uuid",
+    "return_type": "boolean"
+  },
+  {
+    "function_name": "log_security_event",
+    "arguments": "p_user_id uuid, p_class_id uuid, p_event_type text, p_event_details jsonb",
+    "return_type": "void"
+  },
+  {
+    "function_name": "maintain_grade_persistence",
+    "arguments": "",
+    "return_type": "trigger"
+  },
+  {
+    "function_name": "update_updated_at",
+    "arguments": "",
+    "return_type": "trigger"
+  },
+  {
+    "function_name": "verify_professor_ownership",
+    "arguments": "p_user_id uuid, p_class_id uuid",
+    "return_type": "boolean"
+  }
+]

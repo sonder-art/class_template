@@ -47,7 +47,8 @@ This is a **GitHub Class Template Framework** - a production-ready Hugo-based ed
 - Backend interactions happen via JavaScript calling external APIs (Supabase Edge Functions)
 
 **Current Directory Organization:**
-- `framework/sql/` - Database schemas and migrations (production-ready)
+- `framework/sql/00_current.sql` - **Current production database schema** (exported from Supabase)
+- `framework/sql/legacy/` - **Historical SQL migrations and development files**
 - `framework/supabase/functions/` - Deno Edge Functions (11 deployed functions)
 - `framework/scripts/` - Python pre-build processors and management tools
 - `framework/assets/js/` - Frontend JavaScript (runtime auth, grading, submissions)
@@ -282,12 +283,17 @@ summary: "Brief description for indices and search"
 - **Class roster management** with enrollment status tracking
 
 **Grading Features:**
-- **Hierarchical grading structure** with modules, constituents, and items
+- **4-Level Hierarchical Structure**: Items (raw points) → Constituents (normalized %) → Modules (5-rule policy) → Final (weighted %)
+- **Production-Verified SQL Functions**:
+  - `calculate_module_grades(student_id, class_id)` - Module calculations with 5-rule policy
+  - `calculate_constituent_grades(student_id, class_id)` - Constituent normalization to 0-10 scale
+  - `get_item_grades(student_id, class_id)` - Individual item scores and percentages
+  - `calculate_grade_summary(student_id, class_id)` - Overall grade summary and statistics
+  - `apply_grading_policy(module_id, class_id, grades[])` - 5-rule policy application engine
+- **5-Rule Grading Policy System**: All > 9.0 → 10.0; All > 8.0 → bonus; etc.
+- **Ground Truth Sync**: Web-based sync at `/grading-sync/` (not CLI)
 - **In-content grading elements** via Hugo shortcodes
-- **Professor grading interfaces** with rich UI components
-- **Grade synchronization** between database and static site
-- **Submission tracking** with version history
-- **Grade adjustments** and policy-based calculations
+- **Submission tracking** in `student_submissions` table with JSONB data
 
 **Content Features:**
 - LaTeX math rendering via MathJax/KaTeX
@@ -330,8 +336,28 @@ summary: "Brief description for indices and search"
 
 This framework represents a sophisticated, production-ready educational platform that could serve real educational institutions with enterprise-level features like token-based enrollment, comprehensive grading systems, and multi-user authentication.
 
+## Database Schema & Testing
+
+### **Current Production Schema**
+- **Location**: `framework/sql/00_current.sql` - Complete production database schema exported from Supabase
+- **Legacy Files**: `framework/sql/legacy/` - Historical development migrations and experiments
+
+### **Key Database Tables**
+- **`student_submissions`** - Student work with required `submission_data` JSONB field
+- **`modules`** - Course modules with `is_current` state management
+- **`constituents`** - Module components with normalization weights
+- **`items`** - Individual graded elements linked to constituents
+- **`grading_policies`** - 5-rule policy engine configuration stored as JSONB
+
+### **Production Testing**
+- **Test User ID**: `385dd2ab-a193-483d-9df9-d5a2cca2cea3` (verified working)
+- **Class ID**: `df6b6665-d793-445d-8514-f1680ff77369`
+- **Verified Functions**: All grading calculations tested and working in production
+- **Sync Verification**: Ground truth sync via `/grading-sync/` web interface confirmed functional
+
 ## Related Documents
 
+- **`GRADING_HIERARCHY_IMPLEMENTATION_V2.md`** - Complete grading system implementation guide with production-verified details
 - `AUTHENTICATION_SETUP.md` - Authentication configuration guide
 - `SEED.md` - Framework setup and initialization guide
 - `framework_wiki/` - Comprehensive framework documentation

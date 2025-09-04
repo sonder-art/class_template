@@ -56,7 +56,12 @@ class GradingDataSynchronizer:
         }
     
     async def sync_all(self, grading_data: Dict[str, Any]) -> Tuple[bool, Dict[str, SyncResult]]:
-        """Synchronize all grading data with Supabase
+        """Synchronize all grading data with Supabase using ground truth pattern
+        
+        Ground Truth Pattern:
+        1. Deactivate all existing items (is_current = false)
+        2. Create/update from ground truth (is_current = true)
+        3. Result: Only ground truth items are active
         
         Args:
             grading_data: Parsed grading data from parse_grading_data.py
@@ -65,7 +70,7 @@ class GradingDataSynchronizer:
             tuple: (overall_success, sync_results_by_type)
         """
         
-        self.console.print("🔄 [bold]Starting Grading Data Synchronization[/bold]")
+        self.console.print("🔄 [bold]Starting Ground Truth Synchronization[/bold]")
         
         overall_success = True
         
@@ -75,65 +80,126 @@ class GradingDataSynchronizer:
             console=self.console
         ) as progress:
             
-            # Sync modules first (constituents reference them)
+            # Get class_id from first module or validation summary
+            class_id = None
+            if grading_data.get('modules') and len(grading_data['modules']) > 0:
+                class_id = grading_data['modules'][0].get('class_id')
+            
+            # Fallback: try to get from validation summary or constituents
+            if not class_id and grading_data.get('constituents') and len(grading_data['constituents']) > 0:
+                class_id = grading_data['constituents'][0].get('class_id')
+            
+            # Final fallback: use hardcoded class_id (should be fixed in parse scripts)
+            if not class_id:
+                class_id = 'df6b6665-d793-445d-8514-f1680ff77369'  # Current class ID
+            
+            if not class_id:
+                self.console.print("❌ No class_id found in grading data")
+                return False, self.sync_stats
+            
+            # Step 1: Deactivate all existing items first
+            deactivate_task = progress.add_task("Deactivating existing items...", total=None)
+            deactivate_result = await self._deactivate_all_items(class_id)
+            if not deactivate_result:
+                overall_success = False
+                self.console.print("❌ Failed to deactivate existing items")
+                return overall_success, self.sync_stats
+            progress.update(deactivate_task, description="All existing items deactivated")
+            
+            # Step 2: Sync modules first (constituents reference them)
             modules_task = progress.add_task("Syncing modules...", total=None)
-            modules_result = await self._sync_modules(grading_data.get('modules', []))
+            modules_result = await self._sync_modules(grading_data.get('modules', []), class_id)
             self.sync_stats['modules'] = modules_result
             progress.update(modules_task, description=f"Modules: {modules_result.created_count} created, {modules_result.updated_count} updated")
             
             if not modules_result.success:
                 overall_success = False
             
-            # Sync constituents (reference modules)
+            # Step 3: Sync constituents (reference modules)
             constituents_task = progress.add_task("Syncing constituents...", total=None)
-            constituents_result = await self._sync_constituents(grading_data.get('constituents', []))
+            constituents_result = await self._sync_constituents(grading_data.get('constituents', []), class_id)
             self.sync_stats['constituents'] = constituents_result
             progress.update(constituents_task, description=f"Constituents: {constituents_result.created_count} created, {constituents_result.updated_count} updated")
             
             if not constituents_result.success:
                 overall_success = False
                 
-            # Sync grading policies (reference modules)
+            # Step 4: Sync grading policies (reference modules)
             policies_task = progress.add_task("Syncing grading policies...", total=None)
-            policies_result = await self._sync_grading_policies(grading_data.get('grading_policies', []))
+            policies_result = await self._sync_grading_policies(grading_data.get('grading_policies', []), class_id)
             self.sync_stats['grading_policies'] = policies_result
             progress.update(policies_task, description=f"Policies: {policies_result.created_count} created, {policies_result.updated_count} updated")
             
             if not policies_result.success:
                 overall_success = False
         
+        self.console.print("✅ [bold green]Ground Truth Synchronization Complete[/bold green]")
         return overall_success, self.sync_stats
     
-    async def _sync_modules(self, modules_data: List[Dict[str, Any]]) -> SyncResult:
-        """Synchronize modules with database"""
+    async def _deactivate_all_items(self, class_id: str) -> bool:
+        """Deactivate all existing grading items for this class (ground truth pattern step 1)"""
+        
+        try:
+            self.console.print("   🔄 Deactivating all modules, constituents, and policies...")
+            
+            # Deactivate all existing records (but don't delete)
+            results = await asyncio.gather(
+                self.supabase.table('modules').update({'is_current': False}).eq('class_id', class_id).execute(),
+                self.supabase.table('constituents').update({'is_current': False}).eq('class_id', class_id).execute(),
+                self.supabase.table('grading_policies').update({'is_active': False}).eq('class_id', class_id).execute(),
+                return_exceptions=True
+            )
+            
+            # Check for errors
+            for i, result in enumerate(results):
+                table_names = ['modules', 'constituents', 'grading_policies']
+                if isinstance(result, Exception):
+                    self.console.print(f"   ❌ Failed to deactivate {table_names[i]}: {result}")
+                    return False
+                elif hasattr(result, 'error') and result.error:
+                    self.console.print(f"   ❌ Failed to deactivate {table_names[i]}: {result.error}")
+                    return False
+            
+            self.console.print("   ✅ All existing items deactivated")
+            return True
+            
+        except Exception as e:
+            self.console.print(f"   ❌ Critical error deactivating items: {e}")
+            return False
+    
+    async def _sync_modules(self, modules_data: List[Dict[str, Any]], class_id: str) -> SyncResult:
+        """Synchronize modules with database (ground truth pattern step 2)"""
         
         result = SyncResult(success=True)
         
         try:
             for module_data in modules_data:
                 try:
-                    # Check if module exists
-                    existing = self.supabase.table('modules').select('*').eq('id', module_data['id']).execute()
-                    
-                    # Prepare data for database
+                    # Prepare data for database including ground truth flags
                     db_data = {
                         'id': module_data['id'],
+                        'class_id': class_id,
                         'name': module_data['name'],
                         'description': module_data.get('description', ''),
                         'weight': float(module_data['weight']),
                         'order_index': int(module_data['order']),
                         'color': module_data.get('color', '#4a90e2'),
-                        'icon': module_data.get('icon', '📚')
+                        'icon': module_data.get('icon', '📚'),
+                        'is_current': True  # CRITICAL: Mark as current (ground truth)
                     }
                     
-                    if existing.data:
-                        # Update existing module
-                        self.supabase.table('modules').update(db_data).eq('id', module_data['id']).execute()
+                    # Use upsert to handle both create and update
+                    upsert_result = self.supabase.table('modules').upsert(db_data).execute()
+                    
+                    if upsert_result.error:
+                        raise Exception(upsert_result.error.message)
+                    
+                    # Determine if this was create or update
+                    existing_check = self.supabase.table('modules').select('*').eq('id', module_data['id']).eq('class_id', class_id).execute()
+                    if existing_check.data and len(existing_check.data) > 0:
                         result.updated_count += 1
-                        self.console.print(f"   📝 Updated module: {module_data['name']}")
+                        self.console.print(f"   📝 Activated/Updated module: {module_data['name']}")
                     else:
-                        # Create new module
-                        self.supabase.table('modules').insert(db_data).execute()
                         result.created_count += 1
                         self.console.print(f"   ➕ Created module: {module_data['name']}")
                         
@@ -150,39 +216,36 @@ class GradingDataSynchronizer:
         
         return result
     
-    async def _sync_constituents(self, constituents_data: List[Dict[str, Any]]) -> SyncResult:
-        """Synchronize constituents with database"""
+    async def _sync_constituents(self, constituents_data: List[Dict[str, Any]], class_id: str) -> SyncResult:
+        """Synchronize constituents with database (ground truth pattern step 3)"""
         
         result = SyncResult(success=True)
         
         try:
             for constituent_data in constituents_data:
                 try:
-                    # Check if constituent exists
-                    existing = self.supabase.table('constituents').select('*').eq('id', constituent_data['id']).execute()
-                    
-                    # Prepare data for database
+                    # Prepare data for database including ground truth flags
                     db_data = {
                         'id': constituent_data['id'],
+                        'class_id': class_id,
                         'slug': constituent_data['slug'],
                         'name': constituent_data['name'],
                         'description': constituent_data.get('description', ''),
                         'module_id': constituent_data['module_id'],
                         'weight': float(constituent_data['weight']),
                         'type': constituent_data.get('type', 'implementation'),
-                        'max_attempts': int(constituent_data.get('max_attempts', 3))
+                        'max_attempts': int(constituent_data.get('max_attempts', 3)),
+                        'is_current': True  # CRITICAL: Mark as current (ground truth)
                     }
                     
-                    if existing.data:
-                        # Update existing constituent
-                        self.supabase.table('constituents').update(db_data).eq('id', constituent_data['id']).execute()
-                        result.updated_count += 1
-                        self.console.print(f"   📝 Updated constituent: {constituent_data['name']}")
-                    else:
-                        # Create new constituent
-                        self.supabase.table('constituents').insert(db_data).execute()
-                        result.created_count += 1
-                        self.console.print(f"   ➕ Created constituent: {constituent_data['name']}")
+                    # Use upsert to handle both create and update
+                    upsert_result = self.supabase.table('constituents').upsert(db_data).execute()
+                    
+                    if upsert_result.error:
+                        raise Exception(upsert_result.error.message)
+                    
+                    result.updated_count += 1
+                    self.console.print(f"   📝 Activated/Updated constituent: {constituent_data['name']}")
                         
                 except Exception as e:
                     result.error_count += 1
@@ -197,41 +260,45 @@ class GradingDataSynchronizer:
         
         return result
     
-    async def _sync_grading_policies(self, policies_data: List[Dict[str, Any]]) -> SyncResult:
-        """Synchronize grading policies with database"""
+    async def _sync_grading_policies(self, policies_data: List[Dict[str, Any]], class_id: str) -> SyncResult:
+        """Synchronize grading policies with database (ground truth pattern step 4)"""
         
         result = SyncResult(success=True)
         
         try:
             for policy_data in policies_data:
                 try:
-                    module_id = policy_data['module_id']
+                    module_id = policy_data.get('module_id')  # None for universal policies
                     version = policy_data['version']
+                    policy_name = policy_data['policy_name']
                     
-                    # Check if policy exists (by module_id and version)
-                    existing = self.supabase.table('grading_policies').select('*').eq('module_id', module_id).eq('version', version).execute()
-                    
-                    # Prepare data for database
-                    db_data = {
-                        'module_id': module_id,
-                        'policy_name': policy_data['policy_name'],
-                        'version': version,
-                        'policy_data': policy_data['policy_data'],  # Store full YAML as JSON
-                        'sql_function_name': policy_data.get('sql_function_name'),
-                        'is_active': True  # New/updated policies are active
+                    # Prepare policy_rules as JSONB (just the rules, not full YAML)
+                    policy_rules = {
+                        'grading_rules': policy_data['policy_data'].get('grading_rules', []),
+                        'policy_settings': policy_data['policy_data'].get('policy_settings', {}),
+                        'metadata': policy_data['policy_data'].get('policy_metadata', {})
                     }
                     
-                    if existing.data:
-                        # Update existing policy
-                        policy_id = existing.data[0]['id']
-                        self.supabase.table('grading_policies').update(db_data).eq('id', policy_id).execute()
-                        result.updated_count += 1
-                        self.console.print(f"   📝 Updated policy: {policy_data['policy_name']}")
-                    else:
-                        # Create new policy
-                        self.supabase.table('grading_policies').insert(db_data).execute()
-                        result.created_count += 1
-                        self.console.print(f"   ➕ Created policy: {policy_data['policy_name']}")
+                    # Prepare data for database including ground truth flags
+                    db_data = {
+                        'module_id': module_id,
+                        'class_id': class_id,
+                        'policy_name': policy_name,
+                        'version': version,
+                        'policy_rules': policy_rules,  # Store as JSONB for SQL function
+                        'description': policy_data['policy_data'].get('policy_metadata', {}).get('description'),
+                        'is_active': True  # CRITICAL: Mark as active (ground truth)
+                    }
+                    
+                    # Use upsert to handle both create and update
+                    upsert_result = self.supabase.table('grading_policies').upsert(db_data).execute()
+                    
+                    if upsert_result.error:
+                        raise Exception(upsert_result.error.message)
+                    
+                    result.updated_count += 1
+                    policy_type = "Universal" if module_id is None else f"Module-specific ({module_id})"
+                    self.console.print(f"   📝 Activated/Updated {policy_type} policy: {policy_name}")
                         
                 except Exception as e:
                     result.error_count += 1

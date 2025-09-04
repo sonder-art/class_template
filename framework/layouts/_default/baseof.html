@@ -461,6 +461,8 @@
                 authToggleBtn.title = 'Login to access features';
                 authToggleBtn.disabled = false;
             }
+            // Make auth button visible (required for CSS styling)
+            authToggleBtn.classList.add('is-visible');
         } catch (error) {
             console.error('Error updating auth button:', error);
         }

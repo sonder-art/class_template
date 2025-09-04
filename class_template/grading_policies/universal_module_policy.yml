@@ -1,0 +1,131 @@
+# Universal Module Grading Policy
+# This policy applies the 5-rule grading algorithm to all modules
+# Changes to this file automatically sync to database when using ./manage.sh --build
+
+# Policy metadata
+policy_metadata:
+  name: "Universal 5-Rule Module Grading Policy"
+  version: "1.0"
+  description: "Applies 5-rule grading algorithm to all course modules"
+  author: "Course Framework"
+  applies_to: "all_modules"  # This policy applies to all modules universally
+  
+# The 5-rule grading algorithm
+# Rules are applied in priority order - first matching rule wins
+grading_rules:
+  # Rule 1: Exceptional Performance
+  - rule_id: "exceptional_performance"
+    priority: 1
+    description: "All grades > 9.0 → Final score = 10.0"
+    condition:
+      type: "all_grades_above"
+      threshold: 9.0
+    action:
+      type: "set_final_score"
+      value: 10.0
+
+  # Rule 2: Good Performance with Bonus
+  - rule_id: "good_performance"
+    priority: 2 
+    description: "All grades > 8.0 → Average + bonus (linear interpolation 0.15-0.5)"
+    condition:
+      type: "all_grades_above"
+      threshold: 8.0
+    action:
+      type: "add_linear_bonus"
+      min_bonus: 0.15        # Bonus when average = 8.0
+      max_bonus: 0.5         # Bonus when average = 9.0
+      min_average: 8.0       # Start of interpolation range
+      max_average: 9.0       # End of interpolation range
+      cap_at: 10.0          # Maximum final score
+
+  # Rule 3: Acceptable Performance  
+  - rule_id: "acceptable_performance"
+    priority: 3
+    description: "All grades > 7.5 → Use exact average (no bonus, no penalty)"
+    condition:
+      type: "all_grades_above"
+      threshold: 7.5
+    action:
+      type: "use_average"
+
+  # Rule 4: Warning Zone
+  - rule_id: "warning_zone"
+    priority: 4
+    description: "Any grade between 6.0-7.5 → Average - 0.3 penalty (minimum 6.0)"
+    condition:
+      type: "any_grade_in_range"
+      min_threshold: 6.0
+      max_threshold: 7.5
+    action:
+      type: "subtract_penalty"
+      penalty: 0.3
+      minimum_score: 6.0
+
+  # Rule 5: Problematic Performance
+  - rule_id: "problematic_performance"  
+    priority: 5
+    description: "Any grade < 6.0 → Remove highest grade and average the rest"
+    condition:
+      type: "any_grade_below"
+      threshold: 6.0
+    action:
+      type: "remove_highest_and_average"
+      protection:
+        min_items_required: 2    # Need at least 2 grades to remove one
+        fallback_action: "use_average"  # If only 1 grade, just use it
+
+# Policy configuration
+policy_settings:
+  # Which modules this policy applies to (empty means all modules)
+  target_modules: []  # Empty array means apply to all modules
+  
+  # Calculation settings
+  decimal_places: 2
+  grade_range:
+    minimum: 0.0
+    maximum: 10.0
+    
+  # Performance settings  
+  cache_results: true
+  cache_duration_minutes: 30
+  
+  # Audit settings
+  log_rule_applications: false  # Set to true for debugging
+  track_policy_usage: true
+
+# Documentation for rule conditions and actions
+rule_documentation:
+  condition_types:
+    all_grades_above: "All grades in the set must be above the threshold"
+    any_grade_below: "At least one grade must be below the threshold" 
+    any_grade_in_range: "At least one grade must be within min_threshold and max_threshold (inclusive)"
+    
+  action_types:
+    set_final_score: "Set final score to a fixed value"
+    use_average: "Use the simple average of all grades"
+    add_linear_bonus: "Add bonus based on linear interpolation"
+    subtract_penalty: "Subtract fixed penalty with minimum score protection"
+    remove_highest_and_average: "Remove highest grade and average remaining grades"
+
+# Usage examples for reference
+usage_examples:
+  - scenario: "Student has grades [9.2, 9.5, 9.8]"
+    rule_applied: "exceptional_performance" 
+    calculation: "All > 9.0, so final = 10.0"
+    
+  - scenario: "Student has grades [8.2, 8.7, 8.9]"
+    rule_applied: "good_performance"
+    calculation: "All > 8.0, avg=8.6, bonus=0.36, final=8.96"
+    
+  - scenario: "Student has grades [7.8, 8.2, 8.5]"
+    rule_applied: "acceptable_performance"
+    calculation: "All > 7.5, so final = average = 8.17"
+    
+  - scenario: "Student has grades [6.5, 8.0, 8.5]"
+    rule_applied: "warning_zone"
+    calculation: "Has grade 6.5 in warning zone, avg=7.67, final=7.37"
+    
+  - scenario: "Student has grades [5.5, 7.0, 8.5]"
+    rule_applied: "problematic_performance"
+    calculation: "Has grade < 6.0, remove highest (8.5), avg of [5.5,7.0] = 6.25"

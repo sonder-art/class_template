@@ -149,20 +149,36 @@ class GradingJSONGenerator:
         modules_file = self.hugo_data_dir / "modules.json"
         constituents_file = self.hugo_data_dir / "constituents.json"
         items_file = self.hugo_data_dir / "items.json"
+        # Load grading policies from parsed data file (following existing pattern)
+        grading_parsed_file = self.class_template_dir / "grading_data_parsed.json"
         
         modules_data = json.loads(modules_file.read_text()) if modules_file.exists() else {'modules': []}
         constituents_data = json.loads(constituents_file.read_text()) if constituents_file.exists() else {'constituents': []}
         items_data = json.loads(items_file.read_text()) if items_file.exists() else {'items': []}
         
+        # Load grading policies from the parsed grading data file
+        policies_data = {'grading_policies': []}
+        if grading_parsed_file.exists():
+            try:
+                with open(grading_parsed_file, 'r', encoding='utf-8') as f:
+                    parsed_data = json.load(f)
+                    policies_data = {'grading_policies': parsed_data.get('grading_policies', [])}
+                    self.console.print(f"✅ Loaded {len(policies_data['grading_policies'])} grading policies from parsed data")
+            except Exception as e:
+                self.console.print(f"⚠️  Failed to load grading policies: {e}")
+                policies_data = {'grading_policies': []}
+        
         # Generate checksums for change detection
         modules_str = json.dumps(modules_data['modules'], sort_keys=True)
         constituents_str = json.dumps(constituents_data['constituents'], sort_keys=True)
         items_str = json.dumps(items_data['items'], sort_keys=True)
+        policies_str = json.dumps(policies_data['grading_policies'], sort_keys=True)
         
         checksums = {
             'modules': hashlib.sha256(modules_str.encode()).hexdigest()[:16],
             'constituents': hashlib.sha256(constituents_str.encode()).hexdigest()[:16],
-            'items': hashlib.sha256(items_str.encode()).hexdigest()[:16]
+            'items': hashlib.sha256(items_str.encode()).hexdigest()[:16],
+            'grading_policies': hashlib.sha256(policies_str.encode()).hexdigest()[:16]
         }
         
         # Get class_id from course.yml
@@ -181,17 +197,20 @@ class GradingJSONGenerator:
             'counts': {
                 'modules': len(modules_data['modules']),
                 'constituents': len(constituents_data['constituents']),
-                'items': len(items_data['items'])
+                'items': len(items_data['items']),
+                'grading_policies': len(policies_data['grading_policies'])
             },
             'data': {
                 'modules': modules_data['modules'],
                 'constituents': constituents_data['constituents'],
-                'items': items_data['items']
+                'items': items_data['items'],
+                'grading_policies': policies_data['grading_policies']
             },
             'sources': {
                 'modules': modules_data.get('source_file', 'class_template/modules.yml'),
                 'constituents': constituents_data.get('source_file', 'class_template/constituents.yml'),
-                'items': items_data.get('total_files', 0)
+                'items': items_data.get('total_files', 0),
+                'grading_policies': 'class_template/grading_policies/'
             }
         }
         
@@ -200,7 +219,7 @@ class GradingJSONGenerator:
             json.dump(combined, f, indent=2)
         
         self.console.print(f"✅ Generated grading_complete.json with checksums")
-        self.console.print(f"   📊 {combined['counts']['modules']} modules, {combined['counts']['constituents']} constituents, {combined['counts']['items']} items")
+        self.console.print(f"   📊 {combined['counts']['modules']} modules, {combined['counts']['constituents']} constituents, {combined['counts']['items']} items, {combined['counts']['grading_policies']} policies")
         return True
 
 

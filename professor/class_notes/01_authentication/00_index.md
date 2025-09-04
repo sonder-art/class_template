@@ -1,7 +1,7 @@
 ---
 title: "Authentication"
 type: "index"
-date: "2025-09-01"
+date: "2025-09-03"
 author: "Framework (Auto-generated)"
 summary: "Index for Authentication chapter"
 ---

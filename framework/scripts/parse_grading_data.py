@@ -92,12 +92,32 @@ class GradingDataParser:
         # Validate cross-references
         if not self._validate_cross_references():
             success = False
+            
+        # Enhanced validation (non-blocking warnings)
+        self._validate_enhanced_relationships()
+        self._validate_weight_sums()
         
-        # Build result data structure
+        # Load class_id from course.yml
+        class_id = self._load_class_id()
+        
+        # Build result data structure with class_id injected
+        modules_with_class_id = []
+        for module in self.modules.values():
+            module_dict = asdict(module)
+            module_dict['class_id'] = class_id
+            modules_with_class_id.append(module_dict)
+        
+        constituents_with_class_id = []
+        for constituent in self.constituents.values():
+            constituent_dict = asdict(constituent)
+            constituent_dict['class_id'] = class_id
+            constituents_with_class_id.append(constituent_dict)
+        
         result_data = {
-            'modules': [asdict(module) for module in self.modules.values()],
-            'constituents': [asdict(constituent) for constituent in self.constituents.values()],
+            'modules': modules_with_class_id,
+            'constituents': constituents_with_class_id,
             'grading_policies': [asdict(policy) for policy in self.grading_policies.values()],
+            'class_id': class_id,
             'validation_summary': {
                 'total_modules': len(self.modules),
                 'total_constituents': len(self.constituents),
@@ -239,21 +259,40 @@ class GradingDataParser:
                     policy_data = yaml.safe_load(f)
                     
                 metadata = policy_data.get('policy_metadata', {})
-                module_id = metadata.get('module_id')
                 
-                if not module_id:
-                    self.errors.append(f"Policy file {policy_file.name} missing module_id in policy_metadata")
+                # Handle universal policies (applies_to: "all_modules")
+                applies_to = metadata.get('applies_to', '')
+                if applies_to == 'all_modules':
+                    # Universal policy - use None as module_id
+                    module_id = None
+                    policy_key = 'universal'
+                else:
+                    # Module-specific policy
+                    module_id = metadata.get('module_id')
+                    if not module_id:
+                        self.errors.append(f"Policy file {policy_file.name} missing module_id in policy_metadata (or use applies_to: 'all_modules')")
+                        continue
+                    policy_key = module_id
+                
+                # Validate required grading_rules structure
+                if 'grading_rules' not in policy_data:
+                    self.errors.append(f"Policy file {policy_file.name} missing required 'grading_rules' section")
                     continue
                     
+                grading_rules = policy_data.get('grading_rules', [])
+                if not isinstance(grading_rules, list) or len(grading_rules) == 0:
+                    self.errors.append(f"Policy file {policy_file.name} 'grading_rules' must be a non-empty array")
+                    continue
+                
                 policy = GradingPolicy(
                     module_id=module_id,
                     policy_name=metadata.get('name', policy_file.stem),
                     version=metadata.get('version', '1.0'),
                     policy_data=policy_data,
-                    sql_function_name=policy_data.get('sql_settings', {}).get('function_name')
+                    sql_function_name=None  # We use universal apply_grading_policy function
                 )
                 
-                self.grading_policies[module_id] = policy
+                self.grading_policies[policy_key] = policy
                 
             except yaml.YAMLError as e:
                 self.errors.append(f"YAML error in {policy_file.name}: {e}")
@@ -274,9 +313,10 @@ class GradingDataParser:
                 self.errors.append(f"Constituent {constituent_id} references unknown module: {constituent.module_id}")
                 success = False
         
-        # Check that all grading policies reference valid modules
+        # Check that all grading policies reference valid modules (or are universal)
         for policy_module_id, policy in self.grading_policies.items():
-            if policy.module_id not in self.modules:
+            # Universal policies (module_id = None) are valid
+            if policy.module_id is not None and policy.module_id not in self.modules:
                 self.errors.append(f"Grading policy for {policy_module_id} references unknown module: {policy.module_id}")
                 success = False
         
@@ -294,6 +334,64 @@ class GradingDataParser:
                 self.warnings.append(f"Module {module_id} constituent weights sum to {total_weight}, not 100.0")
         
         return success
+    
+    def _load_class_id(self) -> str:
+        """Load class_id from course.yml file"""
+        
+        # Look for course.yml in the parent directory (class_template/course.yml)
+        course_file = self.content_directory / "course.yml"
+        
+        try:
+            if course_file.exists():
+                with open(course_file, 'r', encoding='utf-8') as f:
+                    course_data = yaml.safe_load(f)
+                    class_id = course_data.get('class_id')
+                    if class_id:
+                        return class_id
+                        
+        except Exception as e:
+            self.warnings.append(f"Could not load class_id from {course_file}: {e}")
+        
+        # Default class_id if not found
+        default_class_id = 'df6b6665-d793-445d-8514-f1680ff77369'
+        self.warnings.append(f"Using default class_id: {default_class_id}")
+        return default_class_id
+    
+    def _validate_enhanced_relationships(self):
+        """Enhanced validation for relationships (warnings only)"""
+        
+        # Check for orphaned constituents (referencing non-existent modules)
+        for constituent_id, constituent in self.constituents.items():
+            if constituent.module_id not in self.modules:
+                self.warnings.append(f"Orphaned constituent: '{constituent_id}' references missing module: '{constituent.module_id}'")
+        
+        # Check for modules without constituents
+        for module_id, module in self.modules.items():
+            has_constituents = any(c.module_id == module_id for c in self.constituents.values())
+            if not has_constituents:
+                self.warnings.append(f"Empty module: '{module_id}' has no constituents defined")
+    
+    def _validate_weight_sums(self):
+        """Validate weight sums (warnings only)"""
+        
+        # Check module weights (flexible - can be != 100)
+        total_module_weight = sum(module.weight for module in self.modules.values())
+        if abs(total_module_weight - 100.0) > 0.1:
+            self.warnings.append(f"Module weights sum to {total_module_weight}%, not 100%. This is allowed but may indicate an issue.")
+        
+        # Check constituent weights per module (should = 100)
+        module_constituent_weights = {}
+        for constituent in self.constituents.values():
+            module_id = constituent.module_id
+            if module_id in self.modules:  # Only check valid modules
+                if module_id not in module_constituent_weights:
+                    module_constituent_weights[module_id] = []
+                module_constituent_weights[module_id].append(constituent.weight)
+        
+        for module_id, weights in module_constituent_weights.items():
+            total_weight = sum(weights)
+            if abs(total_weight - 100.0) > 0.1:
+                self.warnings.append(f"Module '{module_id}' constituent weights sum to {total_weight}%, not 100%")
     
     def show_summary(self):
         """Display a summary table of parsed grading data"""

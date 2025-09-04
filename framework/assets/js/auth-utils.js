@@ -29,32 +29,44 @@ window.AuthUtils = (function() {
      * This handles multi-repo deployments where the site might be at /repo-name/
      */
     function getBasePath() {
-        // In development, always use root path
-        if (getEnvironment() === 'development') {
-            console.log('🔍 AuthUtils: Development environment detected, using root path');
-            return '/';
+        const configuredBaseUrl = (window.authConfig && window.authConfig.base_url) ? String(window.authConfig.base_url) : '';
+
+        // 1) Try path from configured BaseURL (works in all environments)
+        const pathFromConfig = (function() {
+            if (!configuredBaseUrl) return '';
+            try {
+                const url = new URL(configuredBaseUrl);
+                return url.pathname || '/';
+            } catch (_) {
+                // configuredBaseUrl might be a path-only value
+                const p = configuredBaseUrl.startsWith('/') ? configuredBaseUrl : '/' + configuredBaseUrl;
+                return p;
+            }
+        })();
+        if (pathFromConfig && pathFromConfig !== '/') {
+            const basePath = pathFromConfig.endsWith('/') ? pathFromConfig : pathFromConfig + '/';
+            console.log('🔍 AuthUtils: Base path from config:', basePath);
+            return basePath;
         }
 
-        // In production, try to get from Hugo configuration first
-        if (window.authConfig && window.authConfig.base_url) {
-            try {
-                const url = new URL(window.authConfig.base_url);
-                const basePath = url.pathname.endsWith('/') ? url.pathname : url.pathname + '/';
-                console.log('🔍 AuthUtils: Production base path from config:', basePath);
-                return basePath;
-            } catch {
-                // If base_url is just a path, use it
-                const path = window.authConfig.base_url;
-                if (path.startsWith('/')) {
-                    const basePath = path.endsWith('/') ? path : path + '/';
-                    console.log('🔍 AuthUtils: Production base path from config (fallback):', basePath);
+        // 2) Infer from script src (prefix before /assets/) - PROVEN approach from supabase-auth.js
+        try {
+            const scripts = document.querySelectorAll('script[src*="/assets/"]');
+            for (const script of scripts) {
+                const pathname = new URL(script.src).pathname;
+                const idx = pathname.indexOf('/assets/');
+                if (idx > 0) {
+                    const prefix = pathname.substring(0, idx + 1);
+                    const basePath = prefix.endsWith('/') ? prefix : prefix + '/';
+                    console.log('🔍 AuthUtils: Base path from script detection:', basePath);
                     return basePath;
                 }
             }
+        } catch (e) {
+            console.log('🔍 AuthUtils: Script detection failed, trying URL inference');
         }
 
-        // Try to infer from current URL
-        // Look for common patterns like /class_template/ or /repo-name/
+        // 3) Try URL inference as additional fallback
         const path = window.location.pathname;
         const match = path.match(/^(\/[^\/]+\/)/);
         if (match && match[1] !== '/auth/') {
@@ -62,6 +74,7 @@ window.AuthUtils = (function() {
             return match[1];
         }
 
+        // 4) Final fallback
         console.log('🔍 AuthUtils: Using default root path');
         return '/';
     }
@@ -88,19 +101,10 @@ window.AuthUtils = (function() {
      * Get Supabase callback URL based on environment
      */
     function getCallbackUrl() {
-        const env = getEnvironment();
-        const basePath = getBasePath();
-        
-        if (env === 'development') {
-            // In development, use localhost with root path (no subpath needed)
-            const callbackUrl = window.location.origin + '/auth/callback/';
-            console.log('🔍 AuthUtils: Development callback URL:', callbackUrl);
-            return callbackUrl;
-        }
-        
-        // In production, use the configured base URL with subpath
+        // Use buildSiteUrl for both development and production
+        // The improved getBasePath() function will handle environment detection properly
         const callbackUrl = buildSiteUrl('auth/callback/');
-        console.log('🔍 AuthUtils: Production callback URL:', callbackUrl);
+        console.log('🔍 AuthUtils: Callback URL (unified approach):', callbackUrl);
         return callbackUrl;
     }
 
