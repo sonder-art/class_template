@@ -31,26 +31,6 @@ protected: true
 </p>
 </div>
 
-<!-- Grade Overview Card -->
-<div class="dashboard-section grade-overview">
-<h3>📊 Your Grade</h3>
-<div class="grade-display">
-<div class="overall-grade">
-<span class="grade-percentage" id="overallGrade">--</span>
-<span class="grade-label">Overall</span>
-</div>
-<div class="grade-stats">
-<div class="stat">
-<span id="gradedCount">0</span>
-<span>Graded</span>
-</div>
-<div class="stat">
-<span id="pendingCount">0</span>
-<span>Pending</span>
-</div>
-</div>
-</div>
-</div>
 
 <!-- Upcoming Work -->
 <div class="dashboard-section upcoming-work">
@@ -148,7 +128,6 @@ async function initializeStudentDashboard() {
         // Load all dashboard data
         await Promise.all([
             loadStudentInfo(targetStudentId),
-            loadGradeOverview(targetStudentId),
             loadUpcomingWork(),
             loadRecentGrades(targetStudentId)
         ]);
@@ -177,28 +156,6 @@ async function loadStudentInfo(targetStudentId) {
     }
 }
 
-async function loadGradeOverview(targetStudentId) {
-    try {
-        if (!window.AuthClient) {
-            console.warn('AuthClient not available');
-            updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
-            return;
-        }
-        
-        // Build endpoint URL with student_id if provided (for professor debug mode)
-        let endpoint = '/student-grades?level=module';
-        if (targetStudentId) {
-            endpoint += `&student_id=${targetStudentId}`;
-        }
-        
-        const data = await window.AuthClient.callEndpoint(endpoint);
-        updateGradeDisplay(data);
-        
-    } catch (error) {
-        console.error('Failed to load grade overview:', error);
-        updateGradeDisplay({ summary: { average_score: 0, total_grades: 0 } });
-    }
-}
 
 async function loadUpcomingWork() {
     try {
@@ -297,74 +254,6 @@ async function loadRecentGrades(targetStudentId) {
     }
 }
 
-function updateGradeDisplay(gradeData) {
-    const summary = gradeData.summary || {};
-    const grades = gradeData.grades || [];
-    
-    // Update overall grade
-    const overallGrade = summary.average_score || 0;
-    const gradeEl = document.getElementById('overallGrade');
-    gradeEl.textContent = `${overallGrade.toFixed(1)}%`;
-    
-    // Apply color based on grade
-    if (overallGrade >= 90) gradeEl.style.color = 'var(--eva-green-primary)';
-    else if (overallGrade >= 80) gradeEl.style.color = 'var(--eva-cyan-primary)';
-    else if (overallGrade >= 70) gradeEl.style.color = 'var(--eva-yellow-primary)';
-    else gradeEl.style.color = 'var(--eva-red-accent)';
-    
-    // Update counts
-    document.getElementById('gradedCount').textContent = summary.total_grades || 0;
-    
-    // Calculate pending count - will be updated by calculatePendingCount()
-    calculatePendingCount();
-}
-
-async function calculatePendingCount() {
-    try {
-        if (!window.authState?.client) {
-            document.getElementById('pendingCount').textContent = 0;
-            return;
-        }
-        
-        const studentId = window.authState?.user?.id;
-        if (!studentId) {
-            document.getElementById('pendingCount').textContent = 0;
-            return;
-        }
-        
-        // Get all current items
-        const { data: allItems, error: itemsError } = await window.authState.client
-            .from('items')
-            .select('id')
-            .eq('is_current', true);
-        
-        if (itemsError || !allItems) {
-            document.getElementById('pendingCount').textContent = 0;
-            return;
-        }
-        
-        // Get student's submissions
-        const { data: submissions, error: submissionsError } = await window.authState.client
-            .from('student_submissions')
-            .select('item_id')
-            .eq('student_id', studentId);
-        
-        if (submissionsError) {
-            document.getElementById('pendingCount').textContent = 0;
-            return;
-        }
-        
-        // Calculate pending items (items not yet submitted)
-        const submittedItemIds = new Set((submissions || []).map(s => s.item_id));
-        const pendingCount = allItems.filter(item => !submittedItemIds.has(item.id)).length;
-        
-        document.getElementById('pendingCount').textContent = pendingCount;
-        
-    } catch (error) {
-        console.error('Failed to calculate pending count:', error);
-        document.getElementById('pendingCount').textContent = 0;
-    }
-}
 
 function displayUpcomingWork(items) {
     const container = document.getElementById('upcomingList');
