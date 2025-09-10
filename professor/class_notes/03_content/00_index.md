@@ -1,7 +1,7 @@
 ---
 title: "Content"
 type: "index"
-date: "2025-09-03"
+date: "2025-09-09"
 author: "Framework (Auto-generated)"
 summary: "Index for Content chapter"
 ---

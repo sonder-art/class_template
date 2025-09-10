@@ -1,6 +1,7 @@
 /**
  * Student Grades Interface
  * Handles student view of their own grades, submissions, and academic progress
+ * CACHE BUSTER: 2025-09-05-T00:28 - Fixed actual inline rendering code in constituent details
  * Includes proper security verification and class context
  */
 
@@ -14,6 +15,7 @@ class StudentGradesInterface {
         this.modules = [];
         this.constituents = [];
         this.currentTab = 'overview';
+        this.selectedModuleId = null; // For the new split layout
         
         this.init();
     }
@@ -27,6 +29,10 @@ class StudentGradesInterface {
             this.showError('Class context not found. Please refresh the page.');
             return;
         }
+
+        // Load metadata (constituents and modules) first - needed for lookups
+        console.log('🔄 Loading metadata before initializing grades...');
+        await this.loadMetadata();
 
         // Initialize Supabase
         this.initializeSupabase();
@@ -136,17 +142,67 @@ class StudentGradesInterface {
                 throw new Error('AuthClient not available');
             }
 
-            // Get module-level grades
-            const moduleGrades = await this.fetchGradesData(classSlug, 'module');
-            // Get constituent-level grades  
-            const constituentGrades = await this.fetchGradesData(classSlug, 'constituent');
-            // Get item-level grades
-            const itemGrades = await this.fetchGradesData(classSlug, 'item');
+            // Try to load each grade level independently with fallbacks
+            let moduleGrades = { grades: [], summary: {} };
+            let constituentGrades = { grades: [], summary: {} };
+            let itemGrades = { grades: [], summary: {} };
+
+            // Load module grades with fallback
+            try {
+                console.log('🔄 Loading module grades...');
+                moduleGrades = await this.fetchGradesData(classSlug, 'module');
+                console.log('✅ Module grades loaded successfully');
+            } catch (error) {
+                console.warn('⚠️ Failed to load module grades:', error.message);
+                // Continue with empty module grades
+            }
+
+            // Load constituent grades with fallback
+            try {
+                console.log('🔄 Loading constituent grades...');
+                constituentGrades = await this.fetchGradesData(classSlug, 'constituent');
+                console.log('✅ Constituent grades loaded successfully');
+            } catch (error) {
+                console.warn('⚠️ Failed to load constituent grades:', error.message);
+                // Continue with empty constituent grades
+            }
+
+            // Load item grades with fallback
+            try {
+                console.log('🔄 Loading item grades...');
+                itemGrades = await this.fetchGradesData(classSlug, 'item');
+                console.log('✅ Item grades loaded successfully');
+            } catch (error) {
+                console.warn('⚠️ Failed to load item grades:', error.message);
+                console.log('🔄 Falling back to static items for item grades...');
+                // Force fallback to static items when API fails
+                try {
+                    const staticItems = await this.loadStaticItems();
+                    itemGrades = { grades: staticItems, summary: {} };
+                    console.log(`✅ Using ${staticItems.length} static items as fallback`);
+                } catch (staticError) {
+                    console.error('❌ Static fallback also failed:', staticError);
+                    itemGrades = { grades: [], summary: {} };
+                }
+            }
+
+            // Load static items if we haven't already done so in fallback
+            let staticItems = itemGrades.grades || [];
+            if (staticItems.length === 0) {
+                console.log('🔄 Loading items from static data as final fallback...');
+                try {
+                    staticItems = await this.loadStaticItems();
+                    console.log(`✅ Loaded ${staticItems.length} items from static data`);
+                } catch (error) {
+                    console.warn('⚠️ Failed to load static items:', error.message);
+                    staticItems = [];
+                }
+            }
 
             this.grades = {
                 modules: moduleGrades.grades || [],
                 constituents: constituentGrades.grades || [],
-                items: itemGrades.grades || []
+                items: staticItems
             };
 
             this.gradeSummary = {
@@ -155,7 +211,19 @@ class StudentGradesInterface {
                 items: itemGrades.summary || {}
             };
 
-            console.log(`✅ Loaded grades for ${this.grades.modules?.length || 0} modules`);
+            const modulesLoaded = this.grades.modules?.length || 0;
+            const constituentsLoaded = this.grades.constituents?.length || 0;
+            const itemsLoaded = this.grades.items?.length || 0;
+
+            console.log(`✅ Grades loaded: ${modulesLoaded} modules, ${constituentsLoaded} constituents, ${itemsLoaded} items`);
+
+            // Validate and fix data consistency after loading
+            this.validateDataConsistency();
+
+            // Show a warning if some data failed to load
+            if (modulesLoaded === 0 && constituentsLoaded === 0 && itemsLoaded === 0) {
+                throw new Error('No grade data could be loaded. Please check your connection and try again.');
+            }
 
         } catch (error) {
             console.error('Failed to load grades:', error);
@@ -163,12 +231,16 @@ class StudentGradesInterface {
         }
     }
 
-    async fetchGradesData(classSlug, level) {
+    async fetchGradesData(classSlug, level, retryCount = 0) {
+        const maxRetries = 2;
+        
         if (!window.AuthClient) {
             throw new Error('AuthClient not available');
         }
 
         try {
+            console.log(`🔄 Fetching ${level} grades (attempt ${retryCount + 1}/${maxRetries + 1})`);
+            
             const result = await window.AuthClient.callEndpoint(
                 `/student-grades?class_slug=${classSlug}&level=${level}`
             );
@@ -176,7 +248,19 @@ class StudentGradesInterface {
             console.log(`✅ Fetched ${level} grades: ${result.grades?.length || 0} items`);
             return result;
         } catch (error) {
-            console.error(`❌ Failed to fetch ${level} grades:`, error);
+            console.error(`❌ Failed to fetch ${level} grades (attempt ${retryCount + 1}):`, error);
+            
+            // Retry on timeout or network errors
+            if (retryCount < maxRetries && (
+                error.message.includes('timeout') || 
+                error.message.includes('network') ||
+                error.message.includes('fetch')
+            )) {
+                console.log(`⏳ Retrying ${level} grades in ${(retryCount + 1) * 2} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 2000));
+                return this.fetchGradesData(classSlug, level, retryCount + 1);
+            }
+            
             throw new Error(`Failed to fetch ${level} grades: ${error.message}`);
         }
     }
@@ -463,14 +547,31 @@ class StudentGradesInterface {
             return;
         }
 
-        const recentGrades = itemGrades.slice(0, 6);
+        // DEBUG: Overview tab data analysis
+        console.group('📋 OVERVIEW TAB DEBUG');
+        console.log('📈 Total itemGrades:', itemGrades.length);
+        console.log('🔍 First grade sample:', itemGrades[0]);
+        console.groupEnd();
+        
+        // Filter for items that actually have grades (submitted work) vs just item definitions
+        const actualGrades = itemGrades.filter(grade => 
+            grade.computed_at || grade.submitted_at || (grade.final_score && grade.final_score > 0)
+        );
+        
+        console.log('✅ Actual grades found:', actualGrades.length);
+        console.log('📅 Using fallback (static items):', actualGrades.length === 0);
+        
+        // If we have actual grades, show those. Otherwise show recent upcoming items
+        const recentGrades = actualGrades.length > 0 
+            ? actualGrades.slice(0, 6)
+            : itemGrades.slice(0, 6); // Show upcoming items as fallback
         
         container.innerHTML = `
             <div class="overview-layout">
                 <!-- Recent Grades Section -->
                 <section class="overview-section">
                     <div class="section-header">
-                        <h3>📝 Recent Grades</h3>
+                        <h3>${actualGrades.length > 0 ? '📝 Recent Grades' : '📅 Upcoming Items'}</h3>
                         <span class="item-count">${recentGrades.length} items</span>
                     </div>
                     <div class="recent-grades-grid">
@@ -514,9 +615,29 @@ class StudentGradesInterface {
         
         const moduleGrades = this.grades.modules || [];
         
+        // If no module is selected, select the first one by default
+        if (!this.selectedModuleId && moduleGrades.length > 0) {
+            this.selectedModuleId = moduleGrades[0].modules?.id || moduleGrades[0].module_id;
+        }
+        
         container.innerHTML = `
-            <div class="modules-grid">
-                ${moduleGrades.map(module => this.renderModulePerformanceCard(module)).join('')}
+            <div class="modules-split-layout">
+                <div class="modules-sidebar">
+                    <div class="modules-sidebar-header">
+                        <h3>📚 Modules</h3>
+                        <span class="module-count">${moduleGrades.length} modules</span>
+                    </div>
+                    <div class="modules-list">
+                        ${moduleGrades.map(module => {
+                            const moduleId = module.modules?.id || module.module_id;
+                            const isSelected = moduleId === this.selectedModuleId;
+                            return this.renderSimpleModuleCard(module, isSelected);
+                        }).join('')}
+                    </div>
+                </div>
+                <div class="module-details-panel">
+                    ${this.renderModuleDetails(this.selectedModuleId)}
+                </div>
             </div>
         `;
     }
@@ -733,20 +854,69 @@ class StudentGradesInterface {
     // New enhanced rendering methods for the redesigned interface
 
     renderRecentGradeCard(grade) {
-        const gradeDate = new Date(grade.computed_at).toLocaleDateString();
-        const score = grade.final_score || grade.raw_score || 0;
-        const maxPoints = grade.max_points || 100;
-        const percentage = maxPoints > 0 ? ((score / maxPoints) * 100).toFixed(1) : 0;
+        // DEBUG: Easy-to-copy console output for grade data analysis
+        console.group('🔍 GRADE DEBUG:', grade.title || grade.item_id || 'unknown');
+        console.log('📊 GRADE OBJECT:', JSON.stringify(grade, null, 2));
+        console.log('📅 Has computed_at:', !!grade.computed_at);
+        console.log('📅 Has submitted_at:', !!grade.submitted_at);
+        console.log('📝 Has final_score:', !!grade.final_score);
+        console.groupEnd();
         
-        const itemTitle = grade.items?.title || grade.item_title || 'Unknown Item';
-        const moduleName = grade.modules?.name || 'Unknown Module';
-        const constituentName = grade.constituents?.name || 'Unknown Section';
+        // Handle both real submission data and mock static data
+        let gradeDate, score, maxPoints, percentage;
+        
+        if (grade.computed_at || grade.submitted_at) {
+            // Real submission data
+            gradeDate = new Date(grade.computed_at || grade.submitted_at).toLocaleDateString();
+            score = grade.final_score || grade.raw_score || 0;
+            maxPoints = grade.max_points || grade.points || 100;
+            percentage = maxPoints > 0 ? ((score / maxPoints) * 100).toFixed(1) : 0;
+        } else {
+            // Static item data - show as pending/not submitted
+            gradeDate = grade.due_date ? `Due: ${new Date(grade.due_date).toLocaleDateString()}` : 'No date';
+            score = 0;
+            maxPoints = grade.points || 100;
+            percentage = 'Pending'; // Show as "Pending" instead of 0.0%
+            console.log('🟡 USING STATIC DATA - Set percentage to:', percentage);
+        }
+        
+        // DEBUG: Show final calculated values
+        console.log('🎯 FINAL VALUES:', {
+            percentage,
+            score,
+            maxPoints,
+            gradeDate,
+            codeVersion: '2025-09-05-T00:05' // Cache buster
+        });
+        
+        // Defensive checks for data structure variations
+        const itemTitle = grade.items?.title || grade.item_title || grade.title || 'Unknown Item';
+        const constituentSlug = grade.items?.constituent_slug || grade.constituent_slug;
+        
+        if (!constituentSlug) {
+            console.warn('⚠️ Missing constituent_slug for item:', itemTitle);
+        }
+        
+        // Look up constituent and module info using the constituent_slug
+        const constituent = this.constituents.find(c => c.slug === constituentSlug);
+        const constituentName = constituent?.name || 'Unknown Section';
+        
+        // Look up module info using the constituent's module_id
+        const moduleId = constituent?.module_id;
+        const module = this.modules.find(m => m.id === moduleId);
+        const moduleName = module?.name || 'Unknown Module';
         
         // Get grade color based on percentage
         let gradeColor = '#10B981'; // Green for good grades
-        if (percentage < 60) gradeColor = '#EF4444'; // Red for failing
-        else if (percentage < 70) gradeColor = '#F59E0B'; // Yellow for concerning
-        else if (percentage < 85) gradeColor = '#6B7280'; // Gray for average
+        if (percentage === 'Pending' || percentage === '0.0' || percentage === 0) {
+            gradeColor = '#9CA3AF'; // Gray for pending/unsubmitted
+        } else if (percentage < 60) {
+            gradeColor = '#EF4444'; // Red for failing
+        } else if (percentage < 70) {
+            gradeColor = '#F59E0B'; // Yellow for concerning
+        } else if (percentage < 85) {
+            gradeColor = '#6B7280'; // Gray for average
+        }
         
         return `
             <div class="grade-card recent-grade-card">
@@ -756,7 +926,8 @@ class StudentGradesInterface {
                         <p class="item-path">${moduleName} › ${constituentName}</p>
                     </div>
                     <div class="grade-badge" style="background-color: ${gradeColor}">
-                        ${percentage}%
+                        ${percentage === 'Pending' ? 'Pending' : percentage + '%'}
+                        <small style="font-size: 8px; display: block;">[v00:20]</small>
                     </div>
                 </div>
                 <div class="card-footer">
@@ -767,53 +938,178 @@ class StudentGradesInterface {
         `;
     }
 
-    renderModulePerformanceCard(moduleGrade) {
-        // Handle 0-10 grading scale properly
+    // New simplified module card for split layout
+    renderSimpleModuleCard(moduleGrade, isSelected = false) {
         const score = parseFloat(moduleGrade.final_score || 0); // 0-10 scale
-        const percentage = moduleGrade.percentage ? parseFloat(moduleGrade.percentage) : (score * 10);
-        const displayScore = moduleGrade.display_score || score.toFixed(2);
         const moduleName = moduleGrade.modules?.name || 'Unknown Module';
         const moduleColor = moduleGrade.modules?.color || '#6B7280';
         const moduleIcon = moduleGrade.modules?.icon || '📚';
+        const moduleId = moduleGrade.modules?.id || moduleGrade.module_id;
+        const moduleWeight = parseFloat(moduleGrade.modules?.weight || 0);
         
-        // Get grade letter based on 0-10 scale
-        let gradeLetter = 'N/A';
-        let gradeColor = '#6B7280';
-        if (score >= 9.7) { gradeLetter = 'A+'; gradeColor = '#10B981'; }
-        else if (score >= 9.3) { gradeLetter = 'A'; gradeColor = '#10B981'; }
-        else if (score >= 9.0) { gradeLetter = 'A-'; gradeColor = '#10B981'; }
-        else if (score >= 8.7) { gradeLetter = 'B+'; gradeColor = '#3B82F6'; }
-        else if (score >= 8.3) { gradeLetter = 'B'; gradeColor = '#3B82F6'; }
-        else if (score >= 8.0) { gradeLetter = 'B-'; gradeColor = '#3B82F6'; }
-        else if (score >= 7.7) { gradeLetter = 'C+'; gradeColor = '#F59E0B'; }
-        else if (score >= 7.3) { gradeLetter = 'C'; gradeColor = '#F59E0B'; }
-        else if (score >= 7.0) { gradeLetter = 'C-'; gradeColor = '#F59E0B'; }
-        else if (score >= 6.0) { gradeLetter = 'D'; gradeColor = '#EF4444'; }
-        else { gradeLetter = 'F'; gradeColor = '#EF4444'; }
+        // Calculate earned weight (score/10 * weight)
+        const earnedWeight = (score / 10) * moduleWeight;
+        const performancePercentage = score * 10; // 0-10 to percentage
         
         return `
-            <div class="module-card performance-card" style="border-left: 4px solid ${moduleColor}">
-                <div class="module-header">
+            <div class="simple-module-card ${isSelected ? 'selected' : ''}" 
+                 onclick="window.selectModule('${moduleId}')"
+                 data-module-id="${moduleId}">
+                <div class="module-card-content">
+                    <div class="module-header-simple">
+                        <span class="module-icon-simple">${moduleIcon}</span>
+                        <div class="module-info-simple">
+                            <h4 class="module-name-simple">${moduleName}</h4>
+                            <div class="module-grade-simple">
+                                <span class="grade-fraction">${earnedWeight.toFixed(1)}/${moduleWeight}</span>
+                                <span class="grade-percentage">${performancePercentage.toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-status-indicator" style="background-color: ${moduleColor}"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Render detailed view for selected module
+    renderModuleDetails(moduleId) {
+        if (!moduleId) {
+            return `
+                <div class="module-details-empty">
+                    <div class="empty-state">
+                        <span class="empty-icon">📚</span>
+                        <h3>Select a Module</h3>
+                        <p>Click on a module from the left to view detailed information</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Find the selected module
+        const moduleGrade = this.grades.modules?.find(m => 
+            (m.modules?.id || m.module_id) === moduleId
+        );
+        
+        if (!moduleGrade) {
+            return `
+                <div class="module-details-empty">
+                    <div class="empty-state">
+                        <span class="empty-icon">❌</span>
+                        <h3>Module Not Found</h3>
+                        <p>The selected module could not be found</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Calculate module statistics
+        const score = parseFloat(moduleGrade.final_score || 0);
+        const moduleName = moduleGrade.modules?.name || 'Unknown Module';
+        const moduleColor = moduleGrade.modules?.color || '#6B7280';
+        const moduleIcon = moduleGrade.modules?.icon || '📚';
+        const moduleWeight = parseFloat(moduleGrade.modules?.weight || 0);
+        const earnedWeight = (score / 10) * moduleWeight;
+        const performancePercentage = score * 10;
+        const stats = this.calculateModuleStatistics(moduleId);
+
+
+        return `
+            <div class="module-details-content">
+                <div class="module-details-header" style="border-left: 4px solid ${moduleColor}">
+                    <div class="module-title-section">
+                        <span class="module-icon-large">${moduleIcon}</span>
+                        <div class="module-title-info">
+                            <h2>${moduleName}</h2>
+                            <div class="module-grade-display">
+                                <span class="grade-main">${earnedWeight.toFixed(1)}/${moduleWeight}</span>
+                                <span class="grade-percentage-main">${performancePercentage.toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="module-stats-section">
+                    <div class="stat-card-detail">
+                        <span class="stat-label">Grade</span>
+                        <span class="stat-value">${earnedWeight.toFixed(1)}/${moduleWeight} (${performancePercentage.toFixed(0)}%)</span>
+                    </div>
+                    <div class="stat-card-detail">
+                        <span class="stat-label">Items Delivered</span>
+                        <span class="stat-value">${stats.submitted}/${stats.total} (${stats.submittedPercent}%)</span>
+                    </div>
+                    <div class="stat-card-detail">
+                        <span class="stat-label">Missing Items</span>
+                        <span class="stat-value">${stats.missing}/${stats.total} (${stats.missingPercent}%)</span>
+                    </div>
+                </div>
+
+                <div class="constituents-section">
+                    <h3>📋 Constituents & Items</h3>
+                    <div class="constituents-detail-list">
+                        ${this.renderConstituentsDirectly(moduleId)}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderModulePerformanceCard(moduleGrade) {
+        // Handle 0-10 grading scale properly
+        const score = parseFloat(moduleGrade.final_score || 0); // 0-10 scale
+        const moduleName = moduleGrade.modules?.name || 'Unknown Module';
+        const moduleColor = moduleGrade.modules?.color || '#6B7280';
+        const moduleIcon = moduleGrade.modules?.icon || '📚';
+        const moduleId = moduleGrade.modules?.id || moduleGrade.module_id;
+        const moduleWeight = parseFloat(moduleGrade.modules?.weight || 0);
+        
+        // Calculate earned weight (score/10 * weight)
+        const earnedWeight = (score / 10) * moduleWeight;
+        const performancePercentage = score * 10; // 0-10 to percentage
+        
+        // Get submission statistics
+        const stats = this.calculateModuleStatistics(moduleId);
+        
+        return `
+            <div class="module-card performance-card expandable-card" style="border-left: 4px solid ${moduleColor}" data-module-id="${moduleId}">
+                <div class="module-header clickable-header" onclick="window.toggleModuleExpansion('${moduleId}')">
                     <div class="module-info">
                         <span class="module-icon">${moduleIcon}</span>
                         <div>
                             <h4 class="module-name">${moduleName}</h4>
-                            <p class="module-progress-text">${percentage}% complete</p>
+                            <div class="module-metrics-summary">
+                                <span class="grade-summary">${earnedWeight.toFixed(1)}/${moduleWeight} (${performancePercentage.toFixed(0)}%)</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="grade-display" style="color: ${gradeColor}">
-                        <span class="grade-letter">${gradeLetter}</span>
-                        <span class="grade-percentage">${percentage}%</span>
+                    <div class="header-right">
+                        <div class="grade-display">
+                            <span class="grade-percentage">${performancePercentage.toFixed(0)}%</span>
+                        </div>
+                        <span class="expand-icon">▶</span>
                     </div>
                 </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${percentage}%; background-color: ${moduleColor}"></div>
+                <div class="module-details" id="module-details-${moduleId}" style="display: none;">
+                    <div class="module-metrics-grid">
+                        <div class="metric-row">
+                            <span class="metric-label">Grade:</span>
+                            <span class="metric-value">${earnedWeight.toFixed(1)}/${moduleWeight}</span>
+                            <span class="metric-percentage">(${performancePercentage.toFixed(0)}%)</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Items Delivered:</span>
+                            <span class="metric-value">${stats.submitted}/${stats.total}</span>
+                            <span class="metric-percentage">(${stats.submittedPercent}%)</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Missing Items:</span>
+                            <span class="metric-value">${stats.missing}/${stats.total}</span>
+                            <span class="metric-percentage">(${stats.missingPercent}%)</span>
+                        </div>
                     </div>
-                </div>
-                <div class="module-stats">
-                    <span class="stat-item">${displayScore}/10.00 pts</span>
-                    <span class="stat-item">${percentage}%</span>
+                    <div class="module-constituents" id="constituents-${moduleId}">
+                        <div class="constituents-loading">Loading constituent details...</div>
+                    </div>
                 </div>
             </div>
         `;
@@ -1010,11 +1306,578 @@ class StudentGradesInterface {
         }
     }
 
+    async loadMetadata() {
+        try {
+            // Get the base URL for data files
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const baseUrl = pathParts.length > 0 ? `/${pathParts[0]}/` : '/';
+            
+            console.group('🗂️ LOADING METADATA');
+            
+            // Load constituents
+            const constituentsUrl = `${baseUrl}data/constituents.json`;
+            console.log(`🔄 Loading constituents from ${constituentsUrl}`);
+            
+            const constituentsResponse = await fetch(constituentsUrl);
+            if (constituentsResponse.ok) {
+                const constituentsData = await constituentsResponse.json();
+                this.constituents = constituentsData.constituents || [];
+                console.log(`✅ Loaded ${this.constituents.length} constituents`);
+            } else {
+                console.warn('⚠️ Could not load constituents.json');
+                this.constituents = [];
+            }
+            
+            // Load modules (check if modules.json exists, otherwise derive from constituents)
+            const modulesUrl = `${baseUrl}data/modules.json`;
+            console.log(`🔄 Attempting to load modules from ${modulesUrl}`);
+            
+            try {
+                const modulesResponse = await fetch(modulesUrl);
+                if (modulesResponse.ok) {
+                    const modulesData = await modulesResponse.json();
+                    this.modules = modulesData.modules || [];
+                    console.log(`✅ Loaded ${this.modules.length} modules from modules.json`);
+                } else {
+                    throw new Error('modules.json not found');
+                }
+            } catch (error) {
+                // Derive modules from constituents
+                console.log(`📋 Deriving modules from constituents (modules.json not found)`);
+                const moduleMap = new Map();
+                
+                this.constituents.forEach(constituent => {
+                    if (constituent.module_id && !moduleMap.has(constituent.module_id)) {
+                        moduleMap.set(constituent.module_id, {
+                            id: constituent.module_id,
+                            name: constituent.module_id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+                        });
+                    }
+                });
+                
+                this.modules = Array.from(moduleMap.values());
+                console.log(`✅ Derived ${this.modules.length} modules from constituents`);
+            }
+            
+            console.groupEnd();
+            
+        } catch (error) {
+            console.error('❌ Failed to load metadata:', error);
+            this.constituents = [];
+            this.modules = [];
+        }
+    }
+
+    async loadStaticItems() {
+        try {
+            // Get the base URL for data files
+            const pathParts = window.location.pathname.split('/').filter(Boolean);
+            const baseUrl = pathParts.length > 0 ? `/${pathParts[0]}/` : '/';
+            const itemsUrl = `${baseUrl}data/items.json`;
+            
+            console.log(`🔄 Loading static items from ${itemsUrl}`);
+            const response = await fetch(itemsUrl);
+            
+            if (!response.ok) {
+                throw new Error(`Failed to load items: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const items = data.items || [];
+            
+            // Return items in BOTH flat and nested structure for compatibility
+            return items.map(item => ({
+                item_id: item.item_id,
+                // Flat structure for new direct rendering
+                constituent_slug: item.constituent_slug,
+                title: item.title,
+                points: item.points,
+                delivery_type: item.delivery_type,
+                due_date: item.due_date,
+                important: item.important,
+                file_path: item.file_path,
+                // Nested structure for existing code compatibility
+                items: {
+                    id: item.item_id,
+                    title: item.title,
+                    points: item.points,
+                    constituent_slug: item.constituent_slug,
+                    delivery_type: item.delivery_type,
+                    due_date: item.due_date,
+                    important: item.important,
+                    is_current: true,
+                    file_path: item.file_path
+                },
+                // No grade data since these come from static files
+                final_score: 0,
+                max_points: item.points,
+                percentage: "0"
+            }));
+            
+        } catch (error) {
+            console.error('Failed to load static items:', error);
+            throw error;
+        }
+    }
+
+    validateDataConsistency() {
+        console.log('🔍 Validating data consistency...');
+        
+        // Check constituent-item linking
+        const itemsByConstituent = new Map();
+        const submissionsByItem = new Map();
+        
+        // Group items by constituent slug
+        this.grades.items.forEach(item => {
+            const slug = item.items?.constituent_slug;
+            if (slug) {
+                if (!itemsByConstituent.has(slug)) {
+                    itemsByConstituent.set(slug, []);
+                }
+                itemsByConstituent.get(slug).push(item);
+            } else {
+                console.warn('⚠️ Item without constituent_slug:', item);
+            }
+        });
+        
+        // Group submissions by item_id
+        this.submissions.forEach(submission => {
+            const itemId = submission.item_id;
+            if (itemId) {
+                submissionsByItem.set(itemId, submission);
+            }
+        });
+        
+        // Check each constituent has items
+        this.constituents.forEach(constituent => {
+            const items = itemsByConstituent.get(constituent.slug) || [];
+            console.log(`📋 Constituent ${constituent.slug} (${constituent.name}): ${items.length} items`);
+            
+            if (items.length === 0) {
+                console.warn(`⚠️ Constituent ${constituent.slug} has no items`);
+            } else {
+                // Check submissions for each item
+                const submittedCount = items.filter(item => 
+                    submissionsByItem.has(item.item_id)
+                ).length;
+                console.log(`   └─ ${submittedCount}/${items.length} items have submissions`);
+            }
+        });
+        
+        // Check for orphaned submissions (submissions without items)
+        const knownItemIds = new Set(this.grades.items.map(item => item.item_id));
+        const orphanedSubmissions = this.submissions.filter(sub => 
+            !knownItemIds.has(sub.item_id)
+        );
+        
+        if (orphanedSubmissions.length > 0) {
+            console.warn(`⚠️ Found ${orphanedSubmissions.length} submissions for items not in current data:`, 
+                orphanedSubmissions.map(sub => sub.item_id));
+        }
+        
+        console.log('✅ Data consistency validation complete');
+        
+        return {
+            itemsByConstituent,
+            submissionsByItem,
+            orphanedSubmissions
+        };
+    }
+
     // Utility methods
+    calculateModuleStatistics(moduleId) {
+        if (!moduleId) return { submitted: 0, total: 0, missing: 0, submittedPercent: 0, missingPercent: 0 };
+        
+        // Get all constituents for this module
+        const moduleConstituents = this.constituents.filter(c => c.module_id === moduleId);
+        
+        if (moduleConstituents.length === 0) {
+            console.warn(`⚠️ No constituents found for module: ${moduleId}`);
+            return { submitted: 0, total: 0, missing: 0, submittedPercent: 0, missingPercent: 0 };
+        }
+        
+        // Get all items for these constituents
+        let moduleItems = [];
+        moduleConstituents.forEach(constituent => {
+            const itemsData = this.grades.items || [];
+            const constituentItems = itemsData.filter(item => {
+                return item.items?.constituent_slug === constituent.slug;
+            });
+            moduleItems = moduleItems.concat(constituentItems.map(item => ({
+                id: item.item_id,
+                constituent_slug: item.items?.constituent_slug,
+                title: item.items?.title
+            })));
+        });
+        
+        // Get submissions for items in this module (including submissions for items not in current grades)
+        const moduleSubmissions = this.submissions.filter(sub => {
+            const itemConstituent = sub.items?.constituent_slug;
+            return moduleConstituents.some(c => c.slug === itemConstituent);
+        });
+        
+        // Get unique item IDs that have submissions
+        const submittedItemIds = new Set(moduleSubmissions.map(sub => sub.item_id));
+        
+        // Calculate totals with proper validation
+        const totalItems = Math.max(moduleItems.length, submittedItemIds.size);
+        const submittedItems = submittedItemIds.size;
+        const missingItems = Math.max(0, totalItems - submittedItems); // Ensure never negative
+        
+        const submittedPercent = totalItems > 0 ? Math.round((submittedItems / totalItems) * 100) : 0;
+        const missingPercent = totalItems > 0 ? Math.round((missingItems / totalItems) * 100) : 0;
+        
+        console.log(`📊 Module ${moduleId} stats: ${submittedItems}/${totalItems} submitted, ${missingItems} missing`);
+        
+        return {
+            submitted: submittedItems,
+            total: totalItems,
+            missing: missingItems,
+            submittedPercent,
+            missingPercent
+        };
+    }
+
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Module expansion functionality
+    toggleModuleExpansion(moduleId) {
+        const detailsElement = document.getElementById(`module-details-${moduleId}`);
+        const expandIcon = document.querySelector(`[data-module-id="${moduleId}"] .expand-icon`);
+        
+        if (!detailsElement) return;
+        
+        const isExpanded = detailsElement.style.display !== 'none';
+        
+        if (isExpanded) {
+            // Collapse
+            detailsElement.style.display = 'none';
+            expandIcon.style.transform = 'rotate(0deg)';
+        } else {
+            // Expand
+            detailsElement.style.display = 'block';
+            expandIcon.style.transform = 'rotate(90deg)';
+            
+            // Load constituent details if not loaded
+            this.loadConstituentDetails(moduleId);
+        }
+    }
+
+    renderConstituentsDirectly(moduleId) {
+        // Get constituents for this module
+        const moduleConstituents = this.constituents.filter(c => c.module_id === moduleId);
+        
+        if (moduleConstituents.length === 0) {
+            return '<div class="no-constituents">No constituents found for this module</div>';
+        }
+        
+        // Render each constituent with its items
+        const constituentsHtml = moduleConstituents.map(constituent => {
+            return this.renderConstituentDetailsSimple(constituent);
+        }).join('');
+        
+        return `
+            <div class="constituents-list">
+                <h5>📋 Constituents & Items</h5>
+                ${constituentsHtml}
+            </div>
+        `;
+    }
+
+    loadConstituentDetails(moduleId) {
+        // Prevent multiple simultaneous loads for the same module
+        const loadingKey = `loading-${moduleId}`;
+        if (this[loadingKey]) {
+            console.log(`⏸️ Already loading constituents for module ${moduleId}, skipping...`);
+            return;
+        }
+        this[loadingKey] = true;
+        
+        console.log(`🔄 Loading constituent details for module: ${moduleId}`);
+        const container = document.getElementById(`constituents-${moduleId}`);
+        
+        if (!container) {
+            console.error(`❌ Container not found: constituents-${moduleId}`);
+            this[loadingKey] = false;
+            return;
+        }
+        
+        console.log(`✅ Container found for module ${moduleId}`);
+        
+        // Get constituents for this module
+        const moduleConstituents = this.constituents.filter(c => c.module_id === moduleId);
+        console.log(`📋 Found ${moduleConstituents.length} constituents for module ${moduleId}:`, moduleConstituents);
+        
+        if (moduleConstituents.length === 0) {
+            console.warn(`⚠️ No constituents found for module ${moduleId}`);
+            container.innerHTML = '<div class="no-constituents">No constituents found</div>';
+            this[loadingKey] = false;
+            return;
+        }
+        
+        try {
+            // Render constituents with their items
+            const constituentsHtml = moduleConstituents.map(constituent => {
+                console.log(`🔧 Rendering constituent: ${constituent.slug}`);
+                return this.renderConstituentDetails(constituent);
+            }).join('');
+            
+            container.innerHTML = `
+                <div class="constituents-list">
+                    <h5>📋 Constituents & Items</h5>
+                    ${constituentsHtml}
+                </div>
+            `;
+            console.log(`✅ Successfully loaded constituents for module ${moduleId}`);
+            this[loadingKey] = false;
+        } catch (error) {
+            console.error(`❌ Error rendering constituents for module ${moduleId}:`, error);
+            container.innerHTML = '<div class="error-constituents">Error loading constituent details</div>';
+            this[loadingKey] = false;
+        }
+    }
+
+    renderConstituentDetailsSimple(constituent) {
+        // CLEAN DEBUG OUTPUT - Easy to filter and copy
+        console.log(`CONSTITUENT_DEBUG_START: ${constituent.slug}`);
+        
+        if (this.grades.items.length > 0) {
+            const sample = this.grades.items[0];
+            console.log('SAMPLE_ITEM_STRUCTURE:', JSON.stringify({
+                item_id: sample.item_id,
+                constituent_paths: {
+                    flat: sample.constituent_slug,
+                    items_nested: sample.items?.constituent_slug,
+                    constituents_slug: sample.constituents?.slug,
+                    constituents_nested: sample.constituents?.constituent_slug
+                },
+                full_constituents: sample.constituents,
+                full_items: sample.items
+            }, null, 2));
+        }
+        
+        // Get items for this constituent - try multiple matching strategies
+        const constituentItems = this.grades.items.filter(item => {
+            // Strategy 1: Direct slug matching (static data)
+            const directSlug = item.constituent_slug || item.items?.constituent_slug || item.constituents?.slug || item.constituents?.constituent_slug;
+            
+            // Strategy 2: Match by constituent name (convert to slug format)
+            const constituentName = item.constituents?.name;
+            const nameToSlug = constituentName ? constituentName.toLowerCase().replace(/\s+/g, '-') : null;
+            
+            // Strategy 3: Reverse lookup - find constituent by item_id
+            const foundConstituent = this.constituents.find(c => c.slug === constituent.slug);
+            const nameMatch = constituentName === foundConstituent?.name;
+            
+            const match = directSlug === constituent.slug || nameToSlug === constituent.slug || nameMatch;
+            
+            if (match) {
+                console.log(`MATCH_FOUND: ${constituent.slug} (via direct:${directSlug}, name:${nameToSlug}, nameMatch:${nameMatch})`);
+            }
+            return match;
+        });
+        
+        console.log(`CONSTITUENT_RESULT: ${constituent.slug} = ${constituentItems.length} items`);
+        console.log(`CONSTITUENT_DEBUG_END: ${constituent.slug}`);
+        
+        // Calculate constituent stats
+        const totalItems = constituentItems.length;
+        const submittedItems = constituentItems.filter(item => {
+            return this.submissions.some(sub => sub.item_id === item.item_id);
+        }).length;
+        
+        // Calculate earned points using simple structure
+        let earnedPoints = 0;
+        let totalPoints = 0;
+        constituentItems.forEach(item => {
+            const itemPoints = parseFloat(item.points || 0);
+            totalPoints += itemPoints;
+            
+            const submission = this.submissions.find(sub => sub.item_id === item.item_id);
+            if (submission && submission.raw_score !== null) {
+                earnedPoints += parseFloat(submission.adjusted_score || submission.raw_score || 0);
+            }
+        });
+        
+        const percentage = totalPoints > 0 ? (earnedPoints / totalPoints * 100) : 0;
+        
+        // Render items using correct Edge Function data structure
+        const itemsHtml = constituentItems.map(item => {
+            const submission = this.submissions.find(sub => sub.item_id === item.item_id);
+            const isSubmitted = submission !== undefined;
+            
+            // Handle Edge Function data structure
+            const points = parseFloat(item.max_points || item.items?.points || item.points || 0);
+            const earnedPoints = parseFloat(item.final_score || submission?.adjusted_score || submission?.raw_score || 0);
+            const itemTitle = item.items?.title || item.title || `Item ${item.item_id}`;
+            const filePath = item.items?.file_path || item.file_path || '';
+            const itemPath = filePath || `#${item.item_id}`;
+            
+            return `
+                <div class="item-row ${isSubmitted ? 'submitted' : 'not-submitted'}" onclick="window.navigateToItem('${itemPath}')">
+                    <div class="item-info">
+                        <span class="item-status">${isSubmitted ? '✅' : '⭕'}</span>
+                        <span class="item-title">${itemTitle}</span>
+                    </div>
+                    <div class="item-score">
+                        ${isSubmitted ? 
+                            `<span class="score">${earnedPoints}/${points}</span>` :
+                            `<span class="score pending">--/${points}</span>`
+                        }
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        // Show appropriate message if no items
+        let emptyMessage = '<div class="no-items">No items found</div>';
+        if (constituentItems.length === 0 && this.grades.items.length === 0) {
+            emptyMessage = '<div class="no-items">Items loading...</div>';
+        } else if (constituentItems.length === 0) {
+            emptyMessage = '<div class="no-items">No items defined for this constituent</div>';
+        }
+        
+        return `
+            <div class="constituent-section">
+                <div class="constituent-header">
+                    <span class="constituent-name">📂 ${constituent.name || 'Unknown Constituent'}</span>
+                    <span class="constituent-score">${earnedPoints.toFixed(1)}/${totalPoints} (${percentage.toFixed(0)}%)</span>
+                </div>
+                <div class="items-list">
+                    ${itemsHtml || emptyMessage}
+                </div>
+            </div>
+        `;
+    }
+
+    renderConstituentDetails(constituent) {
+        // SIMPLE DEBUG - Show only the first item structure once
+        if (constituent.slug === 'auth-setup' && this.grades.items.length > 0) {
+            console.log('🐛 STATIC ITEM STRUCTURE:', JSON.stringify(this.grades.items[0], null, 2));
+            console.log('🐛 LOOKING FOR CONSTITUENT SLUG:', constituent.slug);
+        }
+        
+        // Get items for this constituent - try multiple matching strategies
+        let constituentItems = this.grades.items.filter(item => {
+            // Strategy 1: Direct slug matching (static data)
+            const directSlug = item.constituent_slug || item.items?.constituent_slug || item.constituents?.slug || item.constituents?.constituent_slug;
+            
+            // Strategy 2: Match by constituent name (convert to slug format)
+            const constituentName = item.constituents?.name;
+            const nameToSlug = constituentName ? constituentName.toLowerCase().replace(/\s+/g, '-') : null;
+            
+            // Strategy 3: Reverse lookup - find constituent by item_id
+            const foundConstituent = this.constituents.find(c => c.slug === constituent.slug);
+            const nameMatch = constituentName === foundConstituent?.name;
+            
+            return directSlug === constituent.slug || nameToSlug === constituent.slug || nameMatch;
+        });
+        
+        // Calculate constituent stats
+        const totalItems = constituentItems.length;
+        const submittedItems = constituentItems.filter(item => {
+            return this.submissions.some(sub => sub.item_id === item.item_id);
+        }).length;
+        
+        // Calculate earned points - handle both data structures
+        let earnedPoints = 0;
+        let totalPoints = 0;
+        constituentItems.forEach(item => {
+            const itemPoints = parseFloat(item.items?.points || item.points || 0);
+            totalPoints += itemPoints;
+            
+            const submission = this.submissions.find(sub => sub.item_id === item.item_id);
+            if (submission && submission.raw_score !== null) {
+                earnedPoints += parseFloat(submission.adjusted_score || submission.raw_score || 0);
+            }
+        });
+        
+        const percentage = totalPoints > 0 ? (earnedPoints / totalPoints * 100) : 0;
+        
+        const itemsHtml = constituentItems.map(item => {
+            return this.renderItemRow(item);
+        }).join('');
+        
+        // Show different messages based on the situation
+        let emptyMessage = '<div class="no-items">No items found</div>';
+        if (constituentItems.length === 0 && this.grades.items.length === 0) {
+            emptyMessage = '<div class="no-items">Items loading...</div>';
+        } else if (constituentItems.length === 0) {
+            emptyMessage = '<div class="no-items">No items defined for this constituent</div>';
+        }
+        
+        return `
+            <div class="constituent-section">
+                <div class="constituent-header">
+                    <span class="constituent-name">📂 ${constituent.name || 'Unknown Constituent'}</span>
+                    <span class="constituent-score">${earnedPoints.toFixed(1)}/${totalPoints} (${percentage.toFixed(0)}%)</span>
+                </div>
+                <div class="items-list">
+                    ${itemsHtml || emptyMessage}
+                </div>
+            </div>
+        `;
+    }
+
+    renderItemRow(item) {
+        console.log('RENDERITEMROW_CALLED with item_id:', item?.item_id);
+        
+        // Safety check for undefined item
+        if (!item || !item.item_id) {
+            console.error('RENDERITEMROW_ERROR - Invalid item:', item);
+            return '<div class="item-row error">Invalid item data</div>';
+        }
+        
+        const submission = this.submissions.find(sub => sub.item_id === item.item_id);
+        const isSubmitted = submission !== undefined;
+        
+        // DEBUG: Log first item structure
+        if (!window.ITEM_LOGGED) {
+            console.log('ITEMDATA_FULL:', JSON.stringify(item, null, 2));
+            window.ITEM_LOGGED = true;
+        }
+        
+        // Handle both nested and flat data structures - try more paths
+        const points = parseFloat(item.max_points || item.items?.max_points || item.points || item.items?.points || 0);
+        const earnedPoints = parseFloat(item.final_score || 0);
+        const itemTitle = item.items?.title || item.title || `Item ${item.item_id}`;
+        const filePath = item.items?.file_path || item.file_path || '';
+        
+        // Create navigation path
+        const itemPath = filePath || `#${item.item_id}`;
+        
+        return `
+            <div class="item-row ${isSubmitted ? 'submitted' : 'not-submitted'}" onclick="window.navigateToItem('${itemPath}')">
+                <div class="item-info">
+                    <span class="item-status">${isSubmitted ? '✅' : '⭕'}</span>
+                    <span class="item-title">${itemTitle}</span>
+                </div>
+                <div class="item-score">
+                    ${isSubmitted ? 
+                        `<span class="score">${earnedPoints}/${points}</span>` :
+                        `<span class="score pending">--/${points}</span>`
+                    }
+                </div>
+            </div>
+        `;
+    }
+
+    navigateToItem(itemPath) {
+        if (itemPath && itemPath !== '#') {
+            window.location.href = itemPath;
+        }
+    }
+
+    // Module selection for split layout
+    selectModule(moduleId) {
+        console.log('🔍 Module selected:', moduleId);
+        this.selectedModuleId = moduleId;
+        // Re-render the modules tab to update selection and details
+        this.renderModulesTab();
     }
 
     showError(message) {
@@ -1045,4 +1908,24 @@ class StudentGradesInterface {
 }
 
 // Make available globally for the my-grades page
+// Make functions globally available
 window.StudentGradesInterface = StudentGradesInterface;
+
+// Global functions for module expansion
+window.toggleModuleExpansion = function(moduleId) {
+    if (window.studentGradesInstance && window.studentGradesInstance.toggleModuleExpansion) {
+        window.studentGradesInstance.toggleModuleExpansion(moduleId);
+    }
+};
+
+window.navigateToItem = function(itemPath) {
+    if (window.studentGradesInstance && window.studentGradesInstance.navigateToItem) {
+        window.studentGradesInstance.navigateToItem(itemPath);
+    }
+};
+
+window.selectModule = function(moduleId) {
+    if (window.studentGradesInstance && window.studentGradesInstance.selectModule) {
+        window.studentGradesInstance.selectModule(moduleId);
+    }
+};
